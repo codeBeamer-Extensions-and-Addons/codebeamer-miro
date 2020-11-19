@@ -3,7 +3,7 @@ var CB_HEADERS = {
   'Authorization': `Basic YWRtaW46YWRtaW4=`, // admin/admin
   'Content-Type': 'application/json'
 };
-var appId = None
+var appId
 
 miro.onReady(() => {
   appId = miro.getClientId()
