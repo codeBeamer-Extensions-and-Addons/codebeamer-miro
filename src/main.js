@@ -13,7 +13,8 @@ miro.onReady(() => {
     extensionPoints: {
       bottomBar: {
         title: 'Some title',
-        svgIcon: '<circle cx="12" cy="12" r="9" fill="none" fill-rule="evenodd" stroke="currentColor" stroke-width="2"/>',
+        //svgIcon: '<circle cx="12" cy="12" r="9" fill="none" fill-rule="evenodd" stroke="currentColor" stroke-width="2"/>',
+        svgIcon: '<image href="https://max-poprawe.github.io/codebeamer-miro/src/img/codeBeamer-Logo.png"/>',
         onClick: syncWithCodeBeamer,
       }
     }
@@ -179,7 +180,7 @@ function convert2Card(item, appId) {
     : item.tracker.color ? item.tracker.color
       : null
   if (backgroundColor) {
-    cardData.style = {backgroundColor: backgroundColor}
+    cardData.style = { backgroundColor: backgroundColor }
   }
 
   return cardData
