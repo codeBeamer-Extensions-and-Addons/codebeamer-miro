@@ -21,6 +21,7 @@ miro.onReady(() => {
 })
 
 async function syncWithCodeBeamer() {
+  alert("The URL of this page is: " + window.location.href)
   var appId = miro.getClientId()
   const boardApiService = new MiroBoardApiService(appConfig, appId)
 
@@ -150,7 +151,7 @@ function convert2Card(item, appId) {
     description: item.renderedDescription,
     card: {
       logo: {
-        iconUrl: 'https://max-poprawe.github.io/src/codeBeamer-Logo.png'
+        iconUrl: 'https://max-poprawe.github.io/codebeamer-miro/src/img/codeBeamer-Logo-BW.png'
       },
       customFields: [
         {
