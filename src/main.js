@@ -1,3 +1,7 @@
+const images = [
+  {src: 'img/codeBeamer-Logo.png'},
+]
+
 var BASE_PATH = 'http://localhost:8080/cb/api/v3'
 var CB_HEADERS = {
   'Authorization': `Basic YWRtaW46YWRtaW4=`, // admin/admin
