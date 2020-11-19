@@ -1,5 +1,6 @@
-<script src="https://miro.com/app/static/sdk.1.1.js"></script>
-<script src="src/main.js"></script>
+# Miro plugin: codeBeamer integration
 
-# codebeamer-miro
+This is a codeBeamer <-> Miro integration web-plugin to be installed on Miro.
+It allows to import codeBeamer items to a Miro board, displaying any associations between the items.
 
+More info to come! Stay tuned...
