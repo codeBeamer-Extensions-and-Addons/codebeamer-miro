@@ -3,6 +3,9 @@
 This is a codeBeamer <-> Miro integration web-plugin to be installed on Miro.
 It allows to import codeBeamer items to a Miro board, displaying any associations between the items.
 
+The goal is to make this plugin at least as powerful as the [Miro-Jira plugin](https://miro.com/works-with-atlassian/)
+
+
 More info to come! Stay tuned...
 
 
