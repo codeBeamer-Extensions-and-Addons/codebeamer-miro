@@ -1,5 +1,5 @@
 const images = [
-  {src: 'img/codeBeamer-Logo.png'},
+  {src: 'src/img/codeBeamer-Logo.png'},
 ]
 
 var BASE_PATH = 'http://localhost:8080/cb/api/v3'
