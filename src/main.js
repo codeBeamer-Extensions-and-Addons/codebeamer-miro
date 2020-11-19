@@ -48,7 +48,7 @@ async function createUpdateOrDeleteAssociationLines(cbItem) {
   const existingLines = await findLinesByFromCard(cbItem.Card.id)
 
   // delete lines which are no longer present that originate on any of the items synched above
-  letdeletionTask = Promise.all(
+  let deletionTask = Promise.all(
     existingLines.map(
       async line => {
         if (!associations.find(association => line.metadata[appId].id === association.id)) {
