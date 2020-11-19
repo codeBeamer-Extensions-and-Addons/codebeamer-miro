@@ -3,18 +3,15 @@ var CB_HEADERS = {
   'Authorization': `Basic YWRtaW46YWRtaW4=`, // admin/admin
   'Content-Type': 'application/json'
 };
-
-const appConfig = {
-  boardId: 'o9J_leqKY7I=',
-}
+var appId = None
 
 miro.onReady(() => {
+  appId = miro.getClientId()
   miro.initialize({
     extensionPoints: {
       bottomBar: {
-        title: 'Some title',
-        //svgIcon: '<circle cx="12" cy="12" r="9" fill="none" fill-rule="evenodd" stroke="currentColor" stroke-width="2"/>',
-        svgIcon: '<image href="https://max-poprawe.github.io/codebeamer-miro/src/img/cb_icon.png"  height="200" width="200" />',
+        title: 'CodeBeamer Integration',
+        svgIcon: '<circle cx="12" cy="12" r="9" fill="none" fill-rule="evenodd" stroke="currentColor" stroke-width="2"/>',
         onClick: syncWithCodeBeamer,
       }
     }
@@ -22,53 +19,62 @@ miro.onReady(() => {
 })
 
 async function syncWithCodeBeamer() {
-  alert("The URL of this page is: " + window.location.href)
-  var appId = miro.getClientId()
-  const boardApiService = new MiroBoardApiService(appConfig, appId)
-
   await getCodeBeamerItems()
     .then(async cbItems => {
-      let associationsMetaData = []
-      await Promise.all(cbItems.map(async cbItem => {
-        cbItem.tracker = await getCodeBeamerTrackerDetails(cbItem.tracker)
-        cbItem.renderedDescription = //cbItem.description
-          // HTML rendering does not display correctly on Miro - would need to either adapt the rendering or render on our own - codeBeamer specific HTML...  
-          cbItem.descriptionFormat === 'Wiki'
-            ? await getCodeBeamerWiki2Html(cbItem.description, cbItem)
-            : cbItem.description
-        let cardData = convert2Card(cbItem, appId)
-        const fromCard = await boardApiService.createOrUpdateWidget(cardData)
-        return getCodeBeamerOutgoingAssociations(cbItem)
-          .then(associations => associationsMetaData.push({ fromCardId: fromCard.id, associations: associations }))
-      }))
-
-      return Promise.all(associationsMetaData.map(async associationsMetaDataEntry => {
-        const existingLines = await boardApiService.findLinesByFromCard(associationsMetaDataEntry.fromCardId)
-        // delete lines which are no longer present that originate on any of the items synched above
-        deletionTask = Promise.all(existingLines.map(async line => {
-          if (!associationsMetaDataEntry.associations.find(association => line.metadata[appId].id === association.id)) {
-            console.log(`deleting line ${line.id} because the association ${line.metadata[appId].id} does not exist anymore`)
-            return boardApiService.deleteWidget(line)
-          } else return Promise.resolve()
-        }))
-        // add or update lines
-        additionTask = Promise.all(associationsMetaDataEntry.associations.map(async association => {
-          const toCard = await boardApiService.findWidgetByTypeAndMetadataId({ type: 'card', metadata: { [appId]: { id: association.itemRevision.id } } });
-          console.log(`Association ${association.id}: card for codeBeamer ID ${association.itemRevision.id} is: ${toCard ? toCard.id : 'NOT FOUND'}`)
-          if (toCard) {
-            let associationDetails = await getCodeBeamerAccociationDetails(association)
-            console.log(`Association Details: ${JSON.stringify(associationDetails)}`)
-            return boardApiService.createOrUpdateWidget(convert2Line(associationDetails, associationsMetaDataEntry.fromCardId, toCard.id, appId))
-          } else return Promise.resolve()
-        }))
-        return Promise.all([deletionTask, additionTask])
-      }))
+      await Promise.all(cbItems.map(cbItem => createOrUpdateCbItem(cbItem)))
+      await Promise.all(cbItems.map(cbItem => createUpdateOrDeleteAssociationLines(cbItem)))
     })
 
   miro.showNotification('Sync with codeBeamer finished!')
 }
 
+async function enrichBaseCbItemWithDetails(cbItem) {
+  cbItem.tracker = await getCodeBeamerTrackerDetails(cbItem.tracker)
+  cbItem.renderedDescription = cbItem.descriptionFormat === 'Wiki'
+    ? await getCodeBeamerWiki2Html(cbItem.description, cbItem)
+    : cbItem.description
+  return cbItem
+}
 
+async function createOrUpdateCbItem(cbItem) {
+  await enrichBaseCbItemWithDetails(cbItem)
+  let cardData = convert2Card(cbItem)
+  cbItem.Card = await createOrUpdateWidget(cardData)
+  return cbItem
+}
+
+async function createUpdateOrDeleteAssociationLines(cbItem) {
+  let associations = await getCodeBeamerOutgoingAssociations(cbItem)
+  const existingLines = await findLinesByFromCard(cbItem.Card.id)
+
+  // delete lines which are no longer present that originate on any of the items synched above
+  letdeletionTask = Promise.all(
+    existingLines.map(
+      async line => {
+        if (!associations.find(association => line.metadata[appId].id === association.id)) {
+          console.log(`deleting line ${line.id} because the association ${line.metadata[appId].id} does not exist anymore`)
+          await deleteWidget(line)
+        }
+      }
+    )
+  )
+
+  // add or update lines
+  let additionTask = Promise.all(
+    associations.map(
+      async association => {
+        const toCard = await findWidgetByTypeAndMetadataId({ type: 'card', metadata: { [appId]: { id: association.itemRevision.id } } });
+        console.log(`Association ${association.id}: card for codeBeamer ID ${association.itemRevision.id} is: ${toCard ? toCard.id : 'NOT FOUND (item not synced)'}`)
+        if (toCard) {
+          let associationDetails = await getCodeBeamerAccociationDetails(association)
+          await createOrUpdateWidget(convert2Line(associationDetails, cbItem.Card.id, toCard.id))
+        }
+      }
+    )
+  )
+
+  await Promise.all([deletionTask, additionTask])
+}
 
 // ------------------------ CodeBeamer ------------------------------
 
@@ -145,14 +151,14 @@ function findColorFieldOnItem(item) {
   return colorField ? colorField.value : null
 }
 
-function convert2Card(item, appId) {
+function convert2Card(item) {
   let cardData = {
     type: 'card',
     title: `<a href="http://localhost:8080/cb/issue/${item.id}">[${item.tracker.keyName}-${item.id}] - ${item.name}</a>`,
     description: item.renderedDescription,
     card: {
       logo: {
-        iconUrl: 'https://max-poprawe.github.io/codebeamer-miro/src/img/codeBeamer-Logo-BW.png'
+        iconUrl: `${window.location.href}src/img/codeBeamer-Logo-BW.png`
       },
       customFields: [
         {
@@ -221,7 +227,7 @@ function lineStyleByAssociationType(associationDetails) {
   return style
 }
 
-function convert2Line(associationDetails, fromCardId, toCardId, appId) {
+function convert2Line(associationDetails, fromCardId, toCardId) {
   let lineData = {
     type: 'line',
     startWidgetId: fromCardId,
@@ -245,54 +251,48 @@ function convert2Line(associationDetails, fromCardId, toCardId, appId) {
 
 // ------------------------ Miro ------------------------------
 
-class MiroBoardApiService {
-  constructor(miroProperties, appId) {
-    this._miro = miroProperties
-    this.appId = appId
-  }
+async function findWidgetByTypeAndMetadataId(widgetData) {
+  return (
+    (await miro.board.widgets.get({
+      type: widgetData.type,
+    })))
+    .filter((widget) => !!widget.metadata[this.appId])
+    .find((widget) => widget.metadata[this.appId].id === widgetData.metadata[this.appId].id)
+}
 
-  async findWidgetByTypeAndMetadataId(widgetData) {
-    return (
-      (await miro.board.widgets.get({
-        type: widgetData.type,
-      })))
-      .filter((widget) => !!widget.metadata[this.appId])
-      .find((widget) => widget.metadata[this.appId].id === widgetData.metadata[this.appId].id)
-  }
+async function findLinesByFromCard(fromCardId) {
+  return (
+    (await miro.board.widgets.get({
+      type: 'line',
+    })))
+    .filter((line) => line.metadata[this.appId] && line.startWidgetId === fromCardId)
+}
 
-  async findLinesByFromCard(fromCardId) {
-    return (
-      (await miro.board.widgets.get({
-        type: 'line',
-      })))
-      .filter((line) => line.metadata[this.appId] && line.startWidgetId === fromCardId)
-  }
-
-  async createOrUpdateWidget(widgetData) {
-    const existingWidget = await this.findWidgetByTypeAndMetadataId(widgetData);
-    if (existingWidget) {
-      widgetData.id = existingWidget.id
-      return await this.updateWidget(widgetData)
-    } else {
-      return await this.createWidget(widgetData)
-    }
-  }
-
-  async createWidget(widgetData) {
-    let widget = (await miro.board.widgets.create(widgetData))[0]
-    console.log(`${widget.type} widget ${widget.id} has been created to match item ${widget.metadata[this.appId].id}`)
-    return widget
-  }
-
-  async updateWidget(widgetData) {
-    let widget = (await miro.board.widgets.update(widgetData))[0]
-    console.log(`${widget.type} widget ${widget.id} has been updated to match item ${widget.metadata[this.appId].id}`)
-    return widget
-  }
-
-  async deleteWidget(widgetData) {
-    return await miro.board.widgets.deleteById(widgetData)
+async function createOrUpdateWidget(widgetData) {
+  const existingWidget = await this.findWidgetByTypeAndMetadataId(widgetData);
+  if (existingWidget) {
+    widgetData.id = existingWidget.id
+    return await this.updateWidget(widgetData)
+  } else {
+    return await this.createWidget(widgetData)
   }
 }
 
-// ------------------------------------------------------------------
+async function createWidget(widgetData) {
+  let widget = (await miro.board.widgets.create(widgetData))[0]
+  console.log(`${widget.type} widget ${widget.id} has been created to match item ${widget.metadata[this.appId].id}`)
+  return widget
+}
+
+async function updateWidget(widgetData) {
+  let widget = (await miro.board.widgets.update(widgetData))[0]
+  console.log(`${widget.type} widget ${widget.id} has been updated to match item ${widget.metadata[this.appId].id}`)
+  return widget
+}
+
+async function deleteWidget(widgetData) {
+  return await miro.board.widgets.deleteById(widgetData)
+}
+
+
+// -----------------------------------------------------------------
