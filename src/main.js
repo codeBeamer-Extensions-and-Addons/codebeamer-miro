@@ -63,7 +63,10 @@ function isWidgetRepresentingCodeBeamerItem(widget) {
 
 
 async function openInCodeBeamer(selectedWidgets) {
-  selectedWidgets.forEach(widget => window.open(getCodeBeamerItemURL(widget.metadata[appId].id), '_blank'))
+  selectedWidgets.forEach(widget => {
+    console.log(`opening url '${getCodeBeamerItemURL(widget.metadata[appId].id)}'`)
+    window.open(getCodeBeamerItemURL(widget.metadata[appId].id), '_blank')
+  })
 }
 
 
