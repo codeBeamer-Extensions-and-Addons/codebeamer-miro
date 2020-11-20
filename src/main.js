@@ -328,7 +328,7 @@ function convert2CbItem(widget) {
 // ------------------------ Miro ------------------------------
 
 async function getWidgetDetail(widget) {
-  return await miro.board.widgets.get(widget)[0]
+  return (await miro.board.widgets.get(widget))[0]
 }
 
 async function findWidgetByTypeAndMetadataId(widgetData) {
