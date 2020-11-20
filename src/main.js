@@ -27,11 +27,12 @@ miro.onReady(() => {
               svgIcon: UPLOAD_ICON,
               onClick: () => submitNewCodeBeamerItem(selectedWidgets[0]),
             })
+        return menuItems
       },
     }
   })
   onAllWidgetsLoaded(() => {
-    let settingsWidget = CreateOrHideSettingsItem()
+    let settingsWidget = await CreateOrHideSettingsItem()
     console.log(`codebeamer-miro settings are now hidden: ${settingsWidget.id}`)
   })
 })
@@ -162,7 +163,7 @@ async function getSettings() {
   return (await findSettingsWidget()).metadata[appId].settings
 }
 
-async function saveSettings(settings){
+async function saveSettings(settings) {
   let settingsWidget = await findSettingsWidget()
   settingsWidget.metadata[appId].settings = settings
   return await updateWidget(settingsWidget)
