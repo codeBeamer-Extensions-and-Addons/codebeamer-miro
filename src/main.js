@@ -47,7 +47,6 @@ async function syncWithCodeBeamer() {
       await Promise.all(cbItems.map(cbItem => createOrUpdateCbItem(cbItem)))
       await Promise.all(cbItems.map(cbItem => createUpdateOrDeleteAssociationLines(cbItem)))
     })
-
   miro.showNotification('Sync with codeBeamer finished!')
 }
 
@@ -103,6 +102,7 @@ async function submitNewCodeBeamerItem(widget) {
   // generate submission object and submit
   let submissionItem = convert2CbItem(widget)
   let cbItem = await addNewCbItem(submissionItem)
+  await enrichBaseCbItemWithDetails(cbItem)
   // make card data from item
   let cardData = convert2Card(cbItem)
   // set id to existing widget to overwrite it and update
