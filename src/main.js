@@ -16,21 +16,24 @@ miro.onReady(() => {
         onClick: syncWithCodeBeamer,
       },
       getWidgetMenuItems: function (selectedWidgets) {
-        const firstWidget = selectedWidgets[0];
-        if (!isWidgetConvertable(firstWidget))
-          return [];
-        return [
-          {
-            tooltip: "Convert to codeBeamer Item",
-            svgIcon:
-              '<circle cx="12" cy="12" r="9" fill="none" fill-rule="evenodd" stroke="currentColor" stroke-width="2"/>',
-            onClick: () => submitNewCodeBeamerItem(firstWidget),
-          },
-        ];
+        if (isSelectionConvertable(selectedWidgets))
+          return [
+            {
+              tooltip: "Convert to codeBeamer Item",
+              svgIcon:
+                '<circle cx="12" cy="12" r="9" fill="none" fill-rule="evenodd" stroke="currentColor" stroke-width="2"/>',
+              onClick: () => submitNewCodeBeamerItem(selectedWidgets[0]),
+            },
+          ];
       },
     }
   })
 })
+
+function isSelectionConvertable(selectedWidgets) {
+  // only single selection supported
+  return selectedWidgets.length === 1 && isWidgetConvertable(selectedWidgets[0])
+}
 
 function isWidgetConvertable(widget) {
   let supportedWidgetTypes = ['STICKER', 'CARD', 'TEXT', 'SHAPE']
