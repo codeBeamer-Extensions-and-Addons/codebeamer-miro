@@ -304,8 +304,6 @@ function convert2CbItem(widget) {
       break;
     case 'SHAPE':
     case 'STICKER':
-      item.name = widget.plainText
-      break;
     case 'TEXT':
       item.name = widget.text
       break;
