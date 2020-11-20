@@ -52,6 +52,7 @@ function isSelectionConvertable(selectedWidgets) {
 }
 
 function isWidgetConvertable(widget) {
+  widget = await getWidgetDetail({ id: widget.id }) // read item from API -> will be empty when item is still in draft
   let supportedWidgetTypes = ['STICKER', 'CARD', 'TEXT', 'SHAPE']
   return (!widget.metadata || !widget.metadata[appId]) // only allow items NOT created by this plugin
     && supportedWidgetTypes.includes(widget.type) // only allow supported types
