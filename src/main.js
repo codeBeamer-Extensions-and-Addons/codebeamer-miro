@@ -297,6 +297,7 @@ function convert2CbItem(widget) {
     name: "New Item",
     description: "--"
   }
+  console.log(JSON.stringify(item))
   switch (widget.type) {
     case 'CARD':
       item.name = widget.title
@@ -304,12 +305,15 @@ function convert2CbItem(widget) {
       break;
     case 'SHAPE':
     case 'STICKER':
+      item.name = widget.plainText
+      break;
     case 'TEXT':
       item.name = widget.text
       break;
     default:
       throw `Widget type '${widget.type}' not supported`
   }
+  console.log(JSON.stringify(item))
   return item
 }
 
