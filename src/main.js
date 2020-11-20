@@ -1,4 +1,4 @@
-var BASE_PATH = 'http://localhost:8080/cb/api/v3'
+var CB_BASE_PATH = 'http://localhost:8080/cb/api/v3'
 var INBOX_TRACKER_ID = 13413
 var CB_HEADERS = {
   'Authorization': `Basic YWRtaW46YWRtaW4=`, // admin/admin
@@ -30,7 +30,20 @@ miro.onReady(() => {
       },
     }
   })
+  onAllWidgetsLoaded(() => {
+    let settingsWidget = CreateOrHideSettingsItem()
+    console.log(`codebeamer-miro settings are now hidden: ${settingsWidget.id}`)
+  })
 })
+
+async function onAllWidgetsLoaded(callback) {
+  const areAllWidgetsLoaded = await miro.board.widgets.areAllWidgetsLoaded()
+  if (areAllWidgetsLoaded) {
+    callback()
+  } else {
+    miro.addListener('ALL_WIDGETS_LOADED', callback)
+  }
+}
 
 function isSelectionConvertable(selectedWidgets) {
   // only single selection supported
@@ -117,13 +130,52 @@ async function submitNewCodeBeamerItem(widget) {
 }
 
 
+// ------------------------ Settings ------------------------------
 
+// call in on All widgets Loaded
+async function CreateOrHideSettingsItem() {
+  let settingsWidget = await findSettingsWidget()
+  if (settingsWidget) {
+    // hide settings
+    settingsWidget.clientVisible = false
+    await updateWidget(settingsWidget)
+  } else {
+    settingsWidget = await createWidget({
+      type: 'SHAPE',
+      clientVisible = false,
+      metadata: {
+        [appId]: {
+          settings: {
+            cbBasePath: '',
+            cbUser: '',
+            cbAuth: '',
+            cbInboxTracker: '',
+          },
+        },
+      },
+    })
+  }
+  return settingsWidget
+}
+
+async function getSettings() {
+  return (await findSettingsWidget()).metadata[appId].settings
+}
+
+async function saveSettings(settings){
+  let settingsWidget = await findSettingsWidget()
+  settingsWidget.metadata[appId].settings = settings
+  return await updateWidget(settingsWidget)
+}
+
+
+// ------------------------------------------------------------------
 
 // ------------------------ CodeBeamer ------------------------------
 
 async function getCodeBeamerItems() {
   try {
-    const cbItems = await fetch(`${BASE_PATH}/items/query?page=1&pageSize=500&queryString=tracker.id%20IN%20%2813413%29`, {
+    const cbItems = await fetch(`${CB_BASE_PATH}/items/query?page=1&pageSize=500&queryString=tracker.id%20IN%20%2813413%29`, {
       //const cbItems = await fetch(`${BASE_PATH}/trackers/13413/items?page=1&pageSize=500`, {
       method: 'GET',
       headers: CB_HEADERS,
@@ -137,7 +189,7 @@ async function getCodeBeamerItems() {
 
 // not needed if we use query directly (details are already there)
 async function getCodeBeamerItemDetails(item) {
-  return await fetch(`${BASE_PATH}/items/${item.id}`, {
+  return await fetch(`${CB_BASE_PATH}/items/${item.id}`, {
     method: 'GET',
     headers: CB_HEADERS,
   })
@@ -151,7 +203,7 @@ async function getCodeBeamerWiki2Html(markup, trackerItem) {
     renderingContextType: "TRACKER_ITEM",
     markup: markup
   }
-  return await fetch(`${BASE_PATH}/projects/${trackerItem.tracker.project.id}/wiki2html`, {
+  return await fetch(`${CB_BASE_PATH}/projects/${trackerItem.tracker.project.id}/wiki2html`, {
     method: 'POST',
     headers: CB_HEADERS,
     body: JSON.stringify(body),
@@ -160,7 +212,7 @@ async function getCodeBeamerWiki2Html(markup, trackerItem) {
 }
 
 async function getCodeBeamerTrackerDetails(tracker) {
-  return await fetch(`${BASE_PATH}/trackers/${tracker.id}`, {
+  return await fetch(`${CB_BASE_PATH}/trackers/${tracker.id}`, {
     method: 'GET',
     headers: CB_HEADERS,
   })
@@ -168,7 +220,7 @@ async function getCodeBeamerTrackerDetails(tracker) {
 }
 
 async function getCodeBeamerOutgoingAssociations(item) {
-  const itemRelations = await fetch(`${BASE_PATH}/items/${item.id}/relations`, {
+  const itemRelations = await fetch(`${CB_BASE_PATH}/items/${item.id}/relations`, {
     method: 'GET',
     headers: CB_HEADERS,
   })
@@ -177,7 +229,7 @@ async function getCodeBeamerOutgoingAssociations(item) {
 }
 
 async function getCodeBeamerAccociationDetails(association) {
-  return await fetch(`${BASE_PATH}/associations/${association.id}`, {
+  return await fetch(`${CB_BASE_PATH}/associations/${association.id}`, {
     method: 'GET',
     headers: CB_HEADERS,
   })
@@ -185,7 +237,7 @@ async function getCodeBeamerAccociationDetails(association) {
 }
 
 async function addNewCbItem(item) {
-  return await fetch(`${BASE_PATH}/trackers/${INBOX_TRACKER_ID}/items`, {
+  return await fetch(`${CB_BASE_PATH}/trackers/${INBOX_TRACKER_ID}/items`, {
     method: 'POST',
     headers: CB_HEADERS,
     body: JSON.stringify(item),
@@ -354,8 +406,17 @@ async function findWidgetByTypeAndMetadataId(widgetData) {
     (await miro.board.widgets.get({
       type: widgetData.type,
     })))
-    .filter((widget) => !!widget.metadata[this.appId])
-    .find((widget) => widget.metadata[this.appId].id === widgetData.metadata[this.appId].id)
+    .filter(widget => !!widget.metadata[this.appId])
+    .find(widget => widget.metadata[this.appId].id === widgetData.metadata[this.appId].id)
+}
+
+async function findSettingsWidget() {
+  return (
+    (await miro.board.widgets.get({
+      type: 'SHAPE',
+    })))
+    .filter(widget => !!widget.metadata[this.appId])
+    .find(widget => !!widget.metadata[this.appId].settings)
 }
 
 async function findLinesByFromCard(fromCardId) {
@@ -363,7 +424,7 @@ async function findLinesByFromCard(fromCardId) {
     (await miro.board.widgets.get({
       type: 'LINE',
     })))
-    .filter((line) => line.metadata[this.appId] && line.startWidgetId === fromCardId)
+    .filter(line => line.metadata[this.appId] && line.startWidgetId === fromCardId)
 }
 
 async function createOrUpdateWidget(widgetData) {
@@ -384,7 +445,8 @@ async function createWidget(widgetData) {
 
 async function updateWidget(widgetData) {
   let widget = (await miro.board.widgets.update(widgetData))[0]
-  console.log(`${widget.type} widget ${widget.id} has been updated to match item ${widget.metadata[this.appId].id}`)
+  let itemId = widget.metadata[this.appId].id
+  console.log(`${widget.type} widget ${widget.id} has been updated to match item ${itemId ? itemId : 'the settings'}`)
   return widget
 }
 
