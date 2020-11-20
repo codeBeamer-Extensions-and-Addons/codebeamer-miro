@@ -1,4 +1,5 @@
 var BASE_PATH = 'http://localhost:8080/cb/api/v3'
+var INBOX_TRACKER_ID = 13413
 var CB_HEADERS = {
   'Authorization': `Basic YWRtaW46YWRtaW4=`, // admin/admin
   'Content-Type': 'application/json'
@@ -13,7 +14,24 @@ miro.onReady(() => {
         title: 'CodeBeamer Integration',
         svgIcon: '<circle cx="12" cy="12" r="9" fill="none" fill-rule="evenodd" stroke="currentColor" stroke-width="2"/>',
         onClick: syncWithCodeBeamer,
-      }
+      },
+      getWidgetMenuItems: function (selectedWidgets) {
+        const firstWidget = selectedWidgets[0];
+        let supportedWidgetTypes = ['STICKER', 'CARD', 'TEXT', 'SHAPE']
+        if (selectedWidgets.length > 1 // only allow if a single widget is selected
+          || firstWidget.metadata[appId].id // do not allow if already a cbItem
+          || !supportedWidgetTypes.includes(firstWidget.type)) // only allow supported types
+          return [];
+
+        return [
+          {
+            tooltip: "Convert to codeBeamer Item",
+            svgIcon:
+              '<circle cx="12" cy="12" r="9" fill="none" fill-rule="evenodd" stroke="currentColor" stroke-width="2"/>',
+            onClick: () => submitNewCodeBeamerItem(firstWidget),
+          },
+        ];
+      },
     }
   })
 })
@@ -63,7 +81,7 @@ async function createUpdateOrDeleteAssociationLines(cbItem) {
   let additionTask = Promise.all(
     associations.map(
       async association => {
-        const toCard = await findWidgetByTypeAndMetadataId({ type: 'card', metadata: { [appId]: { id: association.itemRevision.id } } });
+        const toCard = await findWidgetByTypeAndMetadataId({ type: 'CARD', metadata: { [appId]: { id: association.itemRevision.id } } });
         console.log(`Association ${association.id}: card for codeBeamer ID ${association.itemRevision.id} is: ${toCard ? toCard.id : 'NOT FOUND (item not synced)'}`)
         if (toCard) {
           let associationDetails = await getCodeBeamerAccociationDetails(association)
@@ -75,6 +93,20 @@ async function createUpdateOrDeleteAssociationLines(cbItem) {
 
   await Promise.all([deletionTask, additionTask])
 }
+
+async function submitNewCodeBeamerItem(widget) {
+  // generate submission object and submit
+  let item = convert2CbItem(widget)
+  let cbItem = await addNewCbItem(item)
+  // make card data from item
+  let cardData = convert2Card(cbItem)
+  // update widget
+  cbItem.Card = await createOrUpdateWidget(cardData)
+
+  // no need to sync associations as the item was just created. Need to change if we add ability to link from miro
+}
+
+
 
 // ------------------------ CodeBeamer ------------------------------
 
@@ -141,6 +173,14 @@ async function getCodeBeamerAccociationDetails(association) {
     .then(res => res.json())
 }
 
+async function addNewCbItem(item) {
+  return await fetch(`${BASE_PATH}/trackers/${INBOX_TRACKER_ID}/items`, {
+    method: 'POST',
+    headers: CB_HEADERS,
+  })
+    .then(res => res.json())
+}
+
 // ------------------------------------------------------------------
 
 
@@ -153,7 +193,7 @@ function findColorFieldOnItem(item) {
 
 function convert2Card(item) {
   let cardData = {
-    type: 'card',
+    type: 'CARD',
     title: `<a href="http://localhost:8080/cb/issue/${item.id}">[${item.tracker.keyName}-${item.id}] - ${item.name}</a>`,
     description: item.renderedDescription,
     card: {
@@ -229,7 +269,7 @@ function lineStyleByAssociationType(associationDetails) {
 
 function convert2Line(associationDetails, fromCardId, toCardId) {
   let lineData = {
-    type: 'line',
+    type: 'LINE',
     startWidgetId: fromCardId,
     endWidgetId: toCardId,
     style: lineStyleByAssociationType(associationDetails),
@@ -243,6 +283,26 @@ function convert2Line(associationDetails, fromCardId, toCardId) {
     },
   }
   return lineData
+}
+
+function convert2CbItem(widget) {
+  let item = {}
+  switch (widget.type) {
+    case 'CARD':
+      item.name = widget.title
+      item.description = widget.description
+      break;
+    case 'SHAPE':
+    case 'STICKER':
+      item.name = widget.plainText
+      break;
+    case 'TEXT':
+      item.name = widget.text
+      break;
+    default:
+      throw `Widget type '${widget.type}' not supported`
+  }
+  return item
 }
 
 // ------------------------------------------------------------------
@@ -263,7 +323,7 @@ async function findWidgetByTypeAndMetadataId(widgetData) {
 async function findLinesByFromCard(fromCardId) {
   return (
     (await miro.board.widgets.get({
-      type: 'line',
+      type: 'LINE',
     })))
     .filter((line) => line.metadata[this.appId] && line.startWidgetId === fromCardId)
 }
