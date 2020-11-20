@@ -9,6 +9,10 @@ The goal is to make this plugin at least as powerful as the [Miro-Jira plugin](h
 More info to come! Stay tuned...
 
 
+# Contribute
+At the moment, the best way to contribute is to fork the repo into your own so that you can use separate github pages to develop. When you are done, just send a pull request.
+After #7, we can develop locally on branches.
+
 # How to Install and Use
 We are not yet on the Miro Marketplace - we will submit once we are happy with the state of the project
 

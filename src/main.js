@@ -448,7 +448,7 @@ async function createWidget(widgetData) {
 async function updateWidget(widgetData) {
   let widget = (await miro.board.widgets.update(widgetData))[0]
   let itemId = widget.metadata[this.appId].id
-  console.log(`${widget.type} widget ${widget.id} has been updated to match item ${itemId ? itemId : 'the settings'}`)
+  console.log(`${widget.type} widget ${widget.id} has been updated to match item ${itemId ? itemId : '<the settings>'}`)
   return widget
 }
 
