@@ -99,6 +99,8 @@ async function createUpdateOrDeleteAssociationLines(cbItem) {
 }
 
 async function submitNewCodeBeamerItem(widget) {
+  // get widget with all meta data (the selected one only has the general widget properties, but is lacking the type specifcs)
+  widget = getWidgetDetail(widget)
   // generate submission object and submit
   let submissionItem = convert2CbItem(widget)
   let cbItem = await addNewCbItem(submissionItem)
@@ -297,18 +299,21 @@ function convert2CbItem(widget) {
     name: "New Item",
     description: "--"
   }
-  console.log(JSON.stringify(widget))
   switch (widget.type) {
     case 'CARD':
-      item.name = widget.title
-      item.description = widget.description
+      if (widget.title)
+        item.name = widget.title
+      if (widget.description)
+        item.description = widget.description
       break;
     case 'SHAPE':
     case 'STICKER':
-      item.name = widget.plainText
+      if (widget.plainText)
+        item.name = widget.plainText
       break;
     case 'TEXT':
-      item.name = widget.text
+      if (widget.text)
+        item.name = widget.text
       break;
     default:
       throw `Widget type '${widget.type}' not supported`
@@ -321,6 +326,10 @@ function convert2CbItem(widget) {
 
 
 // ------------------------ Miro ------------------------------
+
+async function getWidgetDetail(widget) {
+  return await miro.board.widgets.get(widget)
+}
 
 async function findWidgetByTypeAndMetadataId(widgetData) {
   return (
