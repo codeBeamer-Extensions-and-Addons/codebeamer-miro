@@ -18,9 +18,9 @@ miro.onReady(() => {
         svgIcon: '<circle cx="12" cy="12" r="9" fill="none" fill-rule="evenodd" stroke="currentColor" stroke-width="2"/>',
         onClick: syncWithCodeBeamer,
       },
-      getWidgetMenuItems: async function (selectedWidgets) {
+      getWidgetMenuItems: function (selectedWidgets) {
         var menuItems = []
-        if (await isSelectionConvertable(selectedWidgets))
+        if (isSelectionConvertable(selectedWidgets))
           menuItems.push(
             {
               tooltip: "Convert to codeBeamer Item",
@@ -46,13 +46,12 @@ async function onAllWidgetsLoaded(callback) {
   }
 }
 
-async function isSelectionConvertable(selectedWidgets) {
+function isSelectionConvertable(selectedWidgets) {
   // only single selection supported
-  return selectedWidgets.length === 1 && (await isWidgetConvertable(selectedWidgets[0]))
+  return selectedWidgets.length === 1 && (isWidgetConvertable(selectedWidgets[0]))
 }
 
-async function isWidgetConvertable(widget) {
-  widget = await getWidgetDetail({ id: widget.id }) // read item from API -> will be empty when item is still in draft
+function isWidgetConvertable(widget) {
   let supportedWidgetTypes = ['STICKER', 'CARD', 'TEXT', 'SHAPE']
   return (!widget.metadata || !widget.metadata[appId]) // only allow items NOT created by this plugin
     && supportedWidgetTypes.includes(widget.type) // only allow supported types
@@ -144,6 +143,7 @@ async function CreateOrHideSettingsItem() {
   } else {
     settingsWidget = await createWidget({
       type: 'SHAPE',
+      text: 'codeBeamer-miro Settings. You should not be able to see this!',
       clientVisible: false,
       metadata: {
         [appId]: {
