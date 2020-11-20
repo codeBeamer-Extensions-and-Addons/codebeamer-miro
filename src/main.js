@@ -7,6 +7,8 @@ var CB_HEADERS = {
 var appId
 
 const NEWPOS = "NEWPOS"
+const OPEN_ITEM_ICON = require('src/img/open-item.svg')
+const UPLOAD_ICON = require('src/img/upload-to-codebeamer.svg')
 
 miro.onReady(() => {
   appId = miro.getClientId()
@@ -18,16 +20,22 @@ miro.onReady(() => {
         onClick: syncWithCodeBeamer,
       },
       getWidgetMenuItems: function (selectedWidgets) {
+        var menuItems = []
         if (isSelectionConvertable(selectedWidgets))
-          return [
+          menuItems.push(
             {
               tooltip: "Convert to codeBeamer Item",
-              svgIcon:
-                '<circle cx="12" cy="12" r="9" fill="none" fill-rule="evenodd" stroke="currentColor" stroke-width="2"/>',
+              svgIcon: UPLOAD_ICON,
               onClick: () => submitNewCodeBeamerItem(selectedWidgets[0]),
-            },
-          ];
-        return []
+            })
+        if (isSelectionOpenable(selectedWidgets))
+          menuItems.push(
+            {
+              tooltip: "Open in CodeBeamer",
+              svgIcon: OPEN_ITEM_ICON,
+              onClick: () => openInCodeBeamer(selectedWidgets),
+            })
+        return menuItems
       },
     }
   })
@@ -43,6 +51,21 @@ function isWidgetConvertable(widget) {
   return (!widget.metadata || !widget.metadata[appId]) // only allow items NOT created by this plugin
     && supportedWidgetTypes.includes(widget.type) // only allow supported types
 }
+
+function isSelectionOpenable(selectedWidgets) {
+  // only single selection supported
+  return !selectedWidgets.some(widget => !isWidgetRepresentingCodeBeamerItem(widget))
+}
+
+function isWidgetRepresentingCodeBeamerItem(widget) {
+  return widget.metadata && widget.metadata[appId] && widget.metadata[appId].id
+}
+
+
+async function openInCodeBeamer(selectedWidgets) {
+  selectedWidgets.forEach(widget => window.open(getCodeBeamerItemURL(widget.metadata[appId].id), '_blank'))
+}
+
 
 async function syncWithCodeBeamer() {
   await getCodeBeamerItems()
@@ -64,13 +87,13 @@ async function enrichBaseCbItemWithDetails(cbItem) {
 async function createOrUpdateCbItem(cbItem) {
   await enrichBaseCbItemWithDetails(cbItem)
   let cardData = convert2Card(cbItem)
-  cbItem.Card = await createOrUpdateWidget(cardData)
+  cbItem.card = await createOrUpdateWidget(cardData)
   return cbItem
 }
 
 async function createUpdateOrDeleteAssociationLines(cbItem) {
   let associations = await getCodeBeamerOutgoingAssociations(cbItem)
-  const existingLines = await findLinesByFromCard(cbItem.Card.id)
+  const existingLines = await findLinesByFromCard(cbItem.card.id)
 
   // delete lines which are no longer present that originate on any of the items synched above
   let deletionTask = Promise.all(
@@ -92,7 +115,7 @@ async function createUpdateOrDeleteAssociationLines(cbItem) {
         console.log(`Association ${association.id}: card for codeBeamer ID ${association.itemRevision.id} is: ${toCard ? toCard.id : 'NOT FOUND (item not synced)'}`)
         if (toCard) {
           let associationDetails = await getCodeBeamerAccociationDetails(association)
-          await createOrUpdateWidget(convert2Line(associationDetails, cbItem.Card.id, toCard.id))
+          await createOrUpdateWidget(convert2Line(associationDetails, cbItem.card.id, toCard.id))
         }
       }
     )
@@ -110,8 +133,8 @@ async function submitNewCodeBeamerItem(widget) {
   // create new item in same position as old one
   cbItem[NEWPOS] = { x: widget.x, y: widget.y }
   deleteWidget(widget) // dont wait
-  let newCard = await createOrUpdateCbItem(cbItem)
-  miro.board.selection.selectWidgets({ id: newCard.id })
+  await createOrUpdateCbItem(cbItem)
+  miro.board.selection.selectWidgets({ id: cbItem.card.id })
   // delete old widget
 
   // no need to sync associations as the item was just created. Need to change if we add ability to link from miro
@@ -194,6 +217,10 @@ async function addNewCbItem(item) {
     .then(res => res.json())
 }
 
+function getCodeBeamerItemURL(id) {
+  return `http://localhost:8080/cb/issue/${id}`
+}
+
 // ------------------------------------------------------------------
 
 
@@ -207,7 +234,7 @@ function findColorFieldOnItem(item) {
 function convert2Card(item) {
   let cardData = {
     type: 'CARD',
-    title: `<a href="http://localhost:8080/cb/issue/${item.id}">[${item.tracker.keyName}-${item.id}] - ${item.name}</a>`,
+    title: `<a href="${getCodeBeamerItemURL(item.id)}">[${item.tracker.keyName}-${item.id}] - ${item.name}</a>`,
     description: item.renderedDescription,
     card: {
       logo: {
