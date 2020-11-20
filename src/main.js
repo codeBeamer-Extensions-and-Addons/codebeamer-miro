@@ -6,6 +6,8 @@ var CB_HEADERS = {
 };
 var appId
 
+const NEWPOS = "NEWPOS"
+
 miro.onReady(() => {
   appId = miro.getClientId()
   miro.initialize({
@@ -101,23 +103,15 @@ async function createUpdateOrDeleteAssociationLines(cbItem) {
 
 async function submitNewCodeBeamerItem(widget) {
   // get widget with all meta data (the selected one only has the general widget properties, but is lacking the type specifcs)
-  console.log(`widget before: ${JSON.stringify(widget)}`)
   widget = await getWidgetDetail({ id: widget.id })
-  console.log(`widget after: ${JSON.stringify(widget)}`)
   // generate submission object and submit
   let submissionItem = convert2CbItem(widget)
-  console.log(`submissionItem: ${JSON.stringify(submissionItem)}`)
   let cbItem = await addNewCbItem(submissionItem)
-  console.log(`cbItem before: ${JSON.stringify(cbItem)}`)
-  await enrichBaseCbItemWithDetails(cbItem)
-  console.log(`cbItem after: ${JSON.stringify(cbItem)}`)
-  // make card data from item
-  let cardData = convert2Card(cbItem)
-  console.log(`cardData: ${JSON.stringify(cardData)}`)
-  // set id to existing widget to overwrite it and update
-  cardData.id = widget.id
-  cbItem.Card = await update(cardData)
-  console.log(`cbItem.Card : ${JSON.stringify(cbItem.Card)}`)
+  // create new item in same position as old one
+  item[NEWPOS] = {x: widget.x, y: widget.y}
+  await createOrUpdateCbItem(cbItem)
+  // delete old widget
+  await deleteWidget(widget)
 
   // no need to sync associations as the item was just created. Need to change if we add ability to link from miro
 }
@@ -245,6 +239,11 @@ function convert2Card(item) {
       : null
   if (backgroundColor) {
     cardData.style = { backgroundColor: backgroundColor }
+  }
+
+  if (item[NEWPOS]) {
+    cardData.x = item[NEWPOS].x
+    cardData.y = item[NEWPOS].y
   }
 
   return cardData
