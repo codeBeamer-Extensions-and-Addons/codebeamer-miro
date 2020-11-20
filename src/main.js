@@ -25,6 +25,7 @@ miro.onReady(() => {
               onClick: () => submitNewCodeBeamerItem(selectedWidgets[0]),
             },
           ];
+        return []
       },
     }
   })
@@ -109,7 +110,7 @@ async function submitNewCodeBeamerItem(widget) {
   let cardData = convert2Card(cbItem)
   // set id to existing widget to overwrite it and update
   cardData.id = widget.id
-  cbItem.Card = await createOrUpdateWidget(cardData)
+  cbItem.Card = await updateWidget(cardData)
 
   // no need to sync associations as the item was just created. Need to change if we add ability to link from miro
 }
