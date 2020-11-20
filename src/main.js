@@ -293,7 +293,10 @@ function convert2Line(associationDetails, fromCardId, toCardId) {
 }
 
 function convert2CbItem(widget) {
-  let item = {}
+  let item = {
+    name: "New Item",
+    description: "--"
+  }
   switch (widget.type) {
     case 'CARD':
       item.name = widget.title
