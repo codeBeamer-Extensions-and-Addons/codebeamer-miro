@@ -37,9 +37,8 @@ function isSelectionConvertable(selectedWidgets) {
 
 function isWidgetConvertable(widget) {
   let supportedWidgetTypes = ['STICKER', 'CARD', 'TEXT', 'SHAPE']
-  return selectedWidgets.length === 1 // only allow if a single widget is selected
-    && (!firstWidget.metadata || !firstWidget.metadata[appId]) // only allow items NOT created by this plugin
-    && supportedWidgetTypes.includes(firstWidget.type) // only allow supported types
+  return (!widget.metadata || !widget.metadata[appId]) // only allow items NOT created by this plugin
+    && supportedWidgetTypes.includes(widget.type) // only allow supported types
 }
 
 async function syncWithCodeBeamer() {
