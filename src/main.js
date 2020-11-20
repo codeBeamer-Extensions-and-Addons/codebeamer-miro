@@ -142,7 +142,7 @@ async function CreateOrHideSettingsItem() {
   } else {
     settingsWidget = await createWidget({
       type: 'SHAPE',
-      clientVisible = false,
+      clientVisible: false,
       metadata: {
         [appId]: {
           settings: {
