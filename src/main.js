@@ -108,10 +108,11 @@ async function submitNewCodeBeamerItem(widget) {
   let submissionItem = convert2CbItem(widget)
   let cbItem = await addNewCbItem(submissionItem)
   // create new item in same position as old one
-  cbItem[NEWPOS] = {x: widget.x, y: widget.y}
-  await createOrUpdateCbItem(cbItem)
+  cbItem[NEWPOS] = { x: widget.x, y: widget.y }
+  deleteWidget(widget) // dont wait
+  let newCard = await createOrUpdateCbItem(cbItem)
+  miro.board.selection.selectWidgets({ id: newCard.id })
   // delete old widget
-  await deleteWidget(widget)
 
   // no need to sync associations as the item was just created. Need to change if we add ability to link from miro
 }
@@ -302,7 +303,7 @@ function convert2Line(associationDetails, fromCardId, toCardId) {
   return lineData
 }
 
-function strip(html){
+function strip(html) {
   let doc = new DOMParser().parseFromString(html, 'text/html');
   return doc.body.textContent;
 }
