@@ -183,6 +183,7 @@ async function addNewCbItem(item) {
   return await fetch(`${BASE_PATH}/trackers/${INBOX_TRACKER_ID}/items`, {
     method: 'POST',
     headers: CB_HEADERS,
+    body: JSON.stringify(item),
   })
     .then(res => res.json())
 }
