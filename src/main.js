@@ -108,7 +108,7 @@ async function submitNewCodeBeamerItem(widget) {
   let submissionItem = convert2CbItem(widget)
   let cbItem = await addNewCbItem(submissionItem)
   // create new item in same position as old one
-  item[NEWPOS] = {x: widget.x, y: widget.y}
+  cbItem[NEWPOS] = {x: widget.x, y: widget.y}
   await createOrUpdateCbItem(cbItem)
   // delete old widget
   await deleteWidget(widget)
