@@ -31,7 +31,7 @@ miro.onReady(() => {
       },
     }
   })
-  onAllWidgetsLoaded(() => {
+  onAllWidgetsLoaded(async () => {
     let settingsWidget = await CreateOrHideSettingsItem()
     console.log(`codebeamer-miro settings are now hidden: ${settingsWidget.id}`)
   })
