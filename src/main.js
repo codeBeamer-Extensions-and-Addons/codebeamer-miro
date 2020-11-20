@@ -297,7 +297,7 @@ function convert2CbItem(widget) {
     name: "New Item",
     description: "--"
   }
-  console.log(JSON.stringify(item))
+  console.log(JSON.stringify(widget))
   switch (widget.type) {
     case 'CARD':
       item.name = widget.title
@@ -313,7 +313,6 @@ function convert2CbItem(widget) {
     default:
       throw `Widget type '${widget.type}' not supported`
   }
-  console.log(JSON.stringify(item))
   return item
 }
 
