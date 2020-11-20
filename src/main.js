@@ -17,12 +17,8 @@ miro.onReady(() => {
       },
       getWidgetMenuItems: function (selectedWidgets) {
         const firstWidget = selectedWidgets[0];
-        let supportedWidgetTypes = ['STICKER', 'CARD', 'TEXT', 'SHAPE']
-        if (selectedWidgets.length > 1 // only allow if a single widget is selected
-          || firstWidget.metadata[appId].id // do not allow if already a cbItem
-          || !supportedWidgetTypes.includes(firstWidget.type)) // only allow supported types
+        if (!isWidgetConvertable(firstWidget))
           return [];
-
         return [
           {
             tooltip: "Convert to codeBeamer Item",
@@ -35,6 +31,13 @@ miro.onReady(() => {
     }
   })
 })
+
+function isWidgetConvertable(widget) {
+  let supportedWidgetTypes = ['STICKER', 'CARD', 'TEXT', 'SHAPE']
+  return selectedWidgets.length === 1 // only allow if a single widget is selected
+    && (!firstWidget.metadata || !firstWidget.metadata[appId]) // only allow items NOT created by this plugin
+    && supportedWidgetTypes.includes(firstWidget.type) // only allow supported types
+}
 
 async function syncWithCodeBeamer() {
   await getCodeBeamerItems()
@@ -96,11 +99,12 @@ async function createUpdateOrDeleteAssociationLines(cbItem) {
 
 async function submitNewCodeBeamerItem(widget) {
   // generate submission object and submit
-  let item = convert2CbItem(widget)
-  let cbItem = await addNewCbItem(item)
+  let submissionItem = convert2CbItem(widget)
+  let cbItem = await addNewCbItem(submissionItem)
   // make card data from item
   let cardData = convert2Card(cbItem)
-  // update widget
+  // set id to existing widget to overwrite it and update
+  cardData.id = widget.id
   cbItem.Card = await createOrUpdateWidget(cardData)
 
   // no need to sync associations as the item was just created. Need to change if we add ability to link from miro
