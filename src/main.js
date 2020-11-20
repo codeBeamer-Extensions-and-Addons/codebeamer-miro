@@ -302,6 +302,11 @@ function convert2Line(associationDetails, fromCardId, toCardId) {
   return lineData
 }
 
+function strip(html){
+  let doc = new DOMParser().parseFromString(html, 'text/html');
+  return doc.body.textContent;
+}
+
 function convert2CbItem(widget) {
   let item = {
     name: "New Item",
@@ -309,8 +314,9 @@ function convert2CbItem(widget) {
   }
   switch (widget.type) {
     case 'CARD':
-      if (widget.title)
-        item.name = widget.title
+      nameNoHtml = strip(widget.title)
+      if (nameNoHtml)
+        item.name = nameNoHtml
       if (widget.description)
         item.description = widget.description
       break;
