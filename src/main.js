@@ -100,7 +100,7 @@ async function createUpdateOrDeleteAssociationLines(cbItem) {
 
 async function submitNewCodeBeamerItem(widget) {
   // get widget with all meta data (the selected one only has the general widget properties, but is lacking the type specifcs)
-  widget = getWidgetDetail(widget)
+  widget = getWidgetDetail({ id: widget.id })
   // generate submission object and submit
   let submissionItem = convert2CbItem(widget)
   let cbItem = await addNewCbItem(submissionItem)
