@@ -163,7 +163,7 @@ const LS_KEY = `codebeamer-miro-plugin-widget-info-${appId}`
 
 function getPrivateSetting(setting) {
   let data = JSON.parse(localStorage.getItem(LS_KEY)) || {}
-  return data[setting] || None
+  return data[setting] || null
 }
 
 function savePrivateSettings(settings) {
