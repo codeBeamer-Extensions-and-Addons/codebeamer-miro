@@ -446,8 +446,8 @@ async function findWidgetByTypeAndMetadataId(widgetData) {
     (await miro.board.widgets.get({
       type: widgetData.type,
     })))
-    .filter(widget => !!widget.metadata[this.appId])
-    .find(widget => widget.metadata[this.appId].id === widgetData.metadata[this.appId].id)
+    .filter(widget => !!widget.metadata[appId])
+    .find(widget => widget.metadata[appId].id === widgetData.metadata[appId].id)
 }
 
 async function findSettingsWidget() {
@@ -455,8 +455,8 @@ async function findSettingsWidget() {
     (await miro.board.widgets.get({
       type: 'SHAPE',
     })))
-    .filter(widget => !!widget.metadata[this.appId])
-    .find(widget => !!widget.metadata[this.appId].settings)
+    .filter(widget => !!widget.metadata[appId])
+    .find(widget => !!widget.metadata[appId].settings)
 }
 
 async function findLinesByFromCard(fromCardId) {
@@ -464,28 +464,28 @@ async function findLinesByFromCard(fromCardId) {
     (await miro.board.widgets.get({
       type: 'LINE',
     })))
-    .filter(line => line.metadata[this.appId] && line.startWidgetId === fromCardId)
+    .filter(line => line.metadata[appId] && line.startWidgetId === fromCardId)
 }
 
 async function createOrUpdateWidget(widgetData) {
-  const existingWidget = await this.findWidgetByTypeAndMetadataId(widgetData);
+  const existingWidget = await findWidgetByTypeAndMetadataId(widgetData);
   if (existingWidget) {
     widgetData.id = existingWidget.id
-    return await this.updateWidget(widgetData)
+    return await updateWidget(widgetData)
   } else {
-    return await this.createWidget(widgetData)
+    return await createWidget(widgetData)
   }
 }
 
 async function createWidget(widgetData) {
   let widget = (await miro.board.widgets.create(widgetData))[0]
-  console.log(`${widget.type} widget ${widget.id} has been created to match item ${widget.metadata[this.appId].id}`)
+  console.log(`${widget.type} widget ${widget.id} has been created to match item ${widget.metadata[appId].id}`)
   return widget
 }
 
 async function updateWidget(widgetData) {
   let widget = (await miro.board.widgets.update(widgetData))[0]
-  let itemId = widget.metadata[this.appId].id
+  let itemId = widget.metadata[appId].id
   console.log(`${widget.type} widget ${widget.id} has been updated to match item ${itemId ? itemId : '<the settings>'}`)
   return widget
 }
