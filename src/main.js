@@ -185,12 +185,7 @@ async function CreateOrHideSettingsItem() {
       clientVisible: false,
       metadata: {
         [appId]: {
-          settings: {
-            cbBasePath: '',
-            cbUser: '',
-            cbAuth: '',
-            cbInboxTracker: '',
-          },
+          settings: {},
         },
       },
     })

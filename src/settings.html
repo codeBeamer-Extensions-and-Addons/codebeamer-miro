@@ -8,26 +8,33 @@
 
 <body>
   <script src="https://miro.com/app/static/sdk.1.1.js"></script>
+  <script src="src/main.js"></script>
 
   <div class="miro-h2">Settings</div>
 
   <div class="miro-input-field miro-input-field--small">
     <label>codeBeamer Address</label>
-    <input type="text" class="miro-input miro-input--primary" placeholder="https://codebeamer.com/cb" id='cbAddress'>
+    <input id='cbAddress' type="text" class="miro-input miro-input--primary" placeholder="https://codebeamer.com/cb">
   </div>
   <div class="miro-input-field miro-input-field--small">
     <label>codeBeamer Username</label>
-    <input type="text" class="miro-input miro-input--primary" placeholder="Username" id='cbUsername'>
+    <input id='cbUsername' type="text" class="miro-input miro-input--primary" placeholder="Username">
   </div>
   <div class="miro-input-field miro-input-field--small">
     <label>codeBeamer Password</label>
-    <input type="password" class="miro-input miro-input--primary" placeholder="**********" id='cbPassword'>
+    <input id='cbPassword' type="password" class="miro-input miro-input--primary" placeholder="**********">
   </div>
 
-  <button>Save</button>
+  <button id='saveButton' class="miro-btn miro-btn--primary miro-btn--small">Save</button>
   <script>
-    document.querySelector('button').addEventListener('click', function () {
-      miro.board.ui.closeModal({
+    getSettings().then(settings => {
+      document.querySelector('#cbAddress').value = settings.cbAddress
+      document.querySelector('#cbUsername').value = settings.cbUsername
+      document.querySelector('#cbPassword').value = settings.cbPassword
+    })
+
+    document.querySelector('#saveButton').addEventListener('click', function () {
+      saveSettings({
         cbAddress: document.querySelector('#cbAddress').value,
         cbUsername: document.querySelector('#cbUsername').value,
         cbPassword: document.querySelector('#cbPassword').value,
