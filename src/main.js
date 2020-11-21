@@ -63,7 +63,7 @@ async function enrichBaseCbItemWithDetails(cbItem) {
 
 async function createOrUpdateCbItem(cbItem) {
   await enrichBaseCbItemWithDetails(cbItem)
-  let cardData = convert2Card(cbItem)
+  let cardData = await convert2Card(cbItem)
   cbItem.card = await createOrUpdateWidget(cardData)
   return cbItem
 }
@@ -195,8 +195,7 @@ async function getCodeBeamerItemURL(id) {
 
 async function getCodeBeamerItems() {
   try {
-    let cbApiBasePath = await getCbApiBasePath()
-    const cbItems = await fetch(`${cbApiBasePath}/items/query?page=1&pageSize=500&queryString=tracker.id%20IN%20%2813413%29`, {
+    const cbItems = await fetch(`${await getCbApiBasePath()}/items/query?page=1&pageSize=500&queryString=tracker.id%20IN%20%2813413%29`, {
       method: 'GET',
       headers: await getCbHeaders(),
     })
@@ -209,8 +208,7 @@ async function getCodeBeamerItems() {
 
 // not needed if we use query directly (details are already there)
 async function getCodeBeamerItemDetails(item) {
-  let cbApiBasePath = await getCbApiBasePath()
-  return await fetch(`${cbApiBasePath}/items/${item.id}`, {
+  return await fetch(`${await getCbApiBasePath()}/items/${item.id}`, {
     method: 'GET',
     headers: await getCbHeaders(),
   })
@@ -224,8 +222,7 @@ async function getCodeBeamerWiki2Html(markup, trackerItem) {
     renderingContextType: "TRACKER_ITEM",
     markup: markup
   }
-  let cbApiBasePath = await getCbApiBasePath()
-  return await fetch(`${cbApiBasePath}/projects/${trackerItem.tracker.project.id}/wiki2html`, {
+  return await fetch(`${await getCbApiBasePath()}/projects/${trackerItem.tracker.project.id}/wiki2html`, {
     method: 'POST',
     headers: await getCbHeaders(),
     body: JSON.stringify(body),
@@ -234,8 +231,7 @@ async function getCodeBeamerWiki2Html(markup, trackerItem) {
 }
 
 async function getCodeBeamerTrackerDetails(tracker) {
-  let cbApiBasePath = await getCbApiBasePath()
-  return await fetch(`${cbApiBasePath}/trackers/${tracker.id}`, {
+  return await fetch(`${await getCbApiBasePath()}/trackers/${tracker.id}`, {
     method: 'GET',
     headers: await getCbHeaders(),
   })
@@ -243,8 +239,7 @@ async function getCodeBeamerTrackerDetails(tracker) {
 }
 
 async function getCodeBeamerOutgoingAssociations(item) {
-  let cbApiBasePath = await getCbApiBasePath()
-  const itemRelations = await fetch(`${cbApiBasePath}/items/${item.id}/relations`, {
+  const itemRelations = await fetch(`${await getCbApiBasePath()}/items/${item.id}/relations`, {
     method: 'GET',
     headers: await getCbHeaders(),
   })
@@ -253,8 +248,7 @@ async function getCodeBeamerOutgoingAssociations(item) {
 }
 
 async function getCodeBeamerAccociationDetails(association) {
-  let cbApiBasePath = await getCbApiBasePath()
-  return await fetch(`${cbApiBasePath}/associations/${association.id}`, {
+  return await fetch(`${await getCbApiBasePath()}/associations/${association.id}`, {
     method: 'GET',
     headers: await getCbHeaders(),
   })
@@ -262,9 +256,8 @@ async function getCodeBeamerAccociationDetails(association) {
 }
 
 async function addNewCbItem(item) {
-  let cbApiBasePath = await getCbApiBasePath()
   let inboxTrackerId = getBoardSetting('inboxTrackerId')
-  return await fetch(`${cbApiBasePath}/trackers/${inboxTrackerId}/items`, {
+  return await fetch(`${await getCbApiBasePath()}/trackers/${inboxTrackerId}/items`, {
     method: 'POST',
     headers: await getCbHeaders(),
     body: JSON.stringify(item),
@@ -282,11 +275,10 @@ function findColorFieldOnItem(item) {
   return colorField ? colorField.value : null
 }
 
-function convert2Card(item) {
-  let codeBeamerUrl = await getCodeBeamerItemURL(item.id)
+async function convert2Card(item) {
   let cardData = {
     type: 'CARD',
-    title: `<a href="${codeBeamerUrl}">[${item.tracker.keyName}-${item.id}] - ${item.name}</a>`,
+    title: `<a href="${await getCodeBeamerItemURL(item.id)}">[${item.tracker.keyName}-${item.id}] - ${item.name}</a>`,
     description: item.renderedDescription,
     card: {
       logo: {
