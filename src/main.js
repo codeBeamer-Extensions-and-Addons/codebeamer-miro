@@ -1,9 +1,3 @@
-var CB_BASE_PATH = 'http://localhost:8080/cb/api/v3'
-var INBOX_TRACKER_ID = 13413
-var CB_HEADERS = {
-  'Authorization': `Basic YWRtaW46YWRtaW4=`, // admin/admin
-  'Content-Type': 'application/json'
-};
 var appId
 
 const NEWPOS = "NEWPOS"
@@ -17,7 +11,6 @@ async function onAllWidgetsLoaded(callback) {
   if (areAllWidgetsLoaded) {
     callback()
   } else {
-    console.log('registering callback for ALL_WIDGETS_LOADED')
     miro.addListener('ALL_WIDGETS_LOADED', callback)
   }
 }
@@ -46,7 +39,7 @@ function isWidgetRepresentingCodeBeamerItem(widget) {
 async function openInCodeBeamer(selectedWidgets) {
   await Promise.all(
     selectedWidgets.map(async widget => {
-      await window.top.open(getCodeBeamerItemURL(widget.metadata[appId].id), '_blank')
+      await window.open(await getCodeBeamerItemURL(widget.metadata[appId].id), '_blank')
     })
   )
 }
@@ -159,11 +152,11 @@ async function saveBoardSettings(settings) {
   return await updateWidget(settingsWidget)
 }
 
-const LS_KEY = `codebeamer-miro-plugin-widget-info-${appId}`
+const LS_KEY = `codebeamer-miro-plugin-widget-private-settings`
 
 async function getPrivateSetting(setting) {
   let data = JSON.parse(localStorage.getItem(LS_KEY)) || {}
-  return data[setting] || null
+  return data[setting]
 }
 
 async function savePrivateSettings(settings) {
@@ -176,12 +169,36 @@ async function savePrivateSettings(settings) {
 
 // ------------------------ CodeBeamer ------------------------------
 
+async function getCbHeaders() {
+  let headers = {
+    'Content-Type': 'application/json'
+  };
+  
+  let username = await getPrivateSetting('cbUsername')
+  let password = await getPrivateSetting('cbPassword')
+  headers.Authorization = 'Basic ' + btoa(username + ":" + password)
+
+  return headers
+}
+
+async function getCbBaseUrl() {
+  return new URL((await getBoardSetting('cbAddress')) || '')
+}
+
+async function getCbApiBasePath() {
+  return new URL('api/v3', await getCbBaseUrl())
+}
+
+async function getCodeBeamerItemURL(id) {
+  return new URL(`issue/${id}`, await getCbBaseUrl())
+}
+
 async function getCodeBeamerItems() {
   try {
-    const cbItems = await fetch(`${CB_BASE_PATH}/items/query?page=1&pageSize=500&queryString=tracker.id%20IN%20%2813413%29`, {
+    const cbItems = await fetch(`${await getCbApiBasePath()}/items/query?page=1&pageSize=500&queryString=tracker.id%20IN%20%2813413%29`, {
       //const cbItems = await fetch(`${BASE_PATH}/trackers/13413/items?page=1&pageSize=500`, {
       method: 'GET',
-      headers: CB_HEADERS,
+      headers: await getCbHeaders(),
     })
       .then(res => res.json())
     return cbItems.items
@@ -192,9 +209,9 @@ async function getCodeBeamerItems() {
 
 // not needed if we use query directly (details are already there)
 async function getCodeBeamerItemDetails(item) {
-  return await fetch(`${CB_BASE_PATH}/items/${item.id}`, {
+  return await fetch(`${await getCbApiBasePath()}/items/${item.id}`, {
     method: 'GET',
-    headers: CB_HEADERS,
+    headers: await getCbHeaders(),
   })
     .then(res => res.json())
 }
@@ -206,50 +223,47 @@ async function getCodeBeamerWiki2Html(markup, trackerItem) {
     renderingContextType: "TRACKER_ITEM",
     markup: markup
   }
-  return await fetch(`${CB_BASE_PATH}/projects/${trackerItem.tracker.project.id}/wiki2html`, {
+  return await fetch(`${await getCbApiBasePath()}/projects/${trackerItem.tracker.project.id}/wiki2html`, {
     method: 'POST',
-    headers: CB_HEADERS,
+    headers: await getCbHeaders(),
     body: JSON.stringify(body),
   })
     .then(res => res.text())
 }
 
 async function getCodeBeamerTrackerDetails(tracker) {
-  return await fetch(`${CB_BASE_PATH}/trackers/${tracker.id}`, {
+  return await fetch(`${await getCbApiBasePath()}/trackers/${tracker.id}`, {
     method: 'GET',
-    headers: CB_HEADERS,
+    headers: await getCbHeaders(),
   })
     .then(res => res.json())
 }
 
 async function getCodeBeamerOutgoingAssociations(item) {
-  const itemRelations = await fetch(`${CB_BASE_PATH}/items/${item.id}/relations`, {
+  const itemRelations = await fetch(`${await getCbApiBasePath()}/items/${item.id}/relations`, {
     method: 'GET',
-    headers: CB_HEADERS,
+    headers: await getCbHeaders(),
   })
     .then(res => res.json())
   return itemRelations.outgoingAssociations
 }
 
 async function getCodeBeamerAccociationDetails(association) {
-  return await fetch(`${CB_BASE_PATH}/associations/${association.id}`, {
+  return await fetch(`${await getCbApiBasePath()}/associations/${association.id}`, {
     method: 'GET',
-    headers: CB_HEADERS,
+    headers: await getCbHeaders(),
   })
     .then(res => res.json())
 }
 
 async function addNewCbItem(item) {
-  return await fetch(`${CB_BASE_PATH}/trackers/${INBOX_TRACKER_ID}/items`, {
+  let inboxTrackerId = getBoardSetting('inboxTrackerId')
+  return await fetch(`${await getCbApiBasePath()}/trackers/${inboxTrackerId}/items`, {
     method: 'POST',
-    headers: CB_HEADERS,
+    headers: await getCbHeaders(),
     body: JSON.stringify(item),
   })
     .then(res => res.json())
-}
-
-function getCodeBeamerItemURL(id) {
-  return `http://localhost:8080/cb/issue/${id}`
 }
 
 // ------------------------------------------------------------------
@@ -265,7 +279,7 @@ function findColorFieldOnItem(item) {
 function convert2Card(item) {
   let cardData = {
     type: 'CARD',
-    title: `<a href="${getCodeBeamerItemURL(item.id)}">[${item.tracker.keyName}-${item.id}] - ${item.name}</a>`,
+    title: `<a href="${await getCodeBeamerItemURL(item.id)}">[${item.tracker.keyName}-${item.id}] - ${item.name}</a>`,
     description: item.renderedDescription,
     card: {
       logo: {
