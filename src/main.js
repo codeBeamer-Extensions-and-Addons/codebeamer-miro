@@ -195,8 +195,8 @@ async function getCodeBeamerItemURL(id) {
 
 async function getCodeBeamerItems() {
   try {
-    const cbItems = await fetch(`${await getCbApiBasePath()}/items/query?page=1&pageSize=500&queryString=tracker.id%20IN%20%2813413%29`, {
-      //const cbItems = await fetch(`${BASE_PATH}/trackers/13413/items?page=1&pageSize=500`, {
+    let cbApiBasePath = await getCbApiBasePath()
+    const cbItems = await fetch(`${cbApiBasePath}/items/query?page=1&pageSize=500&queryString=tracker.id%20IN%20%2813413%29`, {
       method: 'GET',
       headers: await getCbHeaders(),
     })
@@ -209,7 +209,8 @@ async function getCodeBeamerItems() {
 
 // not needed if we use query directly (details are already there)
 async function getCodeBeamerItemDetails(item) {
-  return await fetch(`${await getCbApiBasePath()}/items/${item.id}`, {
+  let cbApiBasePath = await getCbApiBasePath()
+  return await fetch(`${cbApiBasePath}/items/${item.id}`, {
     method: 'GET',
     headers: await getCbHeaders(),
   })
@@ -223,7 +224,8 @@ async function getCodeBeamerWiki2Html(markup, trackerItem) {
     renderingContextType: "TRACKER_ITEM",
     markup: markup
   }
-  return await fetch(`${await getCbApiBasePath()}/projects/${trackerItem.tracker.project.id}/wiki2html`, {
+  let cbApiBasePath = await getCbApiBasePath()
+  return await fetch(`${cbApiBasePath}/projects/${trackerItem.tracker.project.id}/wiki2html`, {
     method: 'POST',
     headers: await getCbHeaders(),
     body: JSON.stringify(body),
@@ -232,7 +234,8 @@ async function getCodeBeamerWiki2Html(markup, trackerItem) {
 }
 
 async function getCodeBeamerTrackerDetails(tracker) {
-  return await fetch(`${await getCbApiBasePath()}/trackers/${tracker.id}`, {
+  let cbApiBasePath = await getCbApiBasePath()
+  return await fetch(`${cbApiBasePath}/trackers/${tracker.id}`, {
     method: 'GET',
     headers: await getCbHeaders(),
   })
@@ -240,7 +243,8 @@ async function getCodeBeamerTrackerDetails(tracker) {
 }
 
 async function getCodeBeamerOutgoingAssociations(item) {
-  const itemRelations = await fetch(`${await getCbApiBasePath()}/items/${item.id}/relations`, {
+  let cbApiBasePath = await getCbApiBasePath()
+  const itemRelations = await fetch(`${cbApiBasePath}/items/${item.id}/relations`, {
     method: 'GET',
     headers: await getCbHeaders(),
   })
@@ -249,7 +253,8 @@ async function getCodeBeamerOutgoingAssociations(item) {
 }
 
 async function getCodeBeamerAccociationDetails(association) {
-  return await fetch(`${await getCbApiBasePath()}/associations/${association.id}`, {
+  let cbApiBasePath = await getCbApiBasePath()
+  return await fetch(`${cbApiBasePath}/associations/${association.id}`, {
     method: 'GET',
     headers: await getCbHeaders(),
   })
@@ -257,8 +262,9 @@ async function getCodeBeamerAccociationDetails(association) {
 }
 
 async function addNewCbItem(item) {
+  let cbApiBasePath = await getCbApiBasePath()
   let inboxTrackerId = getBoardSetting('inboxTrackerId')
-  return await fetch(`${await getCbApiBasePath()}/trackers/${inboxTrackerId}/items`, {
+  return await fetch(`${cbApiBasePath}/trackers/${inboxTrackerId}/items`, {
     method: 'POST',
     headers: await getCbHeaders(),
     body: JSON.stringify(item),
@@ -277,9 +283,10 @@ function findColorFieldOnItem(item) {
 }
 
 function convert2Card(item) {
+  let codeBeamerUrl = await getCodeBeamerItemURL(item.id)
   let cardData = {
     type: 'CARD',
-    title: `<a href="${await getCodeBeamerItemURL(item.id)}">[${item.tracker.keyName}-${item.id}] - ${item.name}</a>`,
+    title: `<a href="${codeBeamerUrl}">[${item.tracker.keyName}-${item.id}] - ${item.name}</a>`,
     description: item.renderedDescription,
     card: {
       logo: {
