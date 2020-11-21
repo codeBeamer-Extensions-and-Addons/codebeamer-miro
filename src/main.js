@@ -13,20 +13,22 @@ miro.onReady(() => {
   appId = miro.getClientId()
   miro.initialize({
     extensionPoints: {
-      bottomBar: [{
+      bottomBar: {
         title: 'CodeBeamer Sync',
         svgIcon: '<circle cx="12" cy="12" r="9" fill="none" fill-rule="evenodd" stroke="currentColor" stroke-width="2"/>',
         onClick: syncWithCodeBeamer,
-      }, {
-        title: 'codeBeamer integration Settings',
-        svgIcon: '<circle cx="12" cy="12" r="9" fill="currentColor" fill-rule="evenodd" stroke="currentColor" stroke-width="2"/>',
-        onClick: () => miro.board.ui.openModal('src/settings.html'),
-      }, {
-        title: 'new browser tab test',
-        svgIcon: '<circle cx="12" cy="12" r="9" fill="currentColor" fill-rule="evenodd" stroke="currentColor" stroke-width="2"/>',
-        onClick: () => window.open('https://www.google.com'),
-      }],
-
+      },
+      toolbar: {
+        title: "The button title",
+        librarySvgIcon:
+          '<circle cx="12" cy="12" r="9" fill="blue" fill-rule="evenodd" stroke="currentColor" stroke-width="2"/>',
+        toolbarSvgIcon:
+          '<circle cx="12" cy="12" r="9" fill="red" fill-rule="evenodd" stroke="currentColor" stroke-width="2"/>',
+        onClick: () => {
+          window.open('https://www.google.com')
+          miro.board.ui.openModal('src/settings.html')
+        },
+      },
       getWidgetMenuItems: function (selectedWidgets) {
         var menuItems = []
         if (isSelectionConvertable(selectedWidgets))
