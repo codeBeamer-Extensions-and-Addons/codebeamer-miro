@@ -161,12 +161,12 @@ async function saveBoardSettings(settings) {
 
 const LS_KEY = `codebeamer-miro-plugin-widget-info-${appId}`
 
-function getPrivateSetting(setting) {
+async function getPrivateSetting(setting) {
   let data = JSON.parse(localStorage.getItem(LS_KEY)) || {}
   return data[setting] || null
 }
 
-function savePrivateSettings(settings) {
+async function savePrivateSettings(settings) {
   let data = JSON.parse(localStorage.getItem(LS_KEY)) || {}
   Object.assign(data, settings)
   localStorage.setItem(LS_KEY, JSON.stringify(data))
