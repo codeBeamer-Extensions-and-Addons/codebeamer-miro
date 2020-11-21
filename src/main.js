@@ -52,7 +52,7 @@ miro.onReady(() => {
     }
   })
   onAllWidgetsLoaded(async () => {
-    let settingsWidget = await CreateOrHideSettingsItem()
+    let settingsWidget = await CreateOrHideSettingsWidget()
     console.log(`codebeamer-miro settings are now hidden: ${settingsWidget.id}`)
   })
 })
@@ -62,6 +62,7 @@ async function onAllWidgetsLoaded(callback) {
   if (areAllWidgetsLoaded) {
     callback()
   } else {
+    console.log('registering callback for ALL_WIDGETS_LOADED')
     miro.addListener('ALL_WIDGETS_LOADED', callback)
   }
 }
@@ -172,7 +173,7 @@ async function submitNewCodeBeamerItem(widget) {
 // ------------------------ Settings ------------------------------
 
 // call in on All widgets Loaded
-async function CreateOrHideSettingsItem() {
+async function CreateOrHideSettingsWidget() {
   let settingsWidget = await findSettingsWidget()
   if (settingsWidget) {
     // hide settings
@@ -193,16 +194,28 @@ async function CreateOrHideSettingsItem() {
   return settingsWidget
 }
 
-async function getSettings() {
-  return (await findSettingsWidget()).metadata[appId].settings
-}
 
-async function saveSettings(settings) {
+async function getBoardSetting(setting) {
+  return (await findSettingsWidget()).metadata[appId].settings[setting]
+}
+async function saveBoardSettings(settings) {
   let settingsWidget = await findSettingsWidget()
-  settingsWidget.metadata[appId].settings = settings
+  Object.assign(settingsWidget.metadata[appId].settings, settings)
   return await updateWidget(settingsWidget)
 }
 
+const LS_KEY = `codebeamer-miro-plugin-widget-info-${appId}`
+
+function getPrivateSetting(setting) {
+  let data = JSON.parse(localStorage.getItem(LS_KEY)) || {}
+  return data[setting] || None
+}
+
+function savePrivateSettings(settings) {
+  let data = JSON.parse(localStorage.getItem(LS_KEY)) || {}
+  Object.assign(data, settings)
+  localStorage.setItem(LS_KEY, JSON.stringify(data))
+}
 
 // ------------------------------------------------------------------
 

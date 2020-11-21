@@ -27,19 +27,22 @@
 
   <button id='saveButton' class="miro-btn miro-btn--primary miro-btn--small">Save</button>
   <script>
-    getSettings().then(settings => {
-      document.querySelector('#cbAddress').value = settings.cbAddress
-      document.querySelector('#cbUsername').value = settings.cbUsername
-      document.querySelector('#cbPassword').value = settings.cbPassword
+    getPrivateSetting('cbUsername').then(username => {
+      console.log(`cbUsername: ${username}`)
+      document.querySelector('#cbUsername').value = settings.username
     })
 
-    document.querySelector('#saveButton').addEventListener('click', function () {
-      saveSettings({
-        cbAddress: document.querySelector('#cbAddress').value,
-        cbUsername: document.querySelector('#cbUsername').value,
-        cbPassword: document.querySelector('#cbPassword').value,
-      })
-    })
+    document.querySelector('#saveButton').addEventListener('click', () =>
+      Promise.all([
+        saveBoardSettings({
+          cbAddress: document.querySelector('#cbAddress').value
+        }),
+        savePrivateSettings({
+          cbUsername: document.querySelector('#cbUsername').value,
+          cbPassword: document.querySelector('#cbPassword').value,
+        })
+      ])
+    )
   </script>
 </body>
 
