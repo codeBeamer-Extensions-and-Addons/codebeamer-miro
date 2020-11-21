@@ -90,7 +90,7 @@ function isWidgetRepresentingCodeBeamerItem(widget) {
 async function openInCodeBeamer(selectedWidgets) {
   await Promise.all(
     selectedWidgets.map(async widget => {
-      await window.open(getCodeBeamerItemURL(widget.metadata[appId].id), '_blank')
+      await window.top.open(getCodeBeamerItemURL(widget.metadata[appId].id), '_blank')
     })
   )
 }
