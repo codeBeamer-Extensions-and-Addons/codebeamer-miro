@@ -21,16 +21,16 @@
   </div>
   <div class="miro-input-field miro-input-field--small">
     <label>codeBeamer Password</label>
-    <input type="text" class="miro-input miro-input--primary" placeholder="**********" type="password" id='cbPassword'>
+    <input type="password" class="miro-input miro-input--primary" placeholder="**********" id='cbPassword'>
   </div>
 
   <button>Save</button>
   <script>
     document.querySelector('button').addEventListener('click', function () {
       miro.board.ui.closeModal({
-        cbAddress: document.querySelector('cbAddress'),
-        cbUsername: document.querySelector('cbUsername'),
-        cbPassword: document.querySelector('cbPassword'),
+        cbAddress: document.querySelector('cbAddress').value,
+        cbUsername: document.querySelector('cbUsername').value,
+        cbPassword: document.querySelector('cbPassword').value,
       })
     })
   </script>
