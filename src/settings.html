@@ -29,7 +29,8 @@
   <script>
     getPrivateSetting('cbUsername').then(username => {
       console.log(`cbUsername: ${username}`)
-      document.querySelector('#cbUsername').value = settings.username
+      if (username)
+        document.querySelector('#cbUsername').value = username
     })
 
     document.querySelector('#saveButton').addEventListener('click', () =>
