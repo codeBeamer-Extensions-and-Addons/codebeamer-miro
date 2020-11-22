@@ -208,7 +208,7 @@ async function getCodeBeamerItemURL(id) {
 
 async function getCodeBeamerItems() {
   try {
-    const cbItems = await fetch(`${await getCbApiBasePath()}/items/query?page=1&pageSize=500&queryString=tracker.id%20IN%20%2813413%29`, {
+    const cbItems = await fetch(`${await getCbApiBasePath()}/items/query?page=1&pageSize=500&queryString=tracker.id%20IN%20%28${await getBoardSetting('inboxTrackerId')}%29`, {
       method: 'GET',
       headers: await getCbHeaders(),
     })
@@ -269,8 +269,7 @@ async function getCodeBeamerAccociationDetails(association) {
 }
 
 async function addNewCbItem(item) {
-  let inboxTrackerId = getBoardSetting('inboxTrackerId')
-  return await fetch(`${await getCbApiBasePath()}/trackers/${inboxTrackerId}/items`, {
+  return await fetch(`${await getCbApiBasePath()}/trackers/${await getBoardSetting('inboxTrackerId')}/items`, {
     method: 'POST',
     headers: await getCbHeaders(),
     body: JSON.stringify(item),
