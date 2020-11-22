@@ -3,6 +3,7 @@ var appId
 const NEWPOS = "NEWPOS"
 
 miro.onReady(() => {
+  console.log('READY!')
   try {
     appId = miro.getClientId()
     savePrivateSettings({'appId': appId})
