@@ -473,7 +473,7 @@ async function createOrUpdateWidget(widgetData) {
 
 async function createWidget(widgetData) {
   // if x and y are not set, set them to middle of current screen
-  if (!widgetData.x || !widgetData.y) {
+  if (widgetData.type === 'CARD' && (!widgetData.x || !widgetData.y)) {
     const viewport = await miro.board.viewport.get();
     widgetData.x = (viewport.x + (viewport.width / 2))
     widgetData.y = (viewport.y + (viewport.height / 2))
