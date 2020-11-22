@@ -59,11 +59,11 @@ function isWidgetConvertable(widget) {
 async function syncWithCodeBeamer() {
   await getCodeBeamerItems()
     .then(async cbItems => {
-      console.log('starting createOrUpdateCbItem')
+      console.log('starting createOrUpdateCbItem for all Items')
       for (let index = 0; index < cbItems.length; index++) {
         await createOrUpdateCbItem(cbItems[index])
       }
-      console.log('starting createUpdateOrDeleteAssociationLines')
+      console.log('starting createUpdateOrDeleteAssociationLines for all Items')
       for (let index = 0; index < cbItems.length; index++) {
         await createUpdateOrDeleteAssociationLines(cbItems[index])
       }
@@ -478,7 +478,6 @@ async function createOrUpdateWidget(widgetData) {
 }
 
 async function createWidget(widgetData) {
-  console.log(`CREATING WIDGET FOR ${widgetData.metadata[appId].id}`)
   // if x and y are not set, set them to middle of current screen
   if (widgetData.type === 'CARD' && (!widgetData.x || !widgetData.y)) {
     const viewport = await miro.board.viewport.get();
