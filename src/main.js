@@ -60,9 +60,9 @@ async function syncWithCodeBeamer() {
   await getCodeBeamerItems()
     .then(async cbItems => {
       console.log('starting createOrUpdateCbItem')
-      cbItems.forEach(cbItem => await createOrUpdateCbItem(cbItem))
+      cbItems.forEach(cbItem => { await createOrUpdateCbItem(cbItem) })
       console.log('starting createUpdateOrDeleteAssociationLines')
-      cbItems.forEach(cbItem => await createUpdateOrDeleteAssociationLines(cbItem))
+      cbItems.forEach(cbItem => { await createUpdateOrDeleteAssociationLines(cbItem) })
     })
   miro.showNotification('Sync with codeBeamer finished!')
 }
