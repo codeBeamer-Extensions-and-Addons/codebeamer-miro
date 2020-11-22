@@ -38,23 +38,23 @@ function isWidgetConvertable(widget) {
     && supportedWidgetTypes.includes(widget.type) // only allow supported types
 }
 
-function isSelectionOpenable(selectedWidgets) {
-  // only single selection supported
-  return !selectedWidgets.some(widget => !isWidgetRepresentingCodeBeamerItem(widget))
-}
+// function isSelectionOpenable(selectedWidgets) {
+//   // only single selection supported
+//   return !selectedWidgets.some(widget => !isWidgetRepresentingCodeBeamerItem(widget))
+// }
 
-function isWidgetRepresentingCodeBeamerItem(widget) {
-  return widget.metadata && widget.metadata[appId] && widget.metadata[appId].id
-}
+// function isWidgetRepresentingCodeBeamerItem(widget) {
+//   return widget.metadata && widget.metadata[appId] && widget.metadata[appId].id
+// }
 
 
-async function openInCodeBeamer(selectedWidgets) {
-  await Promise.all(
-    selectedWidgets.map(async widget => {
-      await window.open(await getCodeBeamerItemURL(widget.metadata[appId].id), '_blank')
-    })
-  )
-}
+// async function openInCodeBeamer(selectedWidgets) {
+//   await Promise.all(
+//     selectedWidgets.map(async widget => {
+//       await window.open(await getCodeBeamerItemURL(widget.metadata[appId].id), '_blank')
+//     })
+//   )
+// }
 
 async function syncWithCodeBeamer() {
   await getCodeBeamerItems()
@@ -211,7 +211,9 @@ async function getCodeBeamerItemURL(id) {
 
 async function getCodeBeamerItems() {
   try {
-    const cbItems = await fetch(`${await getCbApiBasePath()}/items/query?page=1&pageSize=500&queryString=tracker.id%20IN%20%28${await getBoardSetting('inboxTrackerId')}%29`, {
+    let url = await getCbApiBasePath()
+    url.pathname = url.pathname + `/items/query?page=1&pageSize=500&queryString=${await getBoardSetting('cbqlQuery')}`
+    const cbItems = await fetch(url, {
       method: 'GET',
       headers: await getCbHeaders(),
     })

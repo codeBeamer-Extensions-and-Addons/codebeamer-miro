@@ -18,6 +18,10 @@
       placeholder="e.g. https://codebeamer.com/cb">
   </div>
   <div class="miro-input-field miro-input-field--small">
+    <label>Sync Scope cbQl query</label>
+    <input id='cbqlQuery' type="text" class="miro-input miro-input--primary" placeholder="tracker.id in (12345)">
+  </div>
+  <div class="miro-input-field miro-input-field--small">
     <label>Inbox Tracker ID</label>
     <input id='inboxTrackerId' type="number" class="miro-input miro-input--primary" placeholder="e.g. 12345">
   </div>
@@ -56,6 +60,7 @@
       boardSettings = {}
       addValueOfFieldToObject(boardSettings, 'cbAddress')
       addValueOfFieldToObject(boardSettings, 'inboxTrackerId')
+      addValueOfFieldToObject(boardSettings, 'cbqlQuery')
       privateSettings = {}
       addValueOfFieldToObject(privateSettings, 'cbUsername')
       addValueOfFieldToObject(privateSettings, 'cbPassword')
@@ -63,7 +68,7 @@
       return Promise.all([
         saveBoardSettings(boardSettings),
         savePrivateSettings(privateSettings)
-      ])
+      ]).then(() => { miro.showNotification('Saved!') })
     })
 
     onReady(() => {
