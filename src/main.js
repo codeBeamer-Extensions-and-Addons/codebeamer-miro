@@ -194,16 +194,16 @@ async function getCbHeaders() {
   return headers
 }
 
-async function getCbBaseUrl() {
-  return new URL((await getBoardSetting('cbAddress')) || '')
+async function getCbBaseUrlString() {
+  return await getBoardSetting('cbAddress')
 }
 
 async function getCbApiBasePath() {
-  return new URL('api/v3', await getCbBaseUrl())
+  return new URL('api/v3', await getCbBaseUrlString())
 }
 
 async function getCodeBeamerItemURL(id) {
-  return new URL(`issue/${id}`, await getCbBaseUrl())
+  return new URL(`issue/${id}`, await getCbBaseUrlString())
 }
 
 async function getCodeBeamerItems() {
