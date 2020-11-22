@@ -194,16 +194,20 @@ async function getCbHeaders() {
   return headers
 }
 
-async function getCbBaseUrlString() {
-  return await getBoardSetting('cbAddress')
+async function getCbBaseUrl() {
+  return new URL(await getBoardSetting('cbAddress'))
 }
 
 async function getCbApiBasePath() {
-  return new URL('api/v3', await getCbBaseUrlString())
+  let url = await getCbBaseUrl()
+  url.pathname = url.pathname + '/api/v3'
+  return url
 }
 
 async function getCodeBeamerItemURL(id) {
-  return new URL(`issue/${id}`, await getCbBaseUrlString())
+  let url = await getCbBaseUrl()
+  url.pathname = url.pathname + `/issue/${id}`
+  return url
 }
 
 async function getCodeBeamerItems() {
