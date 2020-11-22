@@ -1,18 +1,23 @@
 var appId
+var onReadyFuncs = []
+var onReadyCalled = false
 
 const NEWPOS = "NEWPOS"
 
 miro.onReady(() => {
-  console.log('READY!')
-  try {
-    appId = miro.getClientId()
-    savePrivateSettings({'appId': appId})
-    
-  } catch (error) {
-    console.log('Could not get appId. calling from modal? Taking data from LocalStorage', error)
-    appId = getPrivateSetting('appId')
-  }
+  console.log('Ready!')
+  appId = miro.getClientId()
+  onReadyCalled = true
+  while (onReadyFuncs.length) { onReadyFuncs.shift().call() }
 })
+
+function onReady(func) {
+  if (onReadyCalled) {
+    func()
+  } else {
+    onReadyFuncs.push(func)
+  }
+}
 
 async function onAllWidgetsLoaded(callback) {
   const areAllWidgetsLoaded = await miro.board.widgets.areAllWidgetsLoaded()
@@ -181,7 +186,7 @@ async function getCbHeaders() {
   let headers = {
     'Content-Type': 'application/json'
   };
-  
+
   let username = await getPrivateSetting('cbUsername')
   let password = await getPrivateSetting('cbPassword')
   headers.Authorization = 'Basic ' + btoa(username + ":" + password)

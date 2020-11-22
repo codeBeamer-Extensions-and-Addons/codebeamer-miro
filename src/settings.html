@@ -14,7 +14,8 @@
 
   <div class="miro-input-field miro-input-field--small">
     <label>codeBeamer Address</label>
-    <input id='cbAddress' type="text" class="miro-input miro-input--primary" placeholder="e.g. https://codebeamer.com/cb">
+    <input id='cbAddress' type="text" class="miro-input miro-input--primary"
+      placeholder="e.g. https://codebeamer.com/cb">
   </div>
   <div class="miro-input-field miro-input-field--small">
     <label>Inbox Tracker ID</label>
@@ -50,11 +51,6 @@
       return object
     }
 
-    setFieldFromBoardSettings('cbAddress')
-    setFieldFromBoardSettings('inboxTrackerId')
-    setFieldFromPrivateSettings('cbUsername')
-    setFieldFromPrivateSettings('cbPassword')
-
     document.querySelector('#saveButton').addEventListener('click', () => {
       boardSettings = {}
       addValueOfFieldToObject(boardSettings, 'cbAddress')
@@ -67,8 +63,15 @@
         saveBoardSettings(boardSettings),
         savePrivateSettings(privateSettings)
       ])
-    }
-    )
+    })
+
+    onReady(() => {
+      setFieldFromBoardSettings('cbAddress')
+      setFieldFromBoardSettings('inboxTrackerId')
+      setFieldFromPrivateSettings('cbUsername')
+      setFieldFromPrivateSettings('cbPassword')
+    })
+
   </script>
 </body>
 
