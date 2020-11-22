@@ -212,7 +212,8 @@ async function getCodeBeamerItemURL(id) {
 async function getCodeBeamerItems() {
   try {
     let url = await getCbApiBasePath()
-    url.pathname = url.pathname + `/items/query?page=1&pageSize=500&queryString=${await getBoardSetting('cbqlQuery')}`
+    url.pathname = url.pathname + '/items/query'
+    url.search = `page=1&pageSize=500&queryString=${await getBoardSetting('cbqlQuery')}`
     const cbItems = await fetch(url, {
       method: 'GET',
       headers: await getCbHeaders(),
