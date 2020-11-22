@@ -1,4 +1,17 @@
+var appId
+
 const NEWPOS = "NEWPOS"
+
+miro.onReady(() => {
+  try {
+    appId = miro.getClientId()
+    savePrivateSettings({'appId': appId})
+    
+  } catch (error) {
+    console.log('Could not get appId. calling from modal? Taking data from LocalStorage', error)
+    appId = getPrivateSetting('appId')
+  }
+})
 
 async function onAllWidgetsLoaded(callback) {
   const areAllWidgetsLoaded = await miro.board.widgets.areAllWidgetsLoaded()
@@ -16,7 +29,7 @@ function isSelectionConvertable(selectedWidgets) {
 
 function isWidgetConvertable(widget) {
   let supportedWidgetTypes = ['STICKER', 'CARD', 'TEXT', 'SHAPE']
-  return (!widget.metadata || !widget.metadata[miro.getClientId()]) // only allow items NOT created by this plugin
+  return (!widget.metadata || !widget.metadata[appId]) // only allow items NOT created by this plugin
     && supportedWidgetTypes.includes(widget.type) // only allow supported types
 }
 
@@ -26,7 +39,6 @@ function isSelectionOpenable(selectedWidgets) {
 }
 
 function isWidgetRepresentingCodeBeamerItem(widget) {
-  let appId = miro.getClientId()
   return widget.metadata && widget.metadata[appId] && widget.metadata[appId].id
 }
 
@@ -34,7 +46,7 @@ function isWidgetRepresentingCodeBeamerItem(widget) {
 async function openInCodeBeamer(selectedWidgets) {
   await Promise.all(
     selectedWidgets.map(async widget => {
-      await window.open(await getCodeBeamerItemURL(widget.metadata[miro.getClientId()].id), '_blank')
+      await window.open(await getCodeBeamerItemURL(widget.metadata[appId].id), '_blank')
     })
   )
 }
@@ -71,7 +83,6 @@ async function createUpdateOrDeleteAssociationLines(cbItem) {
   let deletionTask = Promise.all(
     existingLines.map(
       async line => {
-        let appId = miro.getClientId()
         if (!associations.find(association => line.metadata[appId].id === association.id)) {
           console.log(`deleting line ${line.id} because the association ${line.metadata[appId].id} does not exist anymore`)
           await deleteWidget(line)
@@ -84,7 +95,7 @@ async function createUpdateOrDeleteAssociationLines(cbItem) {
   let additionTask = Promise.all(
     associations.map(
       async association => {
-        const toCard = await findWidgetByTypeAndMetadataId({ type: 'CARD', metadata: { [miro.getClientId()]: { id: association.itemRevision.id } } });
+        const toCard = await findWidgetByTypeAndMetadataId({ type: 'CARD', metadata: { [appId]: { id: association.itemRevision.id } } });
         console.log(`Association ${association.id}: card for codeBeamer ID ${association.itemRevision.id} is: ${toCard ? toCard.id : 'NOT FOUND (item not synced)'}`)
         if (toCard) {
           let associationDetails = await getCodeBeamerAccociationDetails(association)
@@ -129,7 +140,7 @@ async function CreateOrHideSettingsWidget() {
       text: 'codeBeamer-miro Settings. You should not be able to see this!',
       clientVisible: false,
       metadata: {
-        [miro.getClientId()]: {
+        [appId]: {
           settings: {},
         },
       },
@@ -140,12 +151,11 @@ async function CreateOrHideSettingsWidget() {
 
 
 async function getBoardSetting(setting) {
-  return (await findSettingsWidget()).metadata[miro.getClientId()].settings[setting]
+  return (await findSettingsWidget()).metadata[appId].settings[setting]
 }
-
 async function saveBoardSettings(settings) {
   let settingsWidget = await findSettingsWidget()
-  Object.assign(settingsWidget.metadata[miro.getClientId()].settings, settings)
+  Object.assign(settingsWidget.metadata[appId].settings, settings)
   return await updateWidget(settingsWidget)
 }
 
@@ -295,7 +305,7 @@ async function convert2Card(item) {
       editable: false
     },
     metadata: {
-      [miro.getClientId()]: {
+      [appId]: {
         id: item.id,
       },
     },
@@ -363,7 +373,7 @@ function convert2Line(associationDetails, fromCardId, toCardId) {
       editable: false
     },
     metadata: {
-      [miro.getClientId()]: {
+      [appId]: {
         id: associationDetails.id,
       },
     },
@@ -415,7 +425,6 @@ async function getWidgetDetail(widget) {
 }
 
 async function findWidgetByTypeAndMetadataId(widgetData) {
-  let appId = miro.getClientId()
   return (
     (await miro.board.widgets.get({
       type: widgetData.type,
@@ -425,7 +434,6 @@ async function findWidgetByTypeAndMetadataId(widgetData) {
 }
 
 async function findSettingsWidget() {
-  let appId = miro.getClientId()
   return (
     (await miro.board.widgets.get({
       type: 'SHAPE',
@@ -439,7 +447,7 @@ async function findLinesByFromCard(fromCardId) {
     (await miro.board.widgets.get({
       type: 'LINE',
     })))
-    .filter(line => line.metadata[miro.getClientId()] && line.startWidgetId === fromCardId)
+    .filter(line => line.metadata[appId] && line.startWidgetId === fromCardId)
 }
 
 async function createOrUpdateWidget(widgetData) {
@@ -454,13 +462,13 @@ async function createOrUpdateWidget(widgetData) {
 
 async function createWidget(widgetData) {
   let widget = (await miro.board.widgets.create(widgetData))[0]
-  console.log(`${widget.type} widget ${widget.id} has been created to match item ${widget.metadata[miro.getClientId()].id}`)
+  console.log(`${widget.type} widget ${widget.id} has been created to match item ${widget.metadata[appId].id}`)
   return widget
 }
 
 async function updateWidget(widgetData) {
   let widget = (await miro.board.widgets.update(widgetData))[0]
-  let itemId = widget.metadata[miro.getClientId()].id
+  let itemId = widget.metadata[appId].id
   console.log(`${widget.type} widget ${widget.id} has been updated to match item ${itemId ? itemId : '<the settings>'}`)
   return widget
 }
