@@ -59,7 +59,9 @@ function isWidgetConvertable(widget) {
 async function syncWithCodeBeamer() {
   await getCodeBeamerItems()
     .then(async cbItems => {
+      console.log('starting createOrUpdateCbItem')
       await Promise.all(cbItems.map(cbItem => createOrUpdateCbItem(cbItem)))
+      console.log('starting createUpdateOrDeleteAssociationLines')
       await Promise.all(cbItems.map(cbItem => createUpdateOrDeleteAssociationLines(cbItem)))
     })
   miro.showNotification('Sync with codeBeamer finished!')
