@@ -5,7 +5,6 @@ var onReadyCalled = false
 const NEWPOS = "NEWPOS"
 
 miro.onReady(() => {
-  console.log('Ready!')
   appId = miro.getClientId()
   onReadyCalled = true
   while (onReadyFuncs.length) { onReadyFuncs.shift().call() }
@@ -470,6 +469,12 @@ async function createOrUpdateWidget(widgetData) {
 }
 
 async function createWidget(widgetData) {
+  // if x and y are not set, set them to middle of current screen
+  if (!widgetData.x || !widgetData.y) {
+    const viewport = await miro.board.viewport.get();
+    widgetData.x = (viewport.x + (viewport.width / 2))
+    widgetData.y = (viewport.y + (viewport.height / 2))
+  }
   let widget = (await miro.board.widgets.create(widgetData))[0]
   console.log(`${widget.type} widget ${widget.id} has been created to match item ${widget.metadata[appId].id}`)
   return widget
