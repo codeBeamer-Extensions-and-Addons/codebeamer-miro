@@ -16,7 +16,7 @@ miro.onReady(() => {
         toolbarSvgIcon:
           '<circle cx="12" cy="12" r="9" fill="red" fill-rule="evenodd" stroke="currentColor" stroke-width="2"/>',
         onClick: async () => {
-          let returnval = await miro.board.ui.openModal('src/test.html')
+          let returnval = await miro.board.ui.openModal('src/settings.html')
           console.log(JSON.stringify(returnval))
         },
       },
