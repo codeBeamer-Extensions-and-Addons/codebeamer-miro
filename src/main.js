@@ -485,7 +485,8 @@ async function createWidget(widgetData) {
     widgetData.y = (viewport.y + (viewport.height / 2))
   }
   let widget = (await miro.board.widgets.create(widgetData))[0]
-  console.log(`${widget.type} widget ${widget.id} has been created to match item ${widget.metadata[appId].id}`)
+  let itemId = widget.metadata[appId].id
+  console.log(`${widget.type} widget ${widget.id} has been created to match item ${itemId ? itemId : '<the settings>'}`)
   return widget
 }
 
