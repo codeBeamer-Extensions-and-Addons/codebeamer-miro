@@ -1,0 +1,31 @@
+{
+  "author": "Max Proprawe",
+  "name": "codebeamer-miro",
+  "version": "0.0.1",
+  "license": "AGPL-3.0",
+  "files": [
+    "src/"
+  ],
+  "scripts": {
+    "start": "parcel serve src/settings.html",
+    "build": "cross-env NODE_ENV=production parcel build src/index.html --public-url .",
+    "deploy": "gh-pages -d dist"
+  },
+  "devDependencies": {
+    "cross-env": "^5.2.0",
+    "gh-pages": "^3.1.0",
+    "parcel": "^1.9.7",
+    "typescript": "^4.1.2"
+  },
+  "description": "This is a codeBeamer <-> Miro integration web-plugin to be installed on Miro.\r It allows to import codeBeamer items to a Miro board, displaying any associations between the items.",
+  "main": "src/settings.html",
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/max-poprawe/codebeamer-miro.git"
+  },
+  "bugs": {
+    "url": "https://github.com/max-poprawe/codebeamer-miro/issues"
+  },
+  "homepage": "https://github.com/max-poprawe/codebeamer-miro#readme"
+}
