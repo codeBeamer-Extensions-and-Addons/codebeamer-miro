@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "license": "AGPL-3.0",
   "files": [
-    "src/"
+    "src/**/*"
   ],
   "scripts": {
     "start": "parcel serve src/settings.html",
