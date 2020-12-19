@@ -1,7 +1,7 @@
-import Store from 'components/store';
-import { convert2Line } from 'components/converter';
-import { createOrUpdateWidget, deleteWidget, findLinesByFromCard, findWidgetByTypeAndMetadataId } from 'components/miro';
-import { createOrUpdateCbItem, getCodeBeamerItems, getCodeBeamerOutgoingAssociations, getCodeBeamerAssociationDetails } from 'components/codebeamer';
+import Store from './components/store';
+import { convert2Line } from './components/converter';
+import { createOrUpdateWidget, deleteWidget, findLinesByFromCard, findWidgetByTypeAndMetadataId } from './components/miro';
+import { createOrUpdateCbItem, getCodeBeamerItems, getCodeBeamerOutgoingAssociations, getCodeBeamerAssociationDetails } from './components/codebeamer';
 
 const store = Store.getInstance();
 

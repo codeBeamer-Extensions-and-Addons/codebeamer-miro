@@ -7,18 +7,18 @@
     "src/**/*"
   ],
   "scripts": {
-    "start": "parcel serve src/settings.html",
-    "build": "cross-env NODE_ENV=production parcel build src/index.html --public-url .",
-    "deploy": "gh-pages -d dist"
+    "prebuild": "IF exist dist ( rd /s /q dist ) ELSE ( print test )",
+    "build": "webpack",
+    "builddebug": "webpack --display-error-details",
+    "watch": "webpack -w"
   },
   "devDependencies": {
-    "cross-env": "^5.2.0",
-    "gh-pages": "^3.1.0",
-    "parcel": "^1.9.7",
-    "typescript": "^4.1.2"
+    "ts-loader": "8.0.3",
+    "typescript": "4.0.2",
+    "webpack": "4.44.1",
+    "webpack-cli": "3.3.12"
   },
   "description": "This is a codeBeamer <-> Miro integration web-plugin to be installed on Miro.\r It allows to import codeBeamer items to a Miro board, displaying any associations between the items.",
-  "main": "src/settings.html",
   "dependencies": {},
   "repository": {
     "type": "git",
