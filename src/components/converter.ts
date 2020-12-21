@@ -11,7 +11,7 @@ export async function convert2Card(item) {
     description: item.renderedDescription,
     card: {
       logo: {
-        iconUrl: `${window.location.href}src/img/codeBeamer-Logo-BW.png`
+        iconUrl: `${window.location.href}img/codeBeamer-Logo-BW.png`
       },
       customFields: [
         {

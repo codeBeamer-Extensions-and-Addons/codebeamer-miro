@@ -22,7 +22,7 @@ miro.onReady(() => {
         librarySvgIcon: CODEBEAMER_ICON,
         toolbarSvgIcon: CODEBEAMER_ICON,
         onClick: async () => {
-          let returnval = await miro.board.ui.openModal('src/settings.html')
+          let returnval = await miro.board.ui.openModal('settings.html')
           console.log(JSON.stringify(returnval))
         },
       },
