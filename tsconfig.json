@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./src",
+    "outDir": "./dist/",
+    "strictNullChecks": true,
+    "allowUnreachableCode": true,
+    "experimentalDecorators": true,
+    "module": "commonjs",
+    "target": "ES2016",
+    "moduleResolution": "node",
+    "allowJs": true
+  },
+  "include": [
+    "src/**/*"
+  ]
+}
