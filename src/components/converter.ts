@@ -3,7 +3,6 @@ import { CardData } from "types/CardData"
 import { getCodeBeamerItemURL } from './codebeamer';
 
 const store = Store.getInstance();
-const appId = store.state.appId;
 
 export async function convert2Card(item) {
   let cardData: CardData = {
@@ -28,7 +27,7 @@ export async function convert2Card(item) {
       editable: false
     },
     metadata: {
-      [appId]: {
+      [store.state.appId]: {
         id: item.id,
       },
     },
@@ -102,7 +101,7 @@ export function convert2Line(associationDetails, fromCardId, toCardId) {
       editable: false
     },
     metadata: {
-      [appId]: {
+      [store.state.appId]: {
         id: associationDetails.id,
       },
     },

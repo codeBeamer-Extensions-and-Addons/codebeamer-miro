@@ -14,6 +14,10 @@ class Store {
     if (!Store.instance) Store.instance = new Store();
     return Store.instance;
   }
+
+  public static setAppId() {
+    Store.getInstance().state.appId = miro.getClientId()
+  }
 }
 
 export default Store;

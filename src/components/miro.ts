@@ -1,7 +1,6 @@
 import Store from './store';
 
 const store = Store.getInstance();
-const appId = store.state.appId;
 
 export async function getWidgetDetail(widget) {
   return (await miro.board.widgets.get(widget))[0]
@@ -12,8 +11,8 @@ export async function findWidgetByTypeAndMetadataId(widgetData) {
     (await miro.board.widgets.get({
       type: widgetData.type,
     })))
-    .filter(widget => !!widget.metadata[appId])
-    .find(widget => widget.metadata[appId].id === widgetData.metadata[appId].id)
+    .filter(widget => !!widget.metadata[store.state.appId])
+    .find(widget => widget.metadata[store.state.appId].id === widgetData.metadata[store.state.appId].id)
 }
 
 export async function findLinesByFromCard(fromCardId) {
@@ -22,7 +21,7 @@ export async function findLinesByFromCard(fromCardId) {
         type: 'LINE',
       })
     )
-      .filter(line => line.metadata[appId] && line.startWidgetId === fromCardId)
+      .filter(line => line.metadata[store.state.appId] && line.startWidgetId === fromCardId)
 }
 
 export async function createOrUpdateWidget(widgetData) {
@@ -43,14 +42,14 @@ async function createWidget(widgetData) {
     widgetData.y = (viewport.y + (viewport.height / 2))
   }
   let widget = (await miro.board.widgets.create(widgetData))[0]
-  let itemId = widget.metadata[appId].id
+  let itemId = widget.metadata[store.state.appId].id
   console.log(`${widget.type} widget ${widget.id} has been created to match item ${itemId ? itemId : '<the settings>'}`)
   return widget
 }
 
 async function updateWidget(widgetData) {
   let widget = (await miro.board.widgets.update(widgetData))[0]
-  let itemId = widget.metadata[appId].id
+  let itemId = widget.metadata[store.state.appId].id
   console.log(`${widget.type} widget ${widget.id} has been updated to match item ${itemId ? itemId : '<the settings>'}`)
   return widget
 }

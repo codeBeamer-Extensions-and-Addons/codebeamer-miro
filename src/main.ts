@@ -11,6 +11,7 @@ miro.onReady(() => {
   while (store.state.onReadyFuncs.length) { store.state.onReadyFuncs.shift().call() }
 })
 
+// not used at the moment - maybe remove
 export function onReady(func) {
   if (store.state.onReadyCalled) {
     func()

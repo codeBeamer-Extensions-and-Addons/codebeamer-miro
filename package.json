@@ -7,10 +7,11 @@
     "src/**/*"
   ],
   "scripts": {
-    "prebuild": "IF exist dist ( rd /s /q dist ) ELSE ( print test )",
+    "prebuild": "(IF exist dist ( RD /s /q dist ) ELSE ( print 'a' )) && MKDIR dist && COPY src\\index.html dist && COPY src\\settings.html dist",
     "build": "webpack",
     "builddebug": "webpack --display-error-details",
-    "watch": "webpack -w"
+    "watch": "webpack -w",
+    "run": "http-server"
   },
   "devDependencies": {
     "ts-loader": "8.0.3",
