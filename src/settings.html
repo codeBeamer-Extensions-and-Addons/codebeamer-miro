@@ -36,50 +36,7 @@
 
   <button id='saveButton' class="miro-btn miro-btn--primary miro-btn--small">Save</button>
 
-  <script>
-    function setFieldFromPrivateSettings(fieldIdAndSettingName) {
-      return getPrivateSetting(fieldIdAndSettingName).then(value => {
-        if (value)
-          document.querySelector(`#${fieldIdAndSettingName}`).value = value
-      })
-    }
-
-    function setFieldFromBoardSettings(fieldIdAndSettingName) {
-      return getBoardSetting(fieldIdAndSettingName).then(value => {
-        if (value)
-          document.querySelector(`#${fieldIdAndSettingName}`).value = value
-      })
-    }
-
-    function addValueOfFieldToObject(object, fieldId) {
-      object[fieldId] = document.querySelector(`#${fieldId}`).value
-      return object
-    }
-
-    document.querySelector('#saveButton').addEventListener('click', () => {
-      boardSettings = {}
-      addValueOfFieldToObject(boardSettings, 'cbAddress')
-      addValueOfFieldToObject(boardSettings, 'inboxTrackerId')
-      addValueOfFieldToObject(boardSettings, 'cbqlQuery')
-      privateSettings = {}
-      addValueOfFieldToObject(privateSettings, 'cbUsername')
-      addValueOfFieldToObject(privateSettings, 'cbPassword')
-
-      return Promise.all([
-        saveBoardSettings(boardSettings),
-        savePrivateSettings(privateSettings)
-      ]).then(() => { miro.showNotification('Saved!') })
-    })
-
-    onReady(() => {
-      setFieldFromBoardSettings('cbAddress')
-      setFieldFromBoardSettings('inboxTrackerId')
-      setFieldFromBoardSettings('cbqlQuery')
-      setFieldFromPrivateSettings('cbUsername')
-      setFieldFromPrivateSettings('cbPassword')
-    })
-
-  </script>
+  <script src="settings.js"></script>
 </body>
 
 </html>

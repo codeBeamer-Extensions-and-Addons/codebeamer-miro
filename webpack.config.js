@@ -7,6 +7,7 @@ module.exports = {
   entry: {
     main: './src/main.ts',
     init: './src/init.ts',
+    settings: './src/settings.ts',
   },
   module: {
     rules: [

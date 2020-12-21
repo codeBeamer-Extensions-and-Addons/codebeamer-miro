@@ -58,7 +58,7 @@ export async function saveBoardSettings(settings) {
 }
 
 export async function getPrivateSetting(setting: string) {
-  let data = JSON.parse(localStorage.getItem(store.state.LS_KEY) || '') || {}
+  let data = JSON.parse(localStorage.getItem(store.state.LS_KEY) || '{}')
   return data[setting]
 }
 
