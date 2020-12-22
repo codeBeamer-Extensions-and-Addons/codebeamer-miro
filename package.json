@@ -7,8 +7,8 @@
     "src/**/*"
   ],
   "scripts": {
-    "prebuild-ubuntu": "rm -rf dist && mkdir dist && mkdir dist/img && cp -r src/img dist && cp src/index.html dist && cp src/settings.html dist",
-    "build-ubuntu": "webpack",
+    "prebuild-linux": "rm -rf dist && mkdir dist && mkdir dist/img && cp -r src/img dist && cp src/index.html dist && cp src/settings.html dist",
+    "build-linux": "webpack",
     "prebuild": "(IF exist dist ( RD /s /q dist ) ELSE ( print 'a' )) && MKDIR dist\\img && COPY src\\img dist\\img && COPY src\\index.html dist && COPY src\\settings.html dist",
     "build": "webpack",
     "watch": "webpack -w",

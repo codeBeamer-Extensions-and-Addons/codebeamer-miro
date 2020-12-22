@@ -28,7 +28,7 @@ jobs:
         run: npm install
       
       - name: Compile TS and Package
-        run: npm run build-ubuntu
+        run: npm run build-linux
 
       - name: Deploy to GH Pages
         uses: peaceiris/actions-gh-pages@v3
