@@ -34,7 +34,7 @@ jobs:
         run: npm install
       
       - name: Compile TS and Package
-        run: npm run build
+        run: npm run build-ubuntu
 
       #- name: Deploy to GH Pages
       #  run: npm run deploy
