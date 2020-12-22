@@ -7,13 +7,12 @@
     "src/**/*"
   ],
   "scripts": {
+    "package": "",
     "prebuild": "(IF exist dist ( RD /s /q dist ) ELSE ( print 'a' )) && MKDIR dist\\img && COPY src\\img dist\\img && COPY src\\index.html dist && COPY src\\settings.html dist",
     "build": "webpack",
-    "builddebug": "webpack --display-error-details",
     "watch": "webpack -w",
     "start": "http-server dist",
-    "ngrok": "ngrok http 8081",
-    "deploy": "gh-pages -u \"github-ci <github-ci@noreply.com>\" -d dist"
+    "ngrok": "ngrok http 8081"
   },
   "devDependencies": {
     "gh-pages": "^3.1.0",
