@@ -58,10 +58,10 @@ function findColorFieldOnItem(item) {
 function lineStyleByAssociationType(associationDetails) {
   
   let style: any = {
-    lineType: 2, // ARROW: = 2, ARROW_SKETCH: = 9, LINE: = 1
-    lineStyle: 2, // DASHED = 1, NORMAL = 2, STRONG = 3, DOTTED = 4
-    lineEndStyle: 1, // ARC_ARROW: = 1, ARROW: = 6, CIRCLE: = 4, FILLED_ARROW: = 8, FILLED_CIRCLE: = 5, FILLED_RHOMBUS: = 3, NONE: = 0, OPEN_ARROW: = 7, RHOMBUS: = 2
-    lineStartStyle: 0, // see above
+    lineType: miro.enums.lineType.ARROW,
+    lineStyle: miro.enums.lineStyle.NORMAL,
+    lineEndStyle: miro.enums.lineArrowheadStyle.ARC_ARROW,
+    lineStartStyle: miro.enums.lineArrowheadStyle.NONE,
     lineThickness: 1,
   }
 
