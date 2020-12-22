@@ -13,7 +13,7 @@
     "watch": "webpack -w",
     "start": "http-server dist",
     "ngrok": "ngrok http 8081",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -u \"github-ci <github-ci@noreply.com>\" -d dist"
   },
   "devDependencies": {
     "gh-pages": "^3.1.0",

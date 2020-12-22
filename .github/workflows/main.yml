@@ -37,7 +37,7 @@ jobs:
         run: npm run build
 
       - name: Deploy to GH Pages
-        run: gh-pages -u "Github CI <githubCI@noreply.com>"
+        run: npm run deploy
         
 
       #- name: Deploy to GH Pages

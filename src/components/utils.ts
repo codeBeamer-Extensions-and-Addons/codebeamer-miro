@@ -57,14 +57,14 @@ export async function saveBoardSettings(settings) {
   return await createOrUpdateWidget(settingsWidget)
 }
 
-export async function getPrivateSetting(setting: string) {
-  let data = JSON.parse(localStorage.getItem(store.state.LS_KEY) || '{}')
-  return data[setting]
-}
-
 export async function savePrivateSettings(settings: { [key: string] : string }) {
   const currentSettings = localStorage.getItem(store.state.LS_KEY);
   let data = currentSettings === null ? {} : JSON.parse(currentSettings);
   Object.assign(data, settings)
   localStorage.setItem(store.state.LS_KEY, JSON.stringify(data))
+}
+
+export async function getPrivateSetting(setting: string) {
+  let data = JSON.parse(localStorage.getItem(store.state.LS_KEY) || '{}')
+  return data[setting]
 }
