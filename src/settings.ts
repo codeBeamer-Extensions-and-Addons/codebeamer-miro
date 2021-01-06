@@ -20,22 +20,20 @@ function setFieldFromBoardSettings(fieldIdAndSettingName) {
 }
 
 function addValueOfFieldToObject(object, fieldId) {
-  let field = document.querySelector(`#${fieldId}`)
+  let field = document.getElementById(fieldId)
   object[fieldId] = field ? field["value"] : null
   return object
 }
 
 
 
-let saveButton = document.querySelector('#saveButton')
-console.log(`document: ${JSON.stringify(document)}`)
-console.log(`save button: ${saveButton}`)
+let saveButton = document.getElementById('saveButton')
 if (saveButton)
   saveButton.addEventListener('click', () => {
     let boardSettings = {}
     addValueOfFieldToObject(boardSettings, 'cbAddress')
     addValueOfFieldToObject(boardSettings, 'inboxTrackerId')
-    addValueOfFieldToObject(boardSettings, 'cbqlQuery')
+    addValueOfFieldToObject(boardSettings, 'projectId')
     let privateSettings = {}
     addValueOfFieldToObject(privateSettings, 'cbUsername')
     addValueOfFieldToObject(privateSettings, 'cbPassword')
@@ -49,7 +47,7 @@ if (saveButton)
 onReady(() => {
   setFieldFromBoardSettings('cbAddress')
   setFieldFromBoardSettings('inboxTrackerId')
-  setFieldFromBoardSettings('cbqlQuery')
+  setFieldFromBoardSettings('projectId')
   setFieldFromPrivateSettings('cbUsername')
   setFieldFromPrivateSettings('cbPassword')
 })

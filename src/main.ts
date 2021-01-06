@@ -1,7 +1,7 @@
 import Store from './components/store';
 import { convert2Line } from './components/converter';
 import { createOrUpdateWidget, deleteWidget, findLinesByFromCard, findWidgetByTypeAndMetadataId } from './components/miro';
-import { createOrUpdateCbItem, getCodeBeamerItems, getCodeBeamerOutgoingAssociations, getCodeBeamerAssociationDetails } from './components/codebeamer';
+import { createOrUpdateCbItem, getCodeBeamerCbqlResult, getCodeBeamerOutgoingAssociations, getCodeBeamerAssociationDetails } from './components/codebeamer';
 
 const store = Store.getInstance();
 
@@ -47,8 +47,9 @@ export async function onAllWidgetsLoaded(callback) {
 //   )
 // }
 
-export async function syncWithCodeBeamer() {
-  await getCodeBeamerItems()
+export async function syncWithCodeBeamer(cbqlQuery) {
+  await getCodeBeamerCbqlResult(cbqlQuery)
+    .then(async queryResult => queryResult.items)
     .then(async cbItems => {
       console.log('starting createOrUpdateCbItem for all Items')
       for (let index = 0; index < cbItems.length; index++) {

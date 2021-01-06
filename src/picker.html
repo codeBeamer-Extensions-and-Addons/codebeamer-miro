@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="https://miro.com/app/static/styles.1.0.css" />
+</head>
+
+<body>
+  <script src="https://miro.com/app/static/sdk.1.1.js"></script>
+  <script src="main.js"></script>
+
+  <div class="miro-h2">Import from codeBeamer</div>
+
+
+  <table>
+    <tr>
+      <td>
+        <select id='selectedTracker' class="miro-select miro-select--secondary-bordered">
+          <option value="" disabled selected hidden>Select Tracker ...</option>
+        </select>
+      </td>
+      <td>
+        <div class="miro-input-field miro-input-field--small">
+          <label>Sync Scope cbQl query</label>
+          <input id='cbqlQuery' type="text" class="miro-input miro-input--primary" placeholder="tracker.id in (12345)">
+        </div>
+      </td>
+    </tr>
+  </table>
+  <table id='dataTable'>
+
+  </table>
+  <button id='importButton' class="miro-btn miro-btn--primary miro-btn--small">Import (0)</button>
+
+  <script src="picker.js"></script>
+</body>
+
+</html>

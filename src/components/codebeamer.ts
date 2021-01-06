@@ -33,17 +33,17 @@ export async function getCodeBeamerItemURL(id) {
   return url
 }
 
-export async function getCodeBeamerItems() {
+export async function getCodeBeamerCbqlResult(cbqlQuery, page = 1, pageSize = 500) {
   try {
     let url = await getCbApiBasePath()
     url.pathname = url.pathname + '/items/query'
-    url.search = `page=1&pageSize=500&queryString=${await getBoardSetting('cbqlQuery')}`
-    const cbItems = await fetch(url.toString(), {
+    url.search = `page=${page}&pageSize=${pageSize}&queryString=${cbqlQuery}`
+    const queryResult = await fetch(url.toString(), {
       method: 'GET',
       headers: await getCbHeaders(),
     })
       .then(res => res.json())
-    return cbItems.items
+    return queryResult
   } catch (error) {
     console.log('Error while getting items from codeBeamer', error)
   }
@@ -71,6 +71,14 @@ async function getCodeBeamerWiki2Html(markup, trackerItem) {
     body: JSON.stringify(body),
   })
     .then(res => res.text())
+}
+
+export async function getCodeBeamerProjectTrackers(projectID) {
+  return await fetch(`${await getCbApiBasePath()}/projects/${projectID}/trackers`, {
+    method: 'GET',
+    headers: await getCbHeaders(),
+  })
+    .then(res => res.json())
 }
 
 async function getCodeBeamerTrackerDetails(tracker) {
