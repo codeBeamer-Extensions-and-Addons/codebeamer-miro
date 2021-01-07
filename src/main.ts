@@ -3,8 +3,8 @@ import { createOrUpdateWidget, deleteWidget, findLinesByFromCard, findWidgetByTy
 import { createOrUpdateCbItem, getCodeBeamerCbqlResult, getCodeBeamerOutgoingAssociations, getCodeBeamerAssociationDetails } from './components/codebeamer';
 import App from './components/app';
 
-export async function syncWithCodeBeamer(cbqlQuery) {
-  await getCodeBeamerCbqlResult(cbqlQuery)
+export function syncWithCodeBeamer(itemIds : string[]) {
+  return getCodeBeamerCbqlResult(`item.id IN (${itemIds.join(',')})`)
     .then(async queryResult => queryResult.items)
     .then(async cbItems => {
       console.log('starting createOrUpdateCbItem for all Items')
@@ -16,14 +16,13 @@ export async function syncWithCodeBeamer(cbqlQuery) {
         await createUpdateOrDeleteAssociationLines(cbItems[index])
       }
     })
-  miro.showNotification('Sync with codeBeamer finished!')
 }
 
 async function createUpdateOrDeleteAssociationLines(cbItem) {
   let associations = await getCodeBeamerOutgoingAssociations(cbItem)
   const existingLines = await findLinesByFromCard(cbItem.card.id)
 
-  // delete lines which are no longer present that originate on any of the items synched above
+  // delete codebeamer-flagged lines which are no longer present in codebeamer that originate on any of the items synched above
   let deletionTask = Promise.all(
     existingLines.map(
       async line => {
@@ -35,7 +34,7 @@ async function createUpdateOrDeleteAssociationLines(cbItem) {
     )
   )
 
-  // add or update lines
+  // add or update lines from codeBeamer
   let additionTask = Promise.all(
     associations.map(
       async association => {

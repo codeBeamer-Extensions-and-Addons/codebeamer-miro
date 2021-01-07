@@ -1,5 +1,14 @@
 import App from './app';
 
+export async function getAllSynchedCodeBeamerCardItemIds() {
+  return (
+    (await miro.board.widgets.get({
+      type: 'CARD',
+    })))
+    .filter(widget => widget.metadata[App.id] && widget.metadata[App.id].id)
+    .map(widget => widget.metadata[App.id].id as string)
+}
+
 export async function getWidgetDetail(widget) {
   return (await miro.board.widgets.get(widget))[0]
 }
@@ -15,11 +24,11 @@ export async function findWidgetByTypeAndMetadataId(widgetData) {
 
 export async function findLinesByFromCard(fromCardId) {
   return (
-      await miro.board.widgets.get<SDK.ILineWidget>({
-        type: 'LINE',
-      })
-    )
-      .filter(line => line.metadata[App.id] && line.startWidgetId === fromCardId)
+    await miro.board.widgets.get<SDK.ILineWidget>({
+      type: 'LINE',
+    })
+  )
+    .filter(line => line.metadata[App.id] && line.startWidgetId === fromCardId)
 }
 
 export async function createOrUpdateWidget(widgetData) {
