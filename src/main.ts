@@ -1,51 +1,7 @@
-import Store from './components/store';
 import { convert2Line } from './components/converter';
 import { createOrUpdateWidget, deleteWidget, findLinesByFromCard, findWidgetByTypeAndMetadataId } from './components/miro';
 import { createOrUpdateCbItem, getCodeBeamerCbqlResult, getCodeBeamerOutgoingAssociations, getCodeBeamerAssociationDetails } from './components/codebeamer';
-
-const store = Store.getInstance();
-
-miro.onReady(() => {
-  store.state.appId = miro.getClientId()
-  store.state.onReadyCalled = true
-  while (store.state.onReadyFuncs.length) { store.state.onReadyFuncs.shift().call() }
-})
-
-// not used at the moment - maybe remove
-export function onReady(func) {
-  if (store.state.onReadyCalled) {
-    func()
-  } else {
-    store.state.onReadyFuncs.push(func)
-  }
-}
-
-export async function onAllWidgetsLoaded(callback) {
-  const areAllWidgetsLoaded = await miro.board.widgets.areAllWidgetsLoaded()
-  if (areAllWidgetsLoaded) {
-    callback()
-  } else {
-    miro.addListener('ALL_WIDGETS_LOADED', callback)
-  }
-}
-
-// function isSelectionOpenable(selectedWidgets) {
-//   // only single selection supported
-//   return !selectedWidgets.some(widget => !isWidgetRepresentingCodeBeamerItem(widget))
-// }
-
-// function isWidgetRepresentingCodeBeamerItem(widget) {
-//   return widget.metadata && widget.metadata[appId] && widget.metadata[appId].id
-// }
-
-
-// async function openInCodeBeamer(selectedWidgets) {
-//   await Promise.all(
-//     selectedWidgets.map(async widget => {
-//       await window.open(await getCodeBeamerItemURL(widget.metadata[appId].id), '_blank')
-//     })
-//   )
-// }
+import App from './components/app';
 
 export async function syncWithCodeBeamer(cbqlQuery) {
   await getCodeBeamerCbqlResult(cbqlQuery)
@@ -71,8 +27,8 @@ async function createUpdateOrDeleteAssociationLines(cbItem) {
   let deletionTask = Promise.all(
     existingLines.map(
       async line => {
-        if (!associations.find(association => line.metadata[store.state.appId].id === association.id)) {
-          console.log(`deleting line ${line.id} because the association ${line.metadata[store.state.appId].id} does not exist anymore`)
+        if (!associations.find(association => line.metadata[App.id].id === association.id)) {
+          console.log(`deleting line ${line.id} because the association ${line.metadata[App.id].id} does not exist anymore`)
           await deleteWidget(line)
         }
       }
@@ -83,7 +39,7 @@ async function createUpdateOrDeleteAssociationLines(cbItem) {
   let additionTask = Promise.all(
     associations.map(
       async association => {
-        const toCard = await findWidgetByTypeAndMetadataId({ type: 'CARD', metadata: { [store.state.appId]: { id: association.itemRevision.id } } });
+        const toCard = await findWidgetByTypeAndMetadataId({ type: 'CARD', metadata: { [App.id]: { id: association.itemRevision.id } } });
         console.log(`Association ${association.id}: card for codeBeamer ID ${association.itemRevision.id} is: ${toCard ? toCard.id : 'NOT FOUND (item not synced)'}`)
         if (toCard) {
           let associationDetails = await getCodeBeamerAssociationDetails(association)

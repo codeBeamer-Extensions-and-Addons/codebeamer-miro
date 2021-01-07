@@ -1,24 +1,26 @@
-import { onReady, syncWithCodeBeamer } from './main';
-import { getBoardSetting } from './components/utils';
+import { syncWithCodeBeamer } from './main';
 import { getCodeBeamerProjectTrackers, getCodeBeamerCbqlResult } from './components/codebeamer';
+import Store from './components/store';
+import { BoardSetting } from './components/constants';
 
-onReady(async () => {
-  var trackersSelection = document.getElementById('selectedTracker')
-  var availableTrackers = await getCodeBeamerProjectTrackers(await getBoardSetting('projectId'))
-
-  availableTrackers.forEach(element => {
-    var opt = document.createElement("option");
-    opt.value = element.id;
-    opt.innerHTML = `[${element.id}] ${element.name}`;
-    if (trackersSelection)
-      trackersSelection.appendChild(opt);
-  });
-  if (trackersSelection)
-    trackersSelection.onchange = trackerSelected
-
+Store.getInstance().onPluginReady(async () => {
+  let trackersSelection = document.getElementById('selectedTracker') as HTMLSelectElement
   let importButton = document.getElementById('importButton')
-  if (importButton)
+  if (trackersSelection && importButton) {
+    var availableTrackers = await getCodeBeamerProjectTrackers(Store.getInstance().getBoardSetting(BoardSetting.PROJECT_ID))
+
+    availableTrackers.forEach(element => {
+      var opt = document.createElement("option");
+      opt.value = element.id;
+      opt.innerHTML = `[${element.id}] ${element.name}`;
+      if (trackersSelection)
+        trackersSelection.appendChild(opt);
+    });
+
+    trackersSelection.onchange = trackerSelected
     importButton.onclick = importItems
+
+  }
 })
 
 function getCheckBoxesWithoutHeaderBox() {

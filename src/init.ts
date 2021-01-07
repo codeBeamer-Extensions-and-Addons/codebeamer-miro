@@ -1,7 +1,5 @@
-import Store from './components/store';
-import { syncWithCodeBeamer, onAllWidgetsLoaded } from "./main"
-import { createOrHideSettingsWidget, isSelectionConvertable, isSettingsWidgetSelected } from "./components/utils";
-import { submitNewCodeBeamerItem } from "./components/codebeamer";
+import { isSelectionConvertable, isSettingsWidgetSelected } from "./components/utils";
+import { submitNewCodeBeamerItem, cbConnectionCheck } from "./components/codebeamer";
 
 const UPLOAD_ICON = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 20C16 19.4477 16.4477 19 17 19H20V4H4V19H7C7.55228 19 8 19.4477 8 20C8 20.5523 7.55228 21 7 21H3C2.44772 21 2 20.5523 2 20V3C2 2.44772 2.44772 2 3 2H21C21.5523 2 22 2.44771 22 3V20C22 20.5523 21.5523 21 21 21H17C16.4477 21 16 20.5523 16 20Z" fill="#050038"/><path d="M11 21.5V11.9142L9.41421 13.5C9.02369 13.8905 8.39052 13.8905 8 13.5C7.60948 13.1095 7.60948 12.4763 8 12.0858L12 8.08579L16 12.0858C16.3905 12.4763 16.3905 13.1095 16 13.5C15.6095 13.8905 14.9763 13.8905 14.5858 13.5L13 11.9142V21.5C13 22.0523 12.5523 22.5 12 22.5C11.4477 22.5 11 22.0523 11 21.5Z" fill="#050038"/></svg>'
 // TODO: Check if should be unused
@@ -10,7 +8,6 @@ const CODEBEAMER_ICON = '<svg enable-background="new 0 0 256 256" version="1.1" 
 const SETTINGS_ICON = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M22.3137 7.34312C21.9232 6.95259 21.29 6.95259 20.8995 7.34312L18.071 10.1715L13.8284 5.92891L16.6568 3.10048C17.0474 2.70995 17.0474 2.07679 16.6568 1.68626C16.2663 1.29574 15.6331 1.29574 15.2426 1.68626L12.4142 4.51469L10.2929 2.39337L6.05023 6.63601C3.70708 8.97916 3.70708 12.7781 6.05023 15.1213L6.75734 15.8284L2.51469 20.071C2.12417 20.4616 2.12417 21.0947 2.51469 21.4853C2.90522 21.8758 3.53838 21.8758 3.92891 21.4853L8.17155 17.2426L8.87866 17.9497C11.2218 20.2929 15.0208 20.2929 17.3639 17.9497L21.6066 13.7071L19.4853 11.5858L22.3137 8.75733C22.7042 8.36681 22.7042 7.73364 22.3137 7.34312ZM7.46444 8.05023L10.2929 5.2218L18.7782 13.7071L15.9497 16.5355C14.3876 18.0976 11.855 18.0976 10.2929 16.5355L7.46444 13.7071C5.90235 12.145 5.90235 9.61232 7.46444 8.05023Z" fill="#050038"/></svg>'
 
 miro.onReady(() => {
-  Store.setAppId()
   miro.initialize({
     extensionPoints: {
       //// make new icon that shows "refresh" -> sync all current items
@@ -23,9 +20,13 @@ miro.onReady(() => {
         title: "Import Items from codeBeamer",
         librarySvgIcon: CODEBEAMER_ICON,
         toolbarSvgIcon: CODEBEAMER_ICON,
-        onClick: async () => {
-          let returnval = await miro.board.ui.openModal('picker.html')
-          console.log(JSON.stringify(returnval))
+        onClick: () => {
+          cbConnectionCheck()
+            .then(() => miro.board.ui.openModal('picker.html'))
+            .catch(err => {
+              miro.showNotification(`Please fix CB Connection settings. CB Connection could not be established: ${err}`)
+              miro.board.ui.openModal('settings.html')
+            })
         },
       },
       getWidgetMenuItems: function (selectedWidgets) {
@@ -57,10 +58,5 @@ miro.onReady(() => {
         return Promise.resolve(menuItems);
       },
     }
-  });
-
-  onAllWidgetsLoaded(async () => {
-    let settingsWidget = await createOrHideSettingsWidget()
-    console.log(`codebeamer-miro settings are now hidden: ${settingsWidget.id}`)
   })
 })

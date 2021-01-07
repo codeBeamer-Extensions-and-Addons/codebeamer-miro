@@ -1,8 +1,8 @@
-import Store from './store';
+import App from './app';
 import { CardData } from "types/CardData"
 import { getCodeBeamerItemURL } from './codebeamer';
+import { Constants } from './constants';
 
-const store = Store.getInstance();
 
 export async function convert2Card(item) {
   let cardData: CardData = {
@@ -27,7 +27,7 @@ export async function convert2Card(item) {
       editable: false
     },
     metadata: {
-      [store.state.appId]: {
+      [App.id]: {
         id: item.id,
       },
     },
@@ -42,9 +42,9 @@ export async function convert2Card(item) {
     cardData.style = { backgroundColor: backgroundColor };
   }
 
-  if (item[store.state.NEWPOS]) {
-    cardData.x = item[store.state.NEWPOS].x;
-    cardData.y = item[store.state.NEWPOS].y;
+  if (item[Constants.NEWPOS]) {
+    cardData.x = item[Constants.NEWPOS].x;
+    cardData.y = item[Constants.NEWPOS].y;
   }
 
   return cardData;
@@ -101,7 +101,7 @@ export function convert2Line(associationDetails, fromCardId, toCardId) {
       editable: false
     },
     metadata: {
-      [store.state.appId]: {
+      [App.id]: {
         id: associationDetails.id,
       },
     },

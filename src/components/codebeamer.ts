@@ -1,7 +1,8 @@
-import Store from './store';
 import { getWidgetDetail, deleteWidget, createOrUpdateWidget } from "./miro";
 import { convert2CbItem, convert2Card } from "./converter";
-import { getPrivateSetting, getBoardSetting } from "./utils";
+import { getPrivateSetting } from "./utils";
+import Store from './store';
+import { BoardSetting, Constants, PrivateSetting } from "./constants";
 
 const store = Store.getInstance();
 
@@ -10,32 +11,32 @@ async function getCbHeaders() {
     'Content-Type': 'application/json'
   })
 
-  let username = await getPrivateSetting('cbUsername')
-  let password = await getPrivateSetting('cbPassword')
+  let username = await getPrivateSetting(PrivateSetting.CB_USERNAME)
+  let password = await getPrivateSetting(PrivateSetting.CB_PASSWORD)
   headers.append('Authorization', 'Basic ' + btoa(username + ":" + password));
 
   return headers
 }
 
-async function getCbBaseUrl() {
-  return new URL(await getBoardSetting('cbAddress'))
+function getCbBaseUrl() {
+  return new URL(store.getBoardSetting(BoardSetting.CB_ADDRESS))
 }
 
-async function getCbApiBasePath() {
-  let url = await getCbBaseUrl()
+function getCbApiBasePath() {
+  let url = getCbBaseUrl()
   url.pathname = url.pathname + '/api/v3'
   return url
 }
 
-export async function getCodeBeamerItemURL(id) {
-  let url = await getCbBaseUrl()
+export function getCodeBeamerItemURL(id) {
+  let url = getCbBaseUrl()
   url.pathname = url.pathname + `/issue/${id}`
   return url
 }
 
 export async function getCodeBeamerCbqlResult(cbqlQuery, page = 1, pageSize = 500) {
   try {
-    let url = await getCbApiBasePath()
+    let url = getCbApiBasePath()
     url.pathname = url.pathname + '/items/query'
     url.search = `page=${page}&pageSize=${pageSize}&queryString=${cbqlQuery}`
     const queryResult = await fetch(url.toString(), {
@@ -51,7 +52,7 @@ export async function getCodeBeamerCbqlResult(cbqlQuery, page = 1, pageSize = 50
 
 // not needed if we use query directly (details are already there)
 async function getCodeBeamerItemDetails(item) {
-  return await fetch(`${await getCbApiBasePath()}/items/${item.id}`, {
+  return await fetch(`${getCbApiBasePath()}/items/${item.id}`, {
     method: 'GET',
     headers: await getCbHeaders(),
   })
@@ -65,7 +66,7 @@ async function getCodeBeamerWiki2Html(markup, trackerItem) {
     renderingContextType: "TRACKER_ITEM",
     markup: markup
   }
-  return await fetch(`${await getCbApiBasePath()}/projects/${trackerItem.tracker.project.id}/wiki2html`, {
+  return await fetch(`${getCbApiBasePath()}/projects/${trackerItem.tracker.project.id}/wiki2html`, {
     method: 'POST',
     headers: await getCbHeaders(),
     body: JSON.stringify(body),
@@ -73,8 +74,18 @@ async function getCodeBeamerWiki2Html(markup, trackerItem) {
     .then(res => res.text())
 }
 
-export async function getCodeBeamerProjectTrackers(projectID) {
-  return await fetch(`${await getCbApiBasePath()}/projects/${projectID}/trackers`, {
+// throws error if not OK
+export function cbConnectionCheck(){
+  return getCodeBeamerProjectTrackers()
+    .then(res => {
+      if (res.message) throw new Error(res.message)
+      return true
+    })
+}
+
+export async function getCodeBeamerProjectTrackers(projectID = undefined) {
+  if (!projectID) projectID = Store.getInstance().getBoardSetting(BoardSetting.PROJECT_ID)
+  return await fetch(`${getCbApiBasePath()}/projects/${projectID}/trackers`, {
     method: 'GET',
     headers: await getCbHeaders(),
   })
@@ -82,7 +93,7 @@ export async function getCodeBeamerProjectTrackers(projectID) {
 }
 
 async function getCodeBeamerTrackerDetails(tracker) {
-  return await fetch(`${await getCbApiBasePath()}/trackers/${tracker.id}`, {
+  return await fetch(`${getCbApiBasePath()}/trackers/${tracker.id}`, {
     method: 'GET',
     headers: await getCbHeaders(),
   })
@@ -90,7 +101,7 @@ async function getCodeBeamerTrackerDetails(tracker) {
 }
 
 export async function getCodeBeamerOutgoingAssociations(item) {
-  const itemRelations = await fetch(`${await getCbApiBasePath()}/items/${item.id}/relations`, {
+  const itemRelations = await fetch(`${getCbApiBasePath()}/items/${item.id}/relations`, {
     method: 'GET',
     headers: await getCbHeaders(),
   })
@@ -99,7 +110,7 @@ export async function getCodeBeamerOutgoingAssociations(item) {
 }
 
 export async function getCodeBeamerAssociationDetails(association) {
-  return await fetch(`${await getCbApiBasePath()}/associations/${association.id}`, {
+  return await fetch(`${getCbApiBasePath()}/associations/${association.id}`, {
     method: 'GET',
     headers: await getCbHeaders(),
   })
@@ -107,7 +118,7 @@ export async function getCodeBeamerAssociationDetails(association) {
 }
 
 async function addNewCbItem(item) {
-  return await fetch(`${await getCbApiBasePath()}/trackers/${await getBoardSetting('inboxTrackerId')}/items`, {
+  return await fetch(`${getCbApiBasePath()}/trackers/${store.getBoardSetting(BoardSetting.INBOX_TRACKER_ID)}/items`, {
     method: 'POST',
     headers: await getCbHeaders(),
     body: JSON.stringify(item),
@@ -137,7 +148,7 @@ export async function submitNewCodeBeamerItem(widget) {
   let submissionItem = convert2CbItem(widget)
   let cbItem = await addNewCbItem(submissionItem)
   // create new item in same position as old one
-  cbItem[store.state.NEWPOS] = { x: widget.x, y: widget.y }
+  cbItem[Constants.NEWPOS] = { x: widget.x, y: widget.y }
   deleteWidget(widget) // dont wait
   await createOrUpdateCbItem(cbItem)
   miro.board.selection.selectWidgets({ id: cbItem.card.id })
