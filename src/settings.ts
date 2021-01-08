@@ -1,26 +1,26 @@
-import { savePrivateSettings, getPrivateSetting } from './components/utils';
 import Store from './components/store';
-import { BoardSetting, PrivateSetting } from './components/constants';
+import { BoardSetting, LocalSetting } from './components/constants';
 import { cbConnectionCheck } from './components/codebeamer'
 
-function setFieldFromPrivateSettings(fieldIdAndSettingName: PrivateSetting) {
-  return getPrivateSetting(fieldIdAndSettingName).then(value => {
-    if (value) {
-      let field = document.getElementById(fieldIdAndSettingName)
-      if (field) field["value"] = value
-    }
-  })
-}
+const store = Store.getInstance();
 
-function setFieldFromBoardSettings(fieldIdAndSettingName: BoardSetting) {
-  let value = Store.getInstance().getBoardSetting(fieldIdAndSettingName)
+function setFieldFromPrivateSettings(fieldIdAndSettingName: LocalSetting) {
+  let value = store.getLocalSetting(fieldIdAndSettingName)
   if (value) {
     let field = document.getElementById(fieldIdAndSettingName)
     if (field) field["value"] = value
   }
 }
 
-function addValueOfFieldToObject(object: any, fieldId: BoardSetting | PrivateSetting) {
+function setFieldFromBoardSettings(fieldIdAndSettingName: BoardSetting) {
+  let value = store.getBoardSetting(fieldIdAndSettingName)
+  if (value) {
+    let field = document.getElementById(fieldIdAndSettingName)
+    if (field) field["value"] = value
+  }
+}
+
+function addValueOfFieldToObject(object: any, fieldId: BoardSetting | LocalSetting) {
   let field = document.getElementById(fieldId)
   object[fieldId] = field ? field["value"] : null
   return object
@@ -31,13 +31,13 @@ async function saveButtonOnClick() {
   addValueOfFieldToObject(boardSettings, BoardSetting.CB_ADDRESS)
   addValueOfFieldToObject(boardSettings, BoardSetting.INBOX_TRACKER_ID)
   addValueOfFieldToObject(boardSettings, BoardSetting.PROJECT_ID)
-  let privateSettings = {}
-  addValueOfFieldToObject(privateSettings, PrivateSetting.CB_USERNAME)
-  addValueOfFieldToObject(privateSettings, PrivateSetting.CB_PASSWORD)
+  let localSettings = {}
+  addValueOfFieldToObject(localSettings, LocalSetting.CB_USERNAME)
+  addValueOfFieldToObject(localSettings, LocalSetting.CB_PASSWORD)
 
   await Promise.all([
-    Store.getInstance().saveBoardSettings(boardSettings),
-    savePrivateSettings(privateSettings)
+    store.saveBoardSettings(boardSettings),
+    store.saveLocalSettings(localSettings)
   ])
 
   await cbConnectionCheck()
@@ -51,10 +51,10 @@ async function saveButtonOnClick() {
 let saveButton = document.getElementById('saveButton')
 if (saveButton) saveButton.onclick = saveButtonOnClick
 
-Store.getInstance().onPluginReady(async () => {
+store.onPluginReady(async () => {
   setFieldFromBoardSettings(BoardSetting.CB_ADDRESS)
   setFieldFromBoardSettings(BoardSetting.INBOX_TRACKER_ID)
   setFieldFromBoardSettings(BoardSetting.PROJECT_ID)
-  setFieldFromPrivateSettings(PrivateSetting.CB_USERNAME)
-  setFieldFromPrivateSettings(PrivateSetting.CB_PASSWORD)
+  setFieldFromPrivateSettings(LocalSetting.CB_USERNAME)
+  setFieldFromPrivateSettings(LocalSetting.CB_PASSWORD)
 })

@@ -11,19 +11,24 @@
 
   <div class="miro-h2">Import from codeBeamer</div>
 
-
   <table>
     <tr>
       <td>
-        <select id='selectedTracker' class="miro-select miro-select--secondary-bordered">
-          <option value="" disabled selected hidden>Select Tracker ...</option>
-        </select>
+        <div id='simpleSearch'>
+          <select id='selectedTracker' class="miro-select miro-select--secondary-bordered">
+            <option value="" disabled selected hidden>Select Tracker ...</option>
+          </select>
+        </div>
+        <div id='advancedSearch'>
+          <input id='cbqlQuery' class="miro-input miro-input--primary miro-input--small"
+            placeholder="tracker.id in (12345)">
+          <a href="https://codebeamer.com/cb/wiki/871101" target="blank" title="Codebeamer cbQL documentation">
+            <img src="img/questionMark.svg">
+          </a>
+        </div>
       </td>
       <td>
-        <div class="miro-input-field miro-input-field--small">
-          <label>Sync Scope cbQl query</label>
-          <input id='cbqlQuery' type="text" class="miro-input miro-input--primary" placeholder="tracker.id in (12345)">
-        </div>
+        <button id='switchSearchButton' class="miro-btn miro-btn--primary miro-btn--small"></button>
       </td>
     </tr>
   </table>

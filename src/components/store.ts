@@ -1,6 +1,6 @@
 import { createOrUpdateWidget } from '../components/miro';
 import { CardData } from "../types/CardData"
-import { BoardSetting } from './constants';
+import { BoardSetting, Constants, LocalSetting } from './constants';
 import App from "./app"
 
 class Store {
@@ -14,7 +14,7 @@ class Store {
 
   private static configInitCalled: boolean = false
 
-  private constructor() {}
+  private constructor() { }
 
   public static getInstance() {
     if (!Store.instance) Store.instance = new Store();
@@ -34,13 +34,25 @@ class Store {
     while (Store.getInstance().state.onReadyFuncs.length) { Store.getInstance().state.onReadyFuncs.shift().call() }
   }
 
-  public getBoardSetting(setting : BoardSetting) {
+  public getBoardSetting(setting: BoardSetting) {
     return this.configWidget.metadata[App.id].settings[setting];
   }
 
   public async saveBoardSettings(settings) {
     Object.assign(this.configWidget.metadata[App.id].settings, settings)
     this.configWidget = await createOrUpdateWidget(this.configWidget) as SDK.ICardWidget
+  }
+
+  public saveLocalSettings(settings: { [key: string]: string | boolean }) {
+    const currentSettings = localStorage.getItem(Constants.LS_KEY);
+    let data = currentSettings === null ? {} : JSON.parse(currentSettings);
+    Object.assign(data, settings)
+    localStorage.setItem(Constants.LS_KEY, JSON.stringify(data))
+  }
+
+  public getLocalSetting(setting: LocalSetting) {
+    let data = JSON.parse(localStorage.getItem(Constants.LS_KEY) || '{}')
+    return data[setting]
   }
 
   public static async initConfigCard() {
