@@ -26,6 +26,10 @@ To develop and see the changes directly on Miro, have one terminal watch the cod
 
 If you make a change to any of the html files, you will need to stop the http server (to release the dist folder), rerun the build process (it will rebuild the dist folder) and start the http server back up. I have observed that sometimes, you need to manually clear the browser cache completely for Miro to notice the change.
 
+![Console Commands](readmeImg/consoleCommands.jpg "Three consoles with the commands to run")
+![Running Consoles](readmeImg/consoleRunning.jpg "The running consoles when running locally")
+
+
 # Contribute
 You can simply create a branch, make your changes and submit a pull request to master.
 
