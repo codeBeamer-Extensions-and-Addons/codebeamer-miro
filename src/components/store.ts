@@ -2,6 +2,12 @@ import { createOrUpdateWidget } from '../components/miro';
 import { CardData } from "../types/CardData"
 import { BoardSetting, Constants, LocalSetting } from './constants';
 import App from "./app"
+import { UserMapping } from '../types/UserMapping';
+
+interface getUserMappingParam {
+  cbUserId?: string,
+  miroUserId?: string,
+}
 
 class Store {
   private static instance: Store
@@ -35,24 +41,41 @@ class Store {
   }
 
   public getBoardSetting(setting: BoardSetting) {
-    return this.configWidget.metadata[App.id].settings[setting];
+    return this.configWidget.metadata[App.appId].settings[setting];
   }
 
   public async saveBoardSettings(settings) {
-    Object.assign(this.configWidget.metadata[App.id].settings, settings)
+    Object.assign(this.configWidget.metadata[App.appId].settings, settings)
     this.configWidget = await createOrUpdateWidget(this.configWidget) as SDK.ICardWidget
   }
 
+  private getLocalStoreLocation() { return Constants.LS_KEY + "-" + App.boardId }
+
   public saveLocalSettings(settings: { [key: string]: string | boolean }) {
-    const currentSettings = localStorage.getItem(Constants.LS_KEY);
+    const currentSettings = localStorage.getItem(this.getLocalStoreLocation());
     let data = currentSettings === null ? {} : JSON.parse(currentSettings);
     Object.assign(data, settings)
-    localStorage.setItem(Constants.LS_KEY, JSON.stringify(data))
+    localStorage.setItem(this.getLocalStoreLocation(), JSON.stringify(data))
   }
 
   public getLocalSetting(setting: LocalSetting) {
-    let data = JSON.parse(localStorage.getItem(Constants.LS_KEY) || '{}')
+    let data = JSON.parse(localStorage.getItem(this.getLocalStoreLocation()) || '{}')
     return data[setting]
+  }
+
+  public async storeUserMapping(mapping: UserMapping) {
+    let storedMappings = this.getBoardSetting(BoardSetting.USER_MAPPING) as UserMapping[]
+    if (!storedMappings) storedMappings = []
+
+    // remove all mappings for both, the cbUser and the miroUser
+    storedMappings = storedMappings.filter(m => m.cbUserId != mapping.cbUserId && m.miroUserId != mapping.miroUserId)
+    storedMappings.push(mapping)
+    await this.saveBoardSettings({ [BoardSetting.USER_MAPPING]: storedMappings })
+  }
+
+  public getUserMapping(userDetails: getUserMappingParam) {
+    let storedMappings = this.getBoardSetting(BoardSetting.USER_MAPPING) as UserMapping[]
+    return storedMappings.find(m => (!userDetails.cbUserId || m.cbUserId == userDetails.cbUserId) && (!userDetails.miroUserId || m.miroUserId == userDetails.miroUserId))
   }
 
   public static async initConfigCard() {
@@ -62,8 +85,8 @@ class Store {
 
     // try to find the widget
     let settingsWidget = (await miro.board.widgets.get({ type: 'CARD', }))
-      .filter(widget => !!widget.metadata[App.id])
-      .find(widget => !!widget.metadata[App.id].settings) as SDK.ICardWidget
+      .filter(widget => !!widget.metadata[App.appId])
+      .find(widget => !!widget.metadata[App.appId].settings) as SDK.ICardWidget
 
     // create if not exists
     if (!settingsWidget) {
@@ -72,7 +95,7 @@ class Store {
         title: 'CodeBeamer-Miro Settings. Click on the context button to make changes!',
         capabilities: { editable: false },
         metadata: {
-          [App.id]: {
+          [App.appId]: {
             settings: {},
           },
         },
@@ -95,8 +118,8 @@ async function onAllWidgetsLoaded(callback) {
   }
 }
 
-miro.onReady(() => {
-  App.getAndSetId()
+miro.onReady(async () => {
+  await App.getAndSetIds()
 
   onAllWidgetsLoaded(async () => {
     await Store.initConfigCard()

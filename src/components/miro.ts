@@ -5,8 +5,8 @@ export async function getAllSynchedCodeBeamerCardItemIds() {
     (await miro.board.widgets.get({
       type: 'CARD',
     })))
-    .filter(widget => widget.metadata[App.id] && widget.metadata[App.id].id)
-    .map(widget => widget.metadata[App.id].id as string)
+    .filter(widget => widget.metadata[App.appId] && widget.metadata[App.appId].id)
+    .map(widget => widget.metadata[App.appId].id as string)
 }
 
 export async function getWidgetDetail(widget) {
@@ -18,8 +18,8 @@ export async function findWidgetByTypeAndMetadataId(widgetData) {
     (await miro.board.widgets.get({
       type: widgetData.type,
     })))
-    .filter(widget => !!widget.metadata[App.id])
-    .find(widget => widget.metadata[App.id].id === widgetData.metadata[App.id].id)
+    .filter(widget => !!widget.metadata[App.appId])
+    .find(widget => widget.metadata[App.appId].id === widgetData.metadata[App.appId].id)
 }
 
 export async function findLinesByFromCard(fromCardId) {
@@ -28,7 +28,7 @@ export async function findLinesByFromCard(fromCardId) {
       type: 'LINE',
     })
   )
-    .filter(line => line.metadata[App.id] && line.startWidgetId === fromCardId)
+    .filter(line => line.metadata[App.appId] && line.startWidgetId === fromCardId)
 }
 
 export async function createOrUpdateWidget(widgetData) {
@@ -49,18 +49,31 @@ async function createWidget(widgetData) {
     widgetData.y = (viewport.y + (viewport.height / 2))
   }
   let widget = (await miro.board.widgets.create(widgetData))[0]
-  let itemId = widget.metadata[App.id].id
+  let itemId = widget.metadata[App.appId].id
   console.log(`${widget.type} widget ${widget.id} has been created to match item ${itemId ? itemId : '<the settings>'}`)
   return widget
 }
 
 async function updateWidget(widgetData) {
   let widget = (await miro.board.widgets.update(widgetData))[0]
-  let itemId = widget.metadata[App.id].id
+  let itemId = widget.metadata[App.appId].id
   console.log(`${widget.type} widget ${widget.id} has been updated to match item ${itemId ? itemId : '<the settings>'}`)
   return widget
 }
 
 export async function deleteWidget(widgetData) {
   return await miro.board.widgets.deleteById(widgetData)
+}
+
+// maybe needed in the future
+async function getToken() {
+  if (await miro.isAuthorized()) {
+    return miro.getToken()
+  } else {
+    return await miro.authorize({ response_type: 'token' })
+  }
+}
+
+export function getCurrentUserId() {
+  return miro.currentUser.getId()
 }

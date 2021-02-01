@@ -2,6 +2,7 @@ export enum BoardSetting {
   PROJECT_ID = 'projectId',
   CB_ADDRESS = 'cbAddress',
   INBOX_TRACKER_ID = 'inboxTrackerId',
+  USER_MAPPING = 'USER_MAPPING',
 }
 
 export enum LocalSetting {
@@ -14,5 +15,5 @@ export enum LocalSetting {
 
 export enum Constants {
   NEWPOS = 'NEWPOS',
-  LS_KEY = 'codebeamer-miro-plugin-widget-private-settings'
+  LS_KEY = 'codebeamer-miro-plugin'
 }

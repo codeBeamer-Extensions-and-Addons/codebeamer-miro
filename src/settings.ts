@@ -1,6 +1,7 @@
 import Store from './components/store';
 import { BoardSetting, LocalSetting } from './components/constants';
-import { cbConnectionCheck } from './components/codebeamer'
+import { getCodeBeamerUser } from './components/codebeamer'
+import { getCurrentUserId } from './components/miro'
 
 const store = Store.getInstance();
 
@@ -40,12 +41,16 @@ async function saveButtonOnClick() {
     store.saveLocalSettings(localSettings)
   ])
 
-  await cbConnectionCheck()
-    .then(() => {
+
+  await getCodeBeamerUser()
+    .then((cbUser) => {
+      getCurrentUserId().then((miroUserId) => {
+        store.storeUserMapping({ cbUserId: cbUser.id, miroUserId: miroUserId })
+      })
       miro.showNotification('CB Connection OK!')
       miro.board.ui.closeModal()
     })
-    .catch(err => miro.showNotification(`CB Connection could not be established: ${err}`))
+    .catch(err => miro.showErrorNotification(`CB Connection could not be established: ${err}`))
 }
 
 let saveButton = document.getElementById('saveButton')

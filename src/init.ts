@@ -1,4 +1,4 @@
-import { submitNewCodeBeamerItem, cbConnectionCheck } from "./components/codebeamer";
+import { submitNewCodeBeamerItem, getCodeBeamerUser } from "./components/codebeamer";
 import App from './components/app';
 
 const UPLOAD_ICON = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 20C16 19.4477 16.4477 19 17 19H20V4H4V19H7C7.55228 19 8 19.4477 8 20C8 20.5523 7.55228 21 7 21H3C2.44772 21 2 20.5523 2 20V3C2 2.44772 2.44772 2 3 2H21C21.5523 2 22 2.44771 22 3V20C22 20.5523 21.5523 21 21 21H17C16.4477 21 16 20.5523 16 20Z" fill="#050038"/><path d="M11 21.5V11.9142L9.41421 13.5C9.02369 13.8905 8.39052 13.8905 8 13.5C7.60948 13.1095 7.60948 12.4763 8 12.0858L12 8.08579L16 12.0858C16.3905 12.4763 16.3905 13.1095 16 13.5C15.6095 13.8905 14.9763 13.8905 14.5858 13.5L13 11.9142V21.5C13 22.0523 12.5523 22.5 12 22.5C11.4477 22.5 11 22.0523 11 21.5Z" fill="#050038"/></svg>'
@@ -21,10 +21,10 @@ miro.onReady(() => {
         librarySvgIcon: CODEBEAMER_ICON,
         toolbarSvgIcon: CODEBEAMER_ICON,
         onClick: () => {
-          cbConnectionCheck()
+          getCodeBeamerUser()
             .then(() => miro.board.ui.openModal('picker.html'))
             .catch(err => {
-              miro.showNotification(`Please fix CB Connection settings. CB Connection could not be established: ${err}`)
+              miro.showErrorNotification(`Please fix CB Connection settings. CB Connection could not be established: ${err}`)
               miro.board.ui.openModal('settings.html')
             })
         },
@@ -43,9 +43,8 @@ miro.onReady(() => {
             {
               tooltip: "Open CodeBeamer <-> Miro Settings",
               svgIcon: SETTINGS_ICON,
-              onClick: async () => {
-                let returnval = await miro.board.ui.openModal('settings.html')
-                console.log(JSON.stringify(returnval))
+              onClick: () => {
+                miro.board.ui.openModal('settings.html')
               },
             })
         // if (isSelectionOpenable(selectedWidgets))
@@ -62,7 +61,7 @@ miro.onReady(() => {
 })
 
 function isSettingsWidget(widget: SDK.IWidget) {
-  return widget.metadata && widget.metadata[App.id] && widget.metadata[App.id].settings
+  return widget.metadata && widget.metadata[App.appId] && widget.metadata[App.appId].settings
 }
 
 function isSettingsWidgetSelected(selectedWidgets: SDK.IWidget[]) {
@@ -71,7 +70,7 @@ function isSettingsWidgetSelected(selectedWidgets: SDK.IWidget[]) {
 
 function isWidgetConvertable(widget: SDK.IWidget) {
   let supportedWidgetTypes = ['STICKER', 'CARD', 'TEXT', 'SHAPE']
-  return (!widget.metadata || !widget.metadata[App.id]) // only allow items NOT created by this plugin
+  return (!widget.metadata || !widget.metadata[App.appId]) // only allow items NOT created by this plugin
     && supportedWidgetTypes.includes(widget.type) // only allow supported types
 }
 

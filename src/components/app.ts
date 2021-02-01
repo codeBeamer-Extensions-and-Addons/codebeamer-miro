@@ -1,10 +1,12 @@
 class App {
-  public static id: string
+  public static appId: string
+  public static boardId: string
 
   private constructor() { }
 
-  public static getAndSetId() {
-    App.id = miro.getClientId()
+  public static async getAndSetIds() {
+    App.appId = miro.getClientId()
+    App.boardId = (await miro.board.info.get()).id
   }
 }
 

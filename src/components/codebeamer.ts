@@ -5,6 +5,15 @@ import { BoardSetting, Constants, LocalSetting } from "./constants";
 
 const store = Store.getInstance();
 
+function checkForCbError(res) {
+  if (!res.ok)
+    throw new Error(res.statusText);
+  let json = res.json()
+  if (json.message)
+    throw new Error(json.message)
+  return json
+}
+
 function getCbHeaders() {
   let headers = new Headers({
     'Content-Type': 'application/json'
@@ -42,7 +51,7 @@ export async function getCodeBeamerCbqlResult(cbqlQuery, page = 1, pageSize = 50
       method: 'GET',
       headers: getCbHeaders(),
     })
-      .then(res => res.json())
+      .then(checkForCbError)
     return queryResult
   } catch (error) {
     console.log('Error while getting items from codeBeamer', error)
@@ -55,7 +64,7 @@ async function getCodeBeamerItemDetails(item) {
     method: 'GET',
     headers: getCbHeaders(),
   })
-    .then(res => res.json())
+    .then(checkForCbError)
 }
 
 async function getCodeBeamerWiki2Html(markup, trackerItem) {
@@ -73,12 +82,13 @@ async function getCodeBeamerWiki2Html(markup, trackerItem) {
     .then(res => res.text())
 }
 
-// throws error if not OK
-export async function cbConnectionCheck() {
-  const res = await getCodeBeamerProjectTrackers()
-  if (res.message)
-    throw new Error(res.message)
-  return true
+export function getCodeBeamerUser(username = undefined) {
+  if (!username) username = Store.getInstance().getLocalSetting(LocalSetting.CB_USERNAME)
+  return fetch(`${getCbApiBasePath()}/users/findByName?name=${username}`, {
+    method: 'GET',
+    headers: getCbHeaders(),
+  })
+    .then(checkForCbError)
 }
 
 export async function getCodeBeamerProjectTrackers(projectID = undefined) {
@@ -87,7 +97,7 @@ export async function getCodeBeamerProjectTrackers(projectID = undefined) {
     method: 'GET',
     headers: getCbHeaders(),
   })
-    .then(res => res.json())
+    .then(checkForCbError)
 }
 
 async function getCodeBeamerTrackerDetails(tracker) {
@@ -95,7 +105,7 @@ async function getCodeBeamerTrackerDetails(tracker) {
     method: 'GET',
     headers: getCbHeaders(),
   })
-    .then(res => res.json())
+    .then(checkForCbError)
 }
 
 export async function getCodeBeamerOutgoingAssociations(item) {
@@ -103,7 +113,7 @@ export async function getCodeBeamerOutgoingAssociations(item) {
     method: 'GET',
     headers: getCbHeaders(),
   })
-    .then(res => res.json())
+    .then(checkForCbError)
   return itemRelations.outgoingAssociations
 }
 
@@ -112,7 +122,7 @@ export async function getCodeBeamerAssociationDetails(association) {
     method: 'GET',
     headers: getCbHeaders(),
   })
-    .then(res => res.json())
+    .then(checkForCbError)
 }
 
 async function addNewCbItem(item) {
@@ -121,14 +131,17 @@ async function addNewCbItem(item) {
     headers: getCbHeaders(),
     body: JSON.stringify(item),
   })
-    .then(res => res.json())
+    .then(checkForCbError)
 }
 
 async function enrichBaseCbItemWithDetails(cbItem) {
   cbItem.tracker = await getCodeBeamerTrackerDetails(cbItem.tracker)
-  cbItem.renderedDescription = cbItem.descriptionFormat === 'Wiki'
-    ? await getCodeBeamerWiki2Html(cbItem.description, cbItem)
-    : cbItem.description
+  cbItem.renderedDescription =
+    cbItem.description
+      ? (cbItem.descriptionFormat === 'Wiki'
+        ? await getCodeBeamerWiki2Html(cbItem.description, cbItem)
+        : cbItem.description)
+      : ""
   return cbItem
 }
 

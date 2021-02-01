@@ -12,7 +12,7 @@
     "prebuild": "(IF exist dist ( RD /s /q dist ) ELSE ( print 'a' )) && MKDIR dist\\img && COPY src\\img dist\\img && COPY src\\index.html dist && COPY src\\settings.html dist && COPY src\\picker.html dist",
     "build": "webpack",
     "watch": "webpack -w",
-    "start": "http-server dist",
+    "start": "http-server dist --cors",
     "ngrok": "ngrok http 8081"
   },
   "devDependencies": {

@@ -26,8 +26,8 @@ async function createUpdateOrDeleteAssociationLines(cbItem) {
   let deletionTask = Promise.all(
     existingLines.map(
       async line => {
-        if (!associations.find(association => line.metadata[App.id].id === association.id)) {
-          console.log(`deleting line ${line.id} because the association ${line.metadata[App.id].id} does not exist anymore`)
+        if (!associations.find(association => line.metadata[App.appId].id === association.id)) {
+          console.log(`deleting line ${line.id} because the association ${line.metadata[App.appId].id} does not exist anymore`)
           await deleteWidget(line)
         }
       }
@@ -38,7 +38,7 @@ async function createUpdateOrDeleteAssociationLines(cbItem) {
   let additionTask = Promise.all(
     associations.map(
       async association => {
-        const toCard = await findWidgetByTypeAndMetadataId({ type: 'CARD', metadata: { [App.id]: { id: association.itemRevision.id } } });
+        const toCard = await findWidgetByTypeAndMetadataId({ type: 'CARD', metadata: { [App.appId]: { id: association.itemRevision.id } } });
         console.log(`Association ${association.id}: card for codeBeamer ID ${association.itemRevision.id} is: ${toCard ? toCard.id : 'NOT FOUND (item not synced)'}`)
         if (toCard) {
           let associationDetails = await getCodeBeamerAssociationDetails(association)

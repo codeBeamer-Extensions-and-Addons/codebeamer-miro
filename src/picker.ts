@@ -5,6 +5,7 @@ import Store from './components/store';
 import { BoardSetting, LocalSetting } from './components/constants';
 
 const store = Store.getInstance();
+const itemsPerPage = 22
 
 store.onPluginReady(async () => {
   let trackersSelection = document.getElementById('selectedTracker') as HTMLSelectElement
@@ -134,7 +135,56 @@ function synchItems() {
           })
           .catch(err => miro.showErrorNotification(err))
     })
+}
 
+async function clearResultTable() {
+  let backButton = document.getElementById('backButton') as HTMLButtonElement
+  let pageLabel = document.getElementById('pageLabel') as HTMLLabelElement
+  let forwardButton = document.getElementById('forwardButton') as HTMLButtonElement
+  backButton.disabled = true
+  forwardButton.disabled = true
+  pageLabel.innerText = "0/0"
+  await populateDataTable([])
+}
+
+async function buildResultTable(cbqlQuery, page = 1) {
+  let backButton = document.getElementById('backButton') as HTMLButtonElement
+  let pageLabel = document.getElementById('pageLabel') as HTMLLabelElement
+  let forwardButton = document.getElementById('forwardButton') as HTMLButtonElement
+
+  let queryReturn = await getCodeBeamerCbqlResult(cbqlQuery, page, itemsPerPage)
+  if (queryReturn.message) {
+    return false
+  } else {
+    // query was successull
+    let totalItems = queryReturn.total
+    let numberOfPages = Math.ceil(totalItems / itemsPerPage)
+    if (numberOfPages == 0) page = 0
+
+    if (page <= 1) {
+      backButton.disabled = true
+    } else {
+      backButton.disabled = false
+      backButton.onclick = getSwitchPageButtonOnClick(cbqlQuery, page - 1)
+    }
+    if (page >= numberOfPages) {
+      forwardButton.disabled = true
+    } else {
+      forwardButton.disabled = false
+      forwardButton.onclick = getSwitchPageButtonOnClick(cbqlQuery, page + 1)
+    }
+    pageLabel.innerText = `${page}/${numberOfPages}`
+
+    await populateDataTable(queryReturn.items)
+    updateImportCountOnImportButton()
+    return true
+  }
+}
+
+function getSwitchPageButtonOnClick(query, page) {
+  return async () => {
+    await buildResultTable(query, page)
+  }
 }
 
 async function cbqlQueryOnChange() {
@@ -145,17 +195,16 @@ async function cbqlQueryOnChange() {
   // if not query is set
   if (!cbqlQuery) {
     cbqlQueryElement.className = "miro-input miro-input--primary miro-input--small"
-    await populateDataTable([])
+    await clearResultTable()
   } else { // query is set
-    let queryReturn = await getCodeBeamerCbqlResult(cbqlQuery)
+
+    let tableBuildup = await buildResultTable(cbqlQuery)
     // if there was an error, mark box red
-    if (queryReturn.message) {
+    if (!tableBuildup) {
       cbqlQueryElement.className = "miro-input miro-input--primary miro-input--small miro-input--invalid"
-      await populateDataTable([])
+      await clearResultTable()
     } else {
       cbqlQueryElement.className = "miro-input miro-input--primary miro-input--small miro-input--success"
-      await populateDataTable(queryReturn.items)
-      updateImportCountOnImportButton()
     }
   }
 }
@@ -163,14 +212,11 @@ async function cbqlQueryOnChange() {
 async function trackersSelectionOnChange() {
   let selectedTrackerElement = document.getElementById('selectedTracker') as HTMLSelectElement
   let selectedTracker = selectedTrackerElement.value
-  let items = []
   if (selectedTracker) {
     store.saveLocalSettings({ [LocalSetting.SELECTED_TRACKER]: selectedTracker })
-    let queryReturn = await getCodeBeamerCbqlResult(`tracker.id IN (${selectedTracker})`)
-    items = queryReturn.items
+    let tableBuildup = await buildResultTable(`tracker.id IN (${selectedTracker})`)
+    if (!tableBuildup) clearResultTable()
   }
-  await populateDataTable(items)
-  updateImportCountOnImportButton()
 }
 
 function selectAllOnChange() {
@@ -182,7 +228,7 @@ function selectAllOnChange() {
 }
 
 async function populateDataTable(data) {
-  let pickedAttributeData = data.map(({ id, name, tracker }) => ({ Tracker: tracker.name, ID: id, Name: name}))
+  let pickedAttributeData = data.map(({ id, name, tracker }) => ({ Tracker: tracker.name, ID: id, Name: name }))
   let table = document.getElementById("dataTable");
   if (table)
     table.innerHTML = ''
