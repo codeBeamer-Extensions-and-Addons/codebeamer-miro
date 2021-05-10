@@ -3,11 +3,11 @@ const path = require('path')
 
 module.exports = {
   mode: 'production',
-
   entry: {
     main: './src/main.ts',
     init: './src/init.ts',
     settings: './src/settings.ts',
+    picker: './src/picker.ts',
   },
   module: {
     rules: [

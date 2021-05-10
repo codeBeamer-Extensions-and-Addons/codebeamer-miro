@@ -1,8 +1,9 @@
-import Store from './store';
+import App from './app';
 import { CardData } from "types/CardData"
 import { getCodeBeamerItemURL } from './codebeamer';
-
-const store = Store.getInstance();
+import { Constants } from './constants';
+import Store from './store'
+import { UserMapping } from '../types/UserMapping';
 
 export async function convert2Card(item) {
   let cardData: CardData = {
@@ -11,15 +12,13 @@ export async function convert2Card(item) {
     description: item.renderedDescription,
     card: {
       logo: {
-        iconUrl: `${window.location.href}img/codeBeamer-Logo-BW.png`
+        iconUrl: `${(new URL(window.location.href)).origin}/img/codeBeamer-Logo-BW.png`
       },
       customFields: [
         {
           mainColor: '#4f8ae8',
           fontColor: '#ffffff',
           value: `Status: ${item.status.name}`,
-        }, {
-          value: `Release: ${item.release ? item.release.name : '--'}`
         },
       ],
     },
@@ -27,11 +26,28 @@ export async function convert2Card(item) {
       editable: false
     },
     metadata: {
-      [store.state.appId]: {
+      [App.appId]: {
         id: item.id,
       },
     },
-  };
+  }
+
+  // additional custom fields
+  if (item.release) { cardData.card?.customFields?.push({ value: `Rel: ${item.release.name}` }) }
+  if (item.storyPoints) { cardData.card?.customFields?.push({ value: `SP: ${item.storyPoints}` }) }
+  
+  delete cardData.assignee // so that it gets cleared if no value is set (but was previously set so is current on the card)
+  if (item.assignedTo) {
+    let mappedUser = item.assignedTo
+      .map(assignedUser => assignedUser.id) // get cbUserID
+      .map((cbId: string) => Store.getInstance().getUserMapping({ cbUserId: cbId })) // get mapping
+      // take the first mapping that is found (some users in CB might not be defined. If multiple are, we only take the first as the field is single select in miro)
+      .find((mapping: UserMapping | undefined) => !!mapping)
+
+    if (mappedUser) {
+      cardData.assignee = { userId: mappedUser.miroUserId }
+    }
+  }
 
   // background Color
   let colorFieldValue = findColorFieldOnItem(item);
@@ -42,9 +58,9 @@ export async function convert2Card(item) {
     cardData.style = { backgroundColor: backgroundColor };
   }
 
-  if (item[store.state.NEWPOS]) {
-    cardData.x = item[store.state.NEWPOS].x;
-    cardData.y = item[store.state.NEWPOS].y;
+  if (item[Constants.NEWPOS]) {
+    cardData.x = item[Constants.NEWPOS].x;
+    cardData.y = item[Constants.NEWPOS].y;
   }
 
   return cardData;
@@ -56,7 +72,7 @@ function findColorFieldOnItem(item) {
 }
 
 function lineStyleByAssociationType(associationDetails) {
-  
+
   let style: any = {
     lineType: miro.enums.lineType.ARROW,
     lineStyle: miro.enums.lineStyle.NORMAL,
@@ -101,7 +117,7 @@ export function convert2Line(associationDetails, fromCardId, toCardId) {
       editable: false
     },
     metadata: {
-      [store.state.appId]: {
+      [App.appId]: {
         id: associationDetails.id,
       },
     },

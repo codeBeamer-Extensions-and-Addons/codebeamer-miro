@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="https://miro.com/app/static/styles.1.0.css" />
+</head>
+
+<body>
+  <script src="https://miro.com/app/static/sdk.1.1.js"></script>
+
+  <div class="miro-h2">Import from codeBeamer</div>
+
+  <table>
+    <tr>
+      <td>
+        <div id='simpleSearch'>
+          <select id='selectedTracker' class="miro-select miro-select--secondary-bordered">
+            <option value="" disabled selected hidden>Select Tracker ...</option>
+          </select>
+        </div>
+        <div id='advancedSearch'>
+          <input id='cbqlQuery' class="miro-input miro-input--primary miro-input--small"
+            placeholder="tracker.id in (12345)">
+          <a href="https://codebeamer.com/cb/wiki/871101" target="blank" title="Codebeamer cbQL documentation">
+            <img src="img/questionMark.svg">
+          </a>
+        </div>
+      </td>
+      <td>
+        <button id='switchSearchButton' class="miro-btn miro-btn--primary miro-btn--small"></button>
+      </td>
+    </tr>
+  </table>
+  <table id='dataTable'>
+
+  </table>
+  <button id='backButton' class="miro-btn miro-btn--primary miro-btn--small"
+  style="background-image: url(./img/arrow-left.svg);  background-size: 100% 100%;  border: 0;  padding: 8px 15px;"></button>
+  <label id='pageLabel' style="margin-left: 20px; margin-right: 20px;"></label>
+  <button id='forwardButton' class="miro-btn miro-btn--primary miro-btn--small"
+    style="background-image: url(./img/arrow-right.svg);  background-size: 100% 100%;  border: 0;  padding: 8px 15px;"></button>
+
+  <button id='importButton' class="miro-btn miro-btn--primary miro-btn--small"></button>
+  <button id='synchButton' class="miro-btn miro-btn--primary miro-btn--small"></button>
+
+  <script src="picker.js"></script>
+</body>
+
+</html>

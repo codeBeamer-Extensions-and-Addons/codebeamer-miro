@@ -1,22 +1,31 @@
 export interface CardData {
-  style?: any; 
-  x?: any; 
-  y?: any; 
-  type?: string; 
-  title?: string; 
-  description?: any; 
+  metadata?: SDK.WidgetMetadata,
+  capabilities?: SDK.WidgetCapabilities,
+  clientVisible?: boolean,
+  type: 'CARD'
+  x?: number
+  y?: number
+  scale?: number
+  rotation?: number
+  title?: string
+  description?: string
+  date?: string // date in "YYYY-MM-DD" format
+  assignee?: {
+    userId: string
+  }
   card?: {
-    logo: { 
-      iconUrl: string 
-    };
-    customFields: ({
-      mainColor: string // light blue
-      fontColor: string // white
-      value: string
-    } | { value: string })[]
-  }; 
-  capabilities?: {
-    editable: boolean;
-  }; 
-  metadata?: any;
+    customFields?: {
+      value?: string
+      mainColor?: string
+      fontColor?: string
+      iconUrl?: string
+      roundedIcon?: boolean
+    }[]
+    logo?: {
+      iconUrl: string
+    }
+  }
+  style?: {
+    backgroundColor: SDK.BackgroundColorStyle
+  }
 }
