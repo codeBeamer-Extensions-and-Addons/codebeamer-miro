@@ -8,7 +8,7 @@ import { UserMapping } from '../types/UserMapping';
 export async function convert2Card(item) {
   let cardData: CardData = {
     type: 'CARD',
-    title: `<a href="${await getCodeBeamerItemURL(item.id)}">[${item.tracker.keyName}-${item.id}] - ${item.name}</a>`,
+    title: `<a href="${getCodeBeamerItemURL(item.id)}">[${item.tracker.keyName}-${item.id}] - ${item.name}</a>`,
     description: item.renderedDescription,
     card: {
       logo: {
@@ -35,7 +35,7 @@ export async function convert2Card(item) {
   // additional custom fields
   if (item.release) { cardData.card?.customFields?.push({ value: `Rel: ${item.release.name}` }) }
   if (item.storyPoints) { cardData.card?.customFields?.push({ value: `SP: ${item.storyPoints}` }) }
-  
+
   delete cardData.assignee // so that it gets cleared if no value is set (but was previously set so is current on the card)
   if (item.assignedTo) {
     let mappedUser = item.assignedTo
@@ -108,7 +108,7 @@ function lineStyleByAssociationType(associationDetails) {
 }
 
 export function convert2Line(associationDetails, fromCardId, toCardId) {
-  let lineData = {
+  return {
     type: 'LINE',
     startWidgetId: fromCardId,
     endWidgetId: toCardId,
@@ -122,7 +122,6 @@ export function convert2Line(associationDetails, fromCardId, toCardId) {
       },
     },
   }
-  return lineData
 }
 
 function strip(html) {
@@ -153,7 +152,7 @@ export function convert2CbItem(widget) {
         item.name = widget.text
       break;
     default:
-      throw `Widget type '${widget.type}' not supported`
+      throw new Error(`Widget type '${widget.type}' not supported`)
   }
   return item
 }

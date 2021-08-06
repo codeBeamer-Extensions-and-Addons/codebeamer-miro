@@ -13,13 +13,15 @@ export async function getWidgetDetail(widget) {
   return (await miro.board.widgets.get(widget))[0]
 }
 
-export async function findWidgetByTypeAndMetadataId(widgetData) {
-  return (
-    (await miro.board.widgets.get({
-      type: widgetData.type,
-    })))
-    .filter(widget => !!widget.metadata[App.appId])
-    .find(widget => widget.metadata[App.appId].id === widgetData.metadata[App.appId].id)
+export async function findWidgetByTypeAndMetadataId(widgetData): Promise<SDK.IWidget | undefined> {
+  return
+  miro.board.widgets.get({
+    type: widgetData.type,
+  }).then(widgets =>
+    widgets
+      .filter(widget => !!widget.metadata[App.appId])
+      .find(widget => widget.metadata[App.appId].id === widgetData.metadata[App.appId].id)
+  )
 }
 
 export async function findLinesByFromCard(fromCardId) {
@@ -36,9 +38,9 @@ export async function createOrUpdateWidget(widgetData) {
   const existingWidget = await findWidgetByTypeAndMetadataId(widgetData);
   if (existingWidget) {
     widgetData.id = existingWidget.id
-    return await updateWidget(widgetData)
+    return updateWidget(widgetData)
   } else {
-    return await createWidget(widgetData)
+    return createWidget(widgetData)
   }
 }
 
@@ -71,7 +73,7 @@ export async function recreateWidget(widgetData) {
 }
 
 export async function deleteWidget(widgetData) {
-  return await miro.board.widgets.deleteById(widgetData)
+  return miro.board.widgets.deleteById(widgetData)
 }
 
 // maybe needed in the future - CARE this was changed on the API - cant use getToken anymore
@@ -79,7 +81,7 @@ async function getToken() {
   if (await miro.isAuthorized()) {
     return miro.getToken()
   } else {
-    return await miro.authorize({ response_type: 'token' })
+    return miro.authorize({ response_type: 'token' })
   }
 }
 

@@ -48,12 +48,11 @@ export async function getCodeBeamerCbqlResult(cbqlQuery, page = 1, pageSize = 50
     let url = getCbApiBasePath()
     url.pathname = url.pathname + '/items/query'
     url.search = `page=${page}&pageSize=${pageSize}&queryString=${cbqlQuery}`
-    const queryResult = await fetch(url.toString(), {
+    return fetch(url.toString(), {
       method: 'GET',
       headers: getCbHeaders(),
     })
       .then(checkForCbError)
-    return queryResult
   } catch (error) {
     console.log('Error while getting items from codeBeamer', error)
   }
@@ -61,7 +60,7 @@ export async function getCodeBeamerCbqlResult(cbqlQuery, page = 1, pageSize = 50
 
 // not needed if we use query directly (details are already there)
 async function getCodeBeamerItemDetails(item) {
-  return await fetch(`${getCbApiBasePath()}/items/${item.id}`, {
+  return fetch(`${getCbApiBasePath()}/items/${item.id}`, {
     method: 'GET',
     headers: getCbHeaders(),
   })
@@ -75,7 +74,7 @@ async function getCodeBeamerWiki2Html(markup, trackerItem) {
     renderingContextType: "TRACKER_ITEM",
     markup: markup
   }
-  return await fetch(`${getCbApiBasePath()}/projects/${trackerItem.tracker.project.id}/wiki2html`, {
+  return fetch(`${getCbApiBasePath()}/projects/${trackerItem.tracker.project.id}/wiki2html`, {
     method: 'POST',
     headers: getCbHeaders(),
     body: JSON.stringify(body),
@@ -94,7 +93,7 @@ export function getCodeBeamerUser(username = undefined) {
 
 export async function getCodeBeamerProjectTrackers(projectID = undefined) {
   if (!projectID) projectID = Store.getInstance().getBoardSetting(BoardSetting.PROJECT_ID)
-  return await fetch(`${getCbApiBasePath()}/projects/${projectID}/trackers`, {
+  return fetch(`${getCbApiBasePath()}/projects/${projectID}/trackers`, {
     method: 'GET',
     headers: getCbHeaders(),
   })
@@ -102,7 +101,7 @@ export async function getCodeBeamerProjectTrackers(projectID = undefined) {
 }
 
 async function getCodeBeamerTrackerDetails(tracker) {
-  return await fetch(`${getCbApiBasePath()}/trackers/${tracker.id}`, {
+  return fetch(`${getCbApiBasePath()}/trackers/${tracker.id}`, {
     method: 'GET',
     headers: getCbHeaders(),
   })
@@ -119,7 +118,7 @@ export async function getCodeBeamerOutgoingAssociations(item) {
 }
 
 export async function getCodeBeamerAssociationDetails(association) {
-  return await fetch(`${getCbApiBasePath()}/associations/${association.id}`, {
+  return fetch(`${getCbApiBasePath()}/associations/${association.id}`, {
     method: 'GET',
     headers: getCbHeaders(),
   })
@@ -127,7 +126,7 @@ export async function getCodeBeamerAssociationDetails(association) {
 }
 
 async function addNewCbItem(item) {
-  return await fetch(`${getCbApiBasePath()}/trackers/${store.getBoardSetting(BoardSetting.INBOX_TRACKER_ID)}/items`, {
+  return fetch(`${getCbApiBasePath()}/trackers/${store.getBoardSetting(BoardSetting.INBOX_TRACKER_ID)}/items`, {
     method: 'POST',
     headers: getCbHeaders(),
     body: JSON.stringify(item),
