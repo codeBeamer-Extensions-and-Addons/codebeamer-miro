@@ -1,4 +1,4 @@
-import { createOrUpdateWidget } from '../components/miro';
+import { createOrUpdateWidget, recreateWidget } from '../components/miro';
 import { CardData } from "../types/CardData"
 import { BoardSetting, Constants, LocalSetting } from './constants';
 import App from "./app"
@@ -41,12 +41,13 @@ class Store {
   }
 
   public getBoardSetting(setting: BoardSetting) {
+    console.log("Getting Board settings from ConfigWidget: " + JSON.stringify(this.configWidget))
     return this.configWidget.metadata[App.appId].settings[setting];
   }
 
   public async saveBoardSettings(settings) {
     Object.assign(this.configWidget.metadata[App.appId].settings, settings)
-    this.configWidget = await createOrUpdateWidget(this.configWidget) as SDK.ICardWidget
+    this.configWidget = await recreateWidget(this.configWidget) as SDK.ICardWidget
   }
 
   private getLocalStoreLocation() { return Constants.LS_KEY + "-" + App.boardId }

@@ -27,7 +27,8 @@ function getCbHeaders() {
 }
 
 function getCbBaseUrl() {
-  return new URL(store.getBoardSetting(BoardSetting.CB_ADDRESS))
+  let cbAddress = store.getBoardSetting(BoardSetting.CB_ADDRESS)
+  return new URL(cbAddress)
 }
 
 function getCbApiBasePath() {

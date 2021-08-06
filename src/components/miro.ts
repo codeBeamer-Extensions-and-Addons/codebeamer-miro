@@ -32,6 +32,7 @@ export async function findLinesByFromCard(fromCardId) {
 }
 
 export async function createOrUpdateWidget(widgetData) {
+  console.log("1111")
   const existingWidget = await findWidgetByTypeAndMetadataId(widgetData);
   if (existingWidget) {
     widgetData.id = existingWidget.id
@@ -61,11 +62,19 @@ async function updateWidget(widgetData) {
   return widget
 }
 
+// temporary function to recreate the settings widget as metadata are currently only persisted when set on creation
+// https://community.miro.com/developer-platform-and-apis-57/metadata-updated-are-not-persistent-4761
+export async function recreateWidget(widgetData) {
+  await deleteWidget(widgetData.id)
+  widgetData.id = undefined
+  return createWidget(widgetData)
+}
+
 export async function deleteWidget(widgetData) {
   return await miro.board.widgets.deleteById(widgetData)
 }
 
-// maybe needed in the future
+// maybe needed in the future - CARE this was changed on the API - cant use getToken anymore
 async function getToken() {
   if (await miro.isAuthorized()) {
     return miro.getToken()
