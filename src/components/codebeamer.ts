@@ -5,6 +5,9 @@ import { BoardSetting, Constants, LocalSetting } from "./constants";
 
 const store = Store.getInstance();
 
+export const RELATION_OUT_ASSOCIATION_TYPE = "OutgoingTrackerItemAssociation"
+export const RELATION_UPSTREAM_REF_TYPE = "UpstreamTrackerItemReference"
+
 function checkForCbError(res) {
   if (!res.ok)
     throw new Error(res.statusText);
@@ -108,13 +111,13 @@ async function getCodeBeamerTrackerDetails(tracker) {
     .then(checkForCbError)
 }
 
-export async function getCodeBeamerOutgoingAssociations(item) {
+export async function getCodeBeamerOutgoingRelations(item) {
   const itemRelations = await fetch(`${getCbApiBasePath()}/items/${item.id}/relations`, {
     method: 'GET',
     headers: getCbHeaders(),
   })
     .then(checkForCbError)
-  return itemRelations.outgoingAssociations
+  return itemRelations.outgoingAssociations.concat(itemRelations.upstreamReferences)
 }
 
 export async function getCodeBeamerAssociationDetails(association) {

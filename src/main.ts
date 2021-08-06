@@ -1,6 +1,6 @@
 import { convert2Line } from './components/converter';
 import { createOrUpdateWidget, deleteWidget, findLinesByFromCard, findWidgetByTypeAndMetadataId } from './components/miro';
-import { createOrUpdateCbItem, getCodeBeamerCbqlResult, getCodeBeamerOutgoingAssociations, getCodeBeamerAssociationDetails } from './components/codebeamer';
+import { createOrUpdateCbItem, getCodeBeamerCbqlResult, getCodeBeamerOutgoingRelations, getCodeBeamerAssociationDetails } from './components/codebeamer';
 import App from './components/app';
 
 export function syncWithCodeBeamer(itemIds : string[]) {
@@ -8,26 +8,26 @@ export function syncWithCodeBeamer(itemIds : string[]) {
     .then(async queryResult => queryResult.items)
     .then(async cbItems => {
       console.log('starting createOrUpdateCbItem for all Items')
-      for (let index = 0; index < cbItems.length; index++) {
-        await createOrUpdateCbItem(cbItems[index])
+      for (let cbItem of cbItems) {
+        await createOrUpdateCbItem(cbItem)
       }
-      console.log('starting createUpdateOrDeleteAssociationLines for all Items')
-      for (let index = 0; index < cbItems.length; index++) {
-        await createUpdateOrDeleteAssociationLines(cbItems[index])
+      console.log('starting createUpdateOrDeleteRelationLines for all Items')
+      for (let cbItem of cbItems) {
+        await createUpdateOrDeleteRelationLines(cbItem)
       }
     })
 }
 
-async function createUpdateOrDeleteAssociationLines(cbItem) {
-  let associations = await getCodeBeamerOutgoingAssociations(cbItem)
+async function createUpdateOrDeleteRelationLines(cbItem) {
+  let relations = await getCodeBeamerOutgoingRelations(cbItem)
   const existingLines = await findLinesByFromCard(cbItem.card.id)
 
   // delete codebeamer-flagged lines which are no longer present in codebeamer that originate on any of the items synched above
   let deletionTask = Promise.all(
     existingLines.map(
       async line => {
-        if (!associations.find(association => line.metadata[App.appId].id === association.id)) {
-          console.log(`deleting line ${line.id} because the association ${line.metadata[App.appId].id} does not exist anymore`)
+        if (!relations.find(relation => line.metadata[App.appId].id === relation.id)) {
+          console.log(`deleting line ${line.id} because the relation ${line.metadata[App.appId].id} does not exist anymore`)
           await deleteWidget(line)
         }
       }
@@ -36,13 +36,12 @@ async function createUpdateOrDeleteAssociationLines(cbItem) {
 
   // add or update lines from codeBeamer
   let additionTask = Promise.all(
-    associations.map(
-      async association => {
-        const toCard = await findWidgetByTypeAndMetadataId({ type: 'CARD', metadata: { [App.appId]: { id: association.itemRevision.id } } });
-        console.log(`Association ${association.id}: card for codeBeamer ID ${association.itemRevision.id} is: ${toCard ? toCard.id : 'NOT FOUND (item not synced)'}`)
+    relations.map(
+      async relation => {
+        const toCard = await findWidgetByTypeAndMetadataId({ type: 'CARD', metadata: { [App.appId]: { id: relation.itemRevision.id } } });
+        console.log(`Association ${relation.id}: card for codeBeamer ID ${relation.itemRevision.id} is: ${toCard ? toCard.id : 'NOT FOUND (item not synced)'}`)
         if (toCard) {
-          let associationDetails = await getCodeBeamerAssociationDetails(association)
-          await createOrUpdateWidget(convert2Line(associationDetails, cbItem.card.id, toCard.id))
+          await createOrUpdateWidget(await convert2Line(relation, cbItem.card.id, toCard.id))
         }
       }
     )

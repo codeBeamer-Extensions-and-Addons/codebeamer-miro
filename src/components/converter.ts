@@ -1,6 +1,6 @@
 import App from './app';
 import { CardData } from "types/CardData"
-import { getCodeBeamerItemURL } from './codebeamer';
+import { getCodeBeamerItemURL, getCodeBeamerAssociationDetails, RELATION_OUT_ASSOCIATION_TYPE, RELATION_UPSTREAM_REF_TYPE } from './codebeamer';
 import { Constants } from './constants';
 import Store from './store'
 import { UserMapping } from '../types/UserMapping';
@@ -71,7 +71,7 @@ function findColorFieldOnItem(item) {
   return colorField ? colorField.value : null
 }
 
-function lineStyleByAssociationType(associationDetails) {
+async function lineStyleByRelationType(relation) {
 
   let style: any = {
     lineType: miro.enums.lineType.ARROW,
@@ -80,45 +80,51 @@ function lineStyleByAssociationType(associationDetails) {
     lineStartStyle: miro.enums.lineArrowheadStyle.NONE,
     lineThickness: 1,
   }
-
-  switch (associationDetails.type.id) {
-    case 1: // depends
-      style.lineColor = '#cf7f30' // orange
-      style.lineEndStyle = 6
-      style.lineThickness = 5
-      break;
-    case 4: // related
-    case 9: // copy of
-      style.lineColor = '#21cfb7' // turquise
-      style.lineStyle = 1
-      style.lineStartStyle = 1
-      break;
-    case 6: // violates
-    case 8: // invalidates
-    case 7: // excludes
-      style.lineColor = '#b32525' // red
-      break;
-    case 2: // parent
-    case 3: // child
-    case 5: // derived
-    default:
-    // leave default
+  
+  if (relation.type === RELATION_OUT_ASSOCIATION_TYPE) {
+    let associationDetails = await getCodeBeamerAssociationDetails(relation)
+    switch (associationDetails.type.id) {
+      case 1: // depends
+        style.lineColor = '#cf7f30' // orange
+        style.lineEndStyle = miro.enums.lineArrowheadStyle.ARROW
+        style.lineThickness = 5
+        break;
+      case 4: // related
+      case 9: // copy of
+        style.lineColor = '#21cfb7' // turquise
+        style.lineStyle = miro.enums.lineStyle.DASHED
+        style.lineStartStyle = 1
+        break;
+      case 6: // violates
+      case 8: // invalidates
+      case 7: // excludes
+        style.lineColor = '#b32525' // red
+        break;
+      case 2: // parent
+      case 3: // child
+      case 5: // derived
+      default:
+      // leave default
+    }
+  } else if (relation.type === RELATION_UPSTREAM_REF_TYPE) {
+    style.lineThickness = 3
   }
+
   return style
 }
 
-export function convert2Line(associationDetails, fromCardId, toCardId) {
+export async function convert2Line(relation, fromCardId, toCardId) {
   return {
     type: 'LINE',
     startWidgetId: fromCardId,
     endWidgetId: toCardId,
-    style: lineStyleByAssociationType(associationDetails),
+    style: await lineStyleByRelationType(relation),
     capabilities: {
       editable: false
     },
     metadata: {
       [App.appId]: {
-        id: associationDetails.id,
+        id: relation.id,
       },
     },
   }

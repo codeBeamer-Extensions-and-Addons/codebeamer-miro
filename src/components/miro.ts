@@ -14,8 +14,7 @@ export async function getWidgetDetail(widget) {
 }
 
 export async function findWidgetByTypeAndMetadataId(widgetData): Promise<SDK.IWidget | undefined> {
-  return
-  miro.board.widgets.get({
+  return miro.board.widgets.get({
     type: widgetData.type,
   }).then(widgets =>
     widgets
@@ -34,7 +33,6 @@ export async function findLinesByFromCard(fromCardId) {
 }
 
 export async function createOrUpdateWidget(widgetData) {
-  console.log("1111")
   const existingWidget = await findWidgetByTypeAndMetadataId(widgetData);
   if (existingWidget) {
     widgetData.id = existingWidget.id
