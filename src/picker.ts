@@ -10,7 +10,9 @@ const itemsPerPage = 22
 store.onPluginReady(async () => {
   let trackersSelection = document.getElementById('selectedTracker') as HTMLSelectElement
   let importButton = document.getElementById('importButton')
+  let importButtonText = document.getElementById('importButtonText')
   let synchButton = document.getElementById('synchButton')
+  let synchButtonText = document.getElementById('synchButtonText')
   let cbqlQuery = document.getElementById('cbqlQuery') as HTMLInputElement
 
   let cachedAdvancedSearchEnabled = store.getLocalSetting(LocalSetting.ADVANCED_SEARCH_ENABLED)
@@ -35,14 +37,14 @@ store.onPluginReady(async () => {
   // Execute switch to current selection to get HTML initialized correctly
   loadSearchAndResults(cachedAdvancedSearchEnabled)
 
-  if (importButton) {
+  if (importButton && importButtonText) {
     importButton.onclick = importItems
     updateImportCountOnImportButton()
   }
 
-  if (synchButton) {
+  if (synchButton && synchButtonText) {
     synchButton.onclick = synchItems
-    synchButton.innerText = `Update Synched Items (${(await getAllSynchedCodeBeamerCardItemIds()).length})`
+    synchButtonText.innerText = `Update Synched Items (${(await getAllSynchedCodeBeamerCardItemIds()).length})`
   }
 })
 
@@ -64,7 +66,7 @@ function loadSearchAndResults(advancedSearch: boolean) {
   // set up / change switch button text and onclick
   let switchSearchButton = document.getElementById('switchSearchButton')
   if (switchSearchButton) {
-    switchSearchButton.innerText = advancedSearch ? "Switch to Simple Search..." : "Switch to Advanced Search..."
+    switchSearchButton.innerText = advancedSearch ? "Switch to Tracker select" : "Switch to CBQL query input"
     switchSearchButton.onclick = getSwitchSearchButtonOnClick(!advancedSearch)
   }
 
@@ -293,10 +295,11 @@ async function generateTableContent(table, data) {
 }
 
 function updateImportCountOnImportButton() {
+  let importButtonText = document.getElementById('importButtonText') as HTMLSpanElement
   let importButton = document.getElementById('importButton') as HTMLButtonElement
   let checkedItemCount = getCheckedItems().length
-  if (importButton) {
-    importButton.innerText = `Import Selected (${checkedItemCount})`
+  if (importButtonText && importButton) {
+    importButtonText.innerText = `Import Selected (${checkedItemCount})`
     importButton.disabled = checkedItemCount == 0
   }
 }
