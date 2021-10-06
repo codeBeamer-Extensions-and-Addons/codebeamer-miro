@@ -50,7 +50,10 @@ async function saveButtonOnClick() {
       miro.showNotification('CB Connection OK!')
       miro.board.ui.closeModal()
     })
-    .catch(err => miro.showErrorNotification(`CB Connection could not be established: ${err}`))
+    .catch(err => {
+      miro.showErrorNotification(`CB Connection could not be established: ${err}`)
+      console.log("CB connection could not be established: ", err);
+    })
 }
 
 let saveButton = document.getElementById('saveButton')
