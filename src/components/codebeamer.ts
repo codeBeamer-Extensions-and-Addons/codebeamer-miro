@@ -2,6 +2,7 @@ import { getWidgetDetail, deleteWidget, createOrUpdateWidget } from "./miro";
 import { convert2CbItem, convert2Card } from "./converter";
 import Store from './store';
 import { BoardSetting, Constants, LocalSetting } from "./constants";
+import * as sanitizeHtml from 'sanitize-html';
 
 const store = Store.getInstance();
 
@@ -9,8 +10,10 @@ export const RELATION_OUT_ASSOCIATION_TYPE = "OutgoingTrackerItemAssociation"
 export const RELATION_UPSTREAM_REF_TYPE = "UpstreamTrackerItemReference"
 
 function checkForCbError(res) {
-  if (!res.ok)
+  if (!res.ok){
+    console.error(res);
     throw new Error(res.statusText);
+  }
   let json = res.json()
   if (json.message)
     throw new Error(json.message)
@@ -24,6 +27,8 @@ function getCbHeaders() {
 
   let username = store.getLocalSetting(LocalSetting.CB_USERNAME)
   let password = store.getLocalSetting(LocalSetting.CB_PASSWORD)
+  //? use digest? that way, the pw can be stored as part of the hashed HA1..
+  //* just gotta look for that www-auth header..
   headers.append('Authorization', 'Basic ' + btoa(username + ":" + password));
 
   return headers
@@ -91,7 +96,7 @@ export function getCodeBeamerUser(username = undefined) {
     method: 'GET',
     headers: getCbHeaders(),
   })
-    .then(checkForCbError)
+  .then(checkForCbError)
 }
 
 export async function getCodeBeamerProjectTrackers(projectID = undefined) {
@@ -129,12 +134,29 @@ export async function getCodeBeamerAssociationDetails(association) {
 }
 
 async function addNewCbItem(item) {
-  return fetch(`${getCbApiBasePath()}/trackers/${store.getBoardSetting(BoardSetting.INBOX_TRACKER_ID)}/items`, {
+  let trackerId = store.getBoardSetting(BoardSetting.INBOX_TRACKER_ID);
+  if(!trackerId) {
+      miro.board.ui.openModal('settings.html');
+      miro.showErrorNotification('You must define an inbox tracker id to create items!')
+  }
+  if(item.description) {
+    item.description = sanitizeHtml(
+      item.description,
+      { 
+        allowedTags: [], 
+        allowedAttributes: {} 
+      });
+  }
+  return fetch(`${getCbApiBasePath()}/trackers/${trackerId}/items`, {
     method: 'POST',
     headers: getCbHeaders(),
     body: JSON.stringify(item),
   })
     .then(checkForCbError)
+    .catch(err => {
+      miro.board.ui.openModal('settings.html');
+      miro.showErrorNotification('Please verify the settings are correct, else check dev-tools for details.')
+    })
 }
 
 async function enrichBaseCbItemWithDetails(cbItem) {

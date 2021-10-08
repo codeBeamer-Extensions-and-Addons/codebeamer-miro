@@ -31,5 +31,9 @@
   "bugs": {
     "url": "https://github.com/max-poprawe/codebeamer-miro/issues"
   },
-  "homepage": "https://github.com/max-poprawe/codebeamer-miro#readme"
+  "homepage": "https://github.com/max-poprawe/codebeamer-miro#readme",
+  "dependencies": {
+    "md5": "^2.3.0",
+    "sanitize-html": "^2.5.1"
+  }
 }

@@ -5,7 +5,9 @@ import Store from './components/store';
 import { BoardSetting, LocalSetting } from './components/constants';
 
 const store = Store.getInstance();
-const itemsPerPage = 22
+const itemsPerPage = 13;
+
+const importedImage = '/img/checked-box.svg'
 
 store.onPluginReady(async () => {
   let trackersSelection = document.getElementById('selectedTracker') as HTMLSelectElement
@@ -117,25 +119,29 @@ function getCheckedItems() {
 
 function importItems() {
   let itemsToImport = getCheckedItems()
-  if (itemsToImport.length > 0)
+  if (itemsToImport.length > 0){
+    miro.showNotification(`Importing ${itemsToImport.length} items from codebeamer...`);
     syncWithCodeBeamer(itemsToImport)
       .then(() => {
         miro.showNotification(`Successfully imported ${itemsToImport.length} items`)
         miro.board.ui.closeModal()
       })
       .catch(err => miro.showErrorNotification(err))
+    }
 }
 
 function synchItems() {
   return getAllSynchedCodeBeamerCardItemIds()
     .then(itemsToSynch => {
-      if (itemsToSynch.length > 0)
+      if (itemsToSynch.length > 0){
+        miro.showNotification(`Updating ${itemsToSynch.length} items...`);
         syncWithCodeBeamer(itemsToSynch)
           .then(() => {
             miro.showNotification(`Successfully updated ${itemsToSynch.length} items`)
             miro.board.ui.closeModal()
           })
           .catch(err => miro.showErrorNotification(err))
+        }
     })
 }
 
@@ -271,8 +277,11 @@ async function generateTableContent(table, data) {
 
     // if item is already synched, dont create checkbox
     if (alreadySynchedItems.some((val) => val == element.ID)) {
-      let text = document.createTextNode('imported');
-      cell.appendChild(text);
+      let img = document.createElement('img');
+      img.src = importedImage;
+      img.classList.add('imported-check');
+      img.title = 'Imported';
+      cell.appendChild(img);
     } else {
       let label = document.createElement("label")
       label.className = "miro-checkbox"

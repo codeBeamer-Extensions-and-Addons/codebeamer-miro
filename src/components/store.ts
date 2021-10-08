@@ -3,6 +3,7 @@ import { CardData } from "../types/CardData"
 import { BoardSetting, Constants, LocalSetting } from './constants';
 import App from "./app"
 import { UserMapping } from '../types/UserMapping';
+import { CODEBEAMER_ICON } from '../init';
 
 interface getUserMappingParam {
   cbUserId?: string,
@@ -41,7 +42,7 @@ class Store {
   }
 
   public getBoardSetting(setting: BoardSetting) {
-    console.log("Getting Board settings from ConfigWidget: " + JSON.stringify(this.configWidget))
+    //console.log("Getting Board settings from ConfigWidget: " + JSON.stringify(this.configWidget))
     return this.configWidget.metadata[App.appId].settings[setting];
   }
 
@@ -93,14 +94,16 @@ class Store {
     if (!settingsWidget) {
       let cardData: CardData = {
         type: 'CARD',
-        title: 'CodeBeamer-Miro Settings. Click on the context button to make changes!',
+        title: 'codeBeamer-sync settings. Click on the codeBeamer-Icon in my toolbar to edit settings.',
+        description: "Don't delete me! But if you do, I'll reappear when you reload the site. codeBeamer-sync settings can be managed by clicking on the codeBeamer widget-toolbar icon, which appears when clicking the card.",
         capabilities: { editable: false },
         metadata: {
           [App.appId]: {
             settings: {},
           },
         },
-        card: { logo: { iconUrl: `${window.location.href}img/codeBeamer-Logo.png` } },
+        card: { 
+          logo: { iconUrl: `${window.location.href}img/codeBeamer-Logo.png` } },
         style: { backgroundColor: '#00A85D' }
       }
       settingsWidget = await createOrUpdateWidget(cardData) as SDK.ICardWidget
