@@ -135,7 +135,12 @@ function strip(html) {
   return doc.body.textContent;
 }
 
-export function convert2CbItem(widget) {
+/**
+ * Converts a Miro widget to a CbItem
+ * @param widget Miro widget in question
+ * @returns CbItem based on given Miro widget
+ */
+export function convert2CbItem(widget): CreateCbItem {
   let item = {
     name: "New Item",
     description: "--"
@@ -161,4 +166,12 @@ export function convert2CbItem(widget) {
       throw new Error(`Widget type '${widget.type}' not supported`)
   }
   return item
+}
+
+/**
+ * Interface defining structure of a CbItem on creation.
+ */
+export interface CreateCbItem {
+  name: string;
+  description: string;
 }
