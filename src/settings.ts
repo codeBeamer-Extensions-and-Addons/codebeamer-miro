@@ -23,9 +23,10 @@ function setFieldFromBoardSettings(fieldIdAndSettingName: BoardSetting) {
 }
 
 function addValueOfFieldToObject(object: any, fieldId: BoardSetting | LocalSetting) {
-  let field = document.getElementById(fieldId)
-  object[fieldId] = field ? field["value"] : null
-  return object
+  let field = document.getElementById(fieldId);
+  let value = field ? field["value"] : null;
+  object[fieldId] = value;
+  return object;
 }
 
 function hashAndSaveCredentials() {
@@ -45,7 +46,7 @@ async function saveButtonOnClick() {
 
   let localSettings = {}
   addValueOfFieldToObject(localSettings, LocalSetting.CB_USERNAME)
-  addValueOfFieldToObject(localSettings, LocalSetting.CB_PASSWORD)
+  addValueOfFieldToObject(localSettings, LocalSetting.CB_PASSWORD);
 
   await Promise.all([
     store.saveBoardSettings(boardSettings),
@@ -58,11 +59,11 @@ async function saveButtonOnClick() {
       getCurrentUserId().then((miroUserId) => {
         store.storeUserMapping({ cbUserId: cbUser.id, miroUserId: miroUserId })
       })
-      miro.showNotification('CB Connection OK!')
+      miro.showNotification(`Connection with "${boardSettings["cbAddress"]}" API OK!`)
       miro.board.ui.closeModal()
     })
     .catch(err => {
-      miro.showErrorNotification(`CB Connection could not be established: ${err}`)
+      miro.showErrorNotification(`Connection to "${boardSettings["cbAddress"]}" API could not be established: ${err}`)
       console.error("CB connection could not be established: ", err);
     })
 }
