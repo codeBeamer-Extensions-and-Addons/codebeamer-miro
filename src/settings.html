@@ -47,6 +47,9 @@
     .relative {
       position: relative;
     }
+    #questionMark {
+      width: 15px;
+    }
   </style>
 </head>
 
@@ -75,7 +78,10 @@
         <input id='projectId' type="text" class="miro-input miro-input--primary" placeholder="e.g. 5">
       </div>
       <div class="miro-input-field miro-input-field--small">
-        <label title="Synchronizing cards created in Miro will dump them in this tracker.">Inbox Tracker ID</label>
+        <label title="Synchronizing cards created in Miro will dump them in this tracker.">
+          Inbox Tracker ID
+          <img id="questionMark" src="img/questionMark.svg" title="Tracker to dump issues created in Miro when synchroized to codeBeamer">
+        </label>
         <input id='inboxTrackerId' type="number" class="miro-input miro-input--primary" placeholder="e.g. 4877085">
       </div>
     </div>

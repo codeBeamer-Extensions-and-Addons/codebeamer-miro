@@ -4,16 +4,58 @@
 <head>
   <meta charset="UTF-8" />
   <!--sync version number with console log in init.ts-->
-  <title>CB-Miro v0.2.1</title>
+  <title>CB-Miro v0.2.2</title>
+  <style>
+    body {
+      text-align: center;
+      margin: auto;
+    }
+    .cb-logo {
+      margin: 4rem;
+    }
+    .header {
+      display: flex;
+      justify-content: center;
+    }
+    .header label {
+      align-self: center;
+    }
+    a {
+      text-decoration: none;
+      color: #06c;
+    }
+    a:hover {
+      color: rgb(2, 88, 174);
+    }
+  </style>
 </head>
 
 <body>
   <script src="https://miro.com/app/static/sdk.1.1.js"></script>
   <script src="init.js"></script>
 
-  Copy the <a href="https://max-poprawe.github.io/codebeamer-miro/">link of this page</a> and paste it in the URL field
-  under `Web-plugin` in your app settings on Miro.
-
+  <div class="header">
+    <img class="cb-logo" src="img/codeBeamer-Logo.png"/>
+    <label>
+      &lt;-&gt;
+    </label>
+    <img src="img/miro-Logo.png"/>
+  </div>
+  <h3>
+    codeBeamer synchronizer plugin for Miro
+    <br>
+    <a>
+      by <a href="https://github.com/max-poprawe">max-poprawe</a>, <a href="https://github.com/TimMaa">TimMaa</a>, <a href="https://github.com/urecha">urecha</a>
+    </small>
+  </h3>
+  
+  <p>To install, copy the link of this page and paste it in the URL field under `App-Url` in your Miro app settings.
+    <br>
+    Grant the app the <em>board:write</em> and <em>board:read</em> permissions.
+  </p>
+  
+  <o>For more infos, visit our <a href="https://github.com/max-poprawe/codebeamer-miro">github repo</a></o>
+  
 </body>
 
 </html>
