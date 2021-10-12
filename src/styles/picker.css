@@ -1,0 +1,96 @@
+body {
+	margin: auto;
+	padding: 2rem;
+	background-color: transparent;
+}
+table {
+	margin: 1rem;
+	width: 95%;
+	border-collapse: collapse;
+}
+table th {
+	background-color: #53565c;
+	color: white;
+	padding: 12px 8px;
+	text-align: left;
+}
+table tr,
+table th {
+	border-bottom: 1px solid lightgray;
+}
+table tr:nth-child(even) {
+	background-color: #e1eafc;
+}
+table tr:hover {
+	background-color: #d7defc;
+}
+td {
+	padding: 2px;
+	max-width: 100px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.row {
+	display: flex;
+	flex-flow: row;
+	place-content: space-between;
+	margin: 1rem;
+}
+#pageLabel {
+	position: relative;
+	bottom: -10px;
+}
+footer {
+	position: absolute;
+	bottom: 2rem;
+	left: 3rem;
+	display: flex;
+	flex-flow: row;
+	width: 88%;
+}
+footer .end {
+	position: absolute;
+	right: 0;
+}
+#datatable {
+	max-height: 60%;
+}
+svg {
+	width: 20px;
+}
+button span {
+	position: relative;
+	bottom: 7px;
+}
+button svg {
+	position: relative;
+	bottom: 4px;
+}
+.block-label {
+	margin: 0.5rem 0;
+	display: block;
+}
+.cb-logo {
+	position: absolute;
+	right: -20px;
+	top: -20px;
+}
+.relative {
+	position: relative;
+}
+#switchButtonContainer {
+	align-self: end;
+}
+#questionMark {
+	width: 15px;
+}
+#table-container {
+	max-height: 60%;
+}
+.imported-check {
+	width: 16px;
+	position: relative;
+	left: 0px;
+	top: 2px;
+}

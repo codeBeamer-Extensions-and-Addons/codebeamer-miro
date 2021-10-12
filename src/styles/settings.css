@@ -1,0 +1,46 @@
+body {
+	margin: auto;
+	padding: 2rem;
+	background-color: transparent;
+}
+div,
+p {
+	margin: 1rem;
+}
+button {
+	position: absolute;
+	bottom: 2rem;
+	right: 2rem;
+}
+.row {
+	display: flex;
+	flex-direction: row;
+}
+.col {
+	width: 50%;
+	margin: 0;
+}
+.border-right {
+	border-right: 1px solid #eee;
+}
+svg {
+	width: 20px;
+}
+input {
+	width: 100%;
+}
+.muted {
+	font-size: small;
+	color: slategray;
+}
+.cb-logo {
+	position: absolute;
+	right: 0px;
+	top: 0px;
+}
+.relative {
+	position: relative;
+}
+#questionMark {
+	width: 15px;
+}
