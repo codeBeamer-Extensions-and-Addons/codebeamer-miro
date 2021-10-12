@@ -46,8 +46,8 @@ async function createWidget(widgetData) {
   // if x and y are not set, set them to middle of current screen
   if (widgetData.type === 'CARD' && (!widgetData.x || !widgetData.y)) {
     const viewport = await miro.board.viewport.get();
-    let randomXOffset = Math.random()*viewport.width / 5;
-    let randomYOffset = Math.random()*viewport.height / 5;
+    let randomXOffset = Math.random()*viewport.width / 4;
+    let randomYOffset = Math.random()*viewport.height / 4;
     widgetData.x = (viewport.x + (viewport.width / 2) + randomXOffset)
     widgetData.y = (viewport.y + (viewport.height / 2) + randomYOffset)
   }
