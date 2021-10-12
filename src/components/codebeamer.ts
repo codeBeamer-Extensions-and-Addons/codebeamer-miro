@@ -113,6 +113,9 @@ export function getCodeBeamerUser(username = undefined) {
     method: 'GET',
     headers: getCbHeaders(),
   })
+  .catch((err) => {
+    throw new Error(err);
+  })
   .then(checkForCbError)
 }
 
@@ -198,6 +201,10 @@ export async function createOrUpdateCbItem(cbItem) {
   await enrichBaseCbItemWithDetails(cbItem)
   let cardData = await convert2Card(cbItem)
   cbItem.card = await createOrUpdateWidget(cardData)
+
+  //way of showing progress
+  miro.showNotification(`Created/Updated widget for "${cbItem.name}"`);
+
   return cbItem
 }
 
