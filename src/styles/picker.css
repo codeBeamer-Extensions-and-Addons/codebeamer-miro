@@ -2,6 +2,10 @@ body {
 	margin: auto;
 	padding: 2rem;
 	background-color: transparent;
+	--miro-blue: #4262ff;
+}
+#table-container {
+	max-height: 60%;
 }
 table {
 	margin: 1rem;
@@ -9,7 +13,7 @@ table {
 	border-collapse: collapse;
 }
 table th {
-	background-color: #53565c;
+	background-color: var(--miro-blue); /*miro primary color*/
 	color: white;
 	padding: 12px 8px;
 	text-align: left;
@@ -30,12 +34,6 @@ td {
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
-}
-.row {
-	display: flex;
-	flex-flow: row;
-	place-content: space-between;
-	margin: 1rem;
 }
 #pageLabel {
 	position: relative;
@@ -67,30 +65,67 @@ button svg {
 	position: relative;
 	bottom: 4px;
 }
-.block-label {
-	margin: 0.5rem 0;
-	display: block;
-}
 .cb-logo {
 	position: absolute;
 	right: -20px;
 	top: -20px;
 }
-.relative {
-	position: relative;
-}
 #switchButtonContainer {
 	align-self: end;
 }
-#questionMark {
+.hint {
 	width: 15px;
 }
-#table-container {
-	max-height: 60%;
-}
-.imported-check {
+.imported-checkedBox {
 	width: 16px;
 	position: relative;
 	left: 0px;
 	top: 2px;
+}
+.loading-large::after {
+	width: 4rem;
+	height: 4rem;
+
+	-webkit-animation: spinning .5s linear infinite;
+    animation: spinning .5s linear infinite;
+    border-left: 2px solid var(--miro-blue);
+    border-bottom: 2px solid var(--miro-blue);
+    border-radius: 9999px;
+    border: 2px solid var(--miro-blue);
+    border-right: 2px solid transparent;
+    border-top: 2px solid transparent;
+    content: "";
+    display: block;
+    left: -webkit-calc(50% - (1em/2));
+    left: calc(50% - (1em / 2));
+    position: relative;
+}
+@keyframes spinning {
+	from {
+		transform: rotate(0deg)
+	}
+	to {
+		transform: rotate(359deg)
+	}
+}
+
+/*utilities*/
+.row {
+	display: flex;
+	flex-flow: row;
+	place-content: space-between;
+	margin: 1rem;
+}
+.block-label {
+	margin: 0.5rem 0;
+	display: block;
+}
+.align-self-end {
+	align-self: end;
+}
+.relative {
+	position: relative;
+}
+.pt-4 {
+	padding-top: 4rem;
 }

@@ -13,6 +13,7 @@ store.onPluginReady(async () => {
   let trackersSelection = document.getElementById('selectedTracker') as HTMLSelectElement
   let importButton = document.getElementById('importButton')
   let importButtonText = document.getElementById('importButtonText')
+  let importAllButton = document.getElementById('importAllButton') as HTMLButtonElement
   let synchButton = document.getElementById('synchButton')
   let synchButtonText = document.getElementById('synchButtonText')
   let cbqlQuery = document.getElementById('cbqlQuery') as HTMLInputElement
@@ -22,6 +23,11 @@ store.onPluginReady(async () => {
   if (cbqlQuery) {
     cbqlQuery.onchange = cbqlQueryOnChange
   }
+
+  if(importAllButton && !Store.getInstance().getLocalSetting(LocalSetting.SELECTED_TRACKER)) {
+    importAllButton.disabled = true;
+  }
+  importAllButton.onclick = () => importAllItemsForTracker();
 
   if (trackersSelection) {
     // build tracker options
@@ -121,26 +127,34 @@ function importItems() {
   let itemsToImport = getCheckedItems()
   if (itemsToImport.length > 0){
     miro.showNotification(`Importing ${itemsToImport.length} items from codebeamer...`);
+    hideDataTableAndShowLoadingSpinner();
     syncWithCodeBeamer(itemsToImport)
-      .then(() => {
-        miro.showNotification(`Successfully imported ${itemsToImport.length} items`)
-        miro.board.ui.closeModal()
-      })
-      .catch(err => miro.showErrorNotification(err))
-    }
+    .then(() => {
+      miro.showNotification(`Successfully imported ${itemsToImport.length} items`)
+      miro.board.ui.closeModal()
+    })
+    .catch(err => {
+      miro.showErrorNotification(err)
+      hideLoadingSpinnerAndShowDataTable();
+    })
+  }
 }
 
 function synchItems() {
   return getAllSynchedCodeBeamerCardItemIds()
-    .then(itemsToSynch => {
-      if (itemsToSynch.length > 0){
-        miro.showNotification(`Updating ${itemsToSynch.length} items...`);
+  .then(itemsToSynch => {
+    if (itemsToSynch.length > 0){
+      miro.showNotification(`Updating ${itemsToSynch.length} items...`);
+      hideDataTableAndShowLoadingSpinner();
         syncWithCodeBeamer(itemsToSynch)
           .then(() => {
             miro.showNotification(`Successfully updated ${itemsToSynch.length} items`)
             miro.board.ui.closeModal()
           })
-          .catch(err => miro.showErrorNotification(err))
+          .catch(err => {
+            miro.showErrorNotification(err)
+            hideLoadingSpinnerAndShowDataTable();
+          })
         }
     })
 }
@@ -222,6 +236,8 @@ async function trackersSelectionOnChange() {
   let selectedTracker = selectedTrackerElement.value
   if (selectedTracker) {
     store.saveLocalSettings({ [LocalSetting.SELECTED_TRACKER]: selectedTracker })
+    let importAllButton = document.getElementById('importAllButton') as HTMLButtonElement;
+    if(importAllButton) importAllButton.disabled = false;
     let tableBuildup = await buildResultTable(`tracker.id IN (${selectedTracker})`)
     if (!tableBuildup) clearResultTable()
   }
@@ -279,7 +295,7 @@ async function generateTableContent(table, data) {
     if (alreadySynchedItems.some((val) => val == element.ID)) {
       let img = document.createElement('img');
       img.src = importedImage;
-      img.classList.add('imported-check');
+      img.classList.add('imported-checkedBox');
       img.title = 'Imported';
       cell.appendChild(img);
     } else {
@@ -311,4 +327,60 @@ function updateImportCountOnImportButton() {
     importButtonText.innerText = `Import Selected (${checkedItemCount})`
     importButton.disabled = checkedItemCount == 0
   }
+}
+
+/**
+ * Imports all items for a certain tracker. At your own discretion, since that takes time.
+ * @param trackerId 
+ */
+async function importAllItemsForTracker() {
+  let trackerId = Store.getInstance().getLocalSetting(LocalSetting.SELECTED_TRACKER);
+  document.getElementById('importAllButton')?.classList.add('miro-btn--loading');
+  
+  //get all items, filtering out already imported ones right in the cbq
+  let alreadySynchedItemIds = await getAllSynchedCodeBeamerCardItemIds();
+  let queryReturn = await getCodeBeamerCbqlResult(`tracker.id IN (${trackerId}) AND tracker.id NOT IN (${alreadySynchedItemIds.join(',')})`);
+  
+  if(queryReturn.message) {
+    miro.showErrorNotification(`Failed importing all items: ${queryReturn.message}`);
+    document.getElementById('importAllButton')?.classList.remove('miro-btn--loading');
+    return;
+  } else {
+    // query was successfull
+    let totalItems = queryReturn.total;
+    hideDataTableAndShowLoadingSpinner();
+    
+    if(window.confirm(`Import ${totalItems} items from codeBeamer? ${ totalItems >= 20 ? 'This could take a while.' : '' }`)) {
+      let itemIds = queryReturn.items.map(i => i.id);
+
+      await syncWithCodeBeamer(itemIds);
+      
+      miro.board.ui.closeModal();
+    }
+    document.getElementById('importAllButton')?.classList.remove('miro-btn--loading');
+  }
+}
+
+/**
+ * You guessed it. Hides the dataTable and shows the div containing the loading spinner.
+ */
+function hideDataTableAndShowLoadingSpinner() {
+  let dataTable = document.getElementById('dataTable');
+  if(dataTable) dataTable.hidden = true;
+  let tableControls = document.getElementById('dataTableControls');
+  if(tableControls) tableControls.hidden = true;
+  let loadingSpinner = document.getElementById('loadingSpinner');
+  if(loadingSpinner) loadingSpinner.hidden = false;
+}
+
+/**
+ * The opposite of hideDataTableAndShowLoadingSpinner. Literally.
+ */
+function hideLoadingSpinnerAndShowDataTable() {
+  let dataTable = document.getElementById('dataTable');
+  if(dataTable) dataTable.hidden = false;
+  let tableControls = document.getElementById('dataTableControls');
+  if(tableControls) tableControls.hidden = false;
+  let loadingSpinner = document.getElementById('loadingSpinner');
+  if(loadingSpinner) loadingSpinner.hidden = true;
 }
