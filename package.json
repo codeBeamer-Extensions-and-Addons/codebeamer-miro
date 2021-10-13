@@ -7,7 +7,7 @@
     "src/**/*"
   ],
   "scripts": {
-    "prebuild-linux": "rm -rf dist && mkdir dist && mkdir dist/img && cp -r src/img dist && cp src/index.html dist && cp src/settings.html dist && cp src/picker.html dist",
+    "prebuild-linux": "rm -rf dist && mkdir dist && mkdir dist/img && cp -r src/img dist && cp src/index.html dist && cp src/settings.html dist && cp src/picker.html dist && MKDIR dist\\styles && COPY src\\styles dist\\styles",
     "build-linux": "webpack",
     "prebuild": "(IF exist dist ( RD /s /q dist ) ELSE ( print 'a' )) && MKDIR dist\\img && COPY src\\img dist\\img && COPY src\\index.html dist && COPY src\\settings.html dist && COPY src\\picker.html dist && MKDIR dist\\styles && COPY src\\styles dist\\styles",
     "build": "webpack",
