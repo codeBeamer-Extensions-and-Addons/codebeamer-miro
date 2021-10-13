@@ -19,6 +19,12 @@ Once installed, the plugin will create the above widget in your board. This widg
 The settings comprise of `Project`- and `Authentication` settings. The project settings specify a codeBeamer address in which you can then specify a project to afterwards access it's trackers and import items from.  
 The `Inbox Tracker ID` serves as a inbox/dump for cb-items created in Miro. More about that [here](@Create-cb-items-from-miro-widgets)
 
+### Credentials/Security
+
+*Subject to change / Discussion in progress*
+
+The credentials you use here are your credentials for the specified codeBeamer instance. When you save the settings, the plugin will attempt to get your user informations from the latter using **Basic** authentication over **HTTPS** to verify them. Additionally, in order to improve UX, the credentials are stored **_in plaintext_** within your browser's *session storage* to reuse them in subsequent requests to the codeBeamer API.
+
 ## Sync from codeBeamer to miro
 
 ![Item picker](readmeImg/plugin_picker.png "Item picker")
