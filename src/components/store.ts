@@ -1,6 +1,6 @@
 import { createOrUpdateWidget, recreateWidget } from '../components/miro';
 import { CardData } from "../types/CardData"
-import { BoardSetting, Constants, LocalSetting, SessionSetting } from './constants';
+import { BoardSetting, Constants, LocalSetting, PLUGIN_WIDGET_DESCRIPTION, PLUGIN_WIDGET_TITLE, SessionSetting } from './constants';
 import App from "./app"
 import { UserMapping } from '../types/UserMapping';
 import { CODEBEAMER_ICON } from '../init';
@@ -173,8 +173,8 @@ class Store {
     if (!settingsWidget) {
       let cardData: CardData = {
         type: 'CARD',
-        title: 'codeBeamer-sync settings. Click on the codeBeamer-Icon in my toolbar to edit settings.',
-        description: "Don't delete me! But if you do, I'll reappear when you reload the site. codeBeamer-sync settings can be managed by clicking on the codeBeamer widget-toolbar icon, which appears when clicking the card.",
+        title: PLUGIN_WIDGET_TITLE,
+        description: PLUGIN_WIDGET_DESCRIPTION,
         capabilities: { editable: false },
         metadata: {
           [App.appId]: {
