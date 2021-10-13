@@ -1,7 +1,7 @@
 import { getWidgetDetail, deleteWidget, createOrUpdateWidget } from "./miro";
 import { convert2CbItem, convert2Card, CreateCbItem } from "./converter";
 import Store from './store';
-import { BoardSetting, Constants, LocalSetting } from "./constants";
+import { BoardSetting, Constants, LocalSetting, SessionSetting } from "./constants";
 import * as sanitizeHtml from 'sanitize-html';
 
 const store = Store.getInstance();
@@ -38,7 +38,7 @@ function getCbHeaders() {
   })
 
   let username = store.getLocalSetting(LocalSetting.CB_USERNAME)
-  let password = store.getLocalSetting(LocalSetting.CB_PASSWORD)
+  let password = store.getSessionSetting(SessionSetting.CB_PASSWORD)
   //? use digest? that way, the pw can be stored as part of the hashed HA1..
   //* problem: cb API expects Basic auth.
   headers.append('Authorization', 'Basic ' + btoa(username + ":" + password));

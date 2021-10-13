@@ -1,5 +1,5 @@
 import Store from './components/store';
-import { BoardSetting, LocalSetting } from './components/constants';
+import { BoardSetting, LocalSetting, SessionSetting } from './components/constants';
 import { getCodeBeamerUser } from './components/codebeamer'
 import { getCurrentUserId } from './components/miro'
 import * as md5 from 'md5';
@@ -22,7 +22,15 @@ function setFieldFromBoardSettings(fieldIdAndSettingName: BoardSetting) {
   }
 }
 
-function addValueOfFieldToObject(object: any, fieldId: BoardSetting | LocalSetting) {
+function setFieldFromSessionSettings(fieldIdAndSettingName: SessionSetting) {
+  let value = store.getSessionSetting(fieldIdAndSettingName)
+  if(value) {
+    let field = document.getElementById(fieldIdAndSettingName);
+    if (field) field["value"] = value;
+  }
+}
+
+function addValueOfFieldToObject(object: any, fieldId: BoardSetting | LocalSetting | SessionSetting) {
   let field = document.getElementById(fieldId);
   let value = field ? field["value"] : null;
   object[fieldId] = value;
@@ -36,7 +44,7 @@ function addValueOfFieldToObject(object: any, fieldId: BoardSetting | LocalSetti
  */
 function hashAndSaveCredentials(realm: string = "CodeBeamer") {
   let username = (document.getElementById(LocalSetting.CB_USERNAME) as HTMLInputElement).value;
-  let password = (document.getElementById(LocalSetting.CB_PASSWORD) as HTMLInputElement).value;
+  let password = (document.getElementById(SessionSetting.CB_PASSWORD) as HTMLInputElement).value;
 
   const ha1 = md5(`${username}:${realm}:${password}`);
 
@@ -50,12 +58,15 @@ async function saveButtonOnClick() {
   addValueOfFieldToObject(boardSettings, BoardSetting.PROJECT_ID)
 
   let localSettings = {}
-  addValueOfFieldToObject(localSettings, LocalSetting.CB_USERNAME)
-  addValueOfFieldToObject(localSettings, LocalSetting.CB_PASSWORD);
+  addValueOfFieldToObject(localSettings, LocalSetting.CB_USERNAME);
+
+  let sessionSettings = {}
+  addValueOfFieldToObject(sessionSettings, SessionSetting.CB_PASSWORD);
 
   await Promise.all([
     store.saveBoardSettings(boardSettings),
-    store.saveLocalSettings(localSettings)
+    store.saveLocalSettings(localSettings),
+    store.saveSessionSettings(sessionSettings),
   ])
 
 
@@ -81,5 +92,5 @@ store.onPluginReady(async () => {
   setFieldFromBoardSettings(BoardSetting.INBOX_TRACKER_ID)
   setFieldFromBoardSettings(BoardSetting.PROJECT_ID)
   setFieldFromPrivateSettings(LocalSetting.CB_USERNAME)
-  setFieldFromPrivateSettings(LocalSetting.CB_PASSWORD)
+  setFieldFromSessionSettings(SessionSetting.CB_PASSWORD)
 })

@@ -1,6 +1,6 @@
 import { createOrUpdateWidget, recreateWidget } from '../components/miro';
 import { CardData } from "../types/CardData"
-import { BoardSetting, Constants, LocalSetting } from './constants';
+import { BoardSetting, Constants, LocalSetting, SessionSetting } from './constants';
 import App from "./app"
 import { UserMapping } from '../types/UserMapping';
 import { CODEBEAMER_ICON } from '../init';
@@ -50,7 +50,7 @@ class Store {
     //console.log("Getting Board settings from ConfigWidget: " + JSON.stringify(this.configWidget))
     //return this.configWidget.metadata[App.appId].settings[setting];
 
-    let data = JSON.parse(localStorage.getItem(this.getLocalStoreLocationForBoardSettings()) || '{}');
+    let data = JSON.parse(localStorage.getItem(this.getBoardSettingsLocalStorageKey()) || '{}');
     if(!data) {
       miro.showNotification(`Couldn't load board settings. Please re-enter them and then retry.`)
       miro.board.ui.openModal('settings.html');
@@ -58,54 +58,84 @@ class Store {
     }
     return data[setting];
   }
-  
+
+  /**
+   * @returns Localstorage key for the "local" data.
+   */
+  private getLocalSettingsLocalStorageKey() { return Constants.LS_KEY + "-" + App.boardId }
+
+  /**
+   * @returns Sessionstorage key for the "session" data.
+   */
+  private getSessionStorageKey() { return Constants.SS_KEY + "-" + App.boardId };
+
+  /**
+   * @returns Localstorage key for the "boardSettings" data.
+   */
+  private getBoardSettingsLocalStorageKey() { return Constants.LS_BS_KEY + "-" + App.boardId }
+
   /**
    * Saves the given settings object as boardSettings in the local storage.
    * @param settings Settings object to save
    */
-  public async saveBoardSettings(settings) {
-    const currentSettings = localStorage.getItem(this.getLocalStoreLocationForBoardSettings());
+   public async saveBoardSettings(settings) {
+    const currentSettings = localStorage.getItem(this.getBoardSettingsLocalStorageKey());
     let data = currentSettings === null ? {} : JSON.parse(currentSettings);
     Object.assign(data, settings);
-    localStorage.setItem(this.getLocalStoreLocationForBoardSettings(), JSON.stringify(data))
+    localStorage.setItem(this.getBoardSettingsLocalStorageKey(), JSON.stringify(data))
 
     // Object.assign(this.configWidget.metadata[App.appId].settings, settings)
     // this.configWidget = await recreateWidget(this.configWidget) as SDK.ICardWidget
   }
 
   /**
-   * @returns Localstorage key for the "local" data.
-   */
-  private getLocalStoreLocation() { return Constants.LS_KEY + "-" + App.boardId }
-
-  /**
-   * @returns Localstorage key for the "boardSettings" data.
-   */
-  private getLocalStoreLocationForBoardSettings() { return Constants.LS_KEY + "-board-settings-" + App.boardId }
-
-  /**
-   * Saves given settings in the sessionStorage. For board settings, use it's distinct method.
-   * Temporary preferred solution over saving in localStorage, since at least it's deleted after a page session.
+   * Saves given settings in the localStorage.
    * @param settings Settings object to save.
    */
   public saveLocalSettings(settings: { [key: string]: string | boolean }) {
-    const currentSettings = sessionStorage.getItem(this.getLocalStoreLocation());
+    const currentSettings = localStorage.getItem(this.getLocalSettingsLocalStorageKey());
     let data = currentSettings === null ? {} : JSON.parse(currentSettings);
     Object.assign(data, settings)
-    sessionStorage.setItem(this.getLocalStoreLocation(), JSON.stringify(data))
+    localStorage.setItem(this.getLocalSettingsLocalStorageKey(), JSON.stringify(data))
   }
 
   /**
-   * Gets the value of given property of the local settings. Opens the settings modal in case it can't find no boardsettings.
+   * Saves given settings in the sessionStorage. 
+   * @param settings Settings object to save.
+   */
+  public saveSessionSettings(settings: { [key:string]: string | boolean }) {
+    const currentSettings = sessionStorage.getItem(this.getSessionStorageKey());
+    let data = currentSettings === null ? {} : JSON.parse(currentSettings);
+    Object.assign(data, settings)
+    sessionStorage.setItem(this.getSessionStorageKey(), JSON.stringify(data))
+  }
+
+  /**
+   * Gets the value of given property of the local settings. Opens the settings modal in case it can't find none.
    * @param setting Property of the settings to read
    * @returns Value of the {setting} property of the local settings
    */
   public getLocalSetting(setting: LocalSetting) {
-    let data = JSON.parse(sessionStorage.getItem(this.getLocalStoreLocation()) || '{}')
+    let data = JSON.parse(localStorage.getItem(this.getLocalSettingsLocalStorageKey()) || '{}')
     if(!data) {
       miro.showNotification(`Couldn't load local settings. Please re-enter them and then retry.`)
       miro.board.ui.openModal('settings.html');
       throw new Error(`Coudnn't load local settings. Please verify their integrity in the plugin settings.`)
+    }
+    return data[setting]
+  }
+
+  /**
+   * Gets the value of given property of the session settings. Opens the settings modal in case it can't find none.
+   * @param setting Property of the settings to read
+   * @returns Value of the {setting} property of the session settings
+   */
+  public getSessionSetting(setting: SessionSetting) {
+    let data = JSON.parse(sessionStorage.getItem(this.getSessionStorageKey()) || '{}');
+    if(!data) {
+      miro.showNotification(`Couldn't load local settings. Please re-enter them and then retry.`)
+      miro.board.ui.openModal('settings.html');
+      throw new Error(`Coudnn't load session settings. Please verify their integrity in the plugin settings.`)
     }
     return data[setting]
   }
