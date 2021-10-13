@@ -1,11 +1,74 @@
 # Miro plugin: codeBeamer integration
 
-This is a codeBeamer <-> Miro integration web-plugin to be installed on Miro.\
-It allows to import codeBeamer items to a Miro board, displaying any associations between the items.
+This is a [codeBeamer](https://codebeamer.com/) <-> [Miro](https://miro.com/) integration web-plugin for Miro.
+It's main goal is to automate and therefore greatly speed up the process of mirroring codeBeamer items in Miro for planning/visualization purposes.
 
-The goal is to make this plugin at least as powerful as the [Miro-Jira plugin](https://miro.com/works-with-atlassian/)
+According to it's creator;
+> The goal is to make this plugin at least as powerful as the [Miro-Jira plugin](https://miro.com/works-with-atlassian/)
 
-More info to come! Stay tuned...
+# Features
+
+## Config Widget
+
+![Plugin widget](readmeImg/plugin_widget.png "The widget created by the plugin")
+
+Once installed, the plugin will create the above widget in your board. This widget provides access to the plugin settings via a button in it's toolbar. *If the widget is deleted, it will be regenerated when reloading the page, as long as the plugin's loaded.*
+
+![Plugin settings](readmeImg/plugin_settings.png "Plugin connection settings")
+
+The settings comprise of `Project`- and `Authentication` settings. The project settings specify a codeBeamer address in which you can then specify a project to afterwards access it's trackers and import items from.  
+The `Inbox Tracker ID` serves as a inbox/dump for cb-items created in Miro. More about that [here](@Create-cb-items-from-miro-widgets)
+
+## Sync from codeBeamer to miro
+
+![Item picker](readmeImg/plugin_picker.png "Item picker")
+
+The "picker" modal can be opened via its respective button in the left board-toolbar, once a functional set of settings has been configured.  
+
+### Import
+
+The modal allows for selecting a tracker within the specified project from the dropdown. If there are any items under this tracker, they will be displayed in a table below. The table is paginated and holds up to thirteen items per page.  
+
+Items can be selected either *individually* (1), *per-page* (2) or *per-tracker* (3).
+
+![Item selection](readmeImg/plugin_picker_selection.png "Selecting items for import")
+
+After selecting the items you wish to import from this page, clicking on the `Import selected (x)` button will get information about the items from the specified codeBeamer instance and create a card-widget containing following information: 
+1. The item's **Title** as the card's title (containing the link to the issue on cb)
+2. The item's **Description** as the card's description
+3. The person the item is **assigned to** as a badge
+4. The item's **Status** as a badge
+
+![Imported card](readmeImg/plugin_imported_card.png "A card created by the plugin")
+
+If the card has *upstream references* or *outgoing relations*, these will be rendered by a uni-directional line: 
+
+![Relation visualized](readmeImg/plugin_relations.png "Relation visualized")
+
+**All imported items are read-only. Mastery of their data is in codeBeamer.**
+
+#### CBQL queries
+
+Users proficient in CBQL can switch to a CBQL query input on the *Import from codeBeamer* window as an alternative to the tracker selection to conduct more specific queries.
+
+### Update
+
+Since data of cards based on a codeBeamer item are read-only and can therefore not be changed in Miro, you have to do so in codeBeamer itself.  
+Any changes made in codeBeamer can then be synchronized to the Miro board via the `Update Synched Items (y)` button on the *Import from codeBeamer* modal. 
+
+![Update button](readmeImg/plugin_update_button.png "Update button")
+
+Clicking the button updates the data (relations included) of *all* codeBeamer-originating widgets on the board.
+
+## Sync from miro to codeBeamer
+
+The plugin supports *creating* codeBeamer items based on a Miro widget. 
+Any widget can be "converted to a cb item" by clicking the respective button in it's toolbar.
+
+Consider that:
+- Only **title** and **description** fields will be considered.
+- The widget will be converted to a card and become read-only.
+- The cb item will be created within the `Inbox Tracker ID` specified in the [plugin settings](#Config-Widget).
 
 # Build and Run locally
 ## Setup
