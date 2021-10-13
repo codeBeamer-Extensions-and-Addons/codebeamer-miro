@@ -5,7 +5,7 @@ import { Constants } from './constants';
 import Store from './store'
 import { UserMapping } from '../types/UserMapping';
 
-export async function convert2Card(item) {
+export async function convert2Card(item): Promise<CardData> {
   let cardData: CardData = {
     type: 'CARD',
     title: `<a href="${getCodeBeamerItemURL(item.id)}">[${item.tracker.keyName}-${item.id}] - ${item.name}</a>`,
