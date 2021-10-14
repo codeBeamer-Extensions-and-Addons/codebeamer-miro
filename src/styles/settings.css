@@ -12,6 +12,26 @@ button {
 	bottom: 2rem;
 	right: 2rem;
 }
+svg {
+	width: 20px;
+}
+input {
+	width: 100%;
+}
+.cb-logo {
+	position: absolute;
+	right: 0px;
+	top: 0px;
+}
+#questionMark {
+	width: 15px;
+}
+
+/*utilities*/
+.muted {
+	font-size: small;
+	color: slategray;
+}
 .row {
 	display: flex;
 	flex-direction: row;
@@ -23,24 +43,19 @@ button {
 .border-right {
 	border-right: 1px solid #eee;
 }
-svg {
-	width: 20px;
-}
-input {
-	width: 100%;
-}
-.muted {
-	font-size: small;
-	color: slategray;
-}
-.cb-logo {
-	position: absolute;
-	right: 0px;
-	top: 0px;
-}
 .relative {
 	position: relative;
 }
-#questionMark {
-	width: 15px;
+.fade-in {
+	animation: fade-in 0.4s ease-out forwards;
+}
+
+/*keyframes*/
+@keyframes fade-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
 }
