@@ -51,9 +51,6 @@ footer .end {
 	position: absolute;
 	right: 0;
 }
-#datatable {
-	max-height: 60%;
-}
 svg {
 	width: 20px;
 }
@@ -128,4 +125,17 @@ button svg {
 }
 .pt-4 {
 	padding-top: 4rem;
+}
+.fade-in {
+	animation: fade-in 0.4s ease-out forwards;
+}
+
+/*keyframes*/
+@keyframes fade-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
 }

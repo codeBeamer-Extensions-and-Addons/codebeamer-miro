@@ -254,11 +254,14 @@ function selectAllOnChange() {
 async function populateDataTable(data) {
   let pickedAttributeData = data.map(({ id, name, tracker }) => ({ Tracker: tracker.name, ID: id, Name: name }))
   let table = document.getElementById("dataTable");
-  if (table)
-    table.innerHTML = ''
-  if (data.length > 0) {
-    await generateTableContent(table, pickedAttributeData);
-    generateTableHead(table, pickedAttributeData);
+  if (table){
+    table.innerHTML = '';
+    table.classList.remove('fade-in');
+    if (data.length > 0) {
+      await generateTableContent(table, pickedAttributeData);
+      generateTableHead(table, pickedAttributeData);
+      table?.classList.add('fade-in');
+    }
   }
 }
 
@@ -348,9 +351,9 @@ async function importAllItemsForTracker() {
   } else {
     // query was successfull
     let totalItems = queryReturn.total;
-    hideDataTableAndShowLoadingSpinner();
     
     if(window.confirm(`Import ${totalItems} items from codeBeamer? ${ totalItems >= 20 ? 'This could take a while.' : '' }`)) {
+      hideDataTableAndShowLoadingSpinner();
       let itemIds = queryReturn.items.map(i => i.id);
 
       await syncWithCodeBeamer(itemIds);
