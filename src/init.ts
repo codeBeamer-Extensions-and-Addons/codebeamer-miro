@@ -60,7 +60,12 @@ miro.onReady(() => {
       },
     }
   });
-  console.log(`[codeBeamer-sync] Plugin v0.2.24 initialized. Experiencing issues? Let us know under https://github.com/max-poprawe/codebeamer-miro`)
+  console.log(`[codeBeamer-sync] Plugin v0.2.25 initialized. Experiencing issues? Let us know under https://github.com/max-poprawe/codebeamer-miro`)
+  miro.isAuthorized().then((isAuthorized) => {
+    if(!isAuthorized) {
+      miro.requestAuthorization();
+    }
+  });
 })
 
 function isSettingsWidget(widget: SDK.IWidget) {

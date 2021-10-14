@@ -46,9 +46,8 @@ declare module SDK {
     getToken(): Promise<string>
 
     // Opens auth popup.
-    // To prevent the browser from blocking this popup, only call miro.authorize from a click handler on your domain.
-    // Method returns a token you can use to make requests REST API on behalf of the current user.
-    authorize(options: AuthorizationOptions): Promise<string>
+    // To prevent the browser from blocking this popup, only call miro.requestAuthorization from a click handler on your domain.
+    requestAuthorization(options?: AuthorizationOptions): Promise<void>
 
     // Returns clientId that you can find in app settings.
     // clientId needs to use widgets' metadata
@@ -79,10 +78,8 @@ declare module SDK {
   }
 
   interface AuthorizationOptions {
-    response_type: 'code' | 'token'
     scope?: string
     redirect_uri?: string
-    state?: string
   }
 
   interface IPluginSettingsConfig {

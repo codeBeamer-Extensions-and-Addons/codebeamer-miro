@@ -76,15 +76,6 @@ export async function deleteWidget(widgetData) {
   return miro.board.widgets.deleteById(widgetData)
 }
 
-// maybe needed in the future - CARE this was changed on the API - cant use getToken anymore
-async function getToken() {
-  if (await miro.isAuthorized()) {
-    return miro.getToken()
-  } else {
-    return miro.authorize({ response_type: 'token' })
-  }
-}
-
 export function getCurrentUserId() {
   return miro.currentUser.getId()
 }
