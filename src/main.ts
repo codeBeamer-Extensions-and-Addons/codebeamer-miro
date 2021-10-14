@@ -2,11 +2,12 @@ import { convert2Line } from './components/converter';
 import { createOrUpdateWidget, deleteWidget, findLinesByFromCard, findWidgetByTypeAndMetadataId } from './components/miro';
 import { createOrUpdateCbItem, getCodeBeamerCbqlResult, getCodeBeamerOutgoingRelations, getCodeBeamerAssociationDetails } from './components/codebeamer';
 import App from './components/app';
+import { CodeBeamerItem, CodeBeamerRelation } from 'types/codeBeamer.types';
 
-export function syncWithCodeBeamer(itemIds : string[]) {
+export function syncWithCodeBeamer(itemIds : string[]): Promise<void> {
   return getCodeBeamerCbqlResult(`item.id IN (${itemIds.join(',')})`)
     .then(async queryResult => queryResult.items)
-    .then(async cbItems => {
+    .then(async (cbItems: CodeBeamerItem[]) => {
       console.log('starting createOrUpdateCbItem for all Items')
       for (let cbItem of cbItems) {
         await createOrUpdateCbItem(cbItem)
@@ -18,8 +19,8 @@ export function syncWithCodeBeamer(itemIds : string[]) {
     })
 }
 
-async function createUpdateOrDeleteRelationLines(cbItem) {
-  let relations = await getCodeBeamerOutgoingRelations(cbItem)
+async function createUpdateOrDeleteRelationLines(cbItem): Promise<void> {
+  let relations: CodeBeamerRelation[] = await getCodeBeamerOutgoingRelations(cbItem)
   const existingLines = await findLinesByFromCard(cbItem.card.id)
 
   // delete codebeamer-flagged lines which are no longer present in codebeamer that originate on any of the items synched above

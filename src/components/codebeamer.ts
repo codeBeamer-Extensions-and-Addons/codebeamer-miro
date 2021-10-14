@@ -2,22 +2,20 @@ import { getWidgetDetail, deleteWidget, createOrUpdateWidget } from "./miro";
 import { convert2CbItem, convert2Card } from "./converter";
 import Store from './store';
 import { BoardSetting, Constants, LocalSetting } from "./constants";
+import { CodeBeamerItem, CodeBeamerRelation, CodeBeamerTracker, CodeBeamerTrackerTypeReference } from "types/codeBeamer.types";
 
 const store = Store.getInstance();
 
-export const RELATION_OUT_ASSOCIATION_TYPE = "OutgoingTrackerItemAssociation"
-export const RELATION_UPSTREAM_REF_TYPE = "UpstreamTrackerItemReference"
-
-function checkForCbError(res) {
+async function checkForCbError(res: Response): Promise<any> {
   if (!res.ok)
     throw new Error(res.statusText);
-  let json = res.json()
+  let json = await res.json()
   if (json.message)
     throw new Error(json.message)
   return json
 }
 
-function getCbHeaders() {
+function getCbHeaders(): Headers {
   let headers = new Headers({
     'Content-Type': 'application/json'
   })
@@ -29,24 +27,24 @@ function getCbHeaders() {
   return headers
 }
 
-function getCbBaseUrl() {
+function getCbBaseUrl(): URL {
   let cbAddress = store.getBoardSetting(BoardSetting.CB_ADDRESS)
   return new URL(cbAddress)
 }
 
-function getCbApiBasePath() {
+function getCbApiBasePath(): URL {
   let url = getCbBaseUrl()
   url.pathname = url.pathname + '/api/v3'
   return url
 }
 
-export function getCodeBeamerItemURL(id) {
+export function getCodeBeamerItemURL(id: number): URL {
   let url = getCbBaseUrl()
   url.pathname = url.pathname + `/issue/${id}`
   return url
 }
 
-export async function getCodeBeamerCbqlResult(cbqlQuery, page = 1, pageSize = 500) {
+export async function getCodeBeamerCbqlResult(cbqlQuery: string, page: number = 1, pageSize: number = 500): Promise<any> {
   try {
     let url = getCbApiBasePath()
     url.pathname = url.pathname + '/items/query'
@@ -70,7 +68,7 @@ async function getCodeBeamerItemDetails(item) {
     .then(checkForCbError)
 }
 
-async function getCodeBeamerWiki2Html(markup, trackerItem) {
+async function getCodeBeamerWiki2Html(markup: string, trackerItem): Promise<string> {
   let body = {
     contextId: trackerItem.id,
     contextVersion: trackerItem.version,
@@ -85,7 +83,7 @@ async function getCodeBeamerWiki2Html(markup, trackerItem) {
     .then(res => res.text())
 }
 
-export function getCodeBeamerUser(username = undefined) {
+export function getCodeBeamerUser(username: string | undefined = undefined): Promise<any> {
   if (!username) username = Store.getInstance().getLocalSetting(LocalSetting.CB_USERNAME)
   return fetch(`${getCbApiBasePath()}/users/findByName?name=${username}`, {
     method: 'GET',
@@ -94,7 +92,7 @@ export function getCodeBeamerUser(username = undefined) {
     .then(checkForCbError)
 }
 
-export async function getCodeBeamerProjectTrackers(projectID = undefined) {
+export async function getCodeBeamerProjectTrackers(projectID: number | undefined = undefined): Promise<any> {
   if (!projectID) projectID = Store.getInstance().getBoardSetting(BoardSetting.PROJECT_ID)
   return fetch(`${getCbApiBasePath()}/projects/${projectID}/trackers`, {
     method: 'GET',
@@ -103,7 +101,7 @@ export async function getCodeBeamerProjectTrackers(projectID = undefined) {
     .then(checkForCbError)
 }
 
-async function getCodeBeamerTrackerDetails(tracker) {
+async function getCodeBeamerTrackerDetails(tracker: CodeBeamerTracker | CodeBeamerTrackerTypeReference) {
   return fetch(`${getCbApiBasePath()}/trackers/${tracker.id}`, {
     method: 'GET',
     headers: getCbHeaders(),
@@ -111,7 +109,8 @@ async function getCodeBeamerTrackerDetails(tracker) {
     .then(checkForCbError)
 }
 
-export async function getCodeBeamerOutgoingRelations(item) {
+
+export async function getCodeBeamerOutgoingRelations(item: CodeBeamerItem): Promise<CodeBeamerRelation[]> {
   const itemRelations = await fetch(`${getCbApiBasePath()}/items/${item.id}/relations`, {
     method: 'GET',
     headers: getCbHeaders(),
@@ -120,7 +119,7 @@ export async function getCodeBeamerOutgoingRelations(item) {
   return itemRelations.outgoingAssociations.concat(itemRelations.upstreamReferences)
 }
 
-export async function getCodeBeamerAssociationDetails(association) {
+export async function getCodeBeamerAssociationDetails(association: CodeBeamerRelation): Promise<any> {
   return fetch(`${getCbApiBasePath()}/associations/${association.id}`, {
     method: 'GET',
     headers: getCbHeaders(),
@@ -128,7 +127,7 @@ export async function getCodeBeamerAssociationDetails(association) {
     .then(checkForCbError)
 }
 
-async function addNewCbItem(item) {
+async function addNewCbItem(item): Promise<any> {
   return fetch(`${getCbApiBasePath()}/trackers/${store.getBoardSetting(BoardSetting.INBOX_TRACKER_ID)}/items`, {
     method: 'POST',
     headers: getCbHeaders(),
@@ -137,7 +136,7 @@ async function addNewCbItem(item) {
     .then(checkForCbError)
 }
 
-async function enrichBaseCbItemWithDetails(cbItem) {
+async function enrichBaseCbItemWithDetails(cbItem): Promise<any> {
   cbItem.tracker = await getCodeBeamerTrackerDetails(cbItem.tracker)
   cbItem.renderedDescription =
     cbItem.description
@@ -148,14 +147,14 @@ async function enrichBaseCbItemWithDetails(cbItem) {
   return cbItem
 }
 
-export async function createOrUpdateCbItem(cbItem) {
+export async function createOrUpdateCbItem(cbItem): Promise<any> {
   await enrichBaseCbItemWithDetails(cbItem)
   let cardData = await convert2Card(cbItem)
   cbItem.card = await createOrUpdateWidget(cardData)
   return cbItem
 }
 
-export async function submitNewCodeBeamerItem(widget) {
+export async function submitNewCodeBeamerItem(widget): Promise<void> {
   // get widget with all meta data (the selected one only has the general widget properties, but is lacking the type specifcs)
   widget = await getWidgetDetail({ id: widget.id })
   // generate submission object and submit

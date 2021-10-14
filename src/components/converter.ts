@@ -1,11 +1,12 @@
 import App from './app';
 import { CardData } from "types/CardData"
-import { getCodeBeamerItemURL, getCodeBeamerAssociationDetails, RELATION_OUT_ASSOCIATION_TYPE, RELATION_UPSTREAM_REF_TYPE } from './codebeamer';
+import { getCodeBeamerItemURL, getCodeBeamerAssociationDetails } from './codebeamer';
 import { Constants } from './constants';
 import Store from './store'
 import { UserMapping } from '../types/UserMapping';
+import { CodeBeamerCreateItem, CodeBeamerRelation, CodeBeamerRelationType } from 'types/codeBeamer.types';
 
-export async function convert2Card(item) {
+export async function convert2Card(item): Promise<CardData> {
   let cardData: CardData = {
     type: 'CARD',
     title: `<a href="${getCodeBeamerItemURL(item.id)}">[${item.tracker.keyName}-${item.id}] - ${item.name}</a>`,
@@ -71,7 +72,15 @@ function findColorFieldOnItem(item) {
   return colorField ? colorField.value : null
 }
 
-async function lineStyleByRelationType(relation) {
+async function lineStyleByRelationType(relation: CodeBeamerRelation): Promise<{ 
+  lineColor: SDK.LineColorStyle,
+  lineThickness: SDK.LineThicknessStyle,
+  lineStyle: SDK.LineStyle,
+  lineType: SDK.LineType,
+  lineStartStyle: SDK.LineArrowheadStyle,
+  lineEndStyle: SDK.LineArrowheadStyle,
+}>
+ {
 
   let style: any = {
     lineType: miro.enums.lineType.ARROW,
@@ -81,7 +90,7 @@ async function lineStyleByRelationType(relation) {
     lineThickness: 1,
   }
   
-  if (relation.type === RELATION_OUT_ASSOCIATION_TYPE) {
+  if (relation.type === CodeBeamerRelationType.OUTGOING_ASSOCIATION) {
     let associationDetails = await getCodeBeamerAssociationDetails(relation)
     switch (associationDetails.type.id) {
       case 1: // depends
@@ -106,14 +115,14 @@ async function lineStyleByRelationType(relation) {
       default:
       // leave default
     }
-  } else if (relation.type === RELATION_UPSTREAM_REF_TYPE) {
+  } else if (relation.type === CodeBeamerRelationType.UPSTREAM_REFERENCE) {
     style.lineThickness = 3
   }
 
   return style
 }
 
-export async function convert2Line(relation, fromCardId, toCardId) {
+export async function convert2Line(relation: CodeBeamerRelation, fromCardId, toCardId) {
   return {
     type: 'LINE',
     startWidgetId: fromCardId,
@@ -135,7 +144,7 @@ function strip(html) {
   return doc.body.textContent;
 }
 
-export function convert2CbItem(widget) {
+export function convert2CbItem(widget): CodeBeamerCreateItem {
   let item = {
     name: "New Item",
     description: "--"
@@ -158,7 +167,7 @@ export function convert2CbItem(widget) {
         item.name = widget.text
       break;
     default:
-      throw new Error(`Widget type '${widget.type}' not supported`)
+      throw new Error(`Widget type not supported`)
   }
   return item
 }
