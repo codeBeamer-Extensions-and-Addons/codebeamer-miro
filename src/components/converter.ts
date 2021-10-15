@@ -6,6 +6,7 @@ import Store from './store'
 import { UserMapping } from '../types/UserMapping';
 
 export async function convert2Card(item): Promise<CardData> {
+  console.log("Converting to card: ", item);
   let cardData: CardData = {
     type: 'CARD',
     title: `<a href="${getCodeBeamerItemURL(item.id)}">[${item.tracker.keyName}-${item.id}] - ${item.name}</a>`,
@@ -47,6 +48,26 @@ export async function convert2Card(item): Promise<CardData> {
     if (mappedUser) {
       cardData.assignee = { userId: mappedUser.miroUserId }
     }
+  }
+
+  if(item.startDate) {
+    let date = new Date(item.startDate).toLocaleDateString();
+    let customField = {
+      mainColor: '#393b3a',
+      fontColor: '#fff',
+      value: `Start: ${date}`
+    }
+    cardData.card?.customFields?.push(customField);
+  }
+
+  if(item.endDate) {
+    let date = new Date(item.endDate).toLocaleDateString();
+    let customField = {
+      mainColor: '#393b3a',
+      fontColor: '#fff',
+      value: `End: ${date}`
+    }
+    cardData.card?.customFields?.push(customField);
   }
 
   // background Color

@@ -1,9 +1,15 @@
 body {
+	--miro-blue: #4262ff;
+	--miro-lightestgray: #F5F5F7;
+	--miro-lightgray: #E1E0E7;
+	--miro-primary-text: #050038;
+	--miro-secondary-text: #827F9B;
+
 	margin: auto;
 	padding: 2rem;
 	background-color: transparent;
-	--miro-bluegray: #827F9B;
-	--miro-lightgray: #E1E0E7;
+
+	color: var(--miro-primary-text);
 }
 div,
 p {
@@ -32,7 +38,7 @@ input {
 /*utilities*/
 .muted {
 	font-size: small;
-	color: var(--miro-bluegray);
+	color: var(--miro-secondary-text);
 }
 .row {
 	display: flex;
