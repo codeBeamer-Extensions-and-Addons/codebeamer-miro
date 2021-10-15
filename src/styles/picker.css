@@ -3,6 +3,8 @@ body {
 	padding: 2rem;
 	background-color: transparent;
 	--miro-blue: #4262ff;
+	--miro-lightestgray: #F5F5F7;
+	--miro-lightgray: #E1E0E7;
 }
 #table-container {
 	max-height: 60%;
@@ -13,7 +15,7 @@ table {
 	border-collapse: collapse;
 }
 table th {
-	background-color: var(--miro-blue); /*miro primary color*/
+	background-color: var(--miro-blue);
 	color: white;
 	padding: 12px 8px;
 	text-align: left;
@@ -23,10 +25,10 @@ table th {
 	border-bottom: 1px solid lightgray;
 }
 table tr:nth-child(even) {
-	background-color: #e1eafc;
+	background-color: var(--miro-lightestgray);
 }
 table tr:hover {
-	background-color: #d7defc;
+	background-color: var(--miro-lightgray);
 }
 td {
 	padding: 2px;
@@ -49,7 +51,7 @@ footer {
 }
 footer .end {
 	position: absolute;
-	right: 0;
+	right: 4px;
 }
 svg {
 	width: 20px;

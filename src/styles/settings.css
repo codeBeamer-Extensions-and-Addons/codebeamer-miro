@@ -2,6 +2,8 @@ body {
 	margin: auto;
 	padding: 2rem;
 	background-color: transparent;
+	--miro-bluegray: #827F9B;
+	--miro-lightgray: #E1E0E7;
 }
 div,
 p {
@@ -30,7 +32,7 @@ input {
 /*utilities*/
 .muted {
 	font-size: small;
-	color: slategray;
+	color: var(--miro-bluegray);
 }
 .row {
 	display: flex;
@@ -41,7 +43,7 @@ input {
 	margin: 0;
 }
 .border-right {
-	border-right: 1px solid #eee;
+	border-right: 1px solid var(--miro-lightgray);
 }
 .relative {
 	position: relative;
