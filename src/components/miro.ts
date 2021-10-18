@@ -46,19 +46,21 @@ async function createWidget(widgetData) {
   // if x and y are not set, set them to middle of current screen
   if (widgetData.type === 'CARD' && (!widgetData.x || !widgetData.y)) {
     const viewport = await miro.board.viewport.get();
-    widgetData.x = (viewport.x + (viewport.width / 2))
-    widgetData.y = (viewport.y + (viewport.height / 2))
+    let randomXOffset = Math.random()*viewport.width / 4;
+    let randomYOffset = Math.random()*viewport.height / 4;
+    widgetData.x = (viewport.x + (viewport.width / 2) + randomXOffset)
+    widgetData.y = (viewport.y + (viewport.height / 2) + randomYOffset)
   }
   let widget = (await miro.board.widgets.create(widgetData))[0]
   let itemId = widget.metadata[App.appId].id
-  console.log(`${widget.type} widget ${widget.id} has been created to match item ${itemId ? itemId : '<the settings>'}`)
+  console.log(`[codeBeamer-sync] ${widget.type} widget ${widget.id} has been created to match item ${itemId ? itemId : '<the settings>'}`)
   return widget
 }
 
 async function updateWidget(widgetData) {
   let widget = (await miro.board.widgets.update(widgetData))[0]
   let itemId = widget.metadata[App.appId].id
-  console.log(`${widget.type} widget ${widget.id} has been updated to match item ${itemId ? itemId : '<the settings>'}`)
+  console.log(`[codeBeamer-sync] ${widget.type} widget ${widget.id} has been updated to match item ${itemId ? itemId : '<the settings>'}`)
   return widget
 }
 
@@ -72,15 +74,6 @@ export async function recreateWidget(widgetData) {
 
 export async function deleteWidget(widgetData) {
   return miro.board.widgets.deleteById(widgetData)
-}
-
-// maybe needed in the future - CARE this was changed on the API - cant use getToken anymore
-async function getToken() {
-  if (await miro.isAuthorized()) {
-    return miro.getToken()
-  } else {
-    return miro.authorize({ response_type: 'token' })
-  }
 }
 
 export function getCurrentUserId() {

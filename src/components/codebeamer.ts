@@ -1,29 +1,46 @@
 import { getWidgetDetail, deleteWidget, createOrUpdateWidget } from "./miro";
-import { convert2CbItem, convert2Card } from "./converter";
+import { convert2CbItem, convert2Card, CreateCbItem } from "./converter";
 import Store from './store';
-import { BoardSetting, Constants, LocalSetting } from "./constants";
+import { BoardSetting, Constants, LocalSetting, SessionSetting } from "./constants";
+import * as sanitizeHtml from 'sanitize-html';
 
 const store = Store.getInstance();
 
 export const RELATION_OUT_ASSOCIATION_TYPE = "OutgoingTrackerItemAssociation"
 export const RELATION_UPSTREAM_REF_TYPE = "UpstreamTrackerItemReference"
 
+/**
+ * Checks, whether given response is "ok" (res.ok == true). 
+ * If it isn't or there's a message on the res; throws an error containing the statusText.
+ * If it is, returns the response in json format.
+ * @param res HTTP response in question
+ * @returns res.json()
+ */
 function checkForCbError(res) {
-  if (!res.ok)
+  if (!res.ok){
+    console.error(res);
     throw new Error(res.statusText);
+  }
   let json = res.json()
   if (json.message)
     throw new Error(json.message)
   return json
 }
 
+/**
+ * Constructs the HTTP request headers for a codeBeamer API request.
+ * Including content-type and authorization, the latter based on the credentials entered on the settings page.
+ * @returns HTTP request headers with content-type and authorization specified.
+ */
 function getCbHeaders() {
   let headers = new Headers({
     'Content-Type': 'application/json'
   })
 
   let username = store.getLocalSetting(LocalSetting.CB_USERNAME)
-  let password = store.getLocalSetting(LocalSetting.CB_PASSWORD)
+  let password = store.getSessionSetting(SessionSetting.CB_PASSWORD)
+  //? use digest? that way, the pw can be stored as part of the hashed HA1..
+  //* problem: cb API expects Basic auth.
   headers.append('Authorization', 'Basic ' + btoa(username + ":" + password));
 
   return headers
@@ -85,13 +102,21 @@ async function getCodeBeamerWiki2Html(markup, trackerItem) {
     .then(res => res.text())
 }
 
+/**
+ * Fetches a user's data from the cb API.
+ * @param username Cb username of the user in question
+ * @returns Userdata in JSON format
+ */
 export function getCodeBeamerUser(username = undefined) {
   if (!username) username = Store.getInstance().getLocalSetting(LocalSetting.CB_USERNAME)
   return fetch(`${getCbApiBasePath()}/users/findByName?name=${username}`, {
     method: 'GET',
     headers: getCbHeaders(),
   })
-    .then(checkForCbError)
+  .catch((err) => {
+    throw new Error(err);
+  })
+  .then(checkForCbError)
 }
 
 export async function getCodeBeamerProjectTrackers(projectID = undefined) {
@@ -128,13 +153,37 @@ export async function getCodeBeamerAssociationDetails(association) {
     .then(checkForCbError)
 }
 
-async function addNewCbItem(item) {
-  return fetch(`${getCbApiBasePath()}/trackers/${store.getBoardSetting(BoardSetting.INBOX_TRACKER_ID)}/items`, {
+/**
+ * Creates a codeBeamer item based on a miro item.
+ * The item is created in the "Inbox tracker" defined by it's id in the settings.
+ * If any part of the operation fails, the settings modal is opened and an error message is displayed.
+ * @param item CbItem to create
+ * @returns Response from the cb API.
+ */
+async function addNewCbItem(item: CreateCbItem) {
+  let trackerId = store.getBoardSetting(BoardSetting.INBOX_TRACKER_ID);
+  if(!trackerId) {
+      miro.board.ui.openModal('settings.html');
+      miro.showErrorNotification('You must define an inbox tracker id to create items!')
+  }
+  if(item.description) {
+    item.description = sanitizeHtml(
+      item.description,
+      { 
+        allowedTags: [], 
+        allowedAttributes: {} 
+      });
+  }
+  return fetch(`${getCbApiBasePath()}/trackers/${trackerId}/items`, {
     method: 'POST',
     headers: getCbHeaders(),
     body: JSON.stringify(item),
   })
     .then(checkForCbError)
+    .catch(err => {
+      miro.board.ui.openModal('settings.html');
+      miro.showErrorNotification(`Please verify the settings are correct. Error: ${err}`)
+    })
 }
 
 async function enrichBaseCbItemWithDetails(cbItem) {
@@ -152,6 +201,10 @@ export async function createOrUpdateCbItem(cbItem) {
   await enrichBaseCbItemWithDetails(cbItem)
   let cardData = await convert2Card(cbItem)
   cbItem.card = await createOrUpdateWidget(cardData)
+
+  //way of showing progress
+  miro.showNotification(`Created/Updated widget for "${cbItem.name}"`);
+
   return cbItem
 }
 

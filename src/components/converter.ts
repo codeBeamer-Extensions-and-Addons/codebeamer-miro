@@ -5,7 +5,8 @@ import { Constants } from './constants';
 import Store from './store'
 import { UserMapping } from '../types/UserMapping';
 
-export async function convert2Card(item) {
+export async function convert2Card(item): Promise<CardData> {
+  console.log("Converting to card: ", item);
   let cardData: CardData = {
     type: 'CARD',
     title: `<a href="${getCodeBeamerItemURL(item.id)}">[${item.tracker.keyName}-${item.id}] - ${item.name}</a>`,
@@ -47,6 +48,26 @@ export async function convert2Card(item) {
     if (mappedUser) {
       cardData.assignee = { userId: mappedUser.miroUserId }
     }
+  }
+
+  if(item.startDate) {
+    let date = new Date(item.startDate).toLocaleDateString();
+    let customField = {
+      mainColor: '#393b3a',
+      fontColor: '#fff',
+      value: `Start: ${date}`
+    }
+    cardData.card?.customFields?.push(customField);
+  }
+
+  if(item.endDate) {
+    let date = new Date(item.endDate).toLocaleDateString();
+    let customField = {
+      mainColor: '#393b3a',
+      fontColor: '#fff',
+      value: `End: ${date}`
+    }
+    cardData.card?.customFields?.push(customField);
   }
 
   // background Color
@@ -135,7 +156,12 @@ function strip(html) {
   return doc.body.textContent;
 }
 
-export function convert2CbItem(widget) {
+/**
+ * Converts a Miro widget to a CbItem
+ * @param widget Miro widget in question
+ * @returns CbItem based on given Miro widget
+ */
+export function convert2CbItem(widget): CreateCbItem {
   let item = {
     name: "New Item",
     description: "--"
@@ -161,4 +187,12 @@ export function convert2CbItem(widget) {
       throw new Error(`Widget type '${widget.type}' not supported`)
   }
   return item
+}
+
+/**
+ * Interface defining structure of a CbItem on creation.
+ */
+export interface CreateCbItem {
+  name: string;
+  description: string;
 }

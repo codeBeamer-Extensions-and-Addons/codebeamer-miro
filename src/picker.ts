@@ -5,12 +5,17 @@ import Store from './components/store';
 import { BoardSetting, LocalSetting } from './components/constants';
 
 const store = Store.getInstance();
-const itemsPerPage = 22
+const itemsPerPage = 13;
+
+const importedImage = '/img/checked-box.svg'
 
 store.onPluginReady(async () => {
   let trackersSelection = document.getElementById('selectedTracker') as HTMLSelectElement
   let importButton = document.getElementById('importButton')
+  let importButtonText = document.getElementById('importButtonText')
+  let importAllButton = document.getElementById('importAllButton') as HTMLButtonElement
   let synchButton = document.getElementById('synchButton')
+  let synchButtonText = document.getElementById('synchButtonText')
   let cbqlQuery = document.getElementById('cbqlQuery') as HTMLInputElement
 
   let cachedAdvancedSearchEnabled = store.getLocalSetting(LocalSetting.ADVANCED_SEARCH_ENABLED)
@@ -18,6 +23,11 @@ store.onPluginReady(async () => {
   if (cbqlQuery) {
     cbqlQuery.onchange = cbqlQueryOnChange
   }
+
+  if(importAllButton && !Store.getInstance().getLocalSetting(LocalSetting.SELECTED_TRACKER)) {
+    importAllButton.disabled = true;
+  }
+  importAllButton.onclick = () => importAllItemsForTracker();
 
   if (trackersSelection) {
     // build tracker options
@@ -35,14 +45,14 @@ store.onPluginReady(async () => {
   // Execute switch to current selection to get HTML initialized correctly
   loadSearchAndResults(cachedAdvancedSearchEnabled)
 
-  if (importButton) {
+  if (importButton && importButtonText) {
     importButton.onclick = importItems
     updateImportCountOnImportButton()
   }
 
-  if (synchButton) {
+  if (synchButton && synchButtonText) {
     synchButton.onclick = synchItems
-    synchButton.innerText = `Update Synched Items (${(await getAllSynchedCodeBeamerCardItemIds()).length})`
+    synchButtonText.innerText = `Update Synched Items (${(await getAllSynchedCodeBeamerCardItemIds()).length})`
   }
 })
 
@@ -64,7 +74,7 @@ function loadSearchAndResults(advancedSearch: boolean) {
   // set up / change switch button text and onclick
   let switchSearchButton = document.getElementById('switchSearchButton')
   if (switchSearchButton) {
-    switchSearchButton.innerText = advancedSearch ? "Switch to Simple Search..." : "Switch to Advanced Search..."
+    switchSearchButton.innerText = advancedSearch ? "Switch to Tracker select" : "Switch to CBQL query input"
     switchSearchButton.onclick = getSwitchSearchButtonOnClick(!advancedSearch)
   }
 
@@ -115,25 +125,37 @@ function getCheckedItems() {
 
 function importItems() {
   let itemsToImport = getCheckedItems()
-  if (itemsToImport.length > 0)
+  if (itemsToImport.length > 0){
+    miro.showNotification(`Importing ${itemsToImport.length} items from codebeamer...`);
+    hideDataTableAndShowLoadingSpinner();
     syncWithCodeBeamer(itemsToImport)
-      .then(() => {
-        miro.showNotification(`Successfully imported ${itemsToImport.length} items`)
-        miro.board.ui.closeModal()
-      })
-      .catch(err => miro.showErrorNotification(err))
+    .then(() => {
+      miro.showNotification(`Successfully imported ${itemsToImport.length} items`)
+      miro.board.ui.closeModal()
+    })
+    .catch(err => {
+      miro.showErrorNotification(err)
+      hideLoadingSpinnerAndShowDataTable();
+    })
+  }
 }
 
 function synchItems() {
   return getAllSynchedCodeBeamerCardItemIds()
-    .then(itemsToSynch => {
-      if (itemsToSynch.length > 0)
+  .then(itemsToSynch => {
+    if (itemsToSynch.length > 0){
+      miro.showNotification(`Updating ${itemsToSynch.length} items...`);
+      hideDataTableAndShowLoadingSpinner();
         syncWithCodeBeamer(itemsToSynch)
           .then(() => {
             miro.showNotification(`Successfully updated ${itemsToSynch.length} items`)
             miro.board.ui.closeModal()
           })
-          .catch(err => miro.showErrorNotification(err))
+          .catch(err => {
+            miro.showErrorNotification(err)
+            hideLoadingSpinnerAndShowDataTable();
+          })
+        }
     })
 }
 
@@ -214,6 +236,8 @@ async function trackersSelectionOnChange() {
   let selectedTracker = selectedTrackerElement.value
   if (selectedTracker) {
     store.saveLocalSettings({ [LocalSetting.SELECTED_TRACKER]: selectedTracker })
+    let importAllButton = document.getElementById('importAllButton') as HTMLButtonElement;
+    if(importAllButton) importAllButton.disabled = false;
     let tableBuildup = await buildResultTable(`tracker.id IN (${selectedTracker})`)
     if (!tableBuildup) clearResultTable()
   }
@@ -230,11 +254,14 @@ function selectAllOnChange() {
 async function populateDataTable(data) {
   let pickedAttributeData = data.map(({ id, name, tracker }) => ({ Tracker: tracker.name, ID: id, Name: name }))
   let table = document.getElementById("dataTable");
-  if (table)
-    table.innerHTML = ''
-  if (data.length > 0) {
-    await generateTableContent(table, pickedAttributeData);
-    generateTableHead(table, pickedAttributeData);
+  if (table){
+    table.innerHTML = '';
+    table.classList.remove('fade-in');
+    if (data.length > 0) {
+      await generateTableContent(table, pickedAttributeData);
+      generateTableHead(table, pickedAttributeData);
+      table?.classList.add('fade-in');
+    }
   }
 }
 
@@ -269,8 +296,11 @@ async function generateTableContent(table, data) {
 
     // if item is already synched, dont create checkbox
     if (alreadySynchedItems.some((val) => val == element.ID)) {
-      let text = document.createTextNode('imported');
-      cell.appendChild(text);
+      let img = document.createElement('img');
+      img.src = importedImage;
+      img.classList.add('imported-checkedBox');
+      img.title = 'Imported';
+      cell.appendChild(img);
     } else {
       let label = document.createElement("label")
       label.className = "miro-checkbox"
@@ -293,10 +323,67 @@ async function generateTableContent(table, data) {
 }
 
 function updateImportCountOnImportButton() {
+  let importButtonText = document.getElementById('importButtonText') as HTMLSpanElement
   let importButton = document.getElementById('importButton') as HTMLButtonElement
   let checkedItemCount = getCheckedItems().length
-  if (importButton) {
-    importButton.innerText = `Import Selected (${checkedItemCount})`
+  if (importButtonText && importButton) {
+    importButtonText.innerText = `Import Selected (${checkedItemCount})`
     importButton.disabled = checkedItemCount == 0
   }
+}
+
+/**
+ * Imports all items for a certain tracker. At your own discretion, since that takes time.
+ * @param trackerId 
+ */
+async function importAllItemsForTracker() {
+  let trackerId = Store.getInstance().getLocalSetting(LocalSetting.SELECTED_TRACKER);
+  document.getElementById('importAllButton')?.classList.add('miro-btn--loading');
+  
+  //get all items, filtering out already imported ones right in the cbq
+  let alreadySynchedItemIds = await getAllSynchedCodeBeamerCardItemIds();
+  let queryReturn = await getCodeBeamerCbqlResult(`tracker.id IN (${trackerId}) AND tracker.id NOT IN (${alreadySynchedItemIds.join(',')})`);
+  
+  if(queryReturn.message) {
+    miro.showErrorNotification(`Failed importing all items: ${queryReturn.message}`);
+    document.getElementById('importAllButton')?.classList.remove('miro-btn--loading');
+    return;
+  } else {
+    // query was successfull
+    let totalItems = queryReturn.total;
+    
+    if(window.confirm(`Import ${totalItems} items from codeBeamer? ${ totalItems >= 20 ? 'This could take a while.' : '' }`)) {
+      hideDataTableAndShowLoadingSpinner();
+      let itemIds = queryReturn.items.map(i => i.id);
+
+      await syncWithCodeBeamer(itemIds);
+      
+      miro.board.ui.closeModal();
+    }
+    document.getElementById('importAllButton')?.classList.remove('miro-btn--loading');
+  }
+}
+
+/**
+ * You guessed it. Hides the dataTable and shows the div containing the loading spinner.
+ */
+function hideDataTableAndShowLoadingSpinner() {
+  let dataTable = document.getElementById('dataTable');
+  if(dataTable) dataTable.hidden = true;
+  let tableControls = document.getElementById('dataTableControls');
+  if(tableControls) tableControls.hidden = true;
+  let loadingSpinner = document.getElementById('loadingSpinner');
+  if(loadingSpinner) loadingSpinner.hidden = false;
+}
+
+/**
+ * The opposite of hideDataTableAndShowLoadingSpinner. Literally.
+ */
+function hideLoadingSpinnerAndShowDataTable() {
+  let dataTable = document.getElementById('dataTable');
+  if(dataTable) dataTable.hidden = false;
+  let tableControls = document.getElementById('dataTableControls');
+  if(tableControls) tableControls.hidden = false;
+  let loadingSpinner = document.getElementById('loadingSpinner');
+  if(loadingSpinner) loadingSpinner.hidden = true;
 }
