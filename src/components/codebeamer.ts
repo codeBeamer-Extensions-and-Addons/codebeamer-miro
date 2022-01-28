@@ -100,6 +100,10 @@ async function getCodeBeamerWiki2Html(markup, trackerItem) {
     body: JSON.stringify(body),
   })
     .then(res => res.text())
+    .catch(err => {
+      console.warn(`Failed converting ${trackerItem.id}'s description to HTML. It might therefore look a little weird. This is a known issue, which is being worked on.`)
+      return markup;
+    })
 }
 
 /**
@@ -188,13 +192,16 @@ async function addNewCbItem(item: CreateCbItem) {
 
 async function enrichBaseCbItemWithDetails(cbItem) {
   cbItem.tracker = await getCodeBeamerTrackerDetails(cbItem.tracker)
-  cbItem.renderedDescription =
-    cbItem.description
-      ? (cbItem.descriptionFormat === 'Wiki'
-        ? await getCodeBeamerWiki2Html(cbItem.description, cbItem)
-        : cbItem.description)
-      : ""
-  return cbItem
+  
+  cbItem.renderedDescription = "";
+  if(cbItem.description)
+      if(cbItem.descriptionFormat === 'Wiki'){
+        cbItem.renderedDescription = await getCodeBeamerWiki2Html(cbItem.description, cbItem);
+      } else
+      { 
+        cbItem.renderedDescription = cbItem.description;
+      }
+  return cbItem;
 }
 
 export async function createOrUpdateCbItem(cbItem) {
