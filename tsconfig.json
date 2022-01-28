@@ -10,6 +10,11 @@
     "moduleResolution": "node",
     "allowJs": true
   },
+  "typedocOptions": {
+    "entryPointStrategy": "expand",
+    "entryPoints": ["./src"],
+    "out": "docs"
+  },
   "include": [
     "src/**/*"
   ]
