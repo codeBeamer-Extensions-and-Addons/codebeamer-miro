@@ -1,7 +1,7 @@
 {
   "author": "Max Proprawe",
   "name": "codebeamer-miro",
-  "version": "0.0.1",
+  "version": "0.2.28",
   "license": "AGPL-3.0",
   "files": [
     "src/**/*"
@@ -13,7 +13,9 @@
     "build": "webpack",
     "watch": "webpack -w",
     "start": "http-server dist --cors",
-    "ngrok": "ngrok http 8081"
+    "ngrok": "ngrok http 8081",
+    "prepublish:test": "npm run build",
+    "publish:test": "XCOPY dist C:\\users\\urecha\\source\\repos\\urecha.github.io /s /y && CD C:\\users\\urecha\\source\\repos\\urecha.github.io && git add . && git commit -m \"auto-publish to test env\" && git push"
   },
   "devDependencies": {
     "http-server": "^14.1.0",
@@ -34,7 +36,7 @@
   },
   "homepage": "https://github.com/max-poprawe/codebeamer-miro#readme",
   "dependencies": {
-    "md5": "^2.3.0",
+    "html-entities": "^2.3.2",
     "sanitize-html": "^2.5.1"
   }
 }
