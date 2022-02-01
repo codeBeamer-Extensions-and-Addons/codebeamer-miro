@@ -112,10 +112,17 @@ async function getCodeBeamerWiki2Html(markup, trackerItem) {
 /**
  * Encodes potential special chars, which codebeamer can't deal with very well.
  * @param markup Text to cleanse
- * @returns Input with encoded special characters.
+ * @returns Input with encoded special characters, processable by cb's /wiki2Html endpoint
  */
 function encodeSpecialChars(markup: string): string {
-  return encode(markup, { mode: 'extensive' });
+  //only "extensive" mode cleanses all special chars which codeBeamer seems to have troubles with
+  markup = encode(markup, { mode: 'extensive' });
+
+  //return some specific cb wiki markup chars to their original form, or codeBeamer won't be able to recognize them as wiki-markup to be converted to html and the whole call becomes redundant
+  markup = markup.replace(/&percnt;/g, "%").replace(/&excl;/g, "!").replace(/&semi;/g, ";").replace(/&colon;/g, ":").replace("/&comma;/g", ",").replace(/&lpar;/g, "(").replace(/&rpar;/g, ")");
+
+  return markup;
+
 }
 
 /**
