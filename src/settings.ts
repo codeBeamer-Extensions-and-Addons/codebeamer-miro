@@ -2,7 +2,6 @@ import Store from './components/store';
 import { BoardSetting, LocalSetting, SessionSetting } from './components/constants';
 import { getCodeBeamerUser } from './components/codebeamer'
 import { getCurrentUserId } from './components/miro'
-import * as md5 from 'md5';
 
 const store = Store.getInstance();
 
@@ -35,20 +34,6 @@ function addValueOfFieldToObject(object: any, fieldId: BoardSetting | LocalSetti
   let value = field ? field["value"] : null;
   object[fieldId] = value;
   return object;
-}
-
-/**
- * Creates the ha1 hash for digest authentication and stores it in the local storage.
- * @param realm Realm to create the hash for.
- * @deprecated Implementation not final. Incoherent storage space & lack of enum usage for that.
- */
-function hashAndSaveCredentials(realm: string = "CodeBeamer") {
-  let username = (document.getElementById(LocalSetting.CB_USERNAME) as HTMLInputElement).value;
-  let password = (document.getElementById(SessionSetting.CB_PASSWORD) as HTMLInputElement).value;
-
-  const ha1 = md5(`${username}:${realm}:${password}`);
-
-  localStorage.setItem('cb_auth_hash', ha1);
 }
 
 async function saveButtonOnClick() {
