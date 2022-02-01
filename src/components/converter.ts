@@ -6,7 +6,6 @@ import Store from './store'
 import { UserMapping } from '../types/UserMapping';
 
 export async function convert2Card(item): Promise<CardData> {
-  console.log("Converting to card: ", item);
   let cardData: CardData = {
     type: 'CARD',
     title: `<a href="${getCodeBeamerItemURL(item.id)}">[${item.tracker.keyName}-${item.id}] - ${item.name}</a>`,
