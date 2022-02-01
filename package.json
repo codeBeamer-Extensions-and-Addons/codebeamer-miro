@@ -1,7 +1,7 @@
 {
   "author": "Max Proprawe",
   "name": "codebeamer-miro",
-  "version": "0.0.1",
+  "version": "0.2.29",
   "license": "AGPL-3.0",
   "files": [
     "src/**/*"
@@ -34,7 +34,7 @@
   },
   "homepage": "https://github.com/max-poprawe/codebeamer-miro#readme",
   "dependencies": {
-    "md5": "^2.3.0",
+    "html-entities": "^2.3.2",
     "sanitize-html": "^2.5.1"
   }
 }
