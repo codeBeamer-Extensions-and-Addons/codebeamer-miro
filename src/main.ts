@@ -7,11 +7,9 @@ export function syncWithCodeBeamer(itemIds : string[]) {
   return getCodeBeamerCbqlResult(`item.id IN (${itemIds.join(',')})`)
     .then(async queryResult => queryResult.items)
     .then(async cbItems => {
-      console.log('starting createOrUpdateCbItem for all Items')
       for (let cbItem of cbItems) {
         await createOrUpdateCbItem(cbItem)
       }
-      console.log('starting createUpdateOrDeleteRelationLines for all Items')
       for (let cbItem of cbItems) {
         await createUpdateOrDeleteRelationLines(cbItem)
       }

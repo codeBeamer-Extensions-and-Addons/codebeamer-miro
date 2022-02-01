@@ -3,6 +3,7 @@ import { convert2CbItem, convert2Card, CreateCbItem } from "./converter";
 import Store from './store';
 import { BoardSetting, Constants, LocalSetting, SessionSetting } from "./constants";
 import * as sanitizeHtml from 'sanitize-html';
+import { encode }from 'html-entities';
 
 const store = Store.getInstance();
 
@@ -88,6 +89,8 @@ async function getCodeBeamerItemDetails(item) {
 }
 
 async function getCodeBeamerWiki2Html(markup, trackerItem) {
+  markup = encodeSpecialChars(markup);
+
   let body = {
     contextId: trackerItem.id,
     contextVersion: trackerItem.version,
@@ -104,6 +107,22 @@ async function getCodeBeamerWiki2Html(markup, trackerItem) {
       console.warn(`Failed converting ${trackerItem.id}'s description to HTML. It might therefore look a little weird. This is a known issue, which is being worked on.`)
       return markup;
     })
+}
+
+/**
+ * Encodes potential special chars, which codebeamer can't deal with very well.
+ * @param markup Text to cleanse
+ * @returns Input with encoded special characters, processable by cb's /wiki2Html endpoint
+ */
+function encodeSpecialChars(markup: string): string {
+  //only "extensive" mode cleanses all special chars which codeBeamer seems to have troubles with
+  markup = encode(markup, { mode: 'extensive' });
+
+  //return some specific cb wiki markup chars to their original form, or codeBeamer won't be able to recognize them as wiki-markup to be converted to html and the whole call becomes redundant
+  markup = markup.replace(/&percnt;/g, "%").replace(/&excl;/g, "!").replace(/&semi;/g, ";").replace(/&colon;/g, ":").replace("/&comma;/g", ",").replace(/&lpar;/g, "(").replace(/&rpar;/g, ")");
+
+  return markup;
+
 }
 
 /**
