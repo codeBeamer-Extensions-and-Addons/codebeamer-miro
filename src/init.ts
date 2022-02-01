@@ -60,7 +60,7 @@ miro.onReady(() => {
       },
     }
   });
-  console.log(`[codeBeamer-sync] Plugin v0.2.29 initialized. Experiencing issues? Let us know at https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/issues`)
+  console.log(`[codeBeamer-sync] Plugin v0.2.30 initialized. Experiencing issues? Let us know at https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/issues`)
   miro.isAuthorized().then((isAuthorized) => {
     if(!isAuthorized) {
       miro.requestAuthorization();
