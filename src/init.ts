@@ -26,7 +26,7 @@ miro.onReady(() => {
           getCodeBeamerUser()
             .then(() => miro.board.ui.openModal('picker.html'))
             .catch(err => {
-              miro.showErrorNotification(`Please fix CB Connection settings. CB Connection could not be established: ${err}`)
+              miro.showErrorNotification(`CodeBeamer connection could not be established. Please fix the Connection settings.`)
               miro.board.ui.openModal('settings.html')
             })
         },
@@ -60,7 +60,7 @@ miro.onReady(() => {
       },
     }
   });
-  console.log(`[codeBeamer-sync] Plugin v0.2.28 initialized. Experiencing issues? Let us know under https://github.com/max-poprawe/codebeamer-miro`)
+  console.log(`[codeBeamer-sync] Plugin v0.2.29 initialized. Experiencing issues? Let us know at https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/issues`)
   miro.isAuthorized().then((isAuthorized) => {
     if(!isAuthorized) {
       miro.requestAuthorization();
