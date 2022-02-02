@@ -5,9 +5,25 @@ import CodeBeamerService from "../../services/codebeamer";
 import MiroService from "../../services/miro";
 import Store from "../../services/store";
 
-const store = Store.getInstance();
-const codeBeamerService = CodeBeamerService.getInstance();
-const miroService = MiroService.getInstance();
+let store: Store;
+let codeBeamerService: CodeBeamerService;
+let miroService: MiroService;
+
+miro.onReady(async () => {
+  store = Store.create(miro.getClientId(), (await miro.board.info.get()).id);
+  codeBeamerService = CodeBeamerService.getInstance();
+  miroService = MiroService.getInstance();
+
+  loadFieldValuesFromStorage();
+})
+
+function loadFieldValuesFromStorage(): void {
+  setFieldFromBoardSettings(BoardSetting.CB_ADDRESS)
+  setFieldFromBoardSettings(BoardSetting.INBOX_TRACKER_ID)
+  setFieldFromBoardSettings(BoardSetting.PROJECT_ID)
+  setFieldFromPrivateSettings(LocalSetting.CB_USERNAME)
+  setFieldFromSessionSettings(SessionSetting.CB_PASSWORD)
+}
 
 function setFieldFromPrivateSettings(fieldIdAndSettingName: LocalSetting) {
   let value = store.getLocalSetting(fieldIdAndSettingName)
@@ -75,11 +91,3 @@ async function saveAndTestSettings() {
 
 let saveButton = document.getElementById('saveButton')
 if (saveButton) saveButton.onclick = saveAndTestSettings
-
-store.onPluginReady(async () => {
-  setFieldFromBoardSettings(BoardSetting.CB_ADDRESS)
-  setFieldFromBoardSettings(BoardSetting.INBOX_TRACKER_ID)
-  setFieldFromBoardSettings(BoardSetting.PROJECT_ID)
-  setFieldFromPrivateSettings(LocalSetting.CB_USERNAME)
-  setFieldFromSessionSettings(SessionSetting.CB_PASSWORD)
-})

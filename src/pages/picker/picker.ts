@@ -1,19 +1,25 @@
 import { BoardSetting } from "../../entities/board-setting.enum";
 import { LocalSetting } from "../../entities/local-setting.enum";
-import AppIdentity from "../../services/app-identity";
 import CodeBeamerService from "../../services/codebeamer";
 import MiroService from "../../services/miro";
 import Store from "../../services/store";
 
-
-const store = Store.getInstance();
-const codeBeamerService = CodeBeamerService.getInstance();
-const miroService = MiroService.getInstance();
-
 const itemsPerPage = 13;
 const importedImage = '/img/checked-box.svg'
 
-store.onPluginReady(async () => {
+let store: Store;
+let codeBeamerService: CodeBeamerService;
+let miroService: MiroService;
+
+miro.onReady(async () => {
+  store = Store.create(miro.getClientId(), (await miro.board.info.get()).id);
+  codeBeamerService = CodeBeamerService.getInstance();
+  miroService = MiroService.getInstance();
+
+  await initializeHandlers();
+})
+
+async function initializeHandlers() {
   let trackersSelection = document.getElementById('selectedTracker') as HTMLSelectElement
   let importButton = document.getElementById('importButton')
   let importButtonText = document.getElementById('importButtonText')
@@ -58,7 +64,7 @@ store.onPluginReady(async () => {
     synchButton.onclick = synchItems
     synchButtonText.innerText = `Update Synched Items (${(await miroService.getAllSynchedCodeBeamerCardItemIds()).length})`
   }
-})
+}
 
 function getSwitchSearchButtonOnClick(switchToAdvanced: boolean) {
   return () => loadSearchAndResults(switchToAdvanced)
@@ -406,6 +412,7 @@ function syncWithCodeBeamer(itemIds: string[]) {
     });
 }
 
+//TODO that should probably go to MiroService
 async function createUpdateOrDeleteRelationLines(cbItem) {
   let relations = await codeBeamerService.getCodeBeamerOutgoingRelations(
     cbItem.id.toString()
@@ -418,14 +425,9 @@ async function createUpdateOrDeleteRelationLines(cbItem) {
       if (
         !relations.find(
           (relation) =>
-            line.metadata[AppIdentity.AppId].id === relation.id
+            line.metadata[store.appId].id === relation.id
         )
       ) {
-        console.log(
-          `deleting line ${line.id} because the relation ${
-            line.metadata[AppIdentity.AppId].id
-          } does not exist anymore`
-        );
         await miroService.deleteWidget(line);
       }
     })
@@ -436,13 +438,8 @@ async function createUpdateOrDeleteRelationLines(cbItem) {
     relations.map(async (relation) => {
       const toCard = await miroService.findWidgetByTypeAndMetadataId({
         type: "CARD",
-        metadata: { [AppIdentity.AppId]: { id: relation.itemRevision.id } },
+        metadata: { [store.appId]: { id: relation.itemRevision.id } },
       });
-      console.log(
-        `Association ${relation.id}: card for codeBeamer ID ${
-          relation.itemRevision.id
-        } is: ${toCard ? toCard.id : "NOT FOUND (item not synced)"}`
-      );
       if (toCard) {
         await miroService.createOrUpdateWidget(
           await miroService.convert2Line(relation, cbItem.card.id, toCard.id)

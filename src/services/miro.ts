@@ -5,7 +5,6 @@ import {
 import { CardData } from "../entities/carddata.if";
 import { UserMapping } from "../entities/user-mapping.if";
 import { WIDGET_INITIAL_POSITION } from "../entities/widget-initial-position-name";
-import AppIdentity from "./app-identity";
 import CodeBeamerService from "./codebeamer";
 import Store from "./store";
 
@@ -27,10 +26,10 @@ export default class MiroService {
 		)
 			.filter(
 				(widget) =>
-					widget.metadata[AppIdentity.AppId] &&
-					widget.metadata[AppIdentity.AppId].id
+					widget.metadata[Store.getInstance().appId] &&
+					widget.metadata[Store.getInstance().appId].id
 			)
-			.map((widget) => widget.metadata[AppIdentity.AppId].id as string);
+			.map((widget) => widget.metadata[Store.getInstance().appId].id as string);
 	}
 
 	async getWidgetDetail(widget) {
@@ -46,11 +45,11 @@ export default class MiroService {
 			})
 			.then((widgets) =>
 				widgets
-					.filter((widget) => !!widget.metadata[AppIdentity.AppId])
+					.filter((widget) => !!widget.metadata[Store.getInstance().appId])
 					.find(
 						(widget) =>
-							widget.metadata[AppIdentity.AppId].id ===
-							widgetData.metadata[AppIdentity.AppId].id
+							widget.metadata[Store.getInstance().appId].id ===
+							widgetData.metadata[Store.getInstance().appId].id
 					)
 			);
 	}
@@ -62,7 +61,7 @@ export default class MiroService {
 			})
 		).filter(
 			(line) =>
-				line.metadata[AppIdentity.AppId] &&
+				line.metadata[Store.getInstance().appId] &&
 				line.startWidgetId === fromCardId
 		);
 	}
@@ -102,7 +101,7 @@ export default class MiroService {
 			widgetData.y = viewport.y + viewport.height / 2 + randomYOffset;
 		}
 		let widget = (await miro.board.widgets.create(widgetData))[0];
-		let itemId = widget.metadata[AppIdentity.AppId].id;
+		let itemId = widget.metadata[Store.getInstance().appId].id;
 		console.log(
 			`[codeBeamer-sync] ${widget.type} widget ${
 				widget.id
@@ -147,7 +146,7 @@ export default class MiroService {
 
 	async updateWidget(widgetData) {
 		let widget = (await miro.board.widgets.update(widgetData))[0];
-		let itemId = widget.metadata[AppIdentity.AppId].id;
+		let itemId = widget.metadata[Store.getInstance().appId].id;
 		console.log(
 			`[codeBeamer-sync] ${widget.type} widget ${
 				widget.id
@@ -199,7 +198,7 @@ export default class MiroService {
 				editable: false,
 			},
 			metadata: {
-				[AppIdentity.AppId]: {
+				[Store.getInstance().appId]: {
 					id: item.id,
 				},
 			},
@@ -280,7 +279,7 @@ export default class MiroService {
 				editable: false,
 			},
 			metadata: {
-				[AppIdentity.AppId]: {
+				[Store.getInstance().appId]: {
 					id: relation.id,
 				},
 			},
