@@ -1,12 +1,16 @@
-import { syncWithCodeBeamer } from './main';
-import { getAllSynchedCodeBeamerCardItemIds } from './components/miro'
-import { getCodeBeamerProjectTrackers, getCodeBeamerCbqlResult } from './components/codebeamer';
-import Store from './components/store';
-import { BoardSetting, LocalSetting } from './components/constants';
+import { BoardSetting } from "../../entities/board-setting.enum";
+import { LocalSetting } from "../../entities/local-setting.enum";
+import AppIdentity from "../../services/app-identity";
+import CodeBeamerService from "../../services/codebeamer";
+import MiroService from "../../services/miro";
+import Store from "../../services/store";
+
 
 const store = Store.getInstance();
-const itemsPerPage = 13;
+const codeBeamerService = CodeBeamerService.getInstance();
+const miroService = MiroService.getInstance();
 
+const itemsPerPage = 13;
 const importedImage = '/img/checked-box.svg'
 
 store.onPluginReady(async () => {
@@ -31,7 +35,7 @@ store.onPluginReady(async () => {
 
   if (trackersSelection) {
     // build tracker options
-    var availableTrackers = await getCodeBeamerProjectTrackers(store.getBoardSetting(BoardSetting.PROJECT_ID))
+    var availableTrackers = await codeBeamerService.getCodeBeamerProjectTrackers(store.getBoardSetting(BoardSetting.PROJECT_ID))
     availableTrackers.forEach(element => {
       var opt = document.createElement("option");
       opt.value = element.id;
@@ -52,7 +56,7 @@ store.onPluginReady(async () => {
 
   if (synchButton && synchButtonText) {
     synchButton.onclick = synchItems
-    synchButtonText.innerText = `Update Synched Items (${(await getAllSynchedCodeBeamerCardItemIds()).length})`
+    synchButtonText.innerText = `Update Synched Items (${(await miroService.getAllSynchedCodeBeamerCardItemIds()).length})`
   }
 })
 
@@ -141,7 +145,7 @@ function importItems() {
 }
 
 function synchItems() {
-  return getAllSynchedCodeBeamerCardItemIds()
+  return miroService.getAllSynchedCodeBeamerCardItemIds()
   .then(itemsToSynch => {
     if (itemsToSynch.length > 0){
       miro.showNotification(`Updating ${itemsToSynch.length} items...`);
@@ -174,7 +178,7 @@ async function buildResultTable(cbqlQuery, page = 1) {
   let pageLabel = document.getElementById('pageLabel') as HTMLLabelElement
   let forwardButton = document.getElementById('forwardButton') as HTMLButtonElement
 
-  let queryReturn = await getCodeBeamerCbqlResult(cbqlQuery, page, itemsPerPage)
+  let queryReturn = await codeBeamerService.getCodeBeamerCbqlResult(cbqlQuery, page, itemsPerPage)
   if (queryReturn.message) {
     return false
   } else {
@@ -289,7 +293,7 @@ function generateTableHead(table, data) {
 }
 
 async function generateTableContent(table, data) {
-  let alreadySynchedItems = await getAllSynchedCodeBeamerCardItemIds()
+  let alreadySynchedItems = await miroService.getAllSynchedCodeBeamerCardItemIds()
   for (let element of data) {
     let row = table.insertRow();
     let cell = row.insertCell();
@@ -341,8 +345,8 @@ async function importAllItemsForTracker() {
   document.getElementById('importAllButton')?.classList.add('miro-btn--loading');
   
   //get all items, filtering out already imported ones right in the cbq
-  let alreadySynchedItemIds = await getAllSynchedCodeBeamerCardItemIds();
-  let queryReturn = await getCodeBeamerCbqlResult(`tracker.id IN (${trackerId}) AND tracker.id NOT IN (${alreadySynchedItemIds.join(',')})`);
+  let alreadySynchedItemIds = await miroService.getAllSynchedCodeBeamerCardItemIds();
+  let queryReturn = await codeBeamerService.getCodeBeamerCbqlResult(`tracker.id IN (${trackerId}) AND tracker.id NOT IN (${alreadySynchedItemIds.join(',')})`);
   
   if(queryReturn.message) {
     miro.showErrorNotification(`Failed importing all items: ${queryReturn.message}`);
@@ -386,4 +390,66 @@ function hideLoadingSpinnerAndShowDataTable() {
   if(tableControls) tableControls.hidden = false;
   let loadingSpinner = document.getElementById('loadingSpinner');
   if(loadingSpinner) loadingSpinner.hidden = true;
+}
+
+function syncWithCodeBeamer(itemIds: string[]) {
+  return codeBeamerService
+    .getCodeBeamerCbqlResult(`item.id IN (${itemIds.join(",")})`)
+    .then(async (queryResult) => queryResult.items)
+    .then(async (cbItems) => {
+      for (let cbItem of cbItems) {
+        await miroService.createOrUpdateCbItem(cbItem);
+      }
+      for (let cbItem of cbItems) {
+        await createUpdateOrDeleteRelationLines(cbItem);
+      }
+    });
+}
+
+async function createUpdateOrDeleteRelationLines(cbItem) {
+  let relations = await codeBeamerService.getCodeBeamerOutgoingRelations(
+    cbItem.id.toString()
+  );
+  const existingLines = await miroService.findLinesByFromCard(cbItem.card.id);
+
+  // delete codebeamer-flagged lines which are no longer present in codebeamer that originate on any of the items synched above
+  let deletionTask = Promise.all(
+    existingLines.map(async (line) => {
+      if (
+        !relations.find(
+          (relation) =>
+            line.metadata[AppIdentity.AppId].id === relation.id
+        )
+      ) {
+        console.log(
+          `deleting line ${line.id} because the relation ${
+            line.metadata[AppIdentity.AppId].id
+          } does not exist anymore`
+        );
+        await miroService.deleteWidget(line);
+      }
+    })
+  );
+
+  // add or update lines from codeBeamer
+  let additionTask = Promise.all(
+    relations.map(async (relation) => {
+      const toCard = await miroService.findWidgetByTypeAndMetadataId({
+        type: "CARD",
+        metadata: { [AppIdentity.AppId]: { id: relation.itemRevision.id } },
+      });
+      console.log(
+        `Association ${relation.id}: card for codeBeamer ID ${
+          relation.itemRevision.id
+        } is: ${toCard ? toCard.id : "NOT FOUND (item not synced)"}`
+      );
+      if (toCard) {
+        await miroService.createOrUpdateWidget(
+          await miroService.convert2Line(relation, cbItem.card.id, toCard.id)
+        );
+      }
+    })
+  );
+
+  await Promise.all([deletionTask, additionTask]);
 }

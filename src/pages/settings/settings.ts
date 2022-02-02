@@ -1,9 +1,13 @@
-import Store from './components/store';
-import { BoardSetting, LocalSetting, SessionSetting } from './components/constants';
-import { getCodeBeamerUser } from './components/codebeamer'
-import { getCurrentUserId } from './components/miro'
+import { BoardSetting } from "../../entities/board-setting.enum";
+import { LocalSetting } from "../../entities/local-setting.enum";
+import { SessionSetting } from "../../entities/session-setting.enum";
+import CodeBeamerService from "../../services/codebeamer";
+import MiroService from "../../services/miro";
+import Store from "../../services/store";
 
 const store = Store.getInstance();
+const codeBeamerService = CodeBeamerService.getInstance();
+const miroService = MiroService.getInstance();
 
 function setFieldFromPrivateSettings(fieldIdAndSettingName: LocalSetting) {
   let value = store.getLocalSetting(fieldIdAndSettingName)
@@ -36,7 +40,7 @@ function addValueOfFieldToObject(object: any, fieldId: BoardSetting | LocalSetti
   return object;
 }
 
-async function saveButtonOnClick() {
+async function saveAndTestSettings() {
   let boardSettings = {}
   addValueOfFieldToObject(boardSettings, BoardSetting.CB_ADDRESS)
   addValueOfFieldToObject(boardSettings, BoardSetting.INBOX_TRACKER_ID)
@@ -55,9 +59,9 @@ async function saveButtonOnClick() {
   ])
 
 
-  await getCodeBeamerUser()
+  await codeBeamerService.getCodeBeamerUser()
     .then((cbUser) => {
-      getCurrentUserId().then((miroUserId) => {
+      miroService.getCurrentUserId().then((miroUserId) => {
         store.storeUserMapping({ cbUserId: cbUser.id, miroUserId: miroUserId })
       })
       miro.showNotification(`Connection with "${boardSettings["cbAddress"]}" API OK!`)
@@ -70,7 +74,7 @@ async function saveButtonOnClick() {
 }
 
 let saveButton = document.getElementById('saveButton')
-if (saveButton) saveButton.onclick = saveButtonOnClick
+if (saveButton) saveButton.onclick = saveAndTestSettings
 
 store.onPluginReady(async () => {
   setFieldFromBoardSettings(BoardSetting.CB_ADDRESS)

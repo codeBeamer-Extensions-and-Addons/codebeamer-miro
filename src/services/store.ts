@@ -1,25 +1,29 @@
-import { createOrUpdateWidget, recreateWidget } from '../components/miro';
-import { CardData } from "../types/CardData"
-import { BoardSetting, Constants, LocalSetting, PLUGIN_WIDGET_DESCRIPTION, PLUGIN_WIDGET_TITLE, SessionSetting } from './constants';
-import App from "./app"
-import { UserMapping } from '../types/UserMapping';
-import { CODEBEAMER_ICON } from '../init';
+import { PLUGIN_WIDGET_DESCRIPTION, PLUGIN_WIDGET_TITLE } from "../constants/plugin-widget";
+import { BoardSetting } from "../entities/board-setting.enum";
+import { CardData } from "../entities/carddata.if";
+import { LocalSetting } from "../entities/local-setting.enum";
+import { SessionSetting } from "../entities/session-setting.enum";
+import { SettingKey } from "../entities/setting-key.enum";
+import { UserMapping } from "../entities/user-mapping.if";
+import AppIdentity from "./app-identity";
+import MiroService from "./miro";
 
-interface getUserMappingParam {
-  cbUserId?: string,
-  miroUserId?: string,
-}
-
-class Store {
+export default class Store {
   private static instance: Store
 
+  //TODO outousrce to.. app/main
   public state: any = {
     onReadyCalled: false,
     onReadyFuncs: []
   }
-  public configWidget: SDK.ICardWidget
 
-  private static configInitCalled: boolean = false
+  private _configWidget: SDK.ICardWidget
+
+  public get configWidget(): SDK.ICardWidget {
+    return this._configWidget;
+  }
+
+  private static configInitCalled: boolean = false;
 
   private constructor() { }
 
@@ -62,17 +66,17 @@ class Store {
   /**
    * @returns Localstorage key for the "local" data.
    */
-  private getLocalSettingsLocalStorageKey() { return Constants.LS_KEY + "-" + App.boardId }
+  private getLocalSettingsLocalStorageKey() { return SettingKey.LS_KEY + "-" + AppIdentity.BoardId }
 
   /**
    * @returns Sessionstorage key for the "session" data.
    */
-  private getSessionStorageKey() { return Constants.SS_KEY + "-" + App.boardId };
+  private getSessionStorageKey() { return SettingKey.SS_KEY + "-" + AppIdentity.BoardId };
 
   /**
    * @returns Localstorage key for the "boardSettings" data.
    */
-  private getBoardSettingsLocalStorageKey() { return Constants.LS_BS_KEY + "-" + App.boardId }
+  private getBoardSettingsLocalStorageKey() { return SettingKey.LS_BS_KEY + "-" + AppIdentity.BoardId }
 
   /**
    * Saves the given settings object as boardSettings in the local storage.
@@ -150,7 +154,7 @@ class Store {
     await this.saveBoardSettings({ [BoardSetting.USER_MAPPING]: storedMappings })
   }
 
-  public getUserMapping(userDetails: getUserMappingParam) {
+  public getUserMapping(userDetails: Partial<UserMapping>) {
     let storedMappings = this.getBoardSetting(BoardSetting.USER_MAPPING) as UserMapping[]
     return storedMappings.find(m => (!userDetails.cbUserId || m.cbUserId == userDetails.cbUserId) && (!userDetails.miroUserId || m.miroUserId == userDetails.miroUserId))
   }
@@ -166,8 +170,8 @@ class Store {
 
     // try to find the widget
     let settingsWidget = (await miro.board.widgets.get({ type: 'CARD', }))
-      .filter(widget => !!widget.metadata[App.appId])
-      .find(widget => !!widget.metadata[App.appId].settings) as SDK.ICardWidget
+      .filter(widget => !!widget.metadata[AppIdentity.AppId])
+      .find(widget => !!widget.metadata[AppIdentity.AppId].settings) as SDK.ICardWidget
 
     // create if not exists
     if (!settingsWidget) {
@@ -177,7 +181,7 @@ class Store {
         description: PLUGIN_WIDGET_DESCRIPTION,
         capabilities: { editable: false },
         metadata: {
-          [App.appId]: {
+          [AppIdentity.AppId]: {
             settings: {},
           },
         },
@@ -185,10 +189,10 @@ class Store {
           logo: { iconUrl: `${window.location.href}img/codeBeamer-Logo.png` } },
         style: { backgroundColor: '#00A85D' }
       }
-      settingsWidget = await createOrUpdateWidget(cardData) as SDK.ICardWidget
+      settingsWidget = await MiroService.getInstance().createOrUpdateWidget(cardData) as SDK.ICardWidget
     }
 
-    Store.getInstance().configWidget = settingsWidget
+    Store.getInstance()._configWidget = settingsWidget
   }
 }
 
@@ -201,13 +205,12 @@ async function onAllWidgetsLoaded(callback) {
   }
 }
 
+//TODO fuck off
 miro.onReady(async () => {
-  await App.getAndSetIds()
+  await AppIdentity.setIds()
 
   onAllWidgetsLoaded(async () => {
     await Store.initConfigCard()
     Store.runOnPluginReadyFuncs()
   })
 })
-
-export default Store;
