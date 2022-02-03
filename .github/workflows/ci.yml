@@ -25,7 +25,7 @@ jobs:
           wait-on: "http://127.0.0.1:8080"
           wait-on-timeout: 20
           browser: chrome
-          record: false
+          record: true
           parallel: true
           spec: cypress/integration/*
         env:
