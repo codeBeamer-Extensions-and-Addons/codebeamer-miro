@@ -73,7 +73,15 @@ export async function initializeHandlers() {
 
   if (synchButton && synchButtonText) {
     synchButton.onclick = synchItems
-    synchButtonText.innerText = `Update Synched Items (${(await MiroService.getInstance().getAllSynchedCodeBeamerCardItemIds()).length})`
+    try {
+      synchButtonText.innerText = `Update Synched Items (${(await MiroService.getInstance().getAllSynchedCodeBeamerCardItemIds()).length})`
+    } catch (err) {
+      if(err.message.includes("reading 'widgets'")) {
+        console.warn("Miro board undefined. No problem if you're in the test environment though.")
+      } else {
+        throw err;
+      }
+    }
   }
 }
 
@@ -309,7 +317,16 @@ function generateTableHead(table, data) {
 }
 
 async function generateTableContent(table, data) {
-  let alreadySynchedItems = await MiroService.getInstance().getAllSynchedCodeBeamerCardItemIds()
+  let alreadySynchedItems: string[] = [];
+  try {
+    alreadySynchedItems = await MiroService.getInstance().getAllSynchedCodeBeamerCardItemIds()
+  } catch (err) {
+    if(err.message.includes("reading 'widgets'")) {
+      console.warn("Miro board undefined. No problem if you're in the test environment though.")
+    } else {
+      throw err;
+    }
+  }
   for (let element of data) {
     let row = table.insertRow();
     let cell = row.insertCell();
