@@ -1,25 +1,21 @@
 {
-  "author": "Max Proprawe",
+  "author": "Max Poprawe",
   "name": "codebeamer-miro",
-  "version": "0.2.30",
+  "version": "0.4.1",
   "license": "AGPL-3.0",
   "files": [
     "src/**/*"
   ],
   "scripts": {
-    "prebuild-linux": "rm -rf dist && mkdir dist && mkdir dist/img && cp -r src/img dist && cp src/index.html dist && cp src/settings.html dist && cp src/picker.html dist && mkdir dist/styles && cp -r src/styles dist",
+    "prebuild-linux": "rm -rf dist && mkdir dist && mkdir dist/img && cp -r src/img dist && cp src/index.html dist && cp src/pages/settings/settings.html dist && cp src/pages/picker/picker.html dist && mkdir dist/styles && cp -r src/styles dist",
     "build-linux": "webpack",
-    "prebuild": "(IF exist dist ( RD /s /q dist ) ELSE ( print 'a' )) && MKDIR dist\\img && COPY src\\img dist\\img && COPY src\\index.html dist && COPY src\\settings.html dist && COPY src\\picker.html dist && MKDIR dist\\styles && COPY src\\styles dist\\styles",
+    "prebuild": "(IF exist dist ( RD /s /q dist ) ELSE ( print 'a' )) && MKDIR dist\\img && COPY src\\img dist\\img && COPY src\\index.html dist && COPY src\\pages\\settings\\settings.html dist && COPY src\\pages\\picker\\picker.html dist && MKDIR dist\\styles && COPY src\\pages\\picker\\picker.css dist\\styles && COPY src\\pages\\settings\\settings.css dist\\styles",
     "build": "webpack",
     "watch": "webpack -w",
-    "start": "http-server dist --cors",
-    "ngrok": "ngrok http 8081",
-    "prepublish:test": "npm run build",
-    "publish:test": "XCOPY dist C:\\users\\urecha\\source\\repos\\urecha.github.io /s /y && CD C:\\users\\urecha\\source\\repos\\urecha.github.io && git add . && git commit -m \"auto-publish to test env\" && git push"
+    "start": "http-server dist --cors"
   },
   "devDependencies": {
     "http-server": "^14.1.0",
-    "ngrok": "^3.3.0",
     "ts-loader": "^8.0.3",
     "typedoc": "^0.22.11",
     "typescript": "^4.0.2",
@@ -29,12 +25,12 @@
   "description": "This is a codeBeamer <-> Miro integration web-plugin to be installed on Miro.\r It allows to import codeBeamer items to a Miro board, displaying any associations between the items.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/max-poprawe/codebeamer-miro.git"
+    "url": "https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro.git"
   },
   "bugs": {
-    "url": "https://github.com/max-poprawe/codebeamer-miro/issues"
+    "url": "https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/issues"
   },
-  "homepage": "https://github.com/max-poprawe/codebeamer-miro#readme",
+  "homepage": "https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro#readme",
   "dependencies": {
     "html-entities": "^2.3.2",
     "sanitize-html": "^2.5.1"

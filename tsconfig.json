@@ -3,7 +3,7 @@
     "baseUrl": "./src",
     "outDir": "./dist/",
     "strictNullChecks": true,
-    "allowUnreachableCode": true,
+    "allowUnreachableCode": false,
     "experimentalDecorators": true,
     "module": "commonjs",
     "target": "ES2016",
