@@ -7,19 +7,16 @@ import Store from "../../services/store";
 const itemsPerPage = 13;
 const importedImage = '/img/checked-box.svg'
 
-let store: Store;
-let codeBeamerService: CodeBeamerService;
-let miroService: MiroService;
-
 miro.onReady(async () => {
-  store = Store.create(miro.getClientId(), (await miro.board.info.get()).id);
-  codeBeamerService = CodeBeamerService.getInstance();
-  miroService = MiroService.getInstance();
-
-  await initializeHandlers();
+  Store.create(miro.getClientId(), (await miro.board.info.get()).id);
 })
 
-async function initializeHandlers() {
+initializeHandlers();
+
+/**
+ * Initializes event handlers for the page's elements and executes those only done once in the beginning.
+ */
+export async function initializeHandlers() {
   let trackersSelection = document.getElementById('selectedTracker') as HTMLSelectElement
   let importButton = document.getElementById('importButton')
   let importButtonText = document.getElementById('importButtonText')
@@ -28,20 +25,22 @@ async function initializeHandlers() {
   let synchButtonText = document.getElementById('synchButtonText')
   let cbqlQuery = document.getElementById('cbqlQuery') as HTMLInputElement
 
-  let cachedAdvancedSearchEnabled = store.getLocalSetting(LocalSetting.ADVANCED_SEARCH_ENABLED)
+  let cachedAdvancedSearchEnabled = Store.getInstance().getLocalSetting(LocalSetting.ADVANCED_SEARCH_ENABLED)
 
   if (cbqlQuery) {
     cbqlQuery.onchange = cbqlQueryOnChange
   }
 
-  if(importAllButton && !Store.getInstance().getLocalSetting(LocalSetting.SELECTED_TRACKER)) {
-    importAllButton.disabled = true;
-  }
-  importAllButton.onclick = () => importAllItemsForTracker();
-
-  if (trackersSelection) {
+  if(importAllButton){
+    if(!Store.getInstance().getLocalSetting(LocalSetting.SELECTED_TRACKER)) {
+        importAllButton.disabled = true;
+      }
+      importAllButton.onclick = () => importAllItemsForTracker();
+    }
+    
+    if (trackersSelection) {
     // build tracker options
-    let availableTrackers = await codeBeamerService.getCodeBeamerProjectTrackers(store.getBoardSetting(BoardSetting.PROJECT_ID));
+    let availableTrackers = await CodeBeamerService.getInstance().getCodeBeamerProjectTrackers(Store.getInstance().getBoardSetting(BoardSetting.PROJECT_ID));
     if(!availableTrackers.length){
       var nullOption = document.createElement("option");
       nullOption.value = "";
@@ -68,7 +67,7 @@ async function initializeHandlers() {
 
   if (synchButton && synchButtonText) {
     synchButton.onclick = synchItems
-    synchButtonText.innerText = `Update Synched Items (${(await miroService.getAllSynchedCodeBeamerCardItemIds()).length})`
+    synchButtonText.innerText = `Update Synched Items (${(await MiroService.getInstance().getAllSynchedCodeBeamerCardItemIds()).length})`
   }
 }
 
@@ -77,7 +76,7 @@ function getSwitchSearchButtonOnClick(switchToAdvanced: boolean) {
 }
 
 function loadSearchAndResults(advancedSearch: boolean) {
-  store.saveLocalSettings({ [LocalSetting.ADVANCED_SEARCH_ENABLED]: advancedSearch })
+  Store.getInstance().saveLocalSettings({ [LocalSetting.ADVANCED_SEARCH_ENABLED]: advancedSearch })
 
   // make correct search visible
   let simpleSearchDiv = document.getElementById('simpleSearch')
@@ -97,14 +96,14 @@ function loadSearchAndResults(advancedSearch: boolean) {
 
   // init advanced search
   if (advancedSearch) {
-    let cachedCbqlString = store.getLocalSetting(LocalSetting.CBQL_STRING)
+    let cachedCbqlString = Store.getInstance().getLocalSetting(LocalSetting.CBQL_STRING)
     if (cachedCbqlString) {
       let cbqlQuery = document.getElementById('cbqlQuery') as HTMLInputElement
       cbqlQuery.value = cachedCbqlString
     }
     cbqlQueryOnChange()
   } else { // init simple search
-    let cachedSelectedTracker = store.getLocalSetting(LocalSetting.SELECTED_TRACKER)
+    let cachedSelectedTracker = Store.getInstance().getLocalSetting(LocalSetting.SELECTED_TRACKER)
     // look if cached tracker is available on project and select it if it is
     if (cachedSelectedTracker) {
       let trackersSelection = document.getElementById('selectedTracker') as HTMLSelectElement
@@ -157,7 +156,7 @@ function importItems() {
 }
 
 function synchItems() {
-  return miroService.getAllSynchedCodeBeamerCardItemIds()
+  return MiroService.getInstance().getAllSynchedCodeBeamerCardItemIds()
   .then(itemsToSynch => {
     if (itemsToSynch.length > 0){
       miro.showNotification(`Updating ${itemsToSynch.length} items...`);
@@ -190,15 +189,14 @@ async function buildResultTable(cbqlQuery, page = 1) {
   let pageLabel = document.getElementById('pageLabel') as HTMLLabelElement
   let forwardButton = document.getElementById('forwardButton') as HTMLButtonElement
 
-  let queryReturn = await codeBeamerService.getCodeBeamerCbqlResult(cbqlQuery, page, itemsPerPage)
+  let queryReturn = await CodeBeamerService.getInstance().getCodeBeamerCbqlResult(cbqlQuery, page, itemsPerPage)
   if (queryReturn.message) {
-    return false
+    return false;
   } else {
     // query was successull
     let totalItems = queryReturn.total
     let numberOfPages = Math.ceil(totalItems / itemsPerPage)
     if (numberOfPages == 0) page = 0
-
     if (page <= 1) {
       backButton.disabled = true
     } else {
@@ -228,7 +226,7 @@ function getSwitchPageButtonOnClick(query, page) {
 async function cbqlQueryOnChange() {
   let cbqlQueryElement = document.getElementById('cbqlQuery') as HTMLInputElement
   let cbqlQuery = cbqlQueryElement.value
-  store.saveLocalSettings({ [LocalSetting.CBQL_STRING]: cbqlQuery })
+  Store.getInstance().saveLocalSettings({ [LocalSetting.CBQL_STRING]: cbqlQuery })
 
   // if not query is set
   if (!cbqlQuery) {
@@ -251,7 +249,7 @@ async function trackersSelectionOnChange() {
   let selectedTrackerElement = document.getElementById('selectedTracker') as HTMLSelectElement
   let selectedTracker = selectedTrackerElement.value
   if (selectedTracker) {
-    store.saveLocalSettings({ [LocalSetting.SELECTED_TRACKER]: selectedTracker })
+    Store.getInstance().saveLocalSettings({ [LocalSetting.SELECTED_TRACKER]: selectedTracker })
     let importAllButton = document.getElementById('importAllButton') as HTMLButtonElement;
     if(importAllButton) importAllButton.disabled = false;
     let tableBuildup = await buildResultTable(`tracker.id IN (${selectedTracker})`)
@@ -305,7 +303,7 @@ function generateTableHead(table, data) {
 }
 
 async function generateTableContent(table, data) {
-  let alreadySynchedItems = await miroService.getAllSynchedCodeBeamerCardItemIds()
+  let alreadySynchedItems = await MiroService.getInstance().getAllSynchedCodeBeamerCardItemIds()
   for (let element of data) {
     let row = table.insertRow();
     let cell = row.insertCell();
@@ -357,8 +355,8 @@ async function importAllItemsForTracker() {
   document.getElementById('importAllButton')?.classList.add('miro-btn--loading');
   
   //get all items, filtering out already imported ones right in the cbq
-  let alreadySynchedItemIds = await miroService.getAllSynchedCodeBeamerCardItemIds();
-  let queryReturn = await codeBeamerService.getCodeBeamerCbqlResult(`tracker.id IN (${trackerId}) AND tracker.id NOT IN (${alreadySynchedItemIds.join(',')})`);
+  let alreadySynchedItemIds = await MiroService.getInstance().getAllSynchedCodeBeamerCardItemIds();
+  let queryReturn = await CodeBeamerService.getInstance().getCodeBeamerCbqlResult(`tracker.id IN (${trackerId}) AND tracker.id NOT IN (${alreadySynchedItemIds.join(',')})`);
   
   if(queryReturn.message) {
     miro.showErrorNotification(`Failed importing all items: ${queryReturn.message}`);
@@ -405,12 +403,13 @@ function hideLoadingSpinnerAndShowDataTable() {
 }
 
 function syncWithCodeBeamer(itemIds: string[]) {
-  return codeBeamerService
+  return CodeBeamerService
+    .getInstance()
     .getCodeBeamerCbqlResult(`item.id IN (${itemIds.join(",")})`)
     .then(async (queryResult) => queryResult.items)
     .then(async (cbItems) => {
       for (let cbItem of cbItems) {
-        await miroService.createOrUpdateCbItem(cbItem);
+        await MiroService.getInstance().createOrUpdateCbItem(cbItem);
       }
       for (let cbItem of cbItems) {
         await createUpdateOrDeleteRelationLines(cbItem);
@@ -420,10 +419,10 @@ function syncWithCodeBeamer(itemIds: string[]) {
 
 //TODO that should probably go to MiroService
 async function createUpdateOrDeleteRelationLines(cbItem) {
-  let relations = await codeBeamerService.getCodeBeamerOutgoingRelations(
+  let relations = await CodeBeamerService.getInstance().getCodeBeamerOutgoingRelations(
     cbItem.id.toString()
   );
-  const existingLines = await miroService.findLinesByFromCard(cbItem.card.id);
+  const existingLines = await MiroService.getInstance().findLinesByFromCard(cbItem.card.id);
 
   // delete codebeamer-flagged lines which are no longer present in codebeamer that originate on any of the items synched above
   let deletionTask = Promise.all(
@@ -431,10 +430,10 @@ async function createUpdateOrDeleteRelationLines(cbItem) {
       if (
         !relations.find(
           (relation) =>
-            line.metadata[store.appId].id === relation.id
+            line.metadata[Store.getInstance().appId].id === relation.id
         )
       ) {
-        await miroService.deleteWidget(line);
+        await MiroService.getInstance().deleteWidget(line);
       }
     })
   );
@@ -442,13 +441,13 @@ async function createUpdateOrDeleteRelationLines(cbItem) {
   // add or update lines from codeBeamer
   let additionTask = Promise.all(
     relations.map(async (relation) => {
-      const toCard = await miroService.findWidgetByTypeAndMetadataId({
+      const toCard = await MiroService.getInstance().findWidgetByTypeAndMetadataId({
         type: "CARD",
-        metadata: { [store.appId]: { id: relation.itemRevision.id } },
+        metadata: { [Store.getInstance().appId]: { id: relation.itemRevision.id } },
       });
       if (toCard) {
-        await miroService.createOrUpdateWidget(
-          await miroService.convert2Line(relation, cbItem.card.id, toCard.id)
+        await MiroService.getInstance().createOrUpdateWidget(
+          await MiroService.getInstance().convert2Line(relation, cbItem.card.id, toCard.id)
         );
       }
     })

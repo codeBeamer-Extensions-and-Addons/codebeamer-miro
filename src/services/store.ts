@@ -30,7 +30,16 @@ export default class Store {
 	}
 
 	public static getInstance() {
-		if (!this._instance) throw Error("Store not initialized");
+		if (!this._instance) {
+			// ? Could potentially cause faulty behaviour in production, but the Store usually gets initialized
+			// ? on miro.onReady, which should always trigger instantly on the modals.
+			// * So this provides a standardized Store for e2e tests, since Store.create() done there doesn't
+			// * appear to allow for getting it in the plugin's context (contrary to cypress claims...).
+			console.warn("Store not initialized. Initializing a test-store with test-ids.");
+			const fakeClientId = "e2e-test";
+			const fakeBoardId = "e2e-test";
+			return Store.create(fakeClientId, fakeBoardId);
+		}
 		return this._instance;
 	}
 
