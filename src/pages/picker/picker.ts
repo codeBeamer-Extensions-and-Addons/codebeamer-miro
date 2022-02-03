@@ -11,12 +11,18 @@ miro.onReady(async () => {
   Store.create(miro.getClientId(), (await miro.board.info.get()).id);
 })
 
-initializeHandlers();
+setTimeout(() => {
+  //calling this with a slight callback since above miro.onReady creates the Store instance asynchronously
+  //while following method would do it synchronously if no Store exists yet.
+  //(to allow for cypress testing, you can't just put it after the Store.create() above)
+  initializeHandlers();
+}, 100);
 
 /**
  * Initializes event handlers for the page's elements and executes those only done once in the beginning.
  */
 export async function initializeHandlers() {
+  console.log("initialize handlers: ", Date.now());
   let trackersSelection = document.getElementById('selectedTracker') as HTMLSelectElement
   let importButton = document.getElementById('importButton')
   let importButtonText = document.getElementById('importButtonText')
