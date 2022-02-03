@@ -33,5 +33,5 @@ jobs:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CYPRESS_retinaBaseUrl: https://retinatest.roche.com/cb
-          CYPRESS_cbUsername: ${{ secrets.cbUsername }}
-          CYPRESS_cbPassword: ${{ secrets.cbPassword }}
+          CYPRESS_cbUsername: ${{ secrets.CYPRESS_CBUSERNAME }}
+          CYPRESS_cbPassword: ${{ secrets.CYPRESS_CBPASSWORD }}
