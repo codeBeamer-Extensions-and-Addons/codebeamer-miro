@@ -13,7 +13,7 @@ miro.onReady(async () => {
 	Store.create(miro.getClientId(), (await miro.board.info.get()).id);
 	
 	if (!(await miro.isAuthorized())) {
-		miro.requestAuthorization();
+		await miro.requestAuthorization();
 	}
 
 	await miro.initialize({
@@ -22,16 +22,17 @@ miro.onReady(async () => {
 				title: "Import Items from codeBeamer",
 				librarySvgIcon: CODEBEAMER_DOWNLOAD,
 				toolbarSvgIcon: CODEBEAMER_DOWNLOAD,
-				onClick: () => {
-					CodeBeamerService.getInstance()
-						.getCodeBeamerUser()
-						.then(() => miro.board.ui.openModal("picker.html"))
-						.catch((err) => {
-							miro.showErrorNotification(
-								`CodeBeamer connection could not be established. Please fix the Connection settings.`
-							);
-							miro.board.ui.openModal("settings.html");
-						});
+				onClick: async () => {
+					try {
+						await CodeBeamerService.getInstance().getCodeBeamerUser();
+						miro.board.ui.openModal("picker.html");
+					} catch (err) {
+						console.error(err);
+						miro.showErrorNotification(
+							`CodeBeamer connection could not be established. Please check the Connection settings.`
+						);
+						miro.board.ui.openModal("settings.html");
+					};
 				},
 			},
 			getWidgetMenuItems: function (selectedWidgets) {
@@ -76,7 +77,7 @@ miro.onReady(async () => {
 	});
 
 	console.info(
-		`[codeBeamer-sync] Plugin v0.3.0 initialized. Experiencing issues? Let us know at https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/issues`
+		`[codeBeamer-sync] Plugin v0.4.1 initialized. Experiencing issues? Let us know at https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/issues`
 	);
 });
 
