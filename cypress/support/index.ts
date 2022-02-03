@@ -18,3 +18,16 @@ import './commands'
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
+
+declare global {
+    namespace Cypress {
+        interface Chainable {
+
+            /**
+             * Custom command to authenticate with default credentials.
+             */
+            login(): Chainable<Element>
+        }
+        
+    }
+}
