@@ -63,10 +63,10 @@ describe('Picker', () => {
             cy.visit('picker.html');
 
             //stub cb API calls to fixed responses and therefore static assertions
-            //cy.intercept('GET', 'https://retinatest.roche.com/cb/api/v3/projects/**/trackers', { fixture: 'trackers.json' });
-            cy.intercept('GET', /^https:\/\/retinatest\.roche\.com\/cb\/api\/v3\/projects\/[0-9+]$\/trackers/, { fixture: 'trackers.json' });
-            cy.intercept('GET', 'https://retinatest.roche.com/cb/api/v3/query?page=1&pageSize=13&queryString=tracker.id*', { fixture: 'trackerItems_page1.json' });
-            cy.intercept('GET', 'https://retinatest.roche.com/cb/api/v3/query?page=2&pageSize=13&queryString=tracker.id*', { fixture: 'trackerItems_page2.json' });
+            //also allows to run tests without RCN connection
+            cy.intercept('GET', 'https://retinatest.roche.com/cb/api/v3/projects/**/trackers', { fixture: 'trackers.json' });
+            cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query', { fixture: 'trackerItems_page1.json' });
+            //cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query?page=2&pageSize=13&queryString=tracker.id*', { fixture: 'trackerItems_page2.json' });
         });
 
         it('disables the import button by default', () => {
