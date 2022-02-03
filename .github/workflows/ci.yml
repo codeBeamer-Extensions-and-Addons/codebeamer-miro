@@ -20,7 +20,7 @@ jobs:
       - name: Run tests
         uses: cypress-io/github-action@v2
         with:
-          build: npm run build
+          build: npm run build-linux
           start: npm run start
           wait-on: "http://127.0.0.1:8080"
           wait-on-timeout: 20
