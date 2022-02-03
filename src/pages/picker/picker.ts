@@ -41,7 +41,13 @@ async function initializeHandlers() {
 
   if (trackersSelection) {
     // build tracker options
-    var availableTrackers = await codeBeamerService.getCodeBeamerProjectTrackers(store.getBoardSetting(BoardSetting.PROJECT_ID))
+    let availableTrackers = await codeBeamerService.getCodeBeamerProjectTrackers(store.getBoardSetting(BoardSetting.PROJECT_ID));
+    if(!availableTrackers.length){
+      var nullOption = document.createElement("option");
+      nullOption.value = "";
+      nullOption.innerHTML = `No Trackers found for the selected Project`;
+      trackersSelection.appendChild(nullOption);
+    }
     availableTrackers.forEach(element => {
       var opt = document.createElement("option");
       opt.value = element.id;
