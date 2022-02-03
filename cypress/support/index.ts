@@ -26,7 +26,7 @@ declare global {
             /**
              * Custom command to authenticate with default credentials.
              */
-            login(): Chainable<Element>
+            mockLogin(): Chainable<Element>
         }
         
     }

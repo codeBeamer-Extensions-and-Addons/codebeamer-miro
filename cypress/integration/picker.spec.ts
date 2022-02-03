@@ -59,7 +59,7 @@ describe('Picker', () => {
                 }
             });
             
-            cy.login();
+            cy.mockLogin();
             cy.visit('picker.html');
 
             //stub cb API calls to fixed responses and therefore static assertions

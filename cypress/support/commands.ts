@@ -4,7 +4,14 @@
 // https://on.cypress.io/custom-commands
 // ***********************************************
 
-Cypress.Commands.add('login', () => {
+/**
+ * This mocks logging in, meaning the actual HTTP request verifying the connection is valid is stubbed.
+ * <p>
+ * This works if all subsequent requests in tests using this command are stubbed too.
+ * It's still necessary to perform the steps in this method to store the plugin config values, which will be reused.
+ * </p>
+ */
+Cypress.Commands.add('mockLogin', () => {
     cy.visit('settings.html');
 
     cy.on('uncaught:exception', (err, runnable) => {
@@ -17,18 +24,14 @@ Cypress.Commands.add('login', () => {
     });
 
     cy.get('input#cbAddress').clear().type(Cypress.env("retinaBaseUrl"));
-        cy.get('input#projectId').clear().type('907');
-        cy.get('input#cbUsername').clear().type(Cypress.env('cbUsername'));
-        cy.get('input#cbPassword').clear().type(Cypress.env('cbPassword'));
+    cy.get('input#projectId').clear().type('907');
+    cy.get('input#cbUsername').clear().type(Cypress.env('cbUsername'));
+    cy.get('input#cbPassword').clear().type(Cypress.env('cbPassword'));
 
-        cy.intercept({
-            method: 'GET',
-            url: 'https://retinatest.roche.com/cb/api/v3/users/**'
-        }).as('findUser')
+    cy.intercept({
+        method: 'GET',
+        url: 'https://retinatest.roche.com/cb/api/v3/users/**'
+    }, { id: 1 }).as('findUser')
 
-        cy.get('button#saveButton').click();
-
-        cy.wait('@findUser').then((interception) => {
-            assert.isNotNull(interception.response?.body.id, 'findUser response successfull');
-        });
+    cy.get('button#saveButton').click();
 })
