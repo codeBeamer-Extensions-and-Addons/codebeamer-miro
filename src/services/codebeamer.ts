@@ -165,7 +165,7 @@ export default class CodeBeamerService {
   }
   
   /**
-   * Fetches a user's data from the cb API.
+   * Fetches a user's data from the cb API. Usually just used to check that connection to the API is established and authorized.
    * @param username CodeBeamer username of the user in question
    * @returns The user's codeBeamer account data
    */
@@ -178,10 +178,13 @@ export default class CodeBeamerService {
         method: 'GET',
         headers: this.getCbHeaders(),
       });
+      if(!response.ok) {
+        //wouldn't throw a catchable error without this..
+        throw new Error(response.status.toString());
+      }
       return await response.json();
     } catch (err){
-      console.error(err);
-      throw new Error(`Failed getting data for user ${username}: ${err.status}`);
+      throw new Error(`Failed getting data for user ${username}: ${err}`);
     };
   }
   
