@@ -85,7 +85,7 @@ describe('Picker', () => {
             cy.get('select#selectedTracker').find('option[value=\"4877085\"]').contains('Miro sync test by urecha');
         });
     
-        it.only('displays a table of Items when selecting a Tracker with items in it', () => {
+        it('displays a table of Items when selecting a Tracker with items in it', () => {
             cy.get('select#selectedTracker').select('4877085');
     
             cy.get('div#table-container').should('have.descendants', 'tr').should('have.descendants', 'td');
