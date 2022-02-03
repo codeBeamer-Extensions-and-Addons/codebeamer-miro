@@ -52,7 +52,8 @@ describe('Settings & Login site', () => {
         cy.get('button#saveButton');
     })
 
-    it('can authenticate successfully', () => {
+    // skipped because it requires RCN connection.. and tests the API connection, which is important but we have little influence on
+    it.skip('can authenticate successfully', () => {
         cy.get('input#cbAddress').clear().type('https://retinatest.roche.com/cb');
         cy.get('input#projectId').clear().type('907');
         cy.get('input#cbUsername').clear().type(Cypress.env('cbUsername'));
