@@ -10,6 +10,9 @@ body {
 	background-color: transparent;
 	color: var(--miro-primary-text);
 }
+#content {
+	opacity: 0;
+}
 #table-container {
 	max-height: 60%;
 }
@@ -85,9 +88,9 @@ button svg {
 	left: 0px;
 	top: 2px;
 }
-.loading-large::after {
-	width: 4rem;
-	height: 4rem;
+.loading::after {
+	width: 1rem;
+	height: 1rem;
 
 	-webkit-animation: spinning .5s linear infinite;
     animation: spinning .5s linear infinite;
@@ -103,13 +106,28 @@ button svg {
     left: calc(50% - (1em / 2));
     position: relative;
 }
-@keyframes spinning {
-	from {
-		transform: rotate(0deg)
-	}
-	to {
-		transform: rotate(359deg)
-	}
+.loading-large::after {
+	width: 4rem !important;
+	height: 4rem !important;	
+}
+.loading-medium::after {
+	width: 2rem !important;
+	height: 2rem !important
+}
+
+.loading-screen {
+	position: absolute;
+    z-index: 1;
+    background-color: white;
+    width: 92%;
+    height: 92%;
+}
+
+.loading-screen > .loading {
+	position: relative;
+    top: 50%;
+    left: 48%;
+    transform: translate(-50%,-50%);
 }
 
 /*utilities*/
@@ -137,6 +155,15 @@ button svg {
 }
 
 /*keyframes*/
+@keyframes spinning {
+	from {
+		transform: rotate(0deg)
+	}
+	to {
+		transform: rotate(359deg)
+	}
+}
+
 @keyframes fade-in {
 	from {
 		opacity: 0;

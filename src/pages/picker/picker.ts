@@ -1,10 +1,10 @@
+import { MAX_ITEMS_PER_IMPORT, DEFAULT_ITEMS_PER_PAGE, DEFAULT_RESULT_PAGE, MAX_ITEMS_PER_SYNCH } from "../../constants/cb-import-defaults";
 import { BoardSetting } from "../../entities/board-setting.enum";
 import { LocalSetting } from "../../entities/local-setting.enum";
 import CodeBeamerService from "../../services/codebeamer";
 import MiroService from "../../services/miro";
 import Store from "../../services/store";
 
-const itemsPerPage = 13;
 const importedImage = '/img/checked-box.svg'
 
 miro.onReady(async () => {
@@ -12,17 +12,18 @@ miro.onReady(async () => {
 })
 
 setTimeout(() => {
-  //calling this with a slight callback since above miro.onReady creates the Store instance asynchronously
+  //calling this with a delay since above miro.onReady creates the Store instance asynchronously
   //while following method would do it synchronously if no Store exists yet.
   //(to allow for cypress testing, you can't just put it after the Store.create() above)
   initializeHandlers();
-}, 100);
+}, 500);
 
 /**
  * Initializes event handlers for the page's elements and executes those only done once in the beginning.
  */
 export async function initializeHandlers() {
-  console.log("initialize handlers: ", Date.now());
+  removeLoadingScreen();
+
   let trackersSelection = document.getElementById('selectedTracker') as HTMLSelectElement
   let importButton = document.getElementById('importButton')
   let importButtonText = document.getElementById('importButtonText')
@@ -157,7 +158,7 @@ function importItems() {
   if (itemsToImport.length > 0){
     miro.showNotification(`Importing ${itemsToImport.length} items from codebeamer...`);
     hideDataTableAndShowLoadingSpinner();
-    syncWithCodeBeamer(itemsToImport)
+    getAndSyncItemsWithCodeBeamer(itemsToImport)
     .then(() => {
       miro.showNotification(`Successfully imported ${itemsToImport.length} items`)
       miro.board.ui.closeModal()
@@ -173,12 +174,13 @@ function synchItems() {
   return MiroService.getInstance().getAllSynchedCodeBeamerCardItemIds()
   .then(itemsToSynch => {
     if (itemsToSynch.length > 0){
-      miro.showNotification(`Updating ${itemsToSynch.length} items...`);
+      miro.showNotification(`Updating items...`);
       hideDataTableAndShowLoadingSpinner();
-        syncWithCodeBeamer(itemsToSynch)
-          .then(() => {
-            miro.showNotification(`Successfully updated ${itemsToSynch.length} items`)
-            miro.board.ui.closeModal()
+        getAndSyncItemsWithCodeBeamer(itemsToSynch)
+          .then((updated) => {
+            let suffix = itemsToSynch.length > updated ? ` from ${Store.getInstance().getBoardSetting(BoardSetting.CB_ADDRESS)}` : "";
+            miro.showNotification(`Successfully updated ${updated} items ${suffix}`)
+            miro.board.ui.closeModal();
           })
           .catch(err => {
             miro.showErrorNotification(err)
@@ -203,13 +205,13 @@ async function buildResultTable(cbqlQuery, page = 1) {
   let pageLabel = document.getElementById('pageLabel') as HTMLLabelElement
   let forwardButton = document.getElementById('forwardButton') as HTMLButtonElement
 
-  let queryReturn = await CodeBeamerService.getInstance().getCodeBeamerCbqlResult(cbqlQuery, page, itemsPerPage)
+  let queryReturn = await CodeBeamerService.getInstance().getCodeBeamerCbqlResult(cbqlQuery, page, DEFAULT_ITEMS_PER_PAGE)
   if (queryReturn.message) {
     return false;
   } else {
     // query was successull
     let totalItems = queryReturn.total
-    let numberOfPages = Math.ceil(totalItems / itemsPerPage)
+    let numberOfPages = Math.ceil(totalItems / DEFAULT_ITEMS_PER_PAGE)
     if (numberOfPages == 0) page = 0
     if (page <= 1) {
       backButton.disabled = true
@@ -370,7 +372,7 @@ function updateImportCountOnImportButton() {
 }
 
 /**
- * Imports all items for a certain tracker. At your own discretion, since that takes time.
+ * Imports all (up to MAX_ITEMS_PER_IMPORT) items for a certain tracker. At your own discretion, since that takes time.
  * @param trackerId 
  */
 async function importAllItemsForTracker() {
@@ -379,7 +381,8 @@ async function importAllItemsForTracker() {
   
   //get all items, filtering out already imported ones right in the cbq
   let alreadySynchedItemIds = await MiroService.getInstance().getAllSynchedCodeBeamerCardItemIds();
-  let queryReturn = await CodeBeamerService.getInstance().getCodeBeamerCbqlResult(`tracker.id IN (${trackerId}) AND tracker.id NOT IN (${alreadySynchedItemIds.join(',')})`);
+
+  let queryReturn = await CodeBeamerService.getInstance().getCodeBeamerCbqlResult(`tracker.id IN (${trackerId}) AND item.id NOT IN (${alreadySynchedItemIds.join(',')})`, DEFAULT_RESULT_PAGE, MAX_ITEMS_PER_IMPORT);
   
   if(queryReturn.message) {
     miro.showErrorNotification(`Failed importing all items: ${queryReturn.message}`);
@@ -391,10 +394,7 @@ async function importAllItemsForTracker() {
     
     if(window.confirm(`Import ${totalItems} items from codeBeamer? ${ totalItems >= 20 ? 'This could take a while.' : '' }`)) {
       hideDataTableAndShowLoadingSpinner();
-      let itemIds = queryReturn.items.map(i => i.id);
-
-      await syncWithCodeBeamer(itemIds);
-      
+      await syncItemsWithCodeBeamer(queryReturn.items);
       miro.board.ui.closeModal();
     }
     document.getElementById('importAllButton')?.classList.remove('miro-btn--loading');
@@ -402,7 +402,38 @@ async function importAllItemsForTracker() {
 }
 
 /**
- * You guessed it. Hides the dataTable and shows the div containing the loading spinner.
+ * Shows the loading screen
+ * Also removes the content div's fade-in class so it can fade in again.
+ */
+function displayLoadingScreen() {
+  let loadingScreen = document.getElementById('loadingScreen');
+  if(loadingScreen) {
+    loadingScreen.hidden = false;
+  }
+
+  let content = document.getElementById('content');
+  if(content) {
+    content.classList.remove('fade-in');
+  }
+}
+
+/**
+ * Hides the loading screen div and lets the content div fade in.
+ */
+function removeLoadingScreen() {
+  let loadingScreen = document.getElementById('loadingScreen');
+  if(loadingScreen) {
+    loadingScreen.hidden = true;
+  }
+
+  let content = document.getElementById('content');
+  if(content) {
+    content.classList.add('fade-in');
+  }
+}
+
+/**
+ * Hides the dataTable and shows the div containing the loading spinner.
  */
 function hideDataTableAndShowLoadingSpinner() {
   let dataTable = document.getElementById('dataTable');
@@ -414,7 +445,7 @@ function hideDataTableAndShowLoadingSpinner() {
 }
 
 /**
- * The opposite of hideDataTableAndShowLoadingSpinner. Literally.
+ * Shows the dataTable and hides the div containing the loading spinner.
  */
 function hideLoadingSpinnerAndShowDataTable() {
   let dataTable = document.getElementById('dataTable');
@@ -425,19 +456,32 @@ function hideLoadingSpinnerAndShowDataTable() {
   if(loadingSpinner) loadingSpinner.hidden = true;
 }
 
-function syncWithCodeBeamer(itemIds: string[]) {
-  return CodeBeamerService
+/**
+ * Fetches detailed data for the codeBeamerItems with ids in question, then creates or updates their Miro cards.
+ * @param itemIds Array of codeBeamer Item ids
+ * @returns Amount of items synchronized (since it can differ from number of items in the parameter array if items have been imported from different cb instances).
+ */
+async function getAndSyncItemsWithCodeBeamer(itemIds: string[]): Promise<number> {
+  let items = await (await CodeBeamerService
     .getInstance()
-    .getCodeBeamerCbqlResult(`item.id IN (${itemIds.join(",")})`)
-    .then(async (queryResult) => queryResult.items)
-    .then(async (cbItems) => {
-      for (let cbItem of cbItems) {
-        await MiroService.getInstance().createOrUpdateCbItem(cbItem);
-      }
-      for (let cbItem of cbItems) {
-        await createUpdateOrDeleteRelationLines(cbItem);
-      }
-    });
+    .getCodeBeamerCbqlResult(`item.id IN (${itemIds.join(",")})`, DEFAULT_RESULT_PAGE, MAX_ITEMS_PER_SYNCH)).items;
+  
+  await syncItemsWithCodeBeamer(items);
+  return items.length;
+}
+
+/**
+ * Creates or updates Miro cards for the provided items.
+ * @param cbItems Array of codeBeamer items.
+ * @returns Number of items synchronized.
+ */
+async function syncItemsWithCodeBeamer(cbItems: []): Promise<void> {
+  for (let cbItem of cbItems) {
+    await MiroService.getInstance().createOrUpdateCbItem(cbItem);
+  }
+  for (let cbItem of cbItems) {
+    await createUpdateOrDeleteRelationLines(cbItem);
+  }
 }
 
 //TODO that should probably go to MiroService
