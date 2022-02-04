@@ -5,14 +5,8 @@ import CodeBeamerService from "../../services/codebeamer";
 import MiroService from "../../services/miro";
 import Store from "../../services/store";
 
-let store: Store;
-let codeBeamerService: CodeBeamerService;
-let miroService: MiroService;
-
 miro.onReady(async () => {
-  store = Store.create(miro.getClientId(), (await miro.board.info.get()).id);
-  codeBeamerService = CodeBeamerService.getInstance();
-  miroService = MiroService.getInstance();
+  Store.create(miro.getClientId(), (await miro.board.info.get()).id);
 
   loadFieldValuesFromStorage();
 })
@@ -26,7 +20,7 @@ function loadFieldValuesFromStorage(): void {
 }
 
 function setFieldFromPrivateSettings(fieldIdAndSettingName: LocalSetting) {
-  let value = store.getLocalSetting(fieldIdAndSettingName)
+  let value = Store.getInstance().getLocalSetting(fieldIdAndSettingName)
   if (value) {
     let field = document.getElementById(fieldIdAndSettingName)
     if (field) field["value"] = value
@@ -34,7 +28,7 @@ function setFieldFromPrivateSettings(fieldIdAndSettingName: LocalSetting) {
 }
 
 function setFieldFromBoardSettings(fieldIdAndSettingName: BoardSetting) {
-  let value = store.getBoardSetting(fieldIdAndSettingName)
+  let value = Store.getInstance().getBoardSetting(fieldIdAndSettingName)
   if (value) {
     let field = document.getElementById(fieldIdAndSettingName);
     if (field) field["value"] = value;
@@ -42,7 +36,7 @@ function setFieldFromBoardSettings(fieldIdAndSettingName: BoardSetting) {
 }
 
 function setFieldFromSessionSettings(fieldIdAndSettingName: SessionSetting) {
-  let value = store.getSessionSetting(fieldIdAndSettingName)
+  let value = Store.getInstance().getSessionSetting(fieldIdAndSettingName)
   if(value) {
     let field = document.getElementById(fieldIdAndSettingName);
     if (field) field["value"] = value;
@@ -69,16 +63,16 @@ async function saveAndTestSettings() {
   addValueOfFieldToObject(sessionSettings, SessionSetting.CB_PASSWORD);
 
   await Promise.all([
-    store.saveBoardSettings(boardSettings),
-    store.saveLocalSettings(localSettings),
-    store.saveSessionSettings(sessionSettings),
+    Store.getInstance().saveBoardSettings(boardSettings),
+    Store.getInstance().saveLocalSettings(localSettings),
+    Store.getInstance().saveSessionSettings(sessionSettings),
   ])
 
 
-  await codeBeamerService.getCodeBeamerUser()
+  await CodeBeamerService.getInstance().getCodeBeamerUser()
     .then((cbUser) => {
-      miroService.getCurrentUserId().then((miroUserId) => {
-        store.storeUserMapping({ cbUserId: cbUser.id, miroUserId: miroUserId })
+      MiroService.getInstance().getCurrentUserId().then((miroUserId) => {
+        Store.getInstance().storeUserMapping({ cbUserId: cbUser.id, miroUserId: miroUserId })
       })
       miro.showNotification(`Connection with "${boardSettings["cbAddress"]}" API OK!`)
       miro.board.ui.closeModal()

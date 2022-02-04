@@ -2,3 +2,6 @@ node_modules
 .cache
 dist/
 docs/
+cypress/screenshots
+cypress/videos
+cypress.env.json

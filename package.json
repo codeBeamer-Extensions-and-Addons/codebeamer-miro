@@ -7,14 +7,17 @@
     "src/**/*"
   ],
   "scripts": {
-    "prebuild-linux": "rm -rf dist && mkdir dist && mkdir dist/img && cp -r src/img dist && cp src/index.html dist && cp src/pages/settings/settings.html dist && cp src/pages/picker/picker.html dist && mkdir dist/styles && cp -r src/styles dist",
+    "prebuild-linux": "rm -rf dist && mkdir dist && mkdir dist/img && cp -r src/img dist && cp src/index.html dist && cp src/pages/settings/settings.html dist && cp src/pages/picker/picker.html dist && mkdir dist/styles && cp src/pages/picker/picker.css dist/styles && cp src/pages/settings/settings.css dist/styles",
     "build-linux": "webpack",
     "prebuild": "(IF exist dist ( RD /s /q dist ) ELSE ( print 'a' )) && MKDIR dist\\img && COPY src\\img dist\\img && COPY src\\index.html dist && COPY src\\pages\\settings\\settings.html dist && COPY src\\pages\\picker\\picker.html dist && MKDIR dist\\styles && COPY src\\pages\\picker\\picker.css dist\\styles && COPY src\\pages\\settings\\settings.css dist\\styles",
     "build": "webpack",
     "watch": "webpack -w",
-    "start": "http-server dist --cors"
+    "start": "http-server dist --cors",
+    "test:e2e": "cypress open",
+    "test:e2e:record": "cypress run --record"
   },
   "devDependencies": {
+    "cypress": "^9.4.1",
     "http-server": "^14.1.0",
     "ts-loader": "^8.0.3",
     "typedoc": "^0.22.11",

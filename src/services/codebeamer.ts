@@ -6,6 +6,7 @@ import { SessionSetting } from '../entities/session-setting.enum';
 import { BoardSetting } from '../entities/board-setting.enum';
 import Store from './store';
 import { CreateCbItem } from '../entities/create-cb-item.if';
+import { DEFAULT_ITEMS_PER_PAGE, DEFAULT_RESULT_PAGE } from '../constants/cb-import-defaults';
 
 /**
  * Provides an interface to the codeBeamer API.
@@ -16,7 +17,6 @@ export default class CodeBeamerService {
   private store: Store;
 
   private readonly ITEMS_QUERY_PATH = '/items/query';
-  private readonly DEFAULT_PAGE_SIZE = 13;
 
   private constructor(store: Store) {
     this.store = store;
@@ -39,7 +39,7 @@ export default class CodeBeamerService {
    * @param page Result-Page to load
    * @returns Returns matching data for given {@link cbqlQuery} on the {@link page}-th page of the query results. 
    */
-  public async getCodeBeamerCbqlResult(cbqlQuery, page = 1, pageSize = this.DEFAULT_PAGE_SIZE): Promise<any> {
+  public async getCodeBeamerCbqlResult(cbqlQuery, page = DEFAULT_RESULT_PAGE, pageSize = DEFAULT_ITEMS_PER_PAGE): Promise<any> {
     let url = this.getApiBasePath()
     url.pathname = url.pathname + this.ITEMS_QUERY_PATH;
 
