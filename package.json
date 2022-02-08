@@ -1,7 +1,7 @@
 {
   "author": "Max Poprawe",
   "name": "codebeamer-miro",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "license": "AGPL-3.0",
   "files": [
     "src/**/*"
@@ -14,7 +14,7 @@
     "watch": "webpack -w",
     "start": "http-server dist --cors",
     "test:e2e": "cypress open",
-    "test:e2e:record": "cypress run --record"
+    "test:e2e:record": "cypress run --record --key"
   },
   "devDependencies": {
     "cypress": "^9.4.1",
