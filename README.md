@@ -27,17 +27,24 @@ The credentials you use here are your credentials for the specified codeBeamer i
 
 ## Sync from codeBeamer to miro
 
-![Item picker](readmeImg/plugin_picker.png "Item picker")
+![Item picker](readmeImg/picker_modal.png "Import Modal")
 
 The "picker" modal can be opened via its respective button in the left board-toolbar, once a functional set of settings has been configured.  
 
 ### Import
 
-The modal allows for selecting a tracker within the specified project from the dropdown. If there are any items under this tracker, they will be displayed in a table below. The table is paginated and holds up to thirteen items per page.  
+#### Filter
+
+The modal allows for selecting a tracker within the specified project from the dropdown. If there are any items under this tracker, they will be displayed in a table below. The table is paginated and holds up to thirteen items per page. 
+Additionally to selecting a tracker within the configured project, the results can be filtered by either *Team*, *Release*, or *Subject*, which are standard codeBeamer item properties. Mind that results only appear if the entered name precisely equals the entity's name and doesn't match partial names.
+
+![Filter criteria](readmeImg/picker_modal_filter_criteria.png "Filter tracker items")
+
+#### Import into Miro
 
 Items can be selected either *individually* (1), *per-page* (2) or *per-tracker* (3).
 
-![Item selection](readmeImg/plugin_picker_selection.png "Selecting items for import")
+![Item selection](readmeImg/picker_modal_import_variants.png "Selecting items for import")
 
 After selecting the items you wish to import from this page, clicking on the `Import selected (x)` button will get information about the items from the specified codeBeamer instance and create a card-widget containing following information: 
 1. The item's **Title** as the card's title (containing the link to the issue on cb)
@@ -62,7 +69,7 @@ Users proficient in CBQL can switch to a CBQL query input on the *Import from co
 Since data of cards based on a codeBeamer item are read-only and can therefore not be changed in Miro, you have to do so in codeBeamer itself.  
 Any changes made in codeBeamer can then be synchronized to the Miro board via the `Update Synched Items (y)` button on the *Import from codeBeamer* modal. 
 
-![Update button](readmeImg/plugin_update_button.png "Update button")
+![Update button](readmeImg/picker_modal_actions_sync.png "Update button")
 
 Clicking the button updates the data (relations included) of *all* codeBeamer-originating widgets on the board.
 
