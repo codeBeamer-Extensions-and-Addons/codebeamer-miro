@@ -290,19 +290,27 @@ async function updateFilter() {
     return;
   }
 
+  let subQuery = getFilterQuerySubstring();
+  let queryString = `tracker.id IN (${selectedTracker})${subQuery}`;
+  executeQuery(queryString);
+}
+
+/**
+ * Constructs the CBQL query substring for the filter criteria
+ * @returns CBQL Query substring like "AND ... = ..." if a criteria was selected.
+ */
+function getFilterQuerySubstring(): string {
   let filterType = (document.getElementById('secondary-criteria-type') as HTMLSelectElement)?.value;
   let filterCriteria = (document.getElementById('filter-criteria') as HTMLInputElement)?.value;
   let queryCriteria = '';
-  let subQuery = '';
+  let query = '';
 
   if(filterCriteria) {
     queryCriteria = CodeBeamerService.getQueryEntityNameForCriteria(filterType);
-    subQuery = ` AND ${queryCriteria} = '${filterCriteria}'`;
+    query = ` AND ${queryCriteria} = '${filterCriteria}'`;
   }
-  
-  let queryString = `tracker.id IN (${selectedTracker})${subQuery}`;
 
-  executeQuery(queryString);
+  return query;
 }
 
 /**
@@ -413,7 +421,7 @@ function updateImportCountOnImportButton() {
 }
 
 /**
- * Imports all (up to MAX_ITEMS_PER_IMPORT) items for a certain tracker. At your own discretion, since that takes time.
+ * Imports all (up to MAX_ITEMS_PER_IMPORT) items in the current query. At your own discretion, since that takes time.
  * @param trackerId 
  */
 async function importAllItemsForTracker() {
@@ -423,7 +431,7 @@ async function importAllItemsForTracker() {
   //get all items, filtering out already imported ones right in the cbq
   let alreadySynchedItemIds = await MiroService.getInstance().getAllSynchedCodeBeamerCardItemIds();
 
-  let queryReturn = await CodeBeamerService.getInstance().getCodeBeamerCbqlResult(`tracker.id IN (${trackerId}) AND item.id NOT IN (${alreadySynchedItemIds.join(',')})`, DEFAULT_RESULT_PAGE, MAX_ITEMS_PER_IMPORT);
+  let queryReturn = await CodeBeamerService.getInstance().getCodeBeamerCbqlResult(`tracker.id IN (${trackerId}) AND item.id NOT IN (${alreadySynchedItemIds.join(',')})${getFilterQuerySubstring()}`, DEFAULT_RESULT_PAGE, MAX_ITEMS_PER_IMPORT);
   
   if(queryReturn.message) {
     miro.showErrorNotification(`Failed importing all items: ${queryReturn.message}`);
