@@ -40,10 +40,7 @@ export async function initializeHandlers() {
   }
 
   if(secondaryFilterCriteria) {
-    console.log("Adding updateFilter event listener");
     secondaryFilterCriteria.onchange = updateFilter
-  } else {
-    console.log("no secondary filter criteria exists apparently")
   }
 
   if(importAllButton){
@@ -288,7 +285,6 @@ async function trackersSelectionOnChange() {
  */
 async function updateFilter() {
   let selectedTracker = Store.getInstance().getLocalSetting(LocalSetting.SELECTED_TRACKER);
-  console.log("SelectedTracker: ", selectedTracker);
   if(!selectedTracker) {
     miro.showErrorNotification("Please select a Tracker.");
     return;
@@ -296,19 +292,15 @@ async function updateFilter() {
 
   let filterType = (document.getElementById('secondary-criteria-type') as HTMLSelectElement)?.value;
   let filterCriteria = (document.getElementById('filter-criteria') as HTMLInputElement)?.value;
-  console.log("FilterCriteria: ", filterCriteria);
   let queryCriteria = '';
   let subQuery = '';
 
   if(filterCriteria) {
     queryCriteria = CodeBeamerService.getQueryEntityNameForCriteria(filterType);
     subQuery = ` AND ${queryCriteria} = '${filterCriteria}'`;
-
-    console.log("Subquery: ", subQuery);
   }
   
   let queryString = `tracker.id IN (${selectedTracker})${subQuery}`;
-  console.log("Query: ", queryString);
 
   executeQuery(queryString);
 }
