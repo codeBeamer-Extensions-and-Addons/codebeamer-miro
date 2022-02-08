@@ -32,11 +32,17 @@ describe('Picker', () => {
     
         it('has an update button', () => {
             cy.get('button#synchButton');
-        });   
-
-        it('displays two pagination controls for the data table', () => {
-            cy.get('div#dataTable-controls').find('button').should('have.length', 2);
+        }); 
+        
+        //* RETINA-1565419
+        it.only('has a button to load more search results with', () => {
+            cy.get('#lazy-load-button');
         });
+        
+        //* RETINA-1565419
+        it.only('disables the button to load more search results with by default', () => {
+            cy.get('lazy-load-buzzon').should('have.attr', 'disabled');
+        })
 
         it.skip('shows the Tracker Select by default', () => {
             cy.get('div#simpleSearch').should('have.class', 'visible');
@@ -48,12 +54,12 @@ describe('Picker', () => {
         context('simple search', () => {
 
             //* RETINA-1565408
-            it.only('displays a secondary filter criteria input in simple search', () => {
+            it('displays a secondary filter criteria input in simple search', () => {
                 cy.get('#simpleSearch').find('#filter').find('input#filter-criteria');
             });
 
             //* RETINA-1565408
-            it.only('allows to choose Team, Release or Subject als secondary filter criteria', () => {
+            it('allows to choose Team, Release or Subject as secondary filter criteria', () => {
                 cy.get('#simpleSearch').find('select').children('option').contains('Team');
                 cy.get('#simpleSearch').find('select').children('option').contains('Release');
                 cy.get('#simpleSearch').find('select').children('option').contains('Subject');
@@ -107,12 +113,6 @@ describe('Picker', () => {
     
             cy.get('div#table-container').should('have.descendants', 'tr').should('have.descendants', 'td');
         });
-
-        it('displays a select-all checkbox to select all items on a table-page when a Tracker is selected', () => {
-            cy.get('select#selectedTracker').select('4877085');
-    
-            cy.get('input#checkAll');
-        });
         
         it('enables the import button when an item is checked', () => {
             cy.get('select#selectedTracker').select('4877085');
@@ -135,7 +135,7 @@ describe('Picker', () => {
         describe('simple search', () => {
 
             //* RETINA-1565408
-            it.only('filters the result table by the secondary criteria when it\'s updated', () => {                
+            it('filters the result table by the secondary criteria when it\'s updated', () => {                
                 cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query', []).as('query')
 
                 cy.get('select#selectedTracker').select('4877085');
@@ -145,7 +145,25 @@ describe('Picker', () => {
                     assert.isArray(interception.response?.body);
                 })
             });
-        })
+        });
+
+        //* RETINA-1565419
+        describe('loading additional results', () => {
+
+            it.only('loads additional search results when clicking the "load more results" button and appends them to the results table', () => {
+                cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query', { fixture: 'trackerItems_page2.json'}).as('query')
+
+                cy.get('select#selectedTracker').select('4877085');
+                cy.get('#lazy-load-button').click();
+
+                //expect it to be called
+                cy.wait('@query');
+
+                //expect this element to have been appended to the table
+                cy.get('input#1431175');
+            })
+
+        });
 
     });
 
