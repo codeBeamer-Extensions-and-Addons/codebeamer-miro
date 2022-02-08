@@ -7,6 +7,7 @@ import { BoardSetting } from '../entities/board-setting.enum';
 import Store from './store';
 import { CreateCbItem } from '../entities/create-cb-item.if';
 import { DEFAULT_ITEMS_PER_PAGE, DEFAULT_RESULT_PAGE } from '../constants/cb-import-defaults';
+import { FilterCriteria } from '../entities/filter-criteria.enum';
 
 /**
  * Provides an interface to the codeBeamer API.
@@ -291,49 +292,64 @@ export default class CodeBeamerService {
     return cbItem;
   }
 
-    /**
-   * Creates a codeBeamer item based on a miro item.
-   * <p>
-   * The item is created in the "Inbox tracker" defined by it's id in the plugin's settings.
-   * If any part of the operation fails, the settings modal is opened and an error message is displayed.
-   * </p>
-   * @param item CbItem to create
-   * @returns Created item's data
-   */
-     async create(item: CreateCbItem): Promise<any> {
-      let trackerId = this.store.getBoardSetting(BoardSetting.INBOX_TRACKER_ID);
-      if(!trackerId) {
-        throw new Error('You must define an "Inbox Tracker ID" first!');
-      }
-  
-      if(item.description) {
-        item.description = sanitizeHtml(
-          item.description,
-          { 
-            allowedTags: [], 
-            allowedAttributes: {} 
-          });
-      }
-  
-      const requestUrl = `${this.getApiBasePath()}/trackers/${trackerId}/items`;
-  
-      try {
-        const response = await fetch(requestUrl, {
-          method: 'POST',
-          headers: this.getCbHeaders(),
-          body: JSON.stringify(item),
-        })
-        return response.json();
-      } catch (err) {
-        console.error(err);
-  
-        //TODO outsource
-        miro.board.ui.openModal('settings.html');
-        miro.showErrorNotification(`Please verify the settings are correct. Error: ${err}`)
-  
-        throw new Error(`Please verify the settings are correct. ErrorCode: ${err.status}`);
-      }
+  /**
+ * Creates a codeBeamer item based on a miro item.
+ * <p>
+ * The item is created in the "Inbox tracker" defined by it's id in the plugin's settings.
+ * If any part of the operation fails, the settings modal is opened and an error message is displayed.
+ * </p>
+ * @param item CbItem to create
+ * @returns Created item's data
+ */
+    async create(item: CreateCbItem): Promise<any> {
+    let trackerId = this.store.getBoardSetting(BoardSetting.INBOX_TRACKER_ID);
+    if(!trackerId) {
+      throw new Error('You must define an "Inbox Tracker ID" first!');
     }
+
+    if(item.description) {
+      item.description = sanitizeHtml(
+        item.description,
+        { 
+          allowedTags: [], 
+          allowedAttributes: {} 
+        });
+    }
+
+    const requestUrl = `${this.getApiBasePath()}/trackers/${trackerId}/items`;
+
+    try {
+      const response = await fetch(requestUrl, {
+        method: 'POST',
+        headers: this.getCbHeaders(),
+        body: JSON.stringify(item),
+      })
+      return response.json();
+    } catch (err) {
+      console.error(err);
+
+      //TODO outsource
+      miro.board.ui.openModal('settings.html');
+      miro.showErrorNotification(`Please verify the settings are correct. Error: ${err}`)
+
+      throw new Error(`Please verify the settings are correct. ErrorCode: ${err.status}`);
+    }
+  }
+
+  /**
+   * Maps FilterCriteria enum values to codeBeamer Query language entity names
+   * @param criteria FilterCriteria as enum value or string (for custom fields)
+   * @param trackerId Optional trackerId (required only for custom fields)
+   * @returns the matching codebeamer query language entity's name to a Filter Criteria, e.g. "teamName" for Team.
+   */
+  public static getQueryEntityNameForCriteria(criteria: FilterCriteria | string, trackerId?: string): string {
+    switch(criteria) {
+      case FilterCriteria.TEAM: return 'teamName';
+      case FilterCriteria.RELEASE: return 'release';
+      case FilterCriteria.SUBJECT: return 'subjectName';
+      default: return `${trackerId ?? ''}.${criteria}`;
+    }
+  }
   
   /**
    * Generic method to POST to the codeBeamer API
