@@ -7,6 +7,9 @@ import Store from "../../services/store";
 
 const importedImage = '/img/checked-box.svg'
 
+let currentResultItems: any[] = [];
+let currentResultsPage = 1;
+
 miro.onReady(async () => {
   Store.create(miro.getClientId(), (await miro.board.info.get()).id);
 })
@@ -32,6 +35,7 @@ export async function initializeHandlers() {
   let synchButtonText = document.getElementById('synchButtonText')
   let cbqlQuery = document.getElementById('cbqlQuery') as HTMLInputElement
   let secondaryFilterCriteria = document.getElementById('filter-criteria') as HTMLInputElement;
+  let lazyLoadButton = document.getElementById('lazy-load-button') as HTMLButtonElement;
 
   let cachedAdvancedSearchEnabled = Store.getInstance().getLocalSetting(LocalSetting.ADVANCED_SEARCH_ENABLED)
 
@@ -41,6 +45,10 @@ export async function initializeHandlers() {
 
   if(secondaryFilterCriteria) {
     secondaryFilterCriteria.onchange = updateFilter
+  }
+
+  if(lazyLoadButton) {
+    lazyLoadButton.onclick = loadAndAppendNextResultPage;
   }
 
   if(importAllButton){
@@ -196,45 +204,31 @@ function synchItems() {
 }
 
 async function clearResultTable() {
-  let backButton = document.getElementById('backButton') as HTMLButtonElement
-  let pageLabel = document.getElementById('pageLabel') as HTMLLabelElement
-  let forwardButton = document.getElementById('forwardButton') as HTMLButtonElement
-  backButton.disabled = true
-  forwardButton.disabled = true
-  pageLabel.innerText = "0/0"
-  await populateDataTable([])
+  populateDataTable([]);
+  currentResultItems = [];
+  (document.getElementById('lazy-load-button') as HTMLButtonElement).disabled = true;
 }
 
+/**
+ * Creates a table containing displaying the items resulting from the query and allowing to select them for import.
+ * @param cbqlQuery Query to fetch items with.
+ * @param page Query result page to load
+ */
 async function buildResultTable(cbqlQuery, page = 1) {
-  let backButton = document.getElementById('backButton') as HTMLButtonElement
-  let pageLabel = document.getElementById('pageLabel') as HTMLLabelElement
-  let forwardButton = document.getElementById('forwardButton') as HTMLButtonElement
-
   let queryReturn = await CodeBeamerService.getInstance().getCodeBeamerCbqlResult(cbqlQuery, page, DEFAULT_ITEMS_PER_PAGE)
   if (queryReturn.message) {
     return false;
   } else {
     // query was successull
     let totalItems = queryReturn.total
-    let numberOfPages = Math.ceil(totalItems / DEFAULT_ITEMS_PER_PAGE)
-    if (numberOfPages == 0) page = 0
-    if (page <= 1) {
-      backButton.disabled = true
-    } else {
-      backButton.disabled = false
-      backButton.onclick = getSwitchPageButtonOnClick(cbqlQuery, page - 1)
+    if(totalItems > DEFAULT_ITEMS_PER_PAGE) {
+      (document.getElementById('lazy-load-button') as HTMLButtonElement).disabled = false;
     }
-    if (page >= numberOfPages) {
-      forwardButton.disabled = true
-    } else {
-      forwardButton.disabled = false
-      forwardButton.onclick = getSwitchPageButtonOnClick(cbqlQuery, page + 1)
-    }
-    pageLabel.innerText = `${page}/${numberOfPages}`
 
-    await populateDataTable(queryReturn.items)
+    populateDataTable(queryReturn.items)
     updateImportCountOnImportButton()
-    return true
+    currentResultItems.push(queryReturn.items);
+    return true;
   }
 }
 
@@ -275,7 +269,7 @@ async function trackersSelectionOnChange() {
     if(importAllButton) importAllButton.disabled = false;
 
     let queryString = `tracker.id IN (${selectedTracker})`;
-    executeQuery(queryString);
+    executeQueryAndBuildResultTable(queryString);
   }
 }
 
@@ -284,15 +278,19 @@ async function trackersSelectionOnChange() {
  * Will construct the query and trigger updating the resulttable.
  */
 async function updateFilter() {
-  let selectedTracker = Store.getInstance().getLocalSetting(LocalSetting.SELECTED_TRACKER);
+  const selectedTracker = getSelectedTracker();
+  const subQuery = getFilterQuerySubstring();
+  const queryString = `tracker.id IN (${selectedTracker})${subQuery}`;
+  executeQueryAndBuildResultTable(queryString);
+}
+
+function getSelectedTracker(): string {
+  const selectedTracker = Store.getInstance().getLocalSetting(LocalSetting.SELECTED_TRACKER);
   if(!selectedTracker) {
     miro.showErrorNotification("Please select a Tracker.");
-    return;
+    throw new Error("No tracker selected");
   }
-
-  let subQuery = getFilterQuerySubstring();
-  let queryString = `tracker.id IN (${selectedTracker})${subQuery}`;
-  executeQuery(queryString);
+  return selectedTracker;
 }
 
 /**
@@ -317,11 +315,16 @@ function getFilterQuerySubstring(): string {
  * Triggers updating the result table with given query
  * @param query CBQL query to run
  */
-async function executeQuery(query: string) {
+async function executeQueryAndBuildResultTable(query: string) {
   let tableBuildup = await buildResultTable(query);
-  if (!tableBuildup) clearResultTable()
+  if (!tableBuildup) clearResultTable();
+  currentResultsPage = 1;
 }
 
+/**
+ * Routine to select items in the result table for import.
+ * @deprecated Respective HTML element has been removed
+ */
 function selectAllOnChange() {
   let checkAllBox = document.getElementById('checkAll') as HTMLInputElement
   if (checkAllBox) {
@@ -330,34 +333,47 @@ function selectAllOnChange() {
   }
 }
 
-async function populateDataTable(data) {
-  let pickedAttributeData = data.map(({ id, name, tracker }) => ({ Tracker: tracker.name, ID: id, Name: name }))
-  let table = document.getElementById("dataTable");
+function populateDataTable(data) {
+  let pickedAttributeData = data.map(({ id, name }) => ({ ID: id, Name: name }))
+  let table = document.getElementById("dataTable") as HTMLTableElement;
   if (table){
     table.innerHTML = '';
     table.classList.remove('fade-in');
     if (data.length > 0) {
-      await generateTableContent(table, pickedAttributeData);
       generateTableHead(table, pickedAttributeData);
+      generateTableContent(table.createTBody(), pickedAttributeData);
       table?.classList.add('fade-in');
     }
   }
 }
 
-function generateTableHead(table, data) {
+/**
+ * Appends given items to the results-table.
+ * @param items Array of codeBeamer items to append rows for.
+ */
+function appendResultsToDataTable(items) {
+  let leanItems = items.map(({id, name}) => ({ID: id, Name: name}));
+  let table = document.getElementById("dataTable") as HTMLTableElement;
+  if(!table) {
+    miro.showErrorNotification("Something went wrong when trying to add items to the result table!");
+    console.error("dataTable not found");
+    return;
+  }
+  let tableBody = table.getElementsByTagName('tbody')[0];
+  if(!tableBody) {
+    tableBody = table.createTBody();
+  }
+  generateTableContent(tableBody, leanItems);
+}
+
+/**
+ * Generates the result table's header row.
+ */
+function generateTableHead(table: HTMLTableElement, data: any[]) {
   let thead = table.createTHead();
   let row = thead.insertRow();
   let th = document.createElement("th");
-  let label = document.createElement("label")
-  label.className = "miro-checkbox"
-  let input = document.createElement("input")
-  input.type = "checkbox"
-  input.id = "checkAll"
-  input.onchange = selectAllOnChange
-  let span = document.createElement("span")
-  label.appendChild(input)
-  label.appendChild(span)
-  th.appendChild(label)
+  th.textContent = 'Imported';
   row.appendChild(th);
   for (let key of Object.keys(data[0])) {
     let th = document.createElement("th");
@@ -367,7 +383,14 @@ function generateTableHead(table, data) {
   }
 }
 
-async function generateTableContent(table, data) {
+/**
+ * Adds a row per item in the data argument into the given table.
+ * The first cell will be the checkbox-cell to select the item for import.
+ * Other cells are created dynamically, for each property an item has.
+ * @param table HTML Table to append rows to
+ * @param data Array of items to append to
+ */
+async function generateTableContent(tableBody: HTMLTableSectionElement, data: any[]) {
   let alreadySynchedItems: string[] = [];
   try {
     alreadySynchedItems = await MiroService.getInstance().getAllSynchedCodeBeamerCardItemIds()
@@ -379,7 +402,7 @@ async function generateTableContent(table, data) {
     }
   }
   for (let element of data) {
-    let row = table.insertRow();
+    let row: HTMLTableRowElement = tableBody.insertRow();
     let cell = row.insertCell();
 
     // if item is already synched, dont create checkbox
@@ -403,6 +426,7 @@ async function generateTableContent(table, data) {
     }
 
     for (let key in element) {
+      console.log(key);
       let cell = row.insertCell();
       let text = document.createTextNode(element[key]);
       cell.appendChild(text);
@@ -570,4 +594,23 @@ async function createUpdateOrDeleteRelationLines(cbItem) {
   );
 
   await Promise.all([deletionTask, additionTask]);
+}
+
+/**
+ * Loads the next results page for the current search criteria and appends it do the results-table.
+ */
+async function loadAndAppendNextResultPage() {
+  const selectedTracker = getSelectedTracker();
+  const subQuery = getFilterQuerySubstring();
+  const queryString = `tracker.id IN (${selectedTracker})${subQuery}`;
+  
+  const items: any[] = (await CodeBeamerService.getInstance().getCodeBeamerCbqlResult(queryString, currentResultsPage++, DEFAULT_ITEMS_PER_PAGE)).items;
+  console.log("Items to add: ", items);
+
+  appendResultsToDataTable(items);
+  currentResultItems.push(items);
+
+  if(currentResultItems.length == items.length) {
+    (document.getElementById('lazy-load-button') as HTMLButtonElement).disabled = true;
+  }
 }
