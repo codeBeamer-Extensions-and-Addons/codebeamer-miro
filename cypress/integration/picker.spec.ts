@@ -32,15 +32,32 @@ describe('Picker', () => {
     
         it('has an update button', () => {
             cy.get('button#synchButton');
+        });   
+
+        it('displays two pagination controls for the data table', () => {
+            cy.get('div#dataTable-controls').find('button').should('have.length', 2);
         });
-    
+
         it.skip('shows the Tracker Select by default', () => {
             cy.get('div#simpleSearch').should('have.class', 'visible');
             cy.get('div#advancedSearch').should('have.class', 'hidden');
         });
 
-        it('displays two pagination controls for the data table', () => {
-            cy.get('div#dataTable-controls').find('button').should('have.length', 2);
+        it('displays a toggle to toggle between simple and advanced search');
+
+        context('simple search', () => {
+
+            //* RETINA-1565408
+            it.only('displays a secondary filter criteria input in simple search', () => {
+                cy.get('#simpleSearch').find('#filter').find('input#filter-criteria');
+            });
+
+            //* RETINA-1565408
+            it.only('allows to choose Team, Release or Subject als secondary filter criteria', () => {
+                cy.get('#simpleSearch').find('select').children('option').contains('Team');
+                cy.get('#simpleSearch').find('select').children('option').contains('Release');
+                cy.get('#simpleSearch').find('select').children('option').contains('Subject');
+            });
         });
 
     });
@@ -114,6 +131,21 @@ describe('Picker', () => {
     
             cy.get('button#importButton').contains('(3)');
         });
+
+        describe('simple search', () => {
+
+            //* RETINA-1565408
+            it.only('filters the result table by the secondary criteria when it\'s updated', () => {                
+                cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query', []).as('query')
+
+                cy.get('select#selectedTracker').select('4877085');
+                cy.get('input#filter-criteria').type('Edelweiss').type('{enter}');
+
+                cy.wait('@query').then((interception) => {
+                    assert.isArray(interception.response?.body);
+                })
+            });
+        })
 
     });
 

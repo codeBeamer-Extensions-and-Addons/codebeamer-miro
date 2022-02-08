@@ -63,10 +63,6 @@ footer .end {
 svg {
 	width: 20px;
 }
-button span {
-	position: relative;
-	bottom: 7px;
-}
 button svg {
 	position: relative;
 	bottom: 4px;
