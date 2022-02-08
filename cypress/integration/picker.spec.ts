@@ -58,17 +58,6 @@ describe('Picker', () => {
                 cy.get('#simpleSearch').find('select').children('option').contains('Release');
                 cy.get('#simpleSearch').find('select').children('option').contains('Subject');
             });
-
-            //* RETINA-1565408
-            it.only('filters the result table by the secondary criteria when it\'s updated', () => {
-                cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query').as('query');
-                
-                cy.get('input#filter-criteria').type('Edelweiss{enter}');
-
-                cy.wait('@query').then((interception) => {
-                    assert.isArray(interception.response?.body);
-                })
-            });
         });
 
     });
@@ -142,6 +131,21 @@ describe('Picker', () => {
     
             cy.get('button#importButton').contains('(3)');
         });
+
+        describe('simple search', () => {
+
+            //* RETINA-1565408
+            it.only('filters the result table by the secondary criteria when it\'s updated', () => {                
+                cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query', []).as('query')
+
+                cy.get('select#selectedTracker').select('4877085');
+                cy.get('input#filter-criteria').type('Edelweiss').type('{enter}');
+
+                cy.wait('@query').then((interception) => {
+                    assert.isArray(interception.response?.body);
+                })
+            });
+        })
 
     });
 
