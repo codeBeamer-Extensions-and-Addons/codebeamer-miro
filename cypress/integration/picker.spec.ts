@@ -41,7 +41,7 @@ describe('Picker', () => {
         
         //* RETINA-1565419
         it.only('disables the button to load more search results with by default', () => {
-            cy.get('lazy-load-buzzon').should('have.attr', 'disabled');
+            cy.get('#lazy-load-button').should('have.attr', 'disabled');
         })
 
         it.skip('shows the Tracker Select by default', () => {
@@ -133,7 +133,7 @@ describe('Picker', () => {
         });
 
         describe('simple search', () => {
-
+            
             //* RETINA-1565408
             it('filters the result table by the secondary criteria when it\'s updated', () => {                
                 cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query', []).as('query')
@@ -147,10 +147,15 @@ describe('Picker', () => {
             });
         });
 
-        //* RETINA-1565419
         describe('loading additional results', () => {
 
-            it.only('loads additional search results when clicking the "load more results" button and appends them to the results table', () => {
+            //* RETINA-1565419
+            it('enables the "load more results" button when there are more items that can be loaded for the selected criteria', () => {
+                cy.get('#lazy-load-button').should('not.have.attr', 'disabled');
+            });
+
+            //* RETINA-1565419
+            it('loads additional search results when clicking the "load more results" button and appends them to the results table', () => {
                 cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query', { fixture: 'trackerItems_page2.json'}).as('query')
 
                 cy.get('select#selectedTracker').select('4877085');
