@@ -121,7 +121,6 @@ function loadSearchAndResults(advancedSearch: boolean) {
     switchSearchButton.onclick = getSwitchSearchButtonOnClick(!advancedSearch)
   }
 
-
   // init advanced search
   if (advancedSearch) {
     let cachedCbqlString = Store.getInstance().getLocalSetting(LocalSetting.CBQL_STRING)
@@ -206,6 +205,7 @@ function synchItems() {
 async function clearResultTable() {
   populateDataTable([]);
   currentResultItems = [];
+  currentResultsPage = 1;
   (document.getElementById('lazy-load-button') as HTMLButtonElement).disabled = true;
 }
 
@@ -229,12 +229,6 @@ async function buildResultTable(cbqlQuery, page = 1) {
     updateImportCountOnImportButton()
     currentResultItems.push(queryReturn.items);
     return true;
-  }
-}
-
-function getSwitchPageButtonOnClick(query, page) {
-  return async () => {
-    await buildResultTable(query, page)
   }
 }
 
@@ -318,7 +312,6 @@ function getFilterQuerySubstring(): string {
 async function executeQueryAndBuildResultTable(query: string) {
   let tableBuildup = await buildResultTable(query);
   if (!tableBuildup) clearResultTable();
-  currentResultsPage = 1;
 }
 
 /**
@@ -596,13 +589,24 @@ async function createUpdateOrDeleteRelationLines(cbItem) {
 }
 
 /**
- * Loads the next results page for the current search criteria and appends it do the results-table.
+ * Loads the next results page for the current search criteria (or advanced query string) and appends it do the results-table.
  */
 async function loadAndAppendNextResultPage() {
-  const selectedTracker = getSelectedTracker();
-  const subQuery = getFilterQuerySubstring();
-  const queryString = `tracker.id IN (${selectedTracker})${subQuery}`;
-  
+  const isAdvancedSearch = Store.getInstance().getLocalSetting(LocalSetting.ADVANCED_SEARCH_ENABLED);
+  let queryString = '';
+  if(isAdvancedSearch) {
+    const storedCBQString = Store.getInstance().getLocalSetting(LocalSetting.CBQL_STRING);
+    if(!storedCBQString) {
+      miro.showErrorNotification("Something went wrong trying to execute the query!");
+      return;
+    }
+    queryString = storedCBQString;
+  } else {
+    const selectedTracker = getSelectedTracker();
+    const subQuery = getFilterQuerySubstring();
+    queryString = `tracker.id IN (${selectedTracker})${subQuery}`;
+  }
+
   const items: any[] = (await CodeBeamerService.getInstance().getCodeBeamerCbqlResult(queryString, currentResultsPage++, DEFAULT_ITEMS_PER_PAGE)).items;
 
   appendResultsToDataTable(items);
