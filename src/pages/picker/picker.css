@@ -14,35 +14,18 @@ body {
 	opacity: 0;
 }
 #table-container {
-	max-height: 60%;
+	position: relative;
+    overflow-y: scroll;
+    max-height: 320px;
 }
-table {
-	margin: 1rem;
-	width: 95%;
-	border-collapse: collapse;
+#table-container #dataTable {
+	border-collapse: separate;
 }
-table th {
-	background-color: var(--miro-blue);
-	color: white;
-	padding: 12px 8px;
-	text-align: left;
-}
-table tr,
-table th {
-	border-bottom: 1px solid lightgray;
-}
-table tr:nth-child(even) {
-	background-color: var(--miro-lightestgray);
-}
-table tr:hover {
-	background-color: var(--miro-lightgray);
-}
-td {
-	padding: 2px;
-	max-width: 100px;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
+#dataTable thead {
+	position: sticky;
+    top: 0;
+    background: white;
+    z-index: 1;
 }
 #pageLabel {
 	position: relative;
@@ -167,4 +150,20 @@ button svg {
 	to {
 		opacity: 1;
 	}
+}
+
+/**custom scrollbar*/
+::-webkit-scrollbar {
+    width: 10px;
+}
+::-webkit-scrollbar-track {
+    background: #eee;
+    border-radius: 5px;
+}
+::-webkit-scrollbar-thumb {
+    background: var(--miro-blue);
+    border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #455bed;
 }
