@@ -31,11 +31,19 @@ export async function initializeHandlers() {
   let synchButton = document.getElementById('synchButton')
   let synchButtonText = document.getElementById('synchButtonText')
   let cbqlQuery = document.getElementById('cbqlQuery') as HTMLInputElement
+  let secondaryFilterCriteria = document.getElementById('filter-criteria') as HTMLInputElement;
 
   let cachedAdvancedSearchEnabled = Store.getInstance().getLocalSetting(LocalSetting.ADVANCED_SEARCH_ENABLED)
 
   if (cbqlQuery) {
     cbqlQuery.onchange = cbqlQueryOnChange
+  }
+
+  if(secondaryFilterCriteria) {
+    console.log("Adding updateFilter event listener");
+    secondaryFilterCriteria.onchange = updateFilter
+  } else {
+    console.log("no secondary filter criteria exists apparently")
   }
 
   if(importAllButton){
@@ -268,9 +276,50 @@ async function trackersSelectionOnChange() {
     Store.getInstance().saveLocalSettings({ [LocalSetting.SELECTED_TRACKER]: selectedTracker })
     let importAllButton = document.getElementById('importAllButton') as HTMLButtonElement;
     if(importAllButton) importAllButton.disabled = false;
-    let tableBuildup = await buildResultTable(`tracker.id IN (${selectedTracker})`)
-    if (!tableBuildup) clearResultTable()
+
+    let queryString = `tracker.id IN (${selectedTracker})`;
+    executeQuery(queryString);
   }
+}
+
+/**
+ * Function to run when updating the secondary filter criteria.
+ * Will construct the query and trigger updating the resulttable.
+ */
+async function updateFilter() {
+  let selectedTracker = Store.getInstance().getLocalSetting(LocalSetting.SELECTED_TRACKER);
+  console.log("SelectedTracker: ", selectedTracker);
+  if(!selectedTracker) {
+    miro.showErrorNotification("Please select a Tracker.");
+    return;
+  }
+
+  let filterType = (document.getElementById('secondary-criteria-type') as HTMLSelectElement)?.value;
+  let filterCriteria = (document.getElementById('filter-criteria') as HTMLInputElement)?.value;
+  console.log("FilterCriteria: ", filterCriteria);
+  let queryCriteria = '';
+  let subQuery = '';
+
+  if(filterCriteria) {
+    queryCriteria = CodeBeamerService.getQueryEntityNameForCriteria(filterType);
+    subQuery = ` AND ${queryCriteria} = '${filterCriteria}'`;
+
+    console.log("Subquery: ", subQuery);
+  }
+  
+  let queryString = `tracker.id IN (${selectedTracker})${subQuery}`;
+  console.log("Query: ", queryString);
+
+  executeQuery(queryString);
+}
+
+/**
+ * Triggers updating the result table with given query
+ * @param query CBQL query to run
+ */
+async function executeQuery(query: string) {
+  let tableBuildup = await buildResultTable(query);
+  if (!tableBuildup) clearResultTable()
 }
 
 function selectAllOnChange() {
