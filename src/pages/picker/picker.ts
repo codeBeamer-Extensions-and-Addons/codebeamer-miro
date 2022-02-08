@@ -426,7 +426,6 @@ async function generateTableContent(tableBody: HTMLTableSectionElement, data: an
     }
 
     for (let key in element) {
-      console.log(key);
       let cell = row.insertCell();
       let text = document.createTextNode(element[key]);
       cell.appendChild(text);
@@ -605,7 +604,6 @@ async function loadAndAppendNextResultPage() {
   const queryString = `tracker.id IN (${selectedTracker})${subQuery}`;
   
   const items: any[] = (await CodeBeamerService.getInstance().getCodeBeamerCbqlResult(queryString, currentResultsPage++, DEFAULT_ITEMS_PER_PAGE)).items;
-  console.log("Items to add: ", items);
 
   appendResultsToDataTable(items);
   currentResultItems.push(items);
