@@ -25,7 +25,7 @@ miro.onReady(async () => {
 				onClick: async () => {
 					try {
 						await CodeBeamerService.getInstance().getCodeBeamerUser();
-						miro.board.ui.openModal("picker.html");
+						miro.board.ui.openModal("picker.html", { width: 1080, height: 680});
 					} catch (err) {
 						console.error(err);
 						miro.showErrorNotification(
