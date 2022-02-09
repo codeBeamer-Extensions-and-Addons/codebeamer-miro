@@ -219,9 +219,7 @@ export default class MiroService {
 		let importConfiguration: ImportConfiguration;
 		const NO_IMPORT_CONFIGURATION = "No import configuration defined";
 		try {
-			console.log("Commencing customField creation (try)");
 			importConfiguration = Store.getInstance().getBoardSetting(BoardSetting.IMPORT_CONFIGURATION);
-			console.log("ImportConfig: ", importConfiguration);
 
 			if(!importConfiguration) throw new Error(NO_IMPORT_CONFIGURATION);
 
@@ -231,30 +229,24 @@ export default class MiroService {
 			for(let i = 0; i < standardConfigurationKeys.length; i++) {
 				const key = standardConfigurationKeys[i];
 				const value = standardConfiguration[key];
-				console.log(`Key: ${key}, value: ${value}`);
 
 				if(value == false) continue;
 
 				const itemPropertyName = codeBeamerPropertyNamesByFieldLabel[key];
 				if(!item[itemPropertyName]) continue;
 				let field = item[itemPropertyName];
-				console.log("Item's value for given key: ", field);
 
 				let content: string;
 
 				if(field == null) continue;
 
 				if(typeof field === 'object') {
-					console.log("Field is object");
 					if(Array.isArray(field)) {
-						console.log("Field is an arre");
 						//* display comma-seperated names of all entries
 						content = '';
 						for(let j = 0; j < field.length; j++) {
 							let entry = field[j];
-							console.log("Arre entry: ", entry);
 							let slug = entry[CB_ITEM_NAME_PROPERTY_NAME];
-							console.log("Entriy's name-field: ", slug);
 							content += `${entry[CB_ITEM_NAME_PROPERTY_NAME]}, `;
 						}
 						//remove trailing ", "
@@ -264,7 +256,6 @@ export default class MiroService {
 						content = field[CB_ITEM_NAME_PROPERTY_NAME];
 					}
 				} else {
-					console.log("Field neither object nor arre")
 					//* just show the field
 					content = field.toString();
 				}
