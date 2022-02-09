@@ -14,13 +14,13 @@ Funktionalität: Konfigurieren der zu importierenden Item-Eigenschaften
         Und ich habe das "Import Configuration" Modal geöffnet
 
     # Eine einzelne Eigenschaft mit einzelnem Wert
-    Szenario: "Status" als zu importierende Eigenschaft auswählen
-        Wenn ich nur die Checkbox für "Status" checke
+    Szenario: "StoryPoints" als zu importierende Eigenschaft auswählen
+        Wenn ich nur die Checkbox für "StoryPoints" checke
         Und ich die Einstellung speichere
         Und ich das erste Item in der Restultate-Tabelle importiere
-        Dann erscheint auf dem Miro Board das entsprechende Item mit einem Tag der "Status: {status}" anzeigt
+        Dann erscheint auf dem Miro Board das entsprechende Item mit einem Tag der "StoryPoints: {storyPoints}" anzeigt
         # Kann verifiziert werden durch Besuch der entsprechenden Item-Seite
-        Und der Status stimmt mit dem aktuellen Status des zugrundeliegenden Items überein
+        Und der StoryPoints stimmt mit dem aktuellen StoryPoints des zugrundeliegenden Items überein
 
     # Eine einzelne Eigenschaft mit potenziell mehreren Werten
     Szenario: "AssignedTo" als zu importierende Eigenschaft auswählen
