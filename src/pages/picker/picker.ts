@@ -1,6 +1,7 @@
+import { StandardItemProperty } from "../../entities";
 import { MAX_ITEMS_PER_IMPORT, DEFAULT_ITEMS_PER_PAGE, DEFAULT_RESULT_PAGE, MAX_ITEMS_PER_SYNCH } from "../../constants/cb-import-defaults";
-import { BoardSetting } from "../../entities/board-setting.enum";
-import { LocalSetting } from "../../entities/local-setting.enum";
+import { BoardSetting } from "../../entities";
+import { LocalSetting } from "../../entities";
 import CodeBeamerService from "../../services/codebeamer";
 import MiroService from "../../services/miro";
 import Store from "../../services/store";
@@ -9,6 +10,8 @@ const importedImage = '/img/checked-box.svg'
 
 let currentResultItems: any[] = [];
 let currentResultsPage = 1;
+
+buildImportConfiguration();
 
 miro.onReady(async () => {
   Store.create(miro.getClientId(), (await miro.board.info.get()).id);
@@ -36,6 +39,7 @@ export async function initializeHandlers() {
   let cbqlQuery = document.getElementById('cbqlQuery') as HTMLInputElement
   let secondaryFilterCriteria = document.getElementById('filter-criteria') as HTMLInputElement;
   let lazyLoadButton = document.getElementById('lazy-load-button') as HTMLButtonElement;
+  let configurationSaveButton = document.getElementById('saveConfiguration') as HTMLButtonElement;
 
   let cachedAdvancedSearchEnabled = Store.getInstance().getLocalSetting(LocalSetting.ADVANCED_SEARCH_ENABLED)
 
@@ -51,6 +55,10 @@ export async function initializeHandlers() {
     lazyLoadButton.onclick = loadAndAppendNextResultPage;
   }
 
+  if(configurationSaveButton) {
+    configurationSaveButton.onclick = saveImportConfiguration;
+  }
+
   if(importAllButton){
     if(!Store.getInstance().getLocalSetting(LocalSetting.SELECTED_TRACKER)) {
         importAllButton.disabled = true;
@@ -60,7 +68,14 @@ export async function initializeHandlers() {
     
     if (trackersSelection) {
     // build tracker options
-    let availableTrackers = await CodeBeamerService.getInstance().getCodeBeamerProjectTrackers(Store.getInstance().getBoardSetting(BoardSetting.PROJECT_ID));
+    let availableTrackers: any[];
+    try {
+      availableTrackers = await CodeBeamerService.getInstance().getCodeBeamerProjectTrackers(Store.getInstance().getBoardSetting(BoardSetting.PROJECT_ID));
+    } catch (error) {
+      miro.showErrorNotification(error);
+      miro.board.ui.openModal('picker.html');
+      return;
+    }
     if(!availableTrackers.length){
       var nullOption = document.createElement("option");
       nullOption.value = "";
@@ -190,7 +205,14 @@ function synchItems() {
       hideDataTableAndShowLoadingSpinner();
         getAndSyncItemsWithCodeBeamer(itemsToSynch)
           .then((updated) => {
-            let suffix = itemsToSynch.length > updated ? ` from ${Store.getInstance().getBoardSetting(BoardSetting.CB_ADDRESS)}` : "";
+            let suffix;
+            try {
+              suffix = itemsToSynch.length > updated ? ` from ${Store.getInstance().getBoardSetting(BoardSetting.CB_ADDRESS)}` : "";
+            } catch (error) {
+              miro.showErrorNotification(error);
+              miro.board.ui.openModal('picker.html');
+              return;
+            }
             miro.showNotification(`Successfully updated ${updated} items ${suffix}`)
             miro.board.ui.closeModal();
           })
@@ -615,4 +637,71 @@ async function loadAndAppendNextResultPage() {
   if(currentResultItems.length == items.length) {
     (document.getElementById('lazy-load-button') as HTMLButtonElement).disabled = true;
   }
+}
+
+/**
+ * Builds the HTML for the standard import configuration settings, based on the values of the StandardItemProperty enum.
+ */
+function buildImportConfiguration() {
+  const container = document.getElementById('standardProperties');
+  if(!container) {
+    console.error("Container for displaying property-import configuration options doesn't exist.")
+    return;
+  }
+
+  const standardProperties = Object.keys(StandardItemProperty).map((e) => {
+    return StandardItemProperty[e]
+  });
+
+  for(let property of standardProperties) {
+    const div = document.createElement('div') as HTMLDivElement;
+    div.classList.add('property', 'my-2');
+    
+    const label = document.createElement('label') as HTMLLabelElement;
+    label.classList.add('checkbox');
+
+    const input = document.createElement('input') as HTMLInputElement;
+    input.type = 'checkbox';
+    input.tabIndex = 0;
+    //TODO according to saved settings
+    input.checked = false;
+    input.disabled = property == StandardItemProperty.SUMMARY || property == StandardItemProperty.DESCRIPTION || property == StandardItemProperty.STATUS;
+    input.value = property;
+    input.onchange = saveImportConfiguration;
+
+    const span = document.createElement('span') as HTMLSpanElement;
+    span.classList.add('mx-2');
+    span.textContent = property;
+
+    label.append(input);
+    label.append(span);
+    div.append(label);
+    container.append(div);
+  }
+}
+
+/**
+ * Persists the selected propertiy-to-import in the boardsettings.
+ */
+function saveImportConfiguration(event: any) {
+  if(!event.target || !(event.target instanceof HTMLInputElement)) {
+    console.error("This event handler can't be used for this element: ", event.target);
+    return;
+  }
+  let target = event.target as HTMLInputElement;
+  console.log(target.checked);
+
+  let importSettings: Record<string, boolean>;
+
+  try {
+    importSettings = Store.getInstance().getBoardSetting(BoardSetting.IMPORT_CONFIGURATION);
+  } catch (error) {
+    importSettings = {};
+  }
+
+  console.log("Importsetting pre change: ", importSettings);
+  importSettings[target.value] = target.checked;
+  console.log("Importsetting post change: ", importSettings);
+
+  Store.getInstance().savePickerSettings(importSettings);
 }
