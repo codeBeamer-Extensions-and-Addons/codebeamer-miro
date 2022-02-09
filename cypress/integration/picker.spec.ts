@@ -101,31 +101,6 @@ describe('Picker', () => {
                 cy.get('#closeConfigurationModal').click();
                 cy.get('#importConfiguration').should('not.be.visible');
             })
-
-            it('saves the configuration in the board settings upon clicking the save button', () => {
-                const testStoreSuffix = "e2e-test";
-
-                cy.get('#standardProperties').find(`input[value="${StandardItemProperty.TEAMS}"]`).check();
-                cy.get('#standardProperties').find(`input[value="${StandardItemProperty.STORY_POINTS}"]`).check();
-                cy.get('#standardProperties').find(`input[value="${StandardItemProperty.ASSIGNED_AT}"]`).check();
-
-                cy.get('#standardProperties').find(`input[value="${StandardItemProperty.ASSIGNED_TO}"]`).uncheck();
-                cy.get('#standardProperties').find(`input[value="${StandardItemProperty.END_DATE}"]`).uncheck();
-
-                cy.get('#saveConfiguration').click().should(() => {
-                    const boardSettings = JSON.parse(localStorage.getItem('codebeamer-miro-plugin-board-settings-' + testStoreSuffix) ?? "");
-                    expect(boardSettings).to.have.property('importConfiguration').and.to.have.property('importConfiguration.standard');
-
-                    const importConfiguration = boardSettings.importConfiguration.standard;
-
-                    expect(importConfiguration[StandardItemProperty.TEAMS]).to.exist.and.to.be.true;
-                    expect(importConfiguration[StandardItemProperty.STORY_POINTS]).to.exist.and.to.be.true;
-                    expect(importConfiguration[StandardItemProperty.ASSIGNED_AT]).to.exist.and.to.be.true;
-
-                    expect(importConfiguration[StandardItemProperty.ASSIGNED_TO]).to.exist.and.to.be.false;
-                    expect(importConfiguration[StandardItemProperty.END_DATE]).to.exist.and.to.be.false;
-                });
-            });
         });
     });
     
@@ -229,9 +204,41 @@ describe('Picker', () => {
                 //expect this element to have been appended to the table
                 cy.get('input#1431175');
             })
-
         });
 
+        describe('import configuration', () => {
+
+            beforeEach(() => {
+                cy.get('#openImportConfiguration').click();
+            })
+
+            //* RETINA-1565413
+            it('saves the configuration in the board settings upon clicking the save button', () => {
+                cy.get('#standardProperties').find(`input[value="${StandardItemProperty.TEAMS}"]`).check();
+                cy.get('#standardProperties').find(`input[value="${StandardItemProperty.STORY_POINTS}"]`).check();
+                cy.get('#standardProperties').find(`input[value="${StandardItemProperty.ASSIGNED_AT}"]`).check();
+
+                cy.get('#standardProperties').find(`input[value="${StandardItemProperty.ASSIGNED_TO}"]`).check().uncheck();
+                cy.get('#standardProperties').find(`input[value="${StandardItemProperty.END_DATE}"]`).check().uncheck().should(() => {
+                    const testStoreSuffix = "e2e-test";
+                    const boardSettings = JSON.parse(localStorage.getItem('codebeamer-miro-plugin-board-settings-' + testStoreSuffix) ?? "");
+
+                    expect(boardSettings).to.have.property('importConfiguration');
+                    const importConfiguration = boardSettings.importConfiguration;
+
+                    expect(importConfiguration).to.have.property('standard')
+                    const standardConfiguration = importConfiguration.standard;
+    
+                    expect(standardConfiguration[StandardItemProperty.TEAMS]).to.exist.and.to.be.true;
+                    expect(standardConfiguration[StandardItemProperty.STORY_POINTS]).to.exist.and.to.be.true;
+                    expect(standardConfiguration[StandardItemProperty.ASSIGNED_AT]).to.exist.and.to.be.true;
+    
+                    expect(standardConfiguration[StandardItemProperty.ASSIGNED_TO]).to.exist.and.to.be.false;
+                    expect(standardConfiguration[StandardItemProperty.END_DATE]).to.exist.and.to.be.false;
+                });
+
+            });
+        })
     });
 
 })
