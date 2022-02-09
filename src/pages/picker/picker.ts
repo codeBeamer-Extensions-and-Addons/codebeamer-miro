@@ -9,8 +9,6 @@ const importedImage = '/img/checked-box.svg'
 let currentResultItems: any[] = [];
 let currentResultsPage = 1;
 
-buildImportConfiguration();
-
 miro.onReady(async () => {
   Store.create(miro.getClientId(), (await miro.board.info.get()).id);
 })
@@ -83,6 +81,8 @@ export async function initializeHandlers() {
     })
 
     trackersSelection.onchange = trackersSelectionOnChange
+
+    buildImportConfiguration();
   }
 
   // Execute switch to current selection to get HTML initialized correctly
@@ -656,8 +656,15 @@ function buildImportConfiguration() {
     const input = document.createElement('input') as HTMLInputElement;
     input.type = 'checkbox';
     input.tabIndex = 0;
-    //TODO according to saved settings
-    input.checked = false;
+
+    let importConfiguration: ImportConfiguration;
+    try {
+      importConfiguration = Store.getInstance().getBoardSetting(BoardSetting.IMPORT_CONFIGURATION);
+      input.checked = importConfiguration.standard[property];
+    } catch (error) {
+      input.checked = false;
+    }
+
     input.disabled = property == StandardItemProperty.SUMMARY || property == StandardItemProperty.DESCRIPTION || property == StandardItemProperty.STATUS;
     input.value = property;
     input.onchange = saveStandardImportConfigurationValue;
@@ -683,7 +690,6 @@ function saveStandardImportConfigurationValue(event: any) {
     return;
   }
   let target = event.target as HTMLInputElement;
-  console.log(target.checked);
 
   let importConfiguration: ImportConfiguration;
   try {
@@ -701,15 +707,11 @@ function saveStandardImportConfigurationValue(event: any) {
 
 /**
  * Creates the agreed-upon default import configuration.
- * @returns ImportConfiguration with the three default-criteria summary, description and status set to true.
+ * @returns Empty, ImportConfiguration-adhering object.
  */
 function createDefaultImportConfigurationObject(): ImportConfiguration {
   return {
-    standard: {
-      summary: true,
-      description: true,
-      status: true,
-    },
+    standard: {},
     trackerSpecific: [],
   };
 }
