@@ -1,8 +1,4 @@
-import { BoardSetting } from "../entities/board-setting.enum";
-import { LocalSetting } from "../entities/local-setting.enum";
-import { SessionSetting } from "../entities/session-setting.enum";
-import { SettingKey } from "../entities/setting-key.enum";
-import { UserMapping } from "../entities/user-mapping.if";
+import { ImportConfiguration, BoardSetting, LocalSetting, SessionSetting, SettingKey, UserMapping } from "../entities";
 
 export default class Store {
 	private static _instance: Store;
@@ -97,15 +93,20 @@ export default class Store {
 		);
 	}
 
-	public async savePickerSettings(settings: Record<string, boolean>) {
+	/**
+	 * Saves the import configuration in the board settings.
+	 * @param configuration Updated ImportConfiguration to save
+	 */
+	public async saveImportConfiguration(configuration: ImportConfiguration) {
 		const data = localStorage.getItem(
 			this.getBoardSettingsLocalStorageKey()
 		);
 		let boardSettings = data === null ? {} : JSON.parse(data);
 
-		console.log("Pre assign:", boardSettings);
-		Object.assign(boardSettings, settings);
-		console.log("Post assign:", boardSettings);
+		//key of the object assigned here must equal the BoardSetting.IMPORT_CONFIGURATION enum's value to work (be readable).
+		Object.assign(boardSettings, { importConfiguration: configuration});
+
+		this.saveBoardSettings(boardSettings);
 	}
 
 	/**
