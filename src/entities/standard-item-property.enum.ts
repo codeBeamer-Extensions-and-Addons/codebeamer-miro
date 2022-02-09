@@ -7,10 +7,10 @@
  * These supposedly standard properties might better be replaced by fully dynamic configurations, with a few of these common properties pre-selected if existing.
  */
 export enum StandardItemProperty {
-    ID = "ID",
     SUMMARY = "Summary",
     DESCRIPTION = "Description",
     STATUS = "Status",
+    ID = "ID",
     TEAMS = "Teams",
     OWNER = "Owner",
     RELEASE = "Release",
@@ -26,11 +26,15 @@ export enum StandardItemProperty {
     MODIFIED_BY = "ModifiedBy",
 }
 
+/**
+ * Constant object containing properties, which are named after the StandardItemProperty enum's values and themselves
+ * have the values of codeBeamers property names for these labels.
+ */
 export const codeBeamerPropertyNamesByFieldLabel = {
-    ID: 'id',
     Summary: 'name',
     Description: 'description',
     Status: 'status',
+    ID: 'id',
     Teams: 'teams',
     Owner: 'supervisor',
     Release: 'release',
