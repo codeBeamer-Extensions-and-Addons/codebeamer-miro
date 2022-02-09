@@ -36,7 +36,7 @@ export const codeBeamerPropertyNamesByFieldLabel = {
     Status: 'status',
     ID: 'id',
     Teams: 'teams',
-    Owner: 'supervisor',
+    Owner: 'owners',
     Release: 'release',
     Priority: 'namedPriority',
     StoryPoints: 'storyPoints',
