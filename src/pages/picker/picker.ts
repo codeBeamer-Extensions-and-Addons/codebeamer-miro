@@ -49,6 +49,8 @@ export async function initializeHandlers() {
   if(lazyLoadButton) {
     lazyLoadButton.onclick = loadAndAppendNextResultPage;
   }
+  
+  buildImportConfiguration();
 
   if(importAllButton){
     if(!Store.getInstance().getLocalSetting(LocalSetting.SELECTED_TRACKER)) {
@@ -81,8 +83,6 @@ export async function initializeHandlers() {
     })
 
     trackersSelection.onchange = trackersSelectionOnChange
-
-    buildImportConfiguration();
   }
 
   // Execute switch to current selection to get HTML initialized correctly
