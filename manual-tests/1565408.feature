@@ -1,4 +1,4 @@
-# Covers the non-automated part of the test suite for the described feature
+# Deckt den nicht-automatisierten Teil der Test-Suite für die beschriebene Funktionalität
 
 @RETINA-1565408
 Funktionalität: Items nach verschiedenen Standard-Eigenschaften suchen- / filtern
