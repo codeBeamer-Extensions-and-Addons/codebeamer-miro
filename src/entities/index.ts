@@ -9,3 +9,4 @@ export * from './setting-key.enum';
 export * from './standard-item-property.enum';
 export * from './user-mapping.if';
 export * from './widget-initial-position-name';
+export * from './import-configuration.if';
