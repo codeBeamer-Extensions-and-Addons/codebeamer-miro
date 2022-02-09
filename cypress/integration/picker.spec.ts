@@ -37,12 +37,12 @@ describe('Picker', () => {
         }); 
         
         //* RETINA-1565419
-        it.only('has a button to load more search results with', () => {
+        it('has a button to load more search results with', () => {
             cy.get('#lazy-load-button');
         });
         
         //* RETINA-1565419
-        it.only('disables the button to load more search results with by default', () => {
+        it('disables the button to load more search results with by default', () => {
             cy.get('#lazy-load-button').should('have.attr', 'disabled');
         })
 
@@ -69,22 +69,25 @@ describe('Picker', () => {
         });
 
         //* RETINA-1565413
-        it.only('has a button, which opens the import configuration modal', () => {
+        it('has a button, which opens the import configuration modal', () => {
             cy.get('#openImportConfiguration').click();
             cy.get('#importConfiguration').should('be.visible');
         });
 
         //* RETINA-1565413
-        context.only('import configuration', () => {
+        context('import configuration', () => {
+
+            beforeEach(() => {
+                cy.get('#openImportConfiguration').click();
+            })
 
             it('has checkboxes to select standard item properties', () => {
                 const standardProperties = Object.keys(StandardItemProperty).map((e) => {
                     return StandardItemProperty[e]
                 });
-                console.log("Standard Props: ", standardProperties);
 
-                for(let property in standardProperties) {
-                    cy.get('#standardProperties').find(`input[value="${property}"]`)
+                for(let i = 0; i < standardProperties.length; i++) {
+                    cy.get('#standardProperties').find(`input[value="${standardProperties[i]}"]`)
                 };
             });
 
@@ -92,19 +95,22 @@ describe('Picker', () => {
                 cy.get('#saveConfiguration');
             });
 
-            it('has a button to close the modal', () => {
-                cy.get('#closeConfigurationModal');
+            it('has a button, which closes the modal', () => {
+                //wait for the animation
+                cy.wait(1000);
+                cy.get('#closeConfigurationModal').click();
+                cy.get('#importConfiguration').should('not.be.visible');
             })
 
             it('saves the configuration in the board settings upon clicking the save button', () => {
                 const testStoreSuffix = "e2e-test";
 
-                cy.get('#standardProperties').check(`input[value="${StandardItemProperty.STATUS}"]`);
-                cy.get('#standardProperties').check(`input[value="${StandardItemProperty.STORY_POINTS}"]`);
-                cy.get('#standardProperties').check(`input[value="${StandardItemProperty.ASSIGNED_AT}"]`);
+                cy.get('#standardProperties').find(`input[value="${StandardItemProperty.TEAMS}"]`).check();
+                cy.get('#standardProperties').find(`input[value="${StandardItemProperty.STORY_POINTS}"]`).check();
+                cy.get('#standardProperties').find(`input[value="${StandardItemProperty.ASSIGNED_AT}"]`).check();
 
-                cy.get('#standardProperties').uncheck(`input[value="${StandardItemProperty.ASSIGNED_TO}"]`);
-                cy.get('#standardProperties').uncheck(`input[value="${StandardItemProperty.END_DATE}"]`);
+                cy.get('#standardProperties').find(`input[value="${StandardItemProperty.ASSIGNED_TO}"]`).uncheck();
+                cy.get('#standardProperties').find(`input[value="${StandardItemProperty.END_DATE}"]`).uncheck();
 
                 cy.get('#saveConfiguration').click().should(() => {
                     const boardSettings = JSON.parse(localStorage.getItem('codebeamer-miro-plugin-board-settings-' + testStoreSuffix) ?? "");
@@ -112,7 +118,7 @@ describe('Picker', () => {
 
                     const importConfiguration = boardSettings.importConfiguration.standard;
 
-                    expect(importConfiguration[StandardItemProperty.STATUS]).to.exist.and.to.be.true;
+                    expect(importConfiguration[StandardItemProperty.TEAMS]).to.exist.and.to.be.true;
                     expect(importConfiguration[StandardItemProperty.STORY_POINTS]).to.exist.and.to.be.true;
                     expect(importConfiguration[StandardItemProperty.ASSIGNED_AT]).to.exist.and.to.be.true;
 
@@ -120,10 +126,7 @@ describe('Picker', () => {
                     expect(importConfiguration[StandardItemProperty.END_DATE]).to.exist.and.to.be.false;
                 });
             });
-
-
-        })
-
+        });
     });
     
     context('dynamic elements', () => {
@@ -209,6 +212,7 @@ describe('Picker', () => {
 
             //* RETINA-1565419
             it('enables the "load more results" button when there are more items that can be loaded for the selected criteria', () => {
+                cy.get('select#selectedTracker').select('4877085');
                 cy.get('#lazy-load-button').should('not.have.attr', 'disabled');
             });
 
