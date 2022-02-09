@@ -109,6 +109,20 @@ button svg {
     transform: translate(-50%,-50%);
 }
 
+/*configuration modal*/
+.modal-column {
+	max-height: 380px;
+	overflow: auto;
+}
+.modal-column .modal-column-header {
+	height: 20%;
+	overflow: hidden;
+}
+.modal-column .modal-column-body {
+	height: 80%;
+	overflow: auto;
+}
+
 /*utilities*/
 .row {
 	display: flex;
