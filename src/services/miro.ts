@@ -1,10 +1,5 @@
-import {
-	RELATION_OUT_ASSOCIATION_TYPE,
-	RELATION_UPSTREAM_REF_TYPE,
-} from "../constants/cb-relation-names";
-import { CardData } from "../entities/carddata.if";
-import { UserMapping } from "../entities/user-mapping.if";
-import { WIDGET_INITIAL_POSITION } from "../entities/widget-initial-position-name";
+import { BoardSetting, CardData, codeBeamerPropertyNamesByFieldLabel, ImportConfiguration } from "../entities";
+import { CB_ITEM_NAME_PROPERTY_NAME, RELATION_OUT_ASSOCIATION_TYPE, RELATION_UPSTREAM_REF_TYPE, WIDGET_INITIAL_POSITION } from "../constants";
 import CodeBeamerService from "./codebeamer";
 import Store from "./store";
 
@@ -186,13 +181,7 @@ export default class MiroService {
 						new URL(window.location.href).origin
 					}/img/codeBeamer-Logo-BW.png`,
 				},
-				customFields: [
-					{
-						mainColor: "#4f8ae8",
-						fontColor: "#ffffff",
-						value: `Status: ${item.status.name}`,
-					},
-				],
+				customFields: [],
 			},
 			capabilities: {
 				editable: false,
@@ -203,52 +192,8 @@ export default class MiroService {
 				},
 			},
 		};
-		// additional custom fields
-		if (item.release) {
-			cardData.card?.customFields?.push({
-				value: `Rel: ${item.release.name}`,
-			});
-		}
-		if (item.storyPoints) {
-			cardData.card?.customFields?.push({
-				value: `SP: ${item.storyPoints}`,
-			});
-		}
 
-		delete cardData.assignee; // so that it gets cleared if no value is set (but was previously set so is current on the card)
-		if (item.assignedTo) {
-			let mappedUser = item.assignedTo
-				.map((assignedUser) => assignedUser.id) // get cbUserID
-				.map((cbId: string) =>
-					Store.getInstance().getUserMapping({ cbUserId: cbId })
-				) // get mapping
-				// take the first mapping that is found (some users in CB might not be defined. If multiple are, we only take the first as the field is single select in miro)
-				.find((mapping: UserMapping | undefined) => !!mapping);
-
-			if (mappedUser) {
-				cardData.assignee = { userId: mappedUser.miroUserId };
-			}
-		}
-
-		if (item.startDate) {
-			let date = new Date(item.startDate).toLocaleDateString();
-			let customField = {
-				mainColor: "#393b3a",
-				fontColor: "#fff",
-				value: `Start: ${date}`,
-			};
-			cardData.card?.customFields?.push(customField);
-		}
-
-		if (item.endDate) {
-			let date = new Date(item.endDate).toLocaleDateString();
-			let customField = {
-				mainColor: "#393b3a",
-				fontColor: "#fff",
-				value: `End: ${date}`,
-			};
-			cardData.card?.customFields?.push(customField);
-		}
+		this.addCustomCardFields(cardData, item);
 
 		// background Color
 		let colorFieldValue = this.findColorFieldOnItem(item);
@@ -264,6 +209,86 @@ export default class MiroService {
 		if (item[WIDGET_INITIAL_POSITION]) {
 			cardData.x = item[WIDGET_INITIAL_POSITION].x;
 			cardData.y = item[WIDGET_INITIAL_POSITION].y;
+		}
+
+		return cardData;
+	}
+
+	private addCustomCardFields(cardData, item) {
+		//custom tags according to import Configuration
+		let importConfiguration: ImportConfiguration;
+		const NO_IMPORT_CONFIGURATION = "No import configuration defined";
+		try {
+			console.log("Commencing customField creation (try)");
+			importConfiguration = Store.getInstance().getBoardSetting(BoardSetting.IMPORT_CONFIGURATION);
+			console.log("ImportConfig: ", importConfiguration);
+
+			if(!importConfiguration) throw new Error(NO_IMPORT_CONFIGURATION);
+
+			const standardConfiguration = importConfiguration.standard;
+			const standardConfigurationKeys = Object.keys(standardConfiguration);
+			//a foreach on Object.keys got me the ky's indexes instead of keys as entries.
+			for(let i = 0; i < standardConfigurationKeys.length; i++) {
+				const key = standardConfigurationKeys[i];
+				const value = standardConfiguration[key];
+				console.log(`Key: ${key}, value: ${value}`);
+
+				if(value == false) continue;
+
+				const itemPropertyName = codeBeamerPropertyNamesByFieldLabel[key];
+				if(!item[itemPropertyName]) continue;
+				let field = item[itemPropertyName];
+				console.log("Item's value for given key: ", field);
+
+				let content: string;
+
+				if(field == null) continue;
+
+				if(typeof field === 'object') {
+					console.log("Field is object");
+					if(Array.isArray(field)) {
+						console.log("Field is an arre");
+						//* display comma-seperated names of all entries
+						content = '';
+						for(let j = 0; j < field.length; j++) {
+							let entry = field[j];
+							console.log("Arre entry: ", entry);
+							let slug = entry[CB_ITEM_NAME_PROPERTY_NAME];
+							console.log("Entriy's name-field: ", slug);
+							content += `${entry[CB_ITEM_NAME_PROPERTY_NAME]}, `;
+						}
+						//remove trailing ", "
+						content = content.substring(0, content.length-2);
+					} else {
+						//* display the name-property
+						content = field[CB_ITEM_NAME_PROPERTY_NAME];
+					}
+				} else {
+					console.log("Field neither object nor arre")
+					//* just show the field
+					content = field.toString();
+				}
+
+				let customField = {
+					//TODO custom colors
+					value: `${key}: ${content}`,
+				};
+				cardData.card?.customFields?.push(customField);
+			}
+		} catch (error) {
+			if(error.message !== NO_IMPORT_CONFIGURATION) {
+				miro.showErrorNotification("Something went wrong creating Tags for your item.");
+				console.error(error);
+			}
+		}
+
+		//status is always displayed, if the item has one
+		if(item.status) {
+			cardData.card?.customFields?.push({
+				mainColor: "#4f8ae8",
+				fontColor: "#ffffff",
+				value: `Status: ${item.status.name}`,
+			});
 		}
 
 		return cardData;
