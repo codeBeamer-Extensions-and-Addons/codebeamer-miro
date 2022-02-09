@@ -1,5 +1,7 @@
 /// <reference types="cypress" />
 
+import { StandardItemProperty } from '../../src/entities/standard-item-property.enum';
+
 /**
  * Test specification for the picker.html site and its respective script.
  */
@@ -65,6 +67,62 @@ describe('Picker', () => {
                 cy.get('#simpleSearch').find('select').children('option').contains('Subject');
             });
         });
+
+        //* RETINA-1565413
+        it.only('has a button, which opens the import configuration modal', () => {
+            cy.get('#openImportConfiguration').click();
+            cy.get('#importConfiguration').should('be.visible');
+        });
+
+        //* RETINA-1565413
+        context.only('import configuration', () => {
+
+            it('has checkboxes to select standard item properties', () => {
+                const standardProperties = Object.keys(StandardItemProperty).map((e) => {
+                    return StandardItemProperty[e]
+                });
+                console.log("Standard Props: ", standardProperties);
+
+                for(let property in standardProperties) {
+                    cy.get('#standardProperties').find(`input[value="${property}"]`)
+                };
+            });
+
+            it('has a button to save the configuration', () => {
+                cy.get('#saveConfiguration');
+            });
+
+            it('has a button to close the modal', () => {
+                cy.get('#closeConfigurationModal');
+            })
+
+            it('saves the configuration in the board settings upon clicking the save button', () => {
+                const testStoreSuffix = "e2e-test";
+
+                cy.get('#standardProperties').check(`input[value="${StandardItemProperty.STATUS}"]`);
+                cy.get('#standardProperties').check(`input[value="${StandardItemProperty.STORY_POINTS}"]`);
+                cy.get('#standardProperties').check(`input[value="${StandardItemProperty.ASSIGNED_AT}"]`);
+
+                cy.get('#standardProperties').uncheck(`input[value="${StandardItemProperty.ASSIGNED_TO}"]`);
+                cy.get('#standardProperties').uncheck(`input[value="${StandardItemProperty.END_DATE}"]`);
+
+                cy.get('#saveConfiguration').click().should(() => {
+                    const boardSettings = JSON.parse(localStorage.getItem('codebeamer-miro-plugin-board-settings-' + testStoreSuffix) ?? "");
+                    expect(boardSettings).to.have.property('importConfiguration').and.to.have.property('importConfiguration.standard');
+
+                    const importConfiguration = boardSettings.importConfiguration.standard;
+
+                    expect(importConfiguration[StandardItemProperty.STATUS]).to.exist.and.to.be.true;
+                    expect(importConfiguration[StandardItemProperty.STORY_POINTS]).to.exist.and.to.be.true;
+                    expect(importConfiguration[StandardItemProperty.ASSIGNED_AT]).to.exist.and.to.be.true;
+
+                    expect(importConfiguration[StandardItemProperty.ASSIGNED_TO]).to.exist.and.to.be.false;
+                    expect(importConfiguration[StandardItemProperty.END_DATE]).to.exist.and.to.be.false;
+                });
+            });
+
+
+        })
 
     });
     
