@@ -53,10 +53,6 @@ export default class Store {
 			localStorage.getItem(this.getBoardSettingsLocalStorageKey()) || "{}"
 		);
 		if (!data) {
-			miro.showNotification(
-				`Couldn't load board settings. Please re-enter them and then retry.`
-			);
-			miro.board.ui.openModal("settings.html");
 			throw new Error(
 				`Coudnn't load board settings. Please verify their integrity in the plugin settings.`
 			);
@@ -99,6 +95,17 @@ export default class Store {
 			this.getBoardSettingsLocalStorageKey(),
 			JSON.stringify(data)
 		);
+	}
+
+	public async savePickerSettings(settings: Record<string, boolean>) {
+		const data = localStorage.getItem(
+			this.getBoardSettingsLocalStorageKey()
+		);
+		let boardSettings = data === null ? {} : JSON.parse(data);
+
+		console.log("Pre assign:", boardSettings);
+		Object.assign(boardSettings, settings);
+		console.log("Post assign:", boardSettings);
 	}
 
 	/**
@@ -176,10 +183,12 @@ export default class Store {
 	}
 
 	public async storeUserMapping(mapping: UserMapping) {
-		let storedMappings = this.getBoardSetting(
-			BoardSetting.USER_MAPPING
-		) as UserMapping[];
-		if (!storedMappings) storedMappings = [];
+		let storedMappings: UserMapping[];
+		try {
+			storedMappings = this.getBoardSetting(BoardSetting.USER_MAPPING) as UserMapping[];
+		} catch (error) {
+			storedMappings = [];
+		}
 
 		// remove all mappings for both, the cbUser and the miroUser
 		storedMappings = storedMappings.filter(
@@ -194,9 +203,12 @@ export default class Store {
 	}
 
 	public getUserMapping(userDetails: Partial<UserMapping>) {
-		let storedMappings = this.getBoardSetting(
-			BoardSetting.USER_MAPPING
-		) as UserMapping[];
+		let storedMappings: UserMapping[];
+		try {
+			storedMappings = this.getBoardSetting(BoardSetting.USER_MAPPING) as UserMapping[];
+		} catch (error) {
+			return null;
+		}
 		return storedMappings.find(
 			(m) =>
 				(!userDetails.cbUserId || m.cbUserId == userDetails.cbUserId) &&

@@ -86,8 +86,14 @@ export default class CodeBeamerService {
    * @returns An URL pointing to the codeBeamer address as saved in the settings.
    */
   private getBaseUrl(): URL {
-    let cbAddress = this.store.getBoardSetting(BoardSetting.CB_ADDRESS)
-    return new URL(cbAddress)
+    try {
+      let cbAddress = this.store.getBoardSetting(BoardSetting.CB_ADDRESS)
+      return new URL(cbAddress)
+    } catch (error) {
+      miro.showErrorNotification(error);
+      miro.board.ui.openModal('picker.html');
+      return new URL('');
+    }
   }
   
   /**
@@ -195,7 +201,14 @@ export default class CodeBeamerService {
    * @returns All a Project's trackers
    */
   public async getCodeBeamerProjectTrackers(projectId?: string): Promise<any> {
-    if (!projectId) projectId = Store.getInstance().getBoardSetting(BoardSetting.PROJECT_ID);
+    if (!projectId) {
+      try {
+        projectId = Store.getInstance().getBoardSetting(BoardSetting.PROJECT_ID);
+      } catch (error) {
+        miro.showErrorNotification(error);
+        miro.board.ui.openModal('picker.html');
+      }
+    }
     const requestUrl = `${this.getApiBasePath()}/projects/${projectId}/trackers`;
 
     try {
@@ -302,9 +315,12 @@ export default class CodeBeamerService {
  * @returns Created item's data
  */
     async create(item: CreateCbItem): Promise<any> {
-    let trackerId = this.store.getBoardSetting(BoardSetting.INBOX_TRACKER_ID);
-    if(!trackerId) {
-      throw new Error('You must define an "Inbox Tracker ID" first!');
+    let trackerId;
+    try {
+      trackerId = this.store.getBoardSetting(BoardSetting.INBOX_TRACKER_ID);
+    } catch (error) {
+      miro.showErrorNotification('You must define an "Inbox Tracker ID" first!');
+      miro.board.ui.openModal('picker.html');
     }
 
     if(item.description) {
