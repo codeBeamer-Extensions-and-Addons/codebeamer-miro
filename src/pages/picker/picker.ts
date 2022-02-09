@@ -1,7 +1,5 @@
-import { StandardItemProperty } from "../../entities";
+import { StandardItemProperty, BoardSetting, LocalSetting, ImportConfiguration } from "../../entities";
 import { MAX_ITEMS_PER_IMPORT, DEFAULT_ITEMS_PER_PAGE, DEFAULT_RESULT_PAGE, MAX_ITEMS_PER_SYNCH } from "../../constants/cb-import-defaults";
-import { BoardSetting } from "../../entities";
-import { LocalSetting } from "../../entities";
 import CodeBeamerService from "../../services/codebeamer";
 import MiroService from "../../services/miro";
 import Store from "../../services/store";
@@ -39,7 +37,6 @@ export async function initializeHandlers() {
   let cbqlQuery = document.getElementById('cbqlQuery') as HTMLInputElement
   let secondaryFilterCriteria = document.getElementById('filter-criteria') as HTMLInputElement;
   let lazyLoadButton = document.getElementById('lazy-load-button') as HTMLButtonElement;
-  let configurationSaveButton = document.getElementById('saveConfiguration') as HTMLButtonElement;
 
   let cachedAdvancedSearchEnabled = Store.getInstance().getLocalSetting(LocalSetting.ADVANCED_SEARCH_ENABLED)
 
@@ -53,10 +50,6 @@ export async function initializeHandlers() {
 
   if(lazyLoadButton) {
     lazyLoadButton.onclick = loadAndAppendNextResultPage;
-  }
-
-  if(configurationSaveButton) {
-    configurationSaveButton.onclick = saveImportConfiguration;
   }
 
   if(importAllButton){
@@ -667,7 +660,7 @@ function buildImportConfiguration() {
     input.checked = false;
     input.disabled = property == StandardItemProperty.SUMMARY || property == StandardItemProperty.DESCRIPTION || property == StandardItemProperty.STATUS;
     input.value = property;
-    input.onchange = saveImportConfiguration;
+    input.onchange = saveStandardImportConfigurationValue;
 
     const span = document.createElement('span') as HTMLSpanElement;
     span.classList.add('mx-2');
@@ -681,9 +674,10 @@ function buildImportConfiguration() {
 }
 
 /**
- * Persists the selected propertiy-to-import in the boardsettings.
+ * Persists the selected property-to-import in the board setting's import configuration object.
+ * Only updates the selected property's value.
  */
-function saveImportConfiguration(event: any) {
+function saveStandardImportConfigurationValue(event: any) {
   if(!event.target || !(event.target instanceof HTMLInputElement)) {
     console.error("This event handler can't be used for this element: ", event.target);
     return;
@@ -691,17 +685,31 @@ function saveImportConfiguration(event: any) {
   let target = event.target as HTMLInputElement;
   console.log(target.checked);
 
-  let importSettings: Record<string, boolean>;
-
+  let importConfiguration: ImportConfiguration;
   try {
-    importSettings = Store.getInstance().getBoardSetting(BoardSetting.IMPORT_CONFIGURATION);
+    importConfiguration = Store.getInstance().getBoardSetting(BoardSetting.IMPORT_CONFIGURATION);
   } catch (error) {
-    importSettings = {};
+    importConfiguration = createDefaultImportConfigurationObject();
+  }
+  if(!importConfiguration){
+    importConfiguration = createDefaultImportConfigurationObject();
   }
 
-  console.log("Importsetting pre change: ", importSettings);
-  importSettings[target.value] = target.checked;
-  console.log("Importsetting post change: ", importSettings);
+  importConfiguration.standard[target.value] = target.checked;
+  Store.getInstance().saveImportConfiguration(importConfiguration);
+}
 
-  Store.getInstance().savePickerSettings(importSettings);
+/**
+ * Creates the agreed-upon default import configuration.
+ * @returns ImportConfiguration with the three default-criteria summary, description and status set to true.
+ */
+function createDefaultImportConfigurationObject(): ImportConfiguration {
+  return {
+    standard: {
+      summary: true,
+      description: true,
+      status: true,
+    },
+    trackerSpecific: [],
+  };
 }
