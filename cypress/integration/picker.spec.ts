@@ -91,10 +91,6 @@ describe('Picker', () => {
                 };
             });
 
-            it('has a button to save the configuration', () => {
-                cy.get('#saveConfiguration');
-            });
-
             it('has a button, which closes the modal', () => {
                 //wait for the animation
                 cy.wait(1000);
