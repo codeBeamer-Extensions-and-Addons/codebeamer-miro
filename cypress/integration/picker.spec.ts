@@ -1,5 +1,7 @@
 /// <reference types="cypress" />
 
+import { StandardItemProperty } from '../../src/entities/standard-item-property.enum';
+
 /**
  * Test specification for the picker.html site and its respective script.
  */
@@ -35,12 +37,12 @@ describe('Picker', () => {
         }); 
         
         //* RETINA-1565419
-        it.only('has a button to load more search results with', () => {
+        it('has a button to load more search results with', () => {
             cy.get('#lazy-load-button');
         });
         
         //* RETINA-1565419
-        it.only('disables the button to load more search results with by default', () => {
+        it('disables the button to load more search results with by default', () => {
             cy.get('#lazy-load-button').should('have.attr', 'disabled');
         })
 
@@ -66,6 +68,36 @@ describe('Picker', () => {
             });
         });
 
+        //* RETINA-1565413
+        it('has a button, which opens the import configuration modal', () => {
+            cy.get('#openImportConfiguration').click();
+            cy.get('#importConfiguration').should('be.visible');
+        });
+
+        //* RETINA-1565413
+        context('import configuration', () => {
+
+            beforeEach(() => {
+                cy.get('#openImportConfiguration').click();
+            })
+
+            it('has checkboxes to select standard item properties', () => {
+                const standardProperties = Object.keys(StandardItemProperty).map((e) => {
+                    return StandardItemProperty[e]
+                });
+
+                for(let i = 0; i < standardProperties.length; i++) {
+                    cy.get('#standardProperties').find(`input[value="${standardProperties[i]}"]`)
+                };
+            });
+
+            it('has a button, which closes the modal', () => {
+                //wait for the animation
+                cy.wait(1000);
+                cy.get('#closeConfigurationModal').click();
+                cy.get('#importConfiguration').should('not.be.visible');
+            })
+        });
     });
     
     context('dynamic elements', () => {
@@ -151,6 +183,7 @@ describe('Picker', () => {
 
             //* RETINA-1565419
             it('enables the "load more results" button when there are more items that can be loaded for the selected criteria', () => {
+                cy.get('select#selectedTracker').select('4877085');
                 cy.get('#lazy-load-button').should('not.have.attr', 'disabled');
             });
 
@@ -167,9 +200,41 @@ describe('Picker', () => {
                 //expect this element to have been appended to the table
                 cy.get('input#1431175');
             })
-
         });
 
+        describe('import configuration', () => {
+
+            beforeEach(() => {
+                cy.get('#openImportConfiguration').click();
+            })
+
+            //* RETINA-1565413
+            it('saves the configuration in the board settings upon clicking the save button', () => {
+                cy.get('#standardProperties').find(`input[value="${StandardItemProperty.TEAMS}"]`).check();
+                cy.get('#standardProperties').find(`input[value="${StandardItemProperty.STORY_POINTS}"]`).check();
+                cy.get('#standardProperties').find(`input[value="${StandardItemProperty.ASSIGNED_AT}"]`).check();
+
+                cy.get('#standardProperties').find(`input[value="${StandardItemProperty.ASSIGNED_TO}"]`).check().uncheck();
+                cy.get('#standardProperties').find(`input[value="${StandardItemProperty.END_DATE}"]`).check().uncheck().should(() => {
+                    const testStoreSuffix = "e2e-test";
+                    const boardSettings = JSON.parse(localStorage.getItem('codebeamer-miro-plugin-board-settings-' + testStoreSuffix) ?? "");
+
+                    expect(boardSettings).to.have.property('importConfiguration');
+                    const importConfiguration = boardSettings.importConfiguration;
+
+                    expect(importConfiguration).to.have.property('standard')
+                    const standardConfiguration = importConfiguration.standard;
+    
+                    expect(standardConfiguration[StandardItemProperty.TEAMS]).to.exist.and.to.be.true;
+                    expect(standardConfiguration[StandardItemProperty.STORY_POINTS]).to.exist.and.to.be.true;
+                    expect(standardConfiguration[StandardItemProperty.ASSIGNED_AT]).to.exist.and.to.be.true;
+    
+                    expect(standardConfiguration[StandardItemProperty.ASSIGNED_TO]).to.exist.and.to.be.false;
+                    expect(standardConfiguration[StandardItemProperty.END_DATE]).to.exist.and.to.be.false;
+                });
+
+            });
+        })
     });
 
 })

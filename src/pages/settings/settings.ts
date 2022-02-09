@@ -28,10 +28,13 @@ function setFieldFromPrivateSettings(fieldIdAndSettingName: LocalSetting) {
 }
 
 function setFieldFromBoardSettings(fieldIdAndSettingName: BoardSetting) {
-  let value = Store.getInstance().getBoardSetting(fieldIdAndSettingName)
-  if (value) {
+  let value;
+  try {
+    value = Store.getInstance().getBoardSetting(fieldIdAndSettingName)
     let field = document.getElementById(fieldIdAndSettingName);
     if (field) field["value"] = value;
+  } catch (error) {
+    return;
   }
 }
 
