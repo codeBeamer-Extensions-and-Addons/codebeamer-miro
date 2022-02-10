@@ -59,17 +59,20 @@ describe('Picker', () => {
             });
 
             //* RETINA-1565422
-            it.only('adds a filter input after clicking the button to add filter criteria', () => {
-                cy.get('#simpleSearch').find('#add-filter').click().should(() => {
-                    cy.get('#simpleSearch').find('.filter-criteria').find('input');
+            it.only('has a button to switch between AND and OR chaining with AND as default for every criteria (but clicking it changes it for all of them)', () => {
+                cy.get('#add-filter').click().should(() => {
+                    cy.get('.chaining-label').first().should('have.text', 'AND');
+                    cy.get('.chaining-label').last().should('have.text', 'AND');
+                    cy.get('.chaining-label').first().click();
+                    cy.get('.chaining-label').first().should('have.text', 'OR');
+                    cy.get('.chaining-label').last().should('have.text', 'OR');
                 });
             });
 
             //* RETINA-1565422
-            it.only('has a button to switch between AND and OR chaining with AND as default', () => {
+            it.only('adds a filter input after clicking the button to add filter criteria', () => {
                 cy.get('#simpleSearch').find('#add-filter').click().should(() => {
-                    cy.get('#simpleSearch').find('.filter-criteria').find('button').should('have.text', 'AND');
-                    cy.get('#simpleSearch').find('.filter-criteria').find('button').click().should('have.text', 'OR');
+                    cy.get('#simpleSearch').find('.filter-criteria').find('input');
                 });
             });
 
