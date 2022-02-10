@@ -1,5 +1,6 @@
 /// <reference types="cypress" />
 
+import { FilterCriteria } from 'entities';
 import { StandardItemProperty } from '../../src/entities/standard-item-property.enum';
 
 /**
@@ -51,20 +52,52 @@ describe('Picker', () => {
             cy.get('div#advancedSearch').should('have.class', 'hidden');
         });
 
-        it('displays a toggle to toggle between simple and advanced search');
-
         context('simple search', () => {
 
-            //* RETINA-1565408
-            it('displays a secondary filter criteria input in simple search', () => {
-                cy.get('#simpleSearch').find('#filter').find('input#filter-criteria');
+            //* RETINA-1565422
+            it('displays a button to add filter criteria', () => {
+                cy.get('#simpleSearch').find('#add-filter');
             });
 
-            //* RETINA-1565408
-            it('allows to choose Team, Release or Subject as secondary filter criteria', () => {
-                cy.get('#simpleSearch').find('select').children('option').contains('Team');
-                cy.get('#simpleSearch').find('select').children('option').contains('Release');
-                cy.get('#simpleSearch').find('select').children('option').contains('Subject');
+            //* RETINA-1565422
+            it('has a button to switch between AND and OR chaining with AND as default for every criteria (but clicking it changes it for all of them)', () => {
+                cy.get('#add-filter').click()
+
+                cy.get('.chaining-label').first().should('have.text', 'AND');
+                cy.get('.chaining-label').last().should('have.text', 'AND');
+
+                cy.get('.chaining-label').first().click();
+
+                cy.get('.chaining-label').first().should('have.text', 'OR');
+                cy.get('.chaining-label').last().should('have.text', 'OR');
+            });
+
+            //* RETINA-1565422
+            it('adds a filter input after clicking the button to add filter criteria', () => {
+                cy.get('#add-filter').click()
+                cy.get('.filter-criteria').find('.criteria').find('input');
+            });
+
+            //* RETINA-1565422
+            it('can add up to three more filter criteria', () => {
+                cy.get('#simpleSearch').find('#add-filter').click();
+                cy.get('#simpleSearch').find('#add-filter').click();
+                cy.get('#simpleSearch').find('#add-filter').click();
+
+                cy.get('#simpleSearch').find('.filter-criteria').then($el => {
+                    expect($el.children('.criteria').length).to.equal(3);
+                });
+            });
+
+            //* RETINA-1565422
+            it('allows to filter by standard criteria', () => {
+                cy.get('#simpleSearch').find('#add-filter').click();
+
+                const criteria = Object.keys(FilterCriteria).map(e => FilterCriteria[e]);
+
+                for(let criterion of criteria) {
+                    cy.get('#simpleSearch').find('.criteria').find('select').should('contain.html', criterion);
+                }
             });
         });
 
@@ -166,16 +199,26 @@ describe('Picker', () => {
 
         describe('simple search', () => {
             
-            //* RETINA-1565408
-            it('filters the result table by the secondary criteria when it\'s updated', () => {                
+            //* RETINA-1565422
+            it('filters the result table by the configured criteria when it\'s updated', () => {                
                 cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query', []).as('query')
-
+                
                 cy.get('select#selectedTracker').select('4877085');
-                cy.get('input#filter-criteria').type('Edelweiss').type('{enter}');
-
-                cy.wait('@query').then((interception) => {
-                    assert.isArray(interception.response?.body);
-                })
+                const trackerQuery = "tracker.id IN (4877085)";
+                cy.wait('@query').its('request.body.queryString').should('equal', trackerQuery);
+                
+                cy.get('#simpleSearch').find('#add-filter').click();
+                cy.get('#simpleSearch').find('.filter-criteria input').first().type('Edelweiss').type('{enter}');
+                const trackerAndOneCriterionQuery = "tracker.id IN (4877085) AND (teamName = 'Edelweiss')";
+                cy.wait('@query').its('request.body.queryString').should('equal', trackerAndOneCriterionQuery);
+                
+                cy.get('#simpleSearch').find('#add-filter').click();
+                cy.get('#simpleSearch').find('.filter-criteria input').last().type('Rover (Migration)').type('{enter}');
+                const trackerAndTwoCriteriaQuery = "tracker.id IN (4877085) AND (teamName = 'Edelweiss' AND teamName = 'Rover (Migration)')";
+                cy.wait('@query').its('request.body.queryString').should('equal', trackerAndTwoCriteriaQuery);
+                
+                
+                // checks that the queryString in the resulting request is as expected
             });
         });
 

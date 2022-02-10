@@ -38,29 +38,23 @@
     <div class="row">
       <div>
         <div id='simpleSearch' class="fade-in">
-          <div>
-            <label class="block-label">
-              Select Tracker
-            </label>
-            <select id='selectedTracker' class="miro-select miro-select--small miro-select--secondary-bordered">
-              <option value="" disabled selected hidden>Select Tracker...</option>
-            </select>
-          </div>
-          <div id="filter">
-            <div class="row">
-              <div class="col-auto align-self-center">
-                <label class="">Filter by</label>
-              </div>
-              <div class="col">
-                <select id="secondary-criteria-type" class="miro-select miro-select--small miro-select--secondary-bordered">
-                  <option value="Team" selected>Team</option>
-                  <option value="Release">Release</option>
-                  <option value="Subject">Subject</option>
-                </select>
-                <input id="filter-criteria" type="text" class="miro-input miro-input--small miro-input--primary">
-              </div>
+          <div class="row">
+            <div class="col">
+              <label class="block-label">
+                Tracker
+              </label>
+              <select id='selectedTracker' class="miro-select miro-select--small miro-select--secondary-bordered">
+                <option value="" disabled selected hidden>Select Tracker...</option>
+              </select>
+            </div>
+            <div class="filter-criteria align-self-end relative">
+              <button id="add-filter" title="Add criteria" class="mx-1 align-self-end miro-btn miro-btn--small miro-btn--secondary-bordered">
+                <img class="ionicon" src="img/funnel-outline.svg">
+              </button>
             </div>
           </div>
+          </div>
+
         </div>
 
         <div id='advancedSearch' class="fade-in" style="display:none;">

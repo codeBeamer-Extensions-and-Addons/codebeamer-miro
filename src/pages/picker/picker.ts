@@ -1,4 +1,4 @@
-import { StandardItemProperty, BoardSetting, LocalSetting, ImportConfiguration } from "../../entities";
+import { StandardItemProperty, BoardSetting, LocalSetting, ImportConfiguration, SubqueryLinkMethod, FilterCriteria } from "../../entities";
 import { MAX_ITEMS_PER_IMPORT, DEFAULT_ITEMS_PER_PAGE, DEFAULT_RESULT_PAGE, MAX_ITEMS_PER_SYNCH } from "../../constants/cb-import-defaults";
 import CodeBeamerService from "../../services/codebeamer";
 import MiroService from "../../services/miro";
@@ -35,6 +35,8 @@ export async function initializeHandlers() {
   let cbqlQuery = document.getElementById('cbqlQuery') as HTMLInputElement
   let secondaryFilterCriteria = document.getElementById('filter-criteria') as HTMLInputElement;
   let lazyLoadButton = document.getElementById('lazy-load-button') as HTMLButtonElement;
+  let addFilterCriteriaButton = document.getElementById('add-filter') as HTMLButtonElement;
+  let toggleSubQueryButton = document.getElementById('toggleSubQuery') as HTMLButtonElement;
 
   let cachedAdvancedSearchEnabled = Store.getInstance().getLocalSetting(LocalSetting.ADVANCED_SEARCH_ENABLED)
 
@@ -43,11 +45,19 @@ export async function initializeHandlers() {
   }
 
   if(secondaryFilterCriteria) {
-    secondaryFilterCriteria.onchange = updateFilter
+    secondaryFilterCriteria.onchange = updateQuery
   }
 
   if(lazyLoadButton) {
     lazyLoadButton.onclick = loadAndAppendNextResultPage;
+  }
+
+  if(addFilterCriteriaButton) {
+    addFilterCriteriaButton.onclick = addFilterCriteriaElement;
+  }
+
+  if(toggleSubQueryButton) {
+    toggleSubQueryButton.onclick = toggleSubQueryLinkMethod;
   }
   
   buildImportConfiguration();
@@ -217,6 +227,11 @@ function synchItems() {
     })
 }
 
+/**
+ * Clears the query-results table by populating it with an empty array.
+ * Resets the {@link currentResultItems} and {@link currentResultsPage} values.
+ * Disables the lazy-load button.
+ */
 async function clearResultTable() {
   populateDataTable([]);
   currentResultItems = [];
@@ -230,14 +245,17 @@ async function clearResultTable() {
  * @param page Query result page to load
  */
 async function buildResultTable(cbqlQuery, page = 1) {
-  let queryReturn = await CodeBeamerService.getInstance().getCodeBeamerCbqlResult(cbqlQuery, page, DEFAULT_ITEMS_PER_PAGE)
+  let queryReturn = await CodeBeamerService.getInstance().getCodeBeamerCbqlResult(cbqlQuery, page, DEFAULT_ITEMS_PER_PAGE);
   if (queryReturn.message) {
     return false;
   } else {
     // query was successull
     let totalItems = queryReturn.total
+    //enables lazy loading when there are more items to load
     if(totalItems > DEFAULT_ITEMS_PER_PAGE) {
       (document.getElementById('lazy-load-button') as HTMLButtonElement).disabled = false;
+    } else {
+      (document.getElementById('lazy-load-button') as HTMLButtonElement).disabled = true;
     }
 
     populateDataTable(queryReturn.items)
@@ -277,8 +295,7 @@ async function trackersSelectionOnChange() {
     let importAllButton = document.getElementById('importAllButton') as HTMLButtonElement;
     if(importAllButton) importAllButton.disabled = false;
 
-    let queryString = `tracker.id IN (${selectedTracker})`;
-    executeQueryAndBuildResultTable(queryString);
+    updateQuery();
   }
 }
 
@@ -286,7 +303,7 @@ async function trackersSelectionOnChange() {
  * Function to run when updating the secondary filter criteria.
  * Will construct the query and trigger updating the resulttable.
  */
-async function updateFilter() {
+async function updateQuery() {
   const selectedTracker = getSelectedTracker();
   const subQuery = getFilterQuerySubstring();
   const queryString = `tracker.id IN (${selectedTracker})${subQuery}`;
@@ -303,20 +320,27 @@ function getSelectedTracker(): string {
 }
 
 /**
- * Constructs the CBQL query substring for the filter criteria
- * @returns CBQL Query substring like "AND ... = ..." if a criteria was selected.
+ * Constructs the CBQL query substring for the selected filter criteria
+ * @returns CBQL Query substring like "AND ... = ..." if any criteria was selected.
  */
 function getFilterQuerySubstring(): string {
-  let filterType = (document.getElementById('secondary-criteria-type') as HTMLSelectElement)?.value;
-  let filterCriteria = (document.getElementById('filter-criteria') as HTMLInputElement)?.value;
-  let queryCriteria = '';
-  let query = '';
+  const criteria = document.querySelectorAll('.criteria');
+  if(!criteria?.length) return '';
+  let chainingMethod = Store.getInstance().getLocalSetting(LocalSetting.SUBQUERY_LINK_METHOD) ?? SubqueryLinkMethod.AND;
+  let query = ' AND (';
 
-  if(filterCriteria) {
-    queryCriteria = CodeBeamerService.getQueryEntityNameForCriteria(filterType);
-    query = ` AND ${queryCriteria} = '${filterCriteria}'`;
+  for(let i = 0; i< criteria.length; i++) {
+    let type = (criteria[i].querySelector('select') as HTMLSelectElement)?.value;
+    let value = (criteria[i].querySelector('input') as HTMLInputElement)?.value;
+  
+    if(!value || !type) continue;
+
+    let codeBeamerType = CodeBeamerService.getQueryEntityNameForCriteria(type);
+
+    query += `${i == 0 ? '' : (' ' + chainingMethod + ' ')}${codeBeamerType} = '${value}'`;
   }
-
+  
+  query += ')';
   return query;
 }
 
@@ -604,7 +628,7 @@ async function createUpdateOrDeleteRelationLines(cbItem) {
 }
 
 /**
- * Loads the next results page for the current search criteria (or advanced query string) and appends it do the results-table.
+ * Loads the next results page for the current search criteria (or advanced query string) and calls {@link appendResultsToDataTable}.
  */
 async function loadAndAppendNextResultPage() {
   const isAdvancedSearch = Store.getInstance().getLocalSetting(LocalSetting.ADVANCED_SEARCH_ENABLED);
@@ -633,7 +657,7 @@ async function loadAndAppendNextResultPage() {
 }
 
 /**
- * Builds the HTML for the standard import configuration settings, based on the values of the StandardItemProperty enum.
+ * Builds the HTML for the standard import configuration settings, based on the values of the {@link StandardItemProperty} enum.
  */
 function buildImportConfiguration() {
   const container = document.getElementById('standardProperties');
@@ -714,4 +738,153 @@ function createDefaultImportConfigurationObject(): ImportConfiguration {
     standard: {},
     trackerSpecific: [],
   };
+}
+
+/**
+ * Generates the HTML for a filter criteria.
+ */
+function addFilterCriteriaElement() {
+  const container = document.querySelector('.filter-criteria');
+  if(!container) {
+    miro.showErrorNotification("Something went wrong adding a criteria.")
+    console.error(".filter-criteria container not defined");
+    return;
+  }
+  const criteriaTypes = Object.keys(FilterCriteria).map(e => {
+    return FilterCriteria[e];
+  });
+
+  const existingCriteria = document.querySelectorAll('.criteria').length;
+  if(existingCriteria >= criteriaTypes.length) return;
+
+  const div = createFilterCriteriaDiv();
+  const inputGroup = createFilterCriteriaInputGroup(criteriaTypes);
+  const chainingMethodLabel = createChainingMethodLabel();
+  const removeLabel = createFilterCriteriaRemoveLabel();
+
+  div.appendChild(chainingMethodLabel);
+  div.appendChild(removeLabel);
+  div.append(inputGroup);
+  container.appendChild(div);
+
+  if(existingCriteria + 1 >= criteriaTypes.length) {
+    (document.getElementById('add-filter') as HTMLButtonElement).hidden = true;
+  }
+}
+
+/**
+ * Creates a div with the classes destined for a filter-criteria container.
+ * @returns Created HTMLDivElement
+ */
+function createFilterCriteriaDiv(): HTMLDivElement {
+  const div = document.createElement('div') as HTMLDivElement;
+  div.classList.add('mx-2', 'mt-2', 'align-self-end', 'criteria', 'fade-in');
+  return div;
+}
+
+/**
+ * Creates an input group allowing to configure a query criteria.
+ * Consists of a prepended type-select and a text-input with change-handler {@link updateQuery}.
+ * @param criteriaTypes Options to select the criteria type from
+ * @returns HTMLDivElement with a type-select and text-input.
+ */
+function createFilterCriteriaInputGroup(criteriaTypes: string[]): HTMLDivElement {
+  const inputGroup = document.createElement('div') as HTMLDivElement;
+  inputGroup.classList.add('input-group');
+
+  const inputGroupPrepend = document.createElement('span') as HTMLSpanElement;
+  inputGroupPrepend.classList.add('input-group-text');
+
+  const select = document.createElement('select') as HTMLSelectElement;
+  select.classList.add('mx-2');
+
+  for(let i = 0; i < criteriaTypes.length; i++) {
+    const option = document.createElement('option') as HTMLOptionElement;
+    option.value = criteriaTypes[i];
+    option.text = criteriaTypes[i]
+    option.selected = i == 0;
+
+    select.appendChild(option);
+  }
+
+  const input = document.createElement('input') as HTMLInputElement;
+  input.type = 'text';
+  input.classList.add('miro-input', 'miro-input--small', 'miro-input--primary');
+  input.onchange = updateQuery;
+
+  inputGroupPrepend.appendChild(select);
+  inputGroup.appendChild(inputGroupPrepend);
+  inputGroup.appendChild(input);
+
+  return inputGroup;
+}
+
+/**
+ * Creates the chaining-method-label with respective styling and information and clickhandler {@link toggleSubQueryLinkMethod}
+ * @returns HTMLLabelElement styled as an info-badge, telling the user what chaining method is currently configured. 
+ */
+function createChainingMethodLabel(): HTMLLabelElement {
+  const chainingMethodLabel = document.createElement('label') as HTMLLabelElement;
+  chainingMethodLabel.classList.add('text-muted', 'font-size-smaller');
+
+  const toggleChainingMethodAnchor = document.createElement('a') as HTMLAnchorElement;
+  toggleChainingMethodAnchor.title = "Click to toggle";
+  toggleChainingMethodAnchor.classList.add('badge', 'bg-info', 'chaining-label');
+  toggleChainingMethodAnchor.text = Store.getInstance().getLocalSetting(LocalSetting.SUBQUERY_LINK_METHOD) ?? SubqueryLinkMethod.AND;
+  toggleChainingMethodAnchor.onclick = toggleSubQueryLinkMethod;
+
+  chainingMethodLabel.appendChild(toggleChainingMethodAnchor);
+
+  return chainingMethodLabel;
+}
+
+/**
+ * @returns HTMLLabelElement styled as a danger-badge with {@link removeFilterCriteriaElement} as onclick-handler.
+ */
+function createFilterCriteriaRemoveLabel(): HTMLLabelElement {
+  const removeLabel = document.createElement('label') as HTMLLabelElement;
+  removeLabel.classList.add('text-muted', 'font-size-smaller', 'mx-2');
+
+  const removeAnchor = document.createElement('a') as HTMLAnchorElement;
+  removeAnchor.title = "Click to remove criteria";
+  removeAnchor.classList.add('badge', 'bg-danger', 'remove-criteria-label');
+  removeAnchor.text = 'x';
+  removeAnchor.onclick = removeFilterCriteriaElement;
+
+  removeLabel.appendChild(removeAnchor);
+
+  return removeLabel;
+}
+
+/**
+ * Removes the target filter criteria element and calls {@link updateQuery}
+ * @param event Event containing the target element
+ */
+function removeFilterCriteriaElement(event) {
+  if(!event.target || !(event.target instanceof HTMLAnchorElement)) return;
+  event.target.closest('.criteria')?.remove();
+  (document.getElementById('add-filter') as HTMLButtonElement).hidden = false;
+  updateQuery();
+}
+
+/**
+ * Toggles the stored subQueryLinkMethod between OR and AND, then calls {@link updateQuery}.
+ * @param event Generic event containing the HTML target element
+ */
+function toggleSubQueryLinkMethod(event) {
+  let current = (event.target as HTMLAnchorElement).text as SubqueryLinkMethod;
+
+  if(current == SubqueryLinkMethod.AND) {
+    current = SubqueryLinkMethod.OR;
+  } else {
+    current = SubqueryLinkMethod.AND;
+  }
+
+  document.querySelectorAll('.chaining-label').forEach($label => {
+    $label.textContent = current;
+  })
+
+  Store.getInstance().saveLocalSettings({ [LocalSetting.SUBQUERY_LINK_METHOD]: current });
+
+  updateQuery();
 }
