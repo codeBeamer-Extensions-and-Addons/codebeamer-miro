@@ -227,6 +227,11 @@ function synchItems() {
     })
 }
 
+/**
+ * Clears the query-results table by populating it with an empty array.
+ * Resets the {@link currentResultItems} and {@link currentResultsPage} values.
+ * Disables the lazy-load button.
+ */
 async function clearResultTable() {
   populateDataTable([]);
   currentResultItems = [];
@@ -240,14 +245,17 @@ async function clearResultTable() {
  * @param page Query result page to load
  */
 async function buildResultTable(cbqlQuery, page = 1) {
-  let queryReturn = await CodeBeamerService.getInstance().getCodeBeamerCbqlResult(cbqlQuery, page, DEFAULT_ITEMS_PER_PAGE)
+  let queryReturn = await CodeBeamerService.getInstance().getCodeBeamerCbqlResult(cbqlQuery, page, DEFAULT_ITEMS_PER_PAGE);
   if (queryReturn.message) {
     return false;
   } else {
     // query was successull
     let totalItems = queryReturn.total
+    //enables lazy loading when there are more items to load
     if(totalItems > DEFAULT_ITEMS_PER_PAGE) {
       (document.getElementById('lazy-load-button') as HTMLButtonElement).disabled = false;
+    } else {
+      (document.getElementById('lazy-load-button') as HTMLButtonElement).disabled = true;
     }
 
     populateDataTable(queryReturn.items)
