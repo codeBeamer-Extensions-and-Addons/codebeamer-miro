@@ -66,7 +66,7 @@ describe('Picker', () => {
             });
 
             //* RETINA-1565422
-            it.only('has a button to switch between AND and OR chaining for each filter criteria with AND as default', () => {
+            it.only('has a button to switch between AND and OR chaining with AND as default', () => {
                 cy.get('#simpleSearch').find('#add-filter').click().should(() => {
                     cy.get('#simpleSearch').find('.filter-criteria').find('button').should('have.text', 'AND');
                     cy.get('#simpleSearch').find('.filter-criteria').find('button').click().should('have.text', 'OR');
