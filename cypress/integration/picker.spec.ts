@@ -51,20 +51,48 @@ describe('Picker', () => {
             cy.get('div#advancedSearch').should('have.class', 'hidden');
         });
 
-        it('displays a toggle to toggle between simple and advanced search');
-
         context('simple search', () => {
 
-            //* RETINA-1565408
-            it('displays a secondary filter criteria input in simple search', () => {
-                cy.get('#simpleSearch').find('#filter').find('input#filter-criteria');
+            //* RETINA-1565422
+            it.only('displays a button to add filter criteria', () => {
+                cy.get('#simpleSearch').find('#add-filter');
             });
 
-            //* RETINA-1565408
-            it('allows to choose Team, Release or Subject as secondary filter criteria', () => {
-                cy.get('#simpleSearch').find('select').children('option').contains('Team');
-                cy.get('#simpleSearch').find('select').children('option').contains('Release');
-                cy.get('#simpleSearch').find('select').children('option').contains('Subject');
+            //* RETINA-1565422
+            it.only('adds a filter input after clicking the button to add filter criteria', () => {
+                cy.get('#simpleSearch').find('#add-filter').click().should(() => {
+                    cy.get('#simpleSearch').find('.filter-criteria').find('input');
+                });
+            });
+
+            //* RETINA-1565422
+            it.only('has a button to switch between AND and OR chaining for each filter criteria with AND as default', () => {
+                cy.get('#simpleSearch').find('#add-filter').click().should(() => {
+                    cy.get('#simpleSearch').find('.filter-criteria').find('button').should('have.text', 'AND');
+                    cy.get('#simpleSearch').find('.filter-criteria').find('button').click().should('have.text', 'OR');
+                });
+            });
+
+            //* RETINA-1565422
+            it.only('can add up to three more filter criteria', () => {
+                let button = cy.get('#simpleSearch').find('#add-filter');
+                for(let i = 0; i < 3; i++) {
+                    button.click();
+                    cy.wait(100);
+                };
+                cy.get('#simpleSearch').find('.additional-filter-criteria').then($el => {
+                    expect($el.children('.filter-criteria').length).to.equal(3);
+                });
+            });
+
+            //* RETINA-1565422
+            it.only('allows to choose Team, Release or Subject as filter criteria', () => {
+                cy.get('#simpleSearch').find('#add-filter').click().should(() => {
+                    let filterCriteria = cy.get('#simpleSearch').find('.filterCriteria');
+                    filterCriteria.children('option').contains('Team');
+                    filterCriteria.children('option').contains('Release');
+                    filterCriteria.children('option').contains('Subject');
+                });
             });
         });
 
@@ -166,16 +194,20 @@ describe('Picker', () => {
 
         describe('simple search', () => {
             
-            //* RETINA-1565408
-            it('filters the result table by the secondary criteria when it\'s updated', () => {                
+            //* RETINA-1565422
+            it.only('filters the result table by the configured criteria when it\'s updated', () => {                
                 cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query', []).as('query')
-
+                
                 cy.get('select#selectedTracker').select('4877085');
-                cy.get('input#filter-criteria').type('Edelweiss').type('{enter}');
+                cy.get('#simpleSearch').find('#add-filter').click();
+                cy.get('#simpleSearch').find('#add-filter').click();
+                cy.get('#simpleSearch').find('.filter-criteria input').first().type('Edelweiss').type('{enter}');
+                cy.get('#simpleSearch').find('.filter-criteria input').last().type('Rover (Migration)').type('{enter}');
 
-                cy.wait('@query').then((interception) => {
-                    assert.isArray(interception.response?.body);
-                })
+                const query = "tracker.id in (4877085) AND (teamName = 'Edelweiss' AND teamName = 'Rover (Migration)')";
+                
+                // checks that the queryString in the resulting request is as expected
+                cy.wait('@query').its('request.body.queryString').should('equal', query);
             });
         });
 
