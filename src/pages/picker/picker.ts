@@ -620,7 +620,7 @@ async function createUpdateOrDeleteRelationLines(cbItem) {
 }
 
 /**
- * Loads the next results page for the current search criteria (or advanced query string) and appends it do the results-table.
+ * Loads the next results page for the current search criteria (or advanced query string) and calls {@link appendResultsToDataTable}.
  */
 async function loadAndAppendNextResultPage() {
   const isAdvancedSearch = Store.getInstance().getLocalSetting(LocalSetting.ADVANCED_SEARCH_ENABLED);
@@ -649,7 +649,7 @@ async function loadAndAppendNextResultPage() {
 }
 
 /**
- * Builds the HTML for the standard import configuration settings, based on the values of the StandardItemProperty enum.
+ * Builds the HTML for the standard import configuration settings, based on the values of the {@link StandardItemProperty} enum.
  */
 function buildImportConfiguration() {
   const container = document.getElementById('standardProperties');
@@ -733,7 +733,7 @@ function createDefaultImportConfigurationObject(): ImportConfiguration {
 }
 
 /**
- * Generates the HTML for another filter criteria.
+ * Generates the HTML for a filter criteria.
  */
 function addFilterCriteriaElement() {
   const container = document.querySelector('.filter-criteria');
@@ -749,9 +749,38 @@ function addFilterCriteriaElement() {
   const existingCriteria = document.querySelectorAll('.criteria').length;
   if(existingCriteria >= criteriaTypes.length) return;
 
+  const div = createFilterCriteriaDiv();
+  const inputGroup = createFilterCriteriaInputGroup(criteriaTypes);
+  const chainingMethodLabel = createChainingMethodLabel();
+  const removeLabel = createFilterCriteriaRemoveLabel();
+
+  div.appendChild(chainingMethodLabel);
+  div.appendChild(removeLabel);
+  div.append(inputGroup);
+  container.appendChild(div);
+
+  if(existingCriteria + 1 >= criteriaTypes.length) {
+    (document.getElementById('add-filter') as HTMLButtonElement).hidden = true;
+  }
+}
+
+/**
+ * Creates a div with the classes destined for a filter-criteria container.
+ * @returns Created HTMLDivElement
+ */
+function createFilterCriteriaDiv(): HTMLDivElement {
   const div = document.createElement('div') as HTMLDivElement;
   div.classList.add('mx-2', 'mt-2', 'align-self-end', 'criteria', 'fade-in');
+  return div;
+}
 
+/**
+ * Creates an input group allowing to configure a query criteria.
+ * Consists of a prepended type-select and a text-input with change-handler {@link updateQuery}.
+ * @param criteriaTypes Options to select the criteria type from
+ * @returns HTMLDivElement with a type-select and text-input.
+ */
+function createFilterCriteriaInputGroup(criteriaTypes: string[]): HTMLDivElement {
   const inputGroup = document.createElement('div') as HTMLDivElement;
   inputGroup.classList.add('input-group');
 
@@ -775,6 +804,18 @@ function addFilterCriteriaElement() {
   input.classList.add('miro-input', 'miro-input--small', 'miro-input--primary');
   input.onchange = updateQuery;
 
+  inputGroupPrepend.appendChild(select);
+  inputGroup.appendChild(inputGroupPrepend);
+  inputGroup.appendChild(input);
+
+  return inputGroup;
+}
+
+/**
+ * Creates the chaining-method-label with respective styling and information and clickhandler {@link toggleSubQueryLinkMethod}
+ * @returns HTMLLabelElement styled as an info-badge, telling the user what chaining method is currently configured. 
+ */
+function createChainingMethodLabel(): HTMLLabelElement {
   const chainingMethodLabel = document.createElement('label') as HTMLLabelElement;
   chainingMethodLabel.classList.add('text-muted', 'font-size-smaller');
 
@@ -784,6 +825,15 @@ function addFilterCriteriaElement() {
   toggleChainingMethodAnchor.text = Store.getInstance().getLocalSetting(LocalSetting.SUBQUERY_LINK_METHOD) ?? SubqueryLinkMethod.AND;
   toggleChainingMethodAnchor.onclick = toggleSubQueryLinkMethod;
 
+  chainingMethodLabel.appendChild(toggleChainingMethodAnchor);
+
+  return chainingMethodLabel;
+}
+
+/**
+ * @returns HTMLLabelElement styled as a danger-badge with {@link removeFilterCriteriaElement} as onclick-handler.
+ */
+function createFilterCriteriaRemoveLabel(): HTMLLabelElement {
   const removeLabel = document.createElement('label') as HTMLLabelElement;
   removeLabel.classList.add('text-muted', 'font-size-smaller', 'mx-2');
 
@@ -793,25 +843,13 @@ function addFilterCriteriaElement() {
   removeAnchor.text = 'x';
   removeAnchor.onclick = removeFilterCriteriaElement;
 
-  chainingMethodLabel.appendChild(toggleChainingMethodAnchor);
-  div.appendChild(chainingMethodLabel);
   removeLabel.appendChild(removeAnchor);
-  div.appendChild(removeLabel);
-  inputGroupPrepend.appendChild(select);
-  inputGroup.appendChild(inputGroupPrepend);
-  inputGroup.appendChild(input);
 
-  div.append(inputGroup);
-
-  container.appendChild(div);
-
-  if(existingCriteria + 1 >= criteriaTypes.length) {
-    (document.getElementById('add-filter') as HTMLButtonElement).hidden = true;
-  }
+  return removeLabel;
 }
 
 /**
- * Removes the target filter criteria element and triggers the filter to update.
+ * Removes the target filter criteria element and calls {@link updateQuery}
  * @param event Event containing the target element
  */
 function removeFilterCriteriaElement(event) {
@@ -822,7 +860,7 @@ function removeFilterCriteriaElement(event) {
 }
 
 /**
- * Toggles the stored subQueryLinkMethod between OR and AND.
+ * Toggles the stored subQueryLinkMethod between OR and AND, then calls {@link updateQuery}.
  * @param event Generic event containing the HTML target element
  */
 function toggleSubQueryLinkMethod(event) {
