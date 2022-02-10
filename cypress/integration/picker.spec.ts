@@ -1,5 +1,6 @@
 /// <reference types="cypress" />
 
+import { FilterCriteria } from 'entities';
 import { StandardItemProperty } from '../../src/entities/standard-item-property.enum';
 
 /**
@@ -60,42 +61,43 @@ describe('Picker', () => {
 
             //* RETINA-1565422
             it.only('has a button to switch between AND and OR chaining with AND as default for every criteria (but clicking it changes it for all of them)', () => {
-                cy.get('#add-filter').click().should(() => {
-                    cy.get('.chaining-label').first().should('have.text', 'AND');
-                    cy.get('.chaining-label').last().should('have.text', 'AND');
-                    cy.get('.chaining-label').first().click();
-                    cy.get('.chaining-label').first().should('have.text', 'OR');
-                    cy.get('.chaining-label').last().should('have.text', 'OR');
-                });
+                cy.get('#add-filter').click()
+
+                cy.get('.chaining-label').first().should('have.text', 'AND');
+                cy.get('.chaining-label').last().should('have.text', 'AND');
+
+                cy.get('.chaining-label').first().click();
+
+                cy.get('.chaining-label').first().should('have.text', 'OR');
+                cy.get('.chaining-label').last().should('have.text', 'OR');
             });
 
             //* RETINA-1565422
             it.only('adds a filter input after clicking the button to add filter criteria', () => {
-                cy.get('#simpleSearch').find('#add-filter').click().should(() => {
-                    cy.get('#simpleSearch').find('.filter-criteria').find('input');
-                });
+                cy.get('#add-filter').click()
+                cy.get('.filter-criteria').find('.criteria').find('input');
             });
 
             //* RETINA-1565422
             it.only('can add up to three more filter criteria', () => {
-                let button = cy.get('#simpleSearch').find('#add-filter');
-                for(let i = 0; i < 3; i++) {
-                    button.click();
-                    cy.wait(100);
-                };
-                cy.get('#simpleSearch').find('.additional-filter-criteria').then($el => {
-                    expect($el.children('.filter-criteria').length).to.equal(3);
+                cy.get('#simpleSearch').find('#add-filter').click();
+                cy.get('#simpleSearch').find('#add-filter').click();
+                cy.get('#simpleSearch').find('#add-filter').click();
+
+                cy.get('#simpleSearch').find('.filter-criteria').then($el => {
+                    expect($el.children('.criteria').length).to.equal(3);
                 });
             });
 
             //* RETINA-1565422
-            it.only('allows to choose Team, Release or Subject as filter criteria', () => {
-                cy.get('#simpleSearch').find('#add-filter').click().should(() => {
-                    let filterCriteria = cy.get('#simpleSearch').find('.filterCriteria');
-                    filterCriteria.children('option').contains('Team');
-                    filterCriteria.children('option').contains('Release');
-                    filterCriteria.children('option').contains('Subject');
-                });
+            it.only('allows to filter by standard criteria', () => {
+                cy.get('#simpleSearch').find('#add-filter').click();
+
+                const criteria = Object.keys(FilterCriteria).map(e => FilterCriteria[e]);
+
+                for(let criterion of criteria) {
+                    cy.get('#simpleSearch').find('.criteria').find('select').should('contain.html', criterion);
+                }
             });
         });
 
