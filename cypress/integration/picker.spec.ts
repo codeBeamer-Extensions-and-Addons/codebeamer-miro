@@ -55,12 +55,12 @@ describe('Picker', () => {
         context('simple search', () => {
 
             //* RETINA-1565422
-            it.only('displays a button to add filter criteria', () => {
+            it('displays a button to add filter criteria', () => {
                 cy.get('#simpleSearch').find('#add-filter');
             });
 
             //* RETINA-1565422
-            it.only('has a button to switch between AND and OR chaining with AND as default for every criteria (but clicking it changes it for all of them)', () => {
+            it('has a button to switch between AND and OR chaining with AND as default for every criteria (but clicking it changes it for all of them)', () => {
                 cy.get('#add-filter').click()
 
                 cy.get('.chaining-label').first().should('have.text', 'AND');
@@ -73,13 +73,13 @@ describe('Picker', () => {
             });
 
             //* RETINA-1565422
-            it.only('adds a filter input after clicking the button to add filter criteria', () => {
+            it('adds a filter input after clicking the button to add filter criteria', () => {
                 cy.get('#add-filter').click()
                 cy.get('.filter-criteria').find('.criteria').find('input');
             });
 
             //* RETINA-1565422
-            it.only('can add up to three more filter criteria', () => {
+            it('can add up to three more filter criteria', () => {
                 cy.get('#simpleSearch').find('#add-filter').click();
                 cy.get('#simpleSearch').find('#add-filter').click();
                 cy.get('#simpleSearch').find('#add-filter').click();
@@ -90,7 +90,7 @@ describe('Picker', () => {
             });
 
             //* RETINA-1565422
-            it.only('allows to filter by standard criteria', () => {
+            it('allows to filter by standard criteria', () => {
                 cy.get('#simpleSearch').find('#add-filter').click();
 
                 const criteria = Object.keys(FilterCriteria).map(e => FilterCriteria[e]);
@@ -200,19 +200,25 @@ describe('Picker', () => {
         describe('simple search', () => {
             
             //* RETINA-1565422
-            it.only('filters the result table by the configured criteria when it\'s updated', () => {                
+            it('filters the result table by the configured criteria when it\'s updated', () => {                
                 cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query', []).as('query')
                 
                 cy.get('select#selectedTracker').select('4877085');
-                cy.get('#simpleSearch').find('#add-filter').click();
+                const trackerQuery = "tracker.id IN (4877085)";
+                cy.wait('@query').its('request.body.queryString').should('equal', trackerQuery);
+                
                 cy.get('#simpleSearch').find('#add-filter').click();
                 cy.get('#simpleSearch').find('.filter-criteria input').first().type('Edelweiss').type('{enter}');
+                const trackerAndOneCriterionQuery = "tracker.id IN (4877085) AND (teamName = 'Edelweiss')";
+                cy.wait('@query').its('request.body.queryString').should('equal', trackerAndOneCriterionQuery);
+                
+                cy.get('#simpleSearch').find('#add-filter').click();
                 cy.get('#simpleSearch').find('.filter-criteria input').last().type('Rover (Migration)').type('{enter}');
-
-                const query = "tracker.id in (4877085) AND (teamName = 'Edelweiss' AND teamName = 'Rover (Migration)')";
+                const trackerAndTwoCriteriaQuery = "tracker.id IN (4877085) AND (teamName = 'Edelweiss' AND teamName = 'Rover (Migration)')";
+                cy.wait('@query').its('request.body.queryString').should('equal', trackerAndTwoCriteriaQuery);
+                
                 
                 // checks that the queryString in the resulting request is as expected
-                cy.wait('@query').its('request.body.queryString').should('equal', query);
             });
         });
 
