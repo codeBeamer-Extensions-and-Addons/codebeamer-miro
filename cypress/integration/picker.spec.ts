@@ -43,8 +43,8 @@ describe('Picker', () => {
         });
         
         //* RETINA-1565419
-        it('disables the button to load more search results with by default', () => {
-            cy.get('#lazy-load-button').should('have.attr', 'disabled');
+        it('hides the button to load more search results with by default', () => {
+            cy.get('#lazy-load-button').should('have.attr', 'hidden');
         })
 
         it.skip('shows the Tracker Select by default', () => {
@@ -59,45 +59,8 @@ describe('Picker', () => {
                 cy.get('#simpleSearch').find('#add-filter');
             });
 
-            //* RETINA-1565422
-            it('has a button to switch between AND and OR chaining with AND as default for every criteria (but clicking it changes it for all of them)', () => {
-                cy.get('#add-filter').click()
-
-                cy.get('.chaining-label').first().should('have.text', 'AND');
-                cy.get('.chaining-label').last().should('have.text', 'AND');
-
-                cy.get('.chaining-label').first().click();
-
-                cy.get('.chaining-label').first().should('have.text', 'OR');
-                cy.get('.chaining-label').last().should('have.text', 'OR');
-            });
-
-            //* RETINA-1565422
-            it('adds a filter input after clicking the button to add filter criteria', () => {
-                cy.get('#add-filter').click()
-                cy.get('.filter-criteria').find('.criteria').find('input');
-            });
-
-            //* RETINA-1565422
-            it('can add up to three more filter criteria', () => {
-                cy.get('#simpleSearch').find('#add-filter').click();
-                cy.get('#simpleSearch').find('#add-filter').click();
-                cy.get('#simpleSearch').find('#add-filter').click();
-
-                cy.get('#simpleSearch').find('.filter-criteria').then($el => {
-                    expect($el.children('.criteria').length).to.equal(3);
-                });
-            });
-
-            //* RETINA-1565422
-            it('allows to filter by standard criteria', () => {
-                cy.get('#simpleSearch').find('#add-filter').click();
-
-                const criteria = Object.keys(FilterCriteria).map(e => FilterCriteria[e]);
-
-                for(let criterion of criteria) {
-                    cy.get('#simpleSearch').find('.criteria').find('select').should('contain.html', criterion);
-                }
+            it('disables the button to add filter criteria when no tracker is selectd', () => {
+                cy.get('#add-filter').should('have.attr', 'disabled');
             });
         });
 
@@ -198,6 +161,39 @@ describe('Picker', () => {
         });
 
         describe('simple search', () => {
+
+            //* RETINA-1565422
+            it('has a button to switch between AND and OR chaining with AND as default for every criteria (but clicking it changes it for all of them)', () => {
+                cy.get('select#selectedTracker').select('4877085');
+                cy.get('#add-filter').click()
+
+                cy.get('.chaining-label').first().should('have.text', 'AND');
+                cy.get('.chaining-label').last().should('have.text', 'AND');
+
+                cy.get('.chaining-label').first().click();
+
+                cy.get('.chaining-label').first().should('have.text', 'OR');
+                cy.get('.chaining-label').last().should('have.text', 'OR');
+            });
+
+            //* RETINA-1565422
+            it('adds a filter input after clicking the button to add filter criteria', () => {
+                cy.get('select#selectedTracker').select('4877085');
+                cy.get('#add-filter').click()
+                cy.get('.filter-criteria').find('.criteria').find('input');
+            });
+
+            //* RETINA-1565422
+            it('allows to filter by standard criteria', () => {
+                cy.get('select#selectedTracker').select('4877085');
+                cy.get('#simpleSearch').find('#add-filter').click();
+
+                const criteria = Object.keys(FilterCriteria).map(e => FilterCriteria[e]);
+
+                for(let criterion of criteria) {
+                    cy.get('#simpleSearch').find('.criteria').find('select').should('contain.html', criterion);
+                }
+            });
             
             //* RETINA-1565422
             it('filters the result table by the configured criteria when it\'s updated', () => {                
