@@ -266,7 +266,7 @@ async function buildResultTable(cbqlQuery, page = 1) {
     
     let totalItemsDisplay = document.getElementById('total-items')
     if(totalItemsDisplay) totalItemsDisplay.textContent = `(${totalItems})`;
-    
+
     return true;
   }
 }
@@ -312,12 +312,10 @@ async function trackersSelectionOnChange() {
  * Will construct the query and trigger updating the resulttable.
  */
 async function updateQuery() {
-  hideDataTableAndShowLoadingSpinner();
   const selectedTracker = getSelectedTracker();
   const subQuery = getFilterQuerySubstring();
   const queryString = `tracker.id IN (${selectedTracker})${subQuery}`;
   executeQueryAndBuildResultTable(queryString);
-  hideLoadingSpinnerAndShowDataTable();
 }
 
 function getSelectedTracker(): string {
