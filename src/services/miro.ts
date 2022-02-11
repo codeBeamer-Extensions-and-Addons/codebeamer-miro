@@ -1,5 +1,5 @@
 import { BoardSetting, CardData, codeBeamerPropertyNamesByFieldLabel, ImportConfiguration } from "../entities";
-import { CB_ITEM_NAME_PROPERTY_NAME, RELATION_OUT_ASSOCIATION_TYPE, RELATION_UPSTREAM_REF_TYPE, WIDGET_INITIAL_POSITION } from "../constants";
+import { CB_ITEM_NAME_PROPERTY_NAME, RELATION_OUT_ASSOCIATION_TYPE, CODEBEAMER_ASSOCIATIONS, WIDGET_INITIAL_POSITION } from "../constants";
 import CodeBeamerService from "./codebeamer";
 import Store from "./store";
 
@@ -95,7 +95,12 @@ export default class MiroService {
 			widgetData.x = viewport.x + viewport.width / 2 + randomXOffset;
 			widgetData.y = viewport.y + viewport.height / 2 + randomYOffset;
 		}
-		let widget = (await miro.board.widgets.create(widgetData))[0];
+		let widget;
+		try {
+			widget = (await miro.board.widgets.create(widgetData))[0];
+		} catch (error) {
+			console.error(error);
+		}
 		let itemId = widget.metadata[Store.getInstance().appId].id;
 		console.log(
 			`[codeBeamer-sync] ${widget.type} widget ${
@@ -285,12 +290,35 @@ export default class MiroService {
 		return cardData;
 	}
 
+	/**
+	 * Creates an {@link ILineWidget} based on the given data
+	 * @param relation CodeBeamer relation to visualize
+	 * @param fromCardId Id of the card to start the line from
+	 * @param toCardId Id of the card to lead the line to
+	 * @returns {@link ILineWidget} from {@link fromCardId} to {@link toCardId} with a customized style, defined by the {@link relation}'s type
+	 */
 	async convert2Line(relation, fromCardId, toCardId) {
-		return {
+		let caption = '';
+		let relationDetails: any;
+		console.log("convert2line start");		
+		
+		if (relation.type === RELATION_OUT_ASSOCIATION_TYPE) {
+			console.log("outgoing association");		
+			relationDetails =
+			await CodeBeamerService.getInstance().getCodeBeamerAssociationDetails(
+				relation.id.toString()
+				);
+			console.log("relation details: ", relationDetails);	
+			caption = CODEBEAMER_ASSOCIATIONS.find(type => type.id == relationDetails.type.id)?.name ?? '';
+			console.log("caption: ", caption);	
+		}
+
+		let line = {
 			type: "LINE",
 			startWidgetId: fromCardId,
 			endWidgetId: toCardId,
-			style: await this.getLineStyleByRelationType(relation),
+			style: this.getLineStyle(relationDetails),
+			captions: [{ text: caption }],
 			capabilities: {
 				editable: false,
 			},
@@ -300,49 +328,32 @@ export default class MiroService {
 				},
 			},
 		};
+		console.log("line: ", JSON.stringify(line));
+		return line;
 	}
 
-	async getLineStyleByRelationType(relation) {
+	/**
+	 * Creates the miro {@link ILineWidget}'s style object depending on what relation is given
+	 * @param relation CodeBeamer relation
+	 * @returns An object containing the styles definition for given relation
+	 */
+	getLineStyle(relation?: any): { lineColor: string, lineEndStyle: string, lineStartStyle: string, lineStyle: string, lineThickness: number, lineType: string} {
 		let style: any = {
 			lineType: miro.enums.lineType.ARROW,
 			lineStyle: miro.enums.lineStyle.NORMAL,
-			lineEndStyle: miro.enums.lineArrowheadStyle.ARC_ARROW,
+			lineEndStyle: miro.enums.lineArrowheadStyle.ARROW,
 			lineStartStyle: miro.enums.lineArrowheadStyle.NONE,
-			lineThickness: 1,
+			lineThickness: 2,
+			lineColor: "#000000",
 		};
 
-		if (relation.type === RELATION_OUT_ASSOCIATION_TYPE) {
-			let associationDetails =
-				await CodeBeamerService.getInstance().getCodeBeamerAssociationDetails(
-					relation.id.toString()
-				);
-			switch (associationDetails.type.id) {
-				case 1: // depends
-					style.lineColor = "#cf7f30"; // orange
-					style.lineEndStyle = miro.enums.lineArrowheadStyle.ARROW;
-					style.lineThickness = 5;
-					break;
-				case 4: // related
-				case 9: // copy of
-					style.lineColor = "#21cfb7"; // turquise
-					style.lineStyle = miro.enums.lineStyle.DASHED;
-					style.lineStartStyle = 1;
-					break;
-				case 6: // violates
-				case 8: // invalidates
-				case 7: // excludes
-					style.lineColor = "#b32525"; // red
-					break;
-				case 2: // parent
-				case 3: // child
-				case 5: // derived
-				default:
-				// leave default
+		if (relation) {
+			let associationType = CODEBEAMER_ASSOCIATIONS.find(type => type.id == relation.type.id);
+			if(associationType) {
+				style.lineColor = associationType.color;
 			}
-		} else if (relation.type === RELATION_UPSTREAM_REF_TYPE) {
-			style.lineThickness = 3;
+			style.lineStyle = miro.enums.lineStyle.DASHED;
 		}
-
 		return style;
 	}
 
