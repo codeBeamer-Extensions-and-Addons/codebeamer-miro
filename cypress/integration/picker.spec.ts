@@ -59,7 +59,8 @@ describe('Picker', () => {
                 cy.get('#simpleSearch').find('#add-filter');
             });
 
-            it('disables the button to add filter criteria when no tracker is selectd', () => {
+            //* RETINA-1565422
+            it('disables the button to add filter criteria when no tracker is selected', () => {
                 cy.get('#add-filter').should('have.attr', 'disabled');
             });
         });
