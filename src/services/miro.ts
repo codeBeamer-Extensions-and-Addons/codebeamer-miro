@@ -102,7 +102,7 @@ export default class MiroService {
 			console.error(error);
 		}
 		let itemId = widget.metadata[Store.getInstance().appId].id;
-		console.log(
+		console.info(
 			`[codeBeamer-sync] ${widget.type} widget ${
 				widget.id
 			} has been created to match item ${
@@ -147,7 +147,7 @@ export default class MiroService {
 	async updateWidget(widgetData) {
 		let widget = (await miro.board.widgets.update(widgetData))[0];
 		let itemId = widget.metadata[Store.getInstance().appId].id;
-		console.log(
+		console.info(
 			`[codeBeamer-sync] ${widget.type} widget ${
 				widget.id
 			} has been updated to match item ${
@@ -300,20 +300,16 @@ export default class MiroService {
 	async convert2Line(relation, fromCardId, toCardId) {
 		let caption = '';
 		let relationDetails: any;
-		console.log("convert2line start");		
 		
 		if (relation.type === RELATION_OUT_ASSOCIATION_TYPE) {
-			console.log("outgoing association");		
 			relationDetails =
 			await CodeBeamerService.getInstance().getCodeBeamerAssociationDetails(
 				relation.id.toString()
 				);
-			console.log("relation details: ", relationDetails);	
 			caption = CODEBEAMER_ASSOCIATIONS.find(type => type.id == relationDetails.type.id)?.name ?? '';
-			console.log("caption: ", caption);	
 		}
 
-		let line = {
+		return {
 			type: "LINE",
 			startWidgetId: fromCardId,
 			endWidgetId: toCardId,
@@ -328,8 +324,6 @@ export default class MiroService {
 				},
 			},
 		};
-		console.log("line: ", JSON.stringify(line));
-		return line;
 	}
 
 	/**
