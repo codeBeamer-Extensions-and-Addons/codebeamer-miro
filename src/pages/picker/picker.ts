@@ -6,8 +6,8 @@ import Store from "../../services/store";
 
 const importedImage = '/img/checked-box.svg'
 
-let currentResultItems: any[] = [];
-let currentResultsPage = 1;
+let currentlyDisplayedItems: number = 0;
+let currentResultsPage: number = 1;
 
 miro.onReady(async () => {
   Store.create(miro.getClientId(), (await miro.board.info.get()).id);
@@ -53,6 +53,10 @@ export async function initializeHandlers() {
   }
 
   if(addFilterCriteriaButton) {
+    let trackerSelected = Store.getInstance().getLocalSetting(LocalSetting.SELECTED_TRACKER);
+    if(trackerSelected) {
+      addFilterCriteriaButton.disabled = false;
+    }
     addFilterCriteriaButton.onclick = addFilterCriteriaElement;
   }
 
@@ -106,7 +110,7 @@ export async function initializeHandlers() {
   if (synchButton && synchButtonText) {
     synchButton.onclick = synchItems
     try {
-      synchButtonText.innerText = `Update Synched Items (${(await MiroService.getInstance().getAllSynchedCodeBeamerCardItemIds()).length})`
+      synchButtonText.innerText = `Sync (${(await MiroService.getInstance().getAllSynchedCodeBeamerCardItemIds()).length})`
     } catch (err) {
       if(err.message.includes("reading 'widgets'")) {
         console.warn("Miro board undefined. No problem if you're in the test environment though.")
@@ -123,6 +127,7 @@ function getSwitchSearchButtonOnClick(switchToAdvanced: boolean) {
 
 function loadSearchAndResults(advancedSearch: boolean) {
   Store.getInstance().saveLocalSettings({ [LocalSetting.ADVANCED_SEARCH_ENABLED]: advancedSearch })
+  clearResultTable();
 
   // make correct search visible
   let simpleSearchDiv = document.getElementById('simpleSearch')
@@ -135,7 +140,7 @@ function loadSearchAndResults(advancedSearch: boolean) {
   // set up / change switch button text and onclick
   let switchSearchButton = document.getElementById('switchSearchButton')
   if (switchSearchButton) {
-    switchSearchButton.innerText = advancedSearch ? "Switch to Tracker select" : "Switch to CBQL query input"
+    switchSearchButton.innerText = advancedSearch ? "Query assistant" : "CBQL Input"
     switchSearchButton.onclick = getSwitchSearchButtonOnClick(!advancedSearch)
   }
 
@@ -187,7 +192,6 @@ function importItems() {
   let itemsToImport = getCheckedItems()
   if (itemsToImport.length > 0){
     miro.showNotification(`Importing ${itemsToImport.length} items from codebeamer...`);
-    hideDataTableAndShowLoadingSpinner();
     getAndSyncItemsWithCodeBeamer(itemsToImport)
     .then(() => {
       miro.showNotification(`Successfully imported ${itemsToImport.length} items`)
@@ -205,7 +209,6 @@ function synchItems() {
   .then(itemsToSynch => {
     if (itemsToSynch.length > 0){
       miro.showNotification(`Updating items...`);
-      hideDataTableAndShowLoadingSpinner();
         getAndSyncItemsWithCodeBeamer(itemsToSynch)
           .then((updated) => {
             let suffix;
@@ -229,14 +232,15 @@ function synchItems() {
 
 /**
  * Clears the query-results table by populating it with an empty array.
- * Resets the {@link currentResultItems} and {@link currentResultsPage} values.
+ * Resets the {@link currentlyDisplayedItems} and {@link currentResultsPage} values.
  * Disables the lazy-load button.
  */
 async function clearResultTable() {
   populateDataTable([]);
-  currentResultItems = [];
+  currentlyDisplayedItems = 0;
   currentResultsPage = 1;
-  (document.getElementById('lazy-load-button') as HTMLButtonElement).disabled = true;
+  (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = true;
+  (document.getElementById('end-of-content') as HTMLSpanElement).hidden = true;
 }
 
 /**
@@ -247,20 +251,29 @@ async function clearResultTable() {
 async function buildResultTable(cbqlQuery, page = 1) {
   let queryReturn = await CodeBeamerService.getInstance().getCodeBeamerCbqlResult(cbqlQuery, page, DEFAULT_ITEMS_PER_PAGE);
   if (queryReturn.message) {
+    (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = true;
     return false;
   } else {
     // query was successull
     let totalItems = queryReturn.total
     //enables lazy loading when there are more items to load
     if(totalItems > DEFAULT_ITEMS_PER_PAGE) {
-      (document.getElementById('lazy-load-button') as HTMLButtonElement).disabled = false;
+      (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = false;
     } else {
-      (document.getElementById('lazy-load-button') as HTMLButtonElement).disabled = true;
+      (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = true;
     }
 
-    populateDataTable(queryReturn.items)
-    updateImportCountOnImportButton()
-    currentResultItems.push(queryReturn.items);
+    populateDataTable(queryReturn.items);
+    updateImportCountOnImportButton();
+    currentlyDisplayedItems += queryReturn.items.length;
+
+    if(currentlyDisplayedItems >= totalItems) {
+      (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = true;
+    }
+    
+    let totalItemsDisplay = document.getElementById('total-items')
+    if(totalItemsDisplay) totalItemsDisplay.textContent = `(${totalItems})`;
+
     return true;
   }
 }
@@ -294,6 +307,8 @@ async function trackersSelectionOnChange() {
     Store.getInstance().saveLocalSettings({ [LocalSetting.SELECTED_TRACKER]: selectedTracker })
     let importAllButton = document.getElementById('importAllButton') as HTMLButtonElement;
     if(importAllButton) importAllButton.disabled = false;
+    let addFilterButton = document.getElementById('add-filter') as HTMLButtonElement;
+    if(addFilterButton) addFilterButton.disabled = false;
 
     updateQuery();
   }
@@ -304,10 +319,13 @@ async function trackersSelectionOnChange() {
  * Will construct the query and trigger updating the resulttable.
  */
 async function updateQuery() {
+  let loadingSpinner = (document.getElementById('loadingSpinner') as HTMLDivElement);
+  loadingSpinner.hidden = false;
   const selectedTracker = getSelectedTracker();
   const subQuery = getFilterQuerySubstring();
   const queryString = `tracker.id IN (${selectedTracker})${subQuery}`;
   executeQueryAndBuildResultTable(queryString);
+  loadingSpinner.hidden = true;
 }
 
 function getSelectedTracker(): string {
@@ -351,18 +369,6 @@ function getFilterQuerySubstring(): string {
 async function executeQueryAndBuildResultTable(query: string) {
   let tableBuildup = await buildResultTable(query);
   if (!tableBuildup) clearResultTable();
-}
-
-/**
- * Routine to select items in the result table for import.
- * @deprecated Respective HTML element has been removed
- */
-function selectAllOnChange() {
-  let checkAllBox = document.getElementById('checkAll') as HTMLInputElement
-  if (checkAllBox) {
-    getCheckBoxesWithoutHeaderBox().forEach(item => item.checked = checkAllBox.checked)
-    updateImportCountOnImportButton()
-  }
 }
 
 function populateDataTable(data) {
@@ -435,6 +441,7 @@ async function generateTableContent(tableBody: HTMLTableSectionElement, data: an
   }
   for (let element of data) {
     let row: HTMLTableRowElement = tableBody.insertRow();
+    row.classList.add('fade-in');
     let cell = row.insertCell();
 
     // if item is already synched, dont create checkbox
@@ -542,8 +549,6 @@ function removeLoadingScreen() {
 function hideDataTableAndShowLoadingSpinner() {
   let dataTable = document.getElementById('dataTable');
   if(dataTable) dataTable.hidden = true;
-  let tableControls = document.getElementById('dataTableControls');
-  if(tableControls) tableControls.hidden = true;
   let loadingSpinner = document.getElementById('loadingSpinner');
   if(loadingSpinner) loadingSpinner.hidden = false;
 }
@@ -554,8 +559,6 @@ function hideDataTableAndShowLoadingSpinner() {
 function hideLoadingSpinnerAndShowDataTable() {
   let dataTable = document.getElementById('dataTable');
   if(dataTable) dataTable.hidden = false;
-  let tableControls = document.getElementById('dataTableControls');
-  if(tableControls) tableControls.hidden = false;
   let loadingSpinner = document.getElementById('loadingSpinner');
   if(loadingSpinner) loadingSpinner.hidden = true;
 }
@@ -566,6 +569,7 @@ function hideLoadingSpinnerAndShowDataTable() {
  * @returns Amount of items synchronized (since it can differ from number of items in the parameter array if items have been imported from different cb instances).
  */
 async function getAndSyncItemsWithCodeBeamer(itemIds: string[]): Promise<number> {
+  hideDataTableAndShowLoadingSpinner();
   let items = await (await CodeBeamerService
     .getInstance()
     .getCodeBeamerCbqlResult(`item.id IN (${itemIds.join(",")})`, DEFAULT_RESULT_PAGE, MAX_ITEMS_PER_SYNCH)).items;
@@ -631,12 +635,14 @@ async function createUpdateOrDeleteRelationLines(cbItem) {
  * Loads the next results page for the current search criteria (or advanced query string) and calls {@link appendResultsToDataTable}.
  */
 async function loadAndAppendNextResultPage() {
+  (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = true;
   const isAdvancedSearch = Store.getInstance().getLocalSetting(LocalSetting.ADVANCED_SEARCH_ENABLED);
   let queryString = '';
   if(isAdvancedSearch) {
     const storedCBQString = Store.getInstance().getLocalSetting(LocalSetting.CBQL_STRING);
     if(!storedCBQString) {
       miro.showErrorNotification("Something went wrong trying to execute the query!");
+      (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = false;
       return;
     }
     queryString = storedCBQString;
@@ -646,13 +652,18 @@ async function loadAndAppendNextResultPage() {
     queryString = `tracker.id IN (${selectedTracker})${subQuery}`;
   }
 
-  const items: any[] = (await CodeBeamerService.getInstance().getCodeBeamerCbqlResult(queryString, currentResultsPage++, DEFAULT_ITEMS_PER_PAGE)).items;
+  let queryResponse = await CodeBeamerService.getInstance().getCodeBeamerCbqlResult(queryString, currentResultsPage++, DEFAULT_ITEMS_PER_PAGE);
+  const totalItems = queryResponse.total;
+  const items: any[] = queryResponse.items;
 
   appendResultsToDataTable(items);
-  currentResultItems.push(items);
+  currentlyDisplayedItems += items.length;
 
-  if(currentResultItems.length == items.length) {
-    (document.getElementById('lazy-load-button') as HTMLButtonElement).disabled = true;
+  if(currentlyDisplayedItems >= totalItems) {
+    (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = true;
+    (document.getElementById('end-of-content') as HTMLSpanElement).hidden = false;
+  } else {
+    (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = false;
   }
 }
 

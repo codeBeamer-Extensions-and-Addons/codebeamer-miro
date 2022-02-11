@@ -5,6 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### [0.9.2]
+
+#### Added
+- Message is informing the user when all items from a query have been loaded into the table.
+- ImportAll Button displays how many "all" is.
+
+#### Changed
+- Button to add filter criteria is now disabled until a Tracker is selected
+- Lazy load button is not shown instead of disabled if there's nothing to load.
+- "Settings" text replaced with an Icon
 
 ### [0.9.0]
 

@@ -118,6 +118,10 @@ button svg {
     transform: translate(-50%,-50%);
 }
 
+#cbqlQuery {
+	width: -webkit-fill-available;
+}
+
 /*configuration modal*/
 .modal-column {
 	max-height: 380px;
@@ -167,7 +171,7 @@ button svg {
 	display: flex;
 	flex-flow: row;
 	place-content: space-between;
-	margin: 1rem;
+	margin: 1rem 0;
 }
 .block-label {
 	margin: 0.5rem 0;
