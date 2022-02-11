@@ -6,8 +6,8 @@ import Store from "../../services/store";
 
 const importedImage = '/img/checked-box.svg'
 
-let currentResultItems: any[] = [];
-let currentResultsPage = 1;
+let currentlyDisplayedItems: number = 0;
+let currentResultsPage: number = 1;
 
 miro.onReady(async () => {
   Store.create(miro.getClientId(), (await miro.board.info.get()).id);
@@ -110,7 +110,7 @@ export async function initializeHandlers() {
   if (synchButton && synchButtonText) {
     synchButton.onclick = synchItems
     try {
-      synchButtonText.innerText = `Synchronize (${(await MiroService.getInstance().getAllSynchedCodeBeamerCardItemIds()).length})`
+      synchButtonText.innerText = `Sync (${(await MiroService.getInstance().getAllSynchedCodeBeamerCardItemIds()).length})`
     } catch (err) {
       if(err.message.includes("reading 'widgets'")) {
         console.warn("Miro board undefined. No problem if you're in the test environment though.")
@@ -127,6 +127,7 @@ function getSwitchSearchButtonOnClick(switchToAdvanced: boolean) {
 
 function loadSearchAndResults(advancedSearch: boolean) {
   Store.getInstance().saveLocalSettings({ [LocalSetting.ADVANCED_SEARCH_ENABLED]: advancedSearch })
+  clearResultTable();
 
   // make correct search visible
   let simpleSearchDiv = document.getElementById('simpleSearch')
@@ -231,14 +232,15 @@ function synchItems() {
 
 /**
  * Clears the query-results table by populating it with an empty array.
- * Resets the {@link currentResultItems} and {@link currentResultsPage} values.
+ * Resets the {@link currentlyDisplayedItems} and {@link currentResultsPage} values.
  * Disables the lazy-load button.
  */
 async function clearResultTable() {
   populateDataTable([]);
-  currentResultItems = [];
+  currentlyDisplayedItems = 0;
   currentResultsPage = 1;
   (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = true;
+  (document.getElementById('end-of-content') as HTMLSpanElement).hidden = true;
 }
 
 /**
@@ -249,6 +251,7 @@ async function clearResultTable() {
 async function buildResultTable(cbqlQuery, page = 1) {
   let queryReturn = await CodeBeamerService.getInstance().getCodeBeamerCbqlResult(cbqlQuery, page, DEFAULT_ITEMS_PER_PAGE);
   if (queryReturn.message) {
+    (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = true;
     return false;
   } else {
     // query was successull
@@ -260,9 +263,13 @@ async function buildResultTable(cbqlQuery, page = 1) {
       (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = true;
     }
 
-    populateDataTable(queryReturn.items)
-    updateImportCountOnImportButton()
-    currentResultItems.push(queryReturn.items);
+    populateDataTable(queryReturn.items);
+    updateImportCountOnImportButton();
+    currentlyDisplayedItems += queryReturn.items.length;
+
+    if(currentlyDisplayedItems >= totalItems) {
+      (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = true;
+    }
     
     let totalItemsDisplay = document.getElementById('total-items')
     if(totalItemsDisplay) totalItemsDisplay.textContent = `(${totalItems})`;
@@ -312,10 +319,13 @@ async function trackersSelectionOnChange() {
  * Will construct the query and trigger updating the resulttable.
  */
 async function updateQuery() {
+  let loadingSpinner = (document.getElementById('loadingSpinner') as HTMLDivElement);
+  loadingSpinner.hidden = false;
   const selectedTracker = getSelectedTracker();
   const subQuery = getFilterQuerySubstring();
   const queryString = `tracker.id IN (${selectedTracker})${subQuery}`;
   executeQueryAndBuildResultTable(queryString);
+  loadingSpinner.hidden = true;
 }
 
 function getSelectedTracker(): string {
@@ -642,13 +652,16 @@ async function loadAndAppendNextResultPage() {
     queryString = `tracker.id IN (${selectedTracker})${subQuery}`;
   }
 
-  const items: any[] = (await CodeBeamerService.getInstance().getCodeBeamerCbqlResult(queryString, currentResultsPage++, DEFAULT_ITEMS_PER_PAGE)).items;
+  let queryResponse = await CodeBeamerService.getInstance().getCodeBeamerCbqlResult(queryString, currentResultsPage++, DEFAULT_ITEMS_PER_PAGE);
+  const totalItems = queryResponse.total;
+  const items: any[] = queryResponse.items;
 
   appendResultsToDataTable(items);
-  currentResultItems.push(items);
+  currentlyDisplayedItems += items.length;
 
-  if(currentResultItems.length == items.length) {
+  if(currentlyDisplayedItems >= totalItems) {
     (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = true;
+    (document.getElementById('end-of-content') as HTMLSpanElement).hidden = false;
   } else {
     (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = false;
   }
