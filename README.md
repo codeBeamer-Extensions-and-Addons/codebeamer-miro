@@ -100,7 +100,7 @@ Importing will generate a Miro Card Widget for each of the items. These will by 
 
 ![Imported card](readmeImg/plugin_imported_card.png "A card created by the plugin")
 
-Additionally, if the card has _upstream references_ or _outgoing relations_, these will be rendered by a uni-directional line. The [nine association types](https://codebeamer.com/cb/wiki/31276#section-Associations) each have their own color.
+Additionally, if the card has _upstream references_ or _outgoing relations_, these will be rendered by a uni-directional line. Associations are rendered as "dashed" lines and the [nine association types](https://codebeamer.com/cb/wiki/31276#section-Associations) each have their own color. Other relations are visualized as black lines.
 
 ![Relation visualized](readmeImg/plugin_relations.png "Relation visualized")
 
