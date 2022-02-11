@@ -53,6 +53,10 @@ export async function initializeHandlers() {
   }
 
   if(addFilterCriteriaButton) {
+    let trackerSelected = Store.getInstance().getLocalSetting(LocalSetting.SELECTED_TRACKER);
+    if(trackerSelected) {
+      addFilterCriteriaButton.disabled = false;
+    }
     addFilterCriteriaButton.onclick = addFilterCriteriaElement;
   }
 
@@ -187,7 +191,6 @@ function importItems() {
   let itemsToImport = getCheckedItems()
   if (itemsToImport.length > 0){
     miro.showNotification(`Importing ${itemsToImport.length} items from codebeamer...`);
-    hideDataTableAndShowLoadingSpinner();
     getAndSyncItemsWithCodeBeamer(itemsToImport)
     .then(() => {
       miro.showNotification(`Successfully imported ${itemsToImport.length} items`)
@@ -205,7 +208,6 @@ function synchItems() {
   .then(itemsToSynch => {
     if (itemsToSynch.length > 0){
       miro.showNotification(`Updating items...`);
-      hideDataTableAndShowLoadingSpinner();
         getAndSyncItemsWithCodeBeamer(itemsToSynch)
           .then((updated) => {
             let suffix;
@@ -261,6 +263,10 @@ async function buildResultTable(cbqlQuery, page = 1) {
     populateDataTable(queryReturn.items)
     updateImportCountOnImportButton()
     currentResultItems.push(queryReturn.items);
+    
+    let totalItemsDisplay = document.getElementById('total-items')
+    if(totalItemsDisplay) totalItemsDisplay.textContent = `(${totalItems})`;
+    
     return true;
   }
 }
@@ -294,6 +300,8 @@ async function trackersSelectionOnChange() {
     Store.getInstance().saveLocalSettings({ [LocalSetting.SELECTED_TRACKER]: selectedTracker })
     let importAllButton = document.getElementById('importAllButton') as HTMLButtonElement;
     if(importAllButton) importAllButton.disabled = false;
+    let addFilterButton = document.getElementById('add-filter') as HTMLButtonElement;
+    if(addFilterButton) addFilterButton.disabled = false;
 
     updateQuery();
   }
@@ -304,10 +312,12 @@ async function trackersSelectionOnChange() {
  * Will construct the query and trigger updating the resulttable.
  */
 async function updateQuery() {
+  hideDataTableAndShowLoadingSpinner();
   const selectedTracker = getSelectedTracker();
   const subQuery = getFilterQuerySubstring();
   const queryString = `tracker.id IN (${selectedTracker})${subQuery}`;
   executeQueryAndBuildResultTable(queryString);
+  hideLoadingSpinnerAndShowDataTable();
 }
 
 function getSelectedTracker(): string {
@@ -423,6 +433,7 @@ async function generateTableContent(tableBody: HTMLTableSectionElement, data: an
   }
   for (let element of data) {
     let row: HTMLTableRowElement = tableBody.insertRow();
+    row.classList.add('fade-in');
     let cell = row.insertCell();
 
     // if item is already synched, dont create checkbox
@@ -550,6 +561,7 @@ function hideLoadingSpinnerAndShowDataTable() {
  * @returns Amount of items synchronized (since it can differ from number of items in the parameter array if items have been imported from different cb instances).
  */
 async function getAndSyncItemsWithCodeBeamer(itemIds: string[]): Promise<number> {
+  hideDataTableAndShowLoadingSpinner();
   let items = await (await CodeBeamerService
     .getInstance()
     .getCodeBeamerCbqlResult(`item.id IN (${itemIds.join(",")})`, DEFAULT_RESULT_PAGE, MAX_ITEMS_PER_SYNCH)).items;
@@ -615,12 +627,14 @@ async function createUpdateOrDeleteRelationLines(cbItem) {
  * Loads the next results page for the current search criteria (or advanced query string) and calls {@link appendResultsToDataTable}.
  */
 async function loadAndAppendNextResultPage() {
+  (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = true;
   const isAdvancedSearch = Store.getInstance().getLocalSetting(LocalSetting.ADVANCED_SEARCH_ENABLED);
   let queryString = '';
   if(isAdvancedSearch) {
     const storedCBQString = Store.getInstance().getLocalSetting(LocalSetting.CBQL_STRING);
     if(!storedCBQString) {
       miro.showErrorNotification("Something went wrong trying to execute the query!");
+      (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = false;
       return;
     }
     queryString = storedCBQString;
@@ -637,6 +651,8 @@ async function loadAndAppendNextResultPage() {
 
   if(currentResultItems.length == items.length) {
     (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = true;
+  } else {
+    (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = false;
   }
 }
 
