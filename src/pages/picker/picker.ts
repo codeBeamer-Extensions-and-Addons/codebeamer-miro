@@ -106,7 +106,7 @@ export async function initializeHandlers() {
   if (synchButton && synchButtonText) {
     synchButton.onclick = synchItems
     try {
-      synchButtonText.innerText = `Update Synched Items (${(await MiroService.getInstance().getAllSynchedCodeBeamerCardItemIds()).length})`
+      synchButtonText.innerText = `Synchronize (${(await MiroService.getInstance().getAllSynchedCodeBeamerCardItemIds()).length})`
     } catch (err) {
       if(err.message.includes("reading 'widgets'")) {
         console.warn("Miro board undefined. No problem if you're in the test environment though.")
@@ -135,7 +135,7 @@ function loadSearchAndResults(advancedSearch: boolean) {
   // set up / change switch button text and onclick
   let switchSearchButton = document.getElementById('switchSearchButton')
   if (switchSearchButton) {
-    switchSearchButton.innerText = advancedSearch ? "Switch to Tracker select" : "Switch to CBQL query input"
+    switchSearchButton.innerText = advancedSearch ? "Query assistant" : "CBQL Input"
     switchSearchButton.onclick = getSwitchSearchButtonOnClick(!advancedSearch)
   }
 
@@ -236,7 +236,7 @@ async function clearResultTable() {
   populateDataTable([]);
   currentResultItems = [];
   currentResultsPage = 1;
-  (document.getElementById('lazy-load-button') as HTMLButtonElement).disabled = true;
+  (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = true;
 }
 
 /**
@@ -253,9 +253,9 @@ async function buildResultTable(cbqlQuery, page = 1) {
     let totalItems = queryReturn.total
     //enables lazy loading when there are more items to load
     if(totalItems > DEFAULT_ITEMS_PER_PAGE) {
-      (document.getElementById('lazy-load-button') as HTMLButtonElement).disabled = false;
+      (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = false;
     } else {
-      (document.getElementById('lazy-load-button') as HTMLButtonElement).disabled = true;
+      (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = true;
     }
 
     populateDataTable(queryReturn.items)
@@ -542,8 +542,6 @@ function removeLoadingScreen() {
 function hideDataTableAndShowLoadingSpinner() {
   let dataTable = document.getElementById('dataTable');
   if(dataTable) dataTable.hidden = true;
-  let tableControls = document.getElementById('dataTableControls');
-  if(tableControls) tableControls.hidden = true;
   let loadingSpinner = document.getElementById('loadingSpinner');
   if(loadingSpinner) loadingSpinner.hidden = false;
 }
@@ -554,8 +552,6 @@ function hideDataTableAndShowLoadingSpinner() {
 function hideLoadingSpinnerAndShowDataTable() {
   let dataTable = document.getElementById('dataTable');
   if(dataTable) dataTable.hidden = false;
-  let tableControls = document.getElementById('dataTableControls');
-  if(tableControls) tableControls.hidden = false;
   let loadingSpinner = document.getElementById('loadingSpinner');
   if(loadingSpinner) loadingSpinner.hidden = true;
 }
@@ -652,7 +648,7 @@ async function loadAndAppendNextResultPage() {
   currentResultItems.push(items);
 
   if(currentResultItems.length == items.length) {
-    (document.getElementById('lazy-load-button') as HTMLButtonElement).disabled = true;
+    (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = true;
   }
 }
 
