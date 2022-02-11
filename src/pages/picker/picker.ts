@@ -353,18 +353,6 @@ async function executeQueryAndBuildResultTable(query: string) {
   if (!tableBuildup) clearResultTable();
 }
 
-/**
- * Routine to select items in the result table for import.
- * @deprecated Respective HTML element has been removed
- */
-function selectAllOnChange() {
-  let checkAllBox = document.getElementById('checkAll') as HTMLInputElement
-  if (checkAllBox) {
-    getCheckBoxesWithoutHeaderBox().forEach(item => item.checked = checkAllBox.checked)
-    updateImportCountOnImportButton()
-  }
-}
-
 function populateDataTable(data) {
   let pickedAttributeData = data.map(({ id, name }) => ({ ID: id, Name: name }))
   let table = document.getElementById("dataTable") as HTMLTableElement;
