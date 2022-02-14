@@ -737,7 +737,7 @@ function saveStandardImportConfigurationValue(event: any) {
   }
 
   importConfiguration.standard[target.value] = target.checked;
-  Store.getInstance().saveBoardSettings({ importConfiguration: importConfiguration });
+  Store.getInstance().saveBoardSettings({ [BoardSetting.IMPORT_CONFIGURATION]: importConfiguration });
 }
 
 /**
