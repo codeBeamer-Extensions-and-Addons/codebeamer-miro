@@ -252,7 +252,7 @@ export default class MiroService {
 						for(let j = 0; j < field.length; j++) {
 							let entry = field[j];
 							let slug = entry[CB_ITEM_NAME_PROPERTY_NAME];
-							content += `${entry[CB_ITEM_NAME_PROPERTY_NAME]}, `;
+							content += `${slug}, `;
 						}
 						//remove trailing ", "
 						content = content.substring(0, content.length-2);
