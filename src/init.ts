@@ -39,7 +39,7 @@ miro.onReady(async () => {
 				var menuItems: SDK.IWidgetMenuItem[] = [];
 				if (isSelectionConvertable(selectedWidgets))
 					menuItems.push({
-						tooltip: "Convert to codeBeamer Tracker",
+						tooltip: "Convert to codeBeamer Item",
 						svgIcon: CODEBEAMER_UPLOAD,
 						onClick: () => {
 							if (
@@ -77,7 +77,7 @@ miro.onReady(async () => {
 	});
 
 	console.info(
-		`[codeBeamer-sync] Plugin v0.9.3 initialized. Experiencing issues? Let us know at https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/issues`
+		`[codeBeamer-sync] Plugin v0.9.4 initialized. Experiencing issues? Let us know at https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/issues`
 	);
 });
 

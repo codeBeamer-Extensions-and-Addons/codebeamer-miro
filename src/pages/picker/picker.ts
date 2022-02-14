@@ -700,7 +700,6 @@ function buildImportConfiguration() {
       input.checked = false;
     }
 
-    input.disabled = property == StandardItemProperty.SUMMARY || property == StandardItemProperty.DESCRIPTION || property == StandardItemProperty.STATUS;
     input.value = property;
     input.onchange = saveStandardImportConfigurationValue;
 
