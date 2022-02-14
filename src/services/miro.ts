@@ -1,4 +1,4 @@
-import { BoardSetting, CardData, codeBeamerPropertyNamesByFieldLabel, ImportConfiguration } from "../entities";
+import { BoardSetting, CardData, ImportConfiguration, StandardItemProperty } from "../entities";
 import { CB_ITEM_NAME_PROPERTY_NAME, RELATION_OUT_ASSOCIATION_TYPE, CODEBEAMER_ASSOCIATIONS, WIDGET_INITIAL_POSITION } from "../constants";
 import CodeBeamerService from "./codebeamer";
 import Store from "./store";
@@ -232,12 +232,12 @@ export default class MiroService {
 			const standardConfigurationKeys = Object.keys(standardConfiguration);
 			//a foreach on Object.keys got me the ky's indexes instead of keys as entries.
 			for(let i = 0; i < standardConfigurationKeys.length; i++) {
-				const key = standardConfigurationKeys[i];
+				const key = standardConfigurationKeys[i] as StandardItemProperty;
 				const value = standardConfiguration[key];
 
 				if(value == false) continue;
 
-				const itemPropertyName = codeBeamerPropertyNamesByFieldLabel[key];
+				const itemPropertyName = this.getCodeBeamerPropertyNameByFieldLabel(key);
 				if(!item[itemPropertyName]) continue;
 				let field = item[itemPropertyName];
 
@@ -267,6 +267,8 @@ export default class MiroService {
 
 				let customField = {
 					//TODO custom colors
+					mainColor: this.getColorForFieldLabel(key),
+					fontColor: "#ffffff",
 					value: `${key}: ${content}`,
 				};
 				cardData.card?.customFields?.push(customField);
@@ -358,5 +360,54 @@ export default class MiroService {
 			  )
 			: null;
 		return colorField ? colorField.value : null;
+	}
+
+	/**
+	 * Gets the static codeBeamer Item property name for a {@link StandardItemProperty} value
+	 * @param fieldLabel 
+	 * @returns Name of the codeBeamer item property labelled by {@link fieldLabel}
+	 */
+	private getCodeBeamerPropertyNameByFieldLabel(fieldLabel: StandardItemProperty): string {
+		switch(fieldLabel) {
+			case StandardItemProperty.ID: return "id";
+			case StandardItemProperty.TEAMS: return "teams";
+			case StandardItemProperty.OWNER: return "owners";
+			case StandardItemProperty.RELEASE: return "release";
+			case StandardItemProperty.PRIORITY: return "namedPriority";
+			case StandardItemProperty.STORY_POINTS: return "storyPoints";
+			case StandardItemProperty.START_DATE: return "startDate";
+			case StandardItemProperty.END_DATE: return "endDate";
+			case StandardItemProperty.ASSIGNED_TO: return "assignedTo";
+			case StandardItemProperty.ASSIGNED_AT: return "assignedAt";
+			case StandardItemProperty.SUBMITTED_AT: return "submittedAt";
+			case StandardItemProperty.SUBMITTED_BY: return "submitter";
+			case StandardItemProperty.MODIFIED_AT: return "modifiedAt";
+			case StandardItemProperty.MODIFIED_BY: return "modifier";
+		}
+	}
+
+	/**
+	 * Gets the static color for a given property, to be used as background for its custom card field.
+	 * @param fieldLabel Fieldlabel to get color for
+	 * @returns Color to use as background for creating custom card fields for given {@link fieldLabel}
+	 */
+	private getColorForFieldLabel(fieldLabel: StandardItemProperty): string {
+		switch(fieldLabel) {
+			case StandardItemProperty.ID: return "#bf4040";
+			case StandardItemProperty.TEAMS: return "#40bf95";
+			case StandardItemProperty.OWNER: return "#4095bf";
+			case StandardItemProperty.RELEASE: return "#406abf";
+			case StandardItemProperty.PRIORITY: return "#40bfbf";
+			case StandardItemProperty.STORY_POINTS: return "#bfbf40";
+			case StandardItemProperty.START_DATE: return "#9540bf";
+			case StandardItemProperty.END_DATE: return "#bf40bf";
+			case StandardItemProperty.ASSIGNED_TO: return "#95bf40";
+			case StandardItemProperty.ASSIGNED_AT: return "#6abf40";
+			case StandardItemProperty.SUBMITTED_AT: return "#40bf6a";
+			case StandardItemProperty.SUBMITTED_BY: return "#40bf40";
+			case StandardItemProperty.MODIFIED_AT: return "#bf9540";
+			case StandardItemProperty.MODIFIED_BY: return "#bf6840";
+			default: return '#303030'
+		}
 	}
 }
