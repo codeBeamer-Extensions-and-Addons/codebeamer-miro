@@ -194,6 +194,12 @@ img.ionicon {
     position: relative;
     bottom: 4px;
 }
+img.ionicon-sm{
+	height: 17px;
+    position: relative;
+    bottom: 4px;
+    left: -1px;
+}
 .font-size-smaller {
 	font-size: smaller;
 }
