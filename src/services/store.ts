@@ -94,22 +94,6 @@ export default class Store {
 	}
 
 	/**
-	 * Saves the import configuration in the board settings.
-	 * @param configuration Updated ImportConfiguration to save
-	 */
-	public async saveImportConfiguration(configuration: ImportConfiguration) {
-		const data = localStorage.getItem(
-			this.getBoardSettingsLocalStorageKey()
-		);
-		let boardSettings = data === null ? {} : JSON.parse(data);
-
-		//key of the object assigned here must equal the BoardSetting.IMPORT_CONFIGURATION enum's value to work (be readable).
-		Object.assign(boardSettings, { importConfiguration: configuration});
-
-		this.saveBoardSettings(boardSettings);
-	}
-
-	/**
 	 * Saves given settings in the localStorage.
 	 * @param settings Settings object to save.
 	 */
