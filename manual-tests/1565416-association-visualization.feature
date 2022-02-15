@@ -18,7 +18,6 @@ Funktionalität: Visuelle Unterscheidung verschiedener Assoziationen zwischen It
         Dann werden die beiden Items als Miro Cards generiert
         Und eine gestrichelte Verbindungslinie besteht zwischen den beiden Items
         Und die Verbindungslinie ist "<farbe>"
-        Und sie hat die Beschreibung "<assoziationsTyp>"
         Und ihr Pfeil geht von Item "<secondItem>" zu Item "<firstItem>"
 
         Beispiele: 
