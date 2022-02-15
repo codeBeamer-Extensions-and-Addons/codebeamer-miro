@@ -116,8 +116,11 @@ button svg {
 .loading-screen > .loading {
 	position: relative;
     top: 50%;
-    left: 48%;
+    left: 50%;
     transform: translate(-50%,-50%);
+}
+.loading-screen .progress {
+	width: 80%;
 }
 
 #cbqlQuery {
