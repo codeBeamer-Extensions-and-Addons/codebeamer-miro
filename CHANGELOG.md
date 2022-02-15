@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### [0.9.10]
+
+Summarizes minor changes between 0.9.4 and 0.9.10. These versions mainly comprise of technical improvements and bug-fixes.
+
+#### Added
+- Import Page now displays a loading screen covering the modal with a progress-bar when importing items.
+
+#### Changed
+- Import Page
+  - "Import All" button now works with filters and adnavced search.
+  
 ### [0.9.4]
 
 #### Changed
