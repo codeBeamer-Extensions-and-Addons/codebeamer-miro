@@ -105,17 +105,22 @@ button svg {
 
 .loading-screen {
 	position: absolute;
+	left: 0;
+	top: 0;
     z-index: 1;
     background-color: white;
-    width: 92%;
-    height: 92%;
+    width: 100%;
+    height: 100%;
 }
 
 .loading-screen > .loading {
 	position: relative;
     top: 50%;
-    left: 48%;
+    left: 50%;
     transform: translate(-50%,-50%);
+}
+.loading-screen .progress {
+	width: 80%;
 }
 
 #cbqlQuery {
@@ -167,6 +172,10 @@ button svg {
 }
 
 /*utilities*/
+.miro-input--warning {
+	/*bootstrap warning color*/
+	border-color: #ffc107;
+}
 .row {
 	display: flex;
 	flex-flow: row;

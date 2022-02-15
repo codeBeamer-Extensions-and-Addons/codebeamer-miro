@@ -67,10 +67,13 @@ export async function initializeHandlers() {
   buildImportConfiguration();
 
   if(importAllButton){
-    if(!Store.getInstance().getLocalSetting(LocalSetting.SELECTED_TRACKER)) {
+    if(!Store.getInstance().getLocalSetting(LocalSetting.SELECTED_TRACKER) || 
+      (!Store.getInstance().getLocalSetting(LocalSetting.ADVANCED_SEARCH_ENABLED)
+       && Store.getInstance().getLocalSetting(LocalSetting.CBQL_STRING)
+      )) {
         importAllButton.disabled = true;
       }
-      importAllButton.onclick = () => importAllItemsForTracker();
+      importAllButton.onclick = () => importAllQueriedItems();
     }
     
     if (trackersSelection) {
@@ -252,6 +255,7 @@ async function buildResultTable(cbqlQuery, page = 1) {
   let queryReturn = await CodeBeamerService.getInstance().getCodeBeamerCbqlResult(cbqlQuery, page, DEFAULT_ITEMS_PER_PAGE);
   if (queryReturn.message) {
     (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = true;
+    miro.showNotification(`Invalid query: ${queryReturn.message}`);
     return false;
   } else {
     // query was successull
@@ -289,13 +293,21 @@ async function cbqlQueryOnChange() {
     await clearResultTable()
   } else { // query is set
 
-    let tableBuildup = await buildResultTable(cbqlQuery)
+    let tableBuildup = await buildResultTable(cbqlQuery);
     // if there was an error, mark box red
     if (!tableBuildup) {
-      cbqlQueryElement.className = "miro-input miro-input--primary miro-input--small miro-input--invalid"
-      await clearResultTable()
+      cbqlQueryElement.className = "miro-input miro-input--primary miro-input--small miro-input--invalid";
+      await clearResultTable();
     } else {
-      cbqlQueryElement.className = "miro-input miro-input--primary miro-input--small miro-input--success"
+      let importAllButton = document.getElementById('importAllButton') as HTMLButtonElement;
+      if(importAllButton) importAllButton.disabled = false;
+
+      if(currentlyDisplayedItems == 0) {
+        cbqlQueryElement.className = "miro-input miro-input--primary miro-input--small miro-input--warning";
+        miro.showNotification("No results found for that query.");
+      } else {
+        cbqlQueryElement.className = "miro-input miro-input--primary miro-input--small miro-input--success";
+      }
     }
   }
 }
@@ -483,42 +495,58 @@ function updateImportCountOnImportButton() {
 }
 
 /**
- * Imports all (up to MAX_ITEMS_PER_IMPORT) items in the current query. At your own discretion, since that takes time.
- * @param trackerId 
+ * Imports all (up to {@link  MAX_ITEMS_PER_IMPORT)} items in the current query. At your own discretion, since that takes time.
+ * Works for both query methods (assisted/simple and advanced/cbql input).
  */
-async function importAllItemsForTracker() {
-  let trackerId = Store.getInstance().getLocalSetting(LocalSetting.SELECTED_TRACKER);
-  document.getElementById('importAllButton')?.classList.add('miro-btn--loading');
-  
-  //get all items, filtering out already imported ones right in the cbq
-  let alreadySynchedItemIds = await MiroService.getInstance().getAllSynchedCodeBeamerCardItemIds();
+async function importAllQueriedItems() {
+  let query: string = '';
+  const isAdvancedSearch = Store.getInstance().getLocalSetting(LocalSetting.ADVANCED_SEARCH_ENABLED);
 
-  let queryReturn = await CodeBeamerService.getInstance().getCodeBeamerCbqlResult(`tracker.id IN (${trackerId}) AND item.id NOT IN (${alreadySynchedItemIds.join(',')})${getFilterQuerySubstring()}`, DEFAULT_RESULT_PAGE, MAX_ITEMS_PER_IMPORT);
+  if(isAdvancedSearch) {
+    query = Store.getInstance().getLocalSetting(LocalSetting.CBQL_STRING);
+  } else {
+    query = buildSimpleSearchQueryString();
+  }
+
+  //Make sure already imported items aren't reimported
+  let alreadySynchedItemIds: string[] = [];
+  try {
+    alreadySynchedItemIds = await MiroService.getInstance().getAllSynchedCodeBeamerCardItemIds();
+  } catch (error) {
+    console.warn("Couldn't get ids of already synched items. Might lead to duplicate imports");
+  }
+  query = `${query}${alreadySynchedItemIds.length ? ` AND item.id NOT IN (${alreadySynchedItemIds.join(',')})` : ''}`
+
+  let queryReturn = await CodeBeamerService.getInstance().getCodeBeamerCbqlResult(query, DEFAULT_RESULT_PAGE, MAX_ITEMS_PER_IMPORT);
   
   if(queryReturn.message) {
-    miro.showErrorNotification(`Failed importing all items: ${queryReturn.message}`);
-    document.getElementById('importAllButton')?.classList.remove('miro-btn--loading');
+    miro.showErrorNotification(`Failed importing items: ${queryReturn.message}`);
     return;
   } else {
     // query was successfull
     let totalItems = queryReturn.total;
     
     if(window.confirm(`Import ${totalItems} items from codeBeamer? ${ totalItems >= 20 ? 'This could take a while.' : '' }`)) {
-      hideDataTableAndShowLoadingSpinner();
+      displayLoadingScreen();
       await syncItemsWithCodeBeamer(queryReturn.items);
       miro.board.ui.closeModal();
+    } else {
+      removeLoadingScreen();
     }
-    document.getElementById('importAllButton')?.classList.remove('miro-btn--loading');
   }
 }
 
 /**
  * Shows the loading screen
  * Also removes the content div's fade-in class so it can fade in again.
+ * @param totalElementsToLoad If specified, the loading screen will prepare a progress bar with this value. Use {@link updateLoadingProgress} to update the bar.
  */
-function displayLoadingScreen() {
+function displayLoadingScreen(totalElementsToLoad?: number) {
   let loadingScreen = document.getElementById('loadingScreen');
   if(loadingScreen) {
+    if(totalElementsToLoad) {
+      updateLoadingProgress(0, totalElementsToLoad);
+    }
     loadingScreen.hidden = false;
   }
 
@@ -526,6 +554,42 @@ function displayLoadingScreen() {
   if(content) {
     content.classList.remove('fade-in');
   }
+}
+
+/**
+ * Will update the progress bar on the loading screen to visualize the arguments.
+ * Will automatically start displaying the progress bar and remove the indeterminate spinner when called the first time.
+ * @param loadedElements Amount of already loaded elements
+ * @param totalElements Total amount of elements to load
+ * @param resumeIndeterminateState Set to true to hide the progressBar and show the indeterminate loading spinner. Defaults to false.
+ */
+function updateLoadingProgress(loadedElements: number, totalElements: number, resumeIndeterminateState: boolean = false) {
+  let loadingScreen = document.getElementById('loadingScreen');
+  if(loadingScreen && loadingScreen.hidden) return;
+
+  let progressBarContainer = document.getElementById('determinateLoading') as HTMLDivElement;
+  if(!progressBarContainer) return;
+  let progressBar = progressBarContainer.querySelector('#loadingProgressBar') as HTMLDivElement;
+  if(!progressBar) return;
+  let indeterminateSpinner = document.getElementById('indeterminateLoading') as HTMLDivElement;
+
+  if(resumeIndeterminateState) {
+    progressBarContainer.hidden = true;
+    if(indeterminateSpinner) indeterminateSpinner.hidden = false;
+    return;
+  }
+
+  if(progressBarContainer.hidden == true) {
+    progressBarContainer.hidden = false;
+    if(indeterminateSpinner) indeterminateSpinner.hidden = true;
+  }
+
+  let completionPercentage = Math.floor((loadedElements/totalElements) * 100);
+  progressBar.style.width = `${completionPercentage}%`;
+  if(progressBar['ariaValueNow']) {
+    progressBar['ariaValueNow'] = completionPercentage.toString();
+  }
+  progressBar.innerText = `${loadedElements} / ${totalElements}`;
 }
 
 /**
@@ -584,10 +648,14 @@ async function getAndSyncItemsWithCodeBeamer(itemIds: string[]): Promise<number>
  * @returns Number of items synchronized.
  */
 async function syncItemsWithCodeBeamer(cbItems: []): Promise<void> {
+  let count = 0;
   for (let cbItem of cbItems) {
     await MiroService.getInstance().createOrUpdateCbItem(cbItem);
+    updateLoadingProgress(++count, cbItems.length);
   }
   for (let cbItem of cbItems) {
+    miro.showNotification("Creating relations between items...");
+    updateLoadingProgress(0,0, true);
     await createUpdateOrDeleteRelationLines(cbItem);
   }
 }
@@ -647,9 +715,7 @@ async function loadAndAppendNextResultPage() {
     }
     queryString = storedCBQString;
   } else {
-    const selectedTracker = getSelectedTracker();
-    const subQuery = getFilterQuerySubstring();
-    queryString = `tracker.id IN (${selectedTracker})${subQuery}`;
+    queryString = buildSimpleSearchQueryString();
   }
 
   let queryResponse = await CodeBeamerService.getInstance().getCodeBeamerCbqlResult(queryString, currentResultsPage++, DEFAULT_ITEMS_PER_PAGE);
@@ -665,6 +731,16 @@ async function loadAndAppendNextResultPage() {
   } else {
     (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = false;
   }
+}
+
+/**
+ * Builds the current query string based on the filter criteria in the "simple search".
+ * @returns CBQL query string matching the selected filter criteria
+ */
+function buildSimpleSearchQueryString(): string {
+  const selectedTracker = getSelectedTracker();
+  const subQuery = getFilterQuerySubstring();
+  return `tracker.id IN (${selectedTracker})${subQuery}`;
 }
 
 /**

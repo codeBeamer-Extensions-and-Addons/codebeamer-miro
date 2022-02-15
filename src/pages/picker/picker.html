@@ -13,7 +13,10 @@
   <script src="https://miro.com/app/static/sdk.1.1.js"></script>
 
   <div id="loadingScreen" class="loading-screen">
-    <div class="loading loading-medium"></div>
+    <div id="indeterminateLoading" class="loading loading-medium"></div>
+    <div id="determinateLoading" class="loading progress" hidden>
+      <div id="loadingProgressBar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
   </div>
 
   <div id="content">
@@ -88,7 +91,7 @@
         <span id='importButtonText'></span>
       </button>
 
-      <button id='importAllButton' type="button" class="miro-btn miro-btn--primary miro-btn--small">
+      <button id='importAllButton' type="button" class="miro-btn miro-btn--primary miro-btn--small" title="Import all items matching your query minus those already on the board">
         <svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path d="M336 176h40a40 40 0 0140 40v208a40 40 0 01-40 40H136a40 40 0 01-40-40V216a40 40 0 0140-40h40" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M176 272l80 80 80-80M256 48v288"/></svg>
         <span>
           Import all
