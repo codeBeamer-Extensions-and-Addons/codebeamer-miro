@@ -1,7 +1,6 @@
 /// <reference types="cypress" />
 
-import { FilterCriteria } from 'entities';
-import { StandardItemProperty } from '../../src/entities/standard-item-property.enum';
+import { FilterCriteria, StandardItemProperty, LocalSetting } from '../../src/entities';
 
 /**
  * Test specification for the picker.html site and its respective script.
@@ -274,6 +273,38 @@ describe('Picker', () => {
                 });
 
             });
+        })
+
+        describe('advanced search', () => {
+
+            beforeEach(() => {
+                const testStoreSuffix = "e2e-test";
+                const localSettings = JSON.parse(localStorage.getItem('codebeamer-miro-plugin-board-settings-' + testStoreSuffix) ?? "");
+                if(!localSettings[LocalSetting.ADVANCED_SEARCH_ENABLED]) {
+                    cy.wait(1000);
+                    cy.get('#switchSearchButton').click();
+                };
+            });
+            
+            //* RETINA-1565417
+            it('imports all query results when clicking the "Import All" button after entering a query', () => {
+                //fixture content doesn't matter
+                cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query', { fixture: 'trackerItems_page2.json'}).as('query')
+
+                const itemIds: string[] = [];
+                for(let i = 0; i<10; i++) {
+                    itemIds.push((100000 + (Math.random()*999999)).toString())
+                }
+                const queryIds = itemIds.join(',');
+                const query = `item.id in (${queryIds})`;
+                cy.get('#cbqlQuery').type(query + '{enter}');
+                cy.wait(100);
+
+                cy.get('#importAllButton').click();
+
+                cy.wait('@query').its('request.body.queryString').should('include', query);
+            });
+
         })
     });
 
