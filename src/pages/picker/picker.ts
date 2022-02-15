@@ -561,29 +561,34 @@ function displayLoadingScreen(totalElementsToLoad?: number) {
  * Will automatically start displaying the progress bar and remove the indeterminate spinner when called the first time.
  * @param loadedElements Amount of already loaded elements
  * @param totalElements Total amount of elements to load
+ * @param resumeIndeterminateState Set to true to hide the progressBar and show the indeterminate loading spinner. Defaults to false.
  */
-function updateLoadingProgress(loadedElements: number, totalElements: number) {
+function updateLoadingProgress(loadedElements: number, totalElements: number, resumeIndeterminateState: boolean = false) {
   let loadingScreen = document.getElementById('loadingScreen');
   if(loadingScreen && loadingScreen.hidden) return;
 
   let progressBarContainer = document.getElementById('determinateLoading') as HTMLDivElement;
   if(!progressBarContainer) return;
+  let progressBar = progressBarContainer.querySelector('#loadingProgressBar') as HTMLDivElement;
+  if(!progressBar) return;
+  let indeterminateSpinner = document.getElementById('indeterminateLoading') as HTMLDivElement;
+
+  if(resumeIndeterminateState) {
+    progressBarContainer.hidden = true;
+    if(indeterminateSpinner) indeterminateSpinner.hidden = false;
+  }
 
   if(progressBarContainer.hidden == true) {
-    console.log("LoadingProgressbar is hidden. So show it and hide the indet spinner");
     progressBarContainer.hidden = false;
-    let indeterminateSpinner = document.getElementById('indeterminateLoading') as HTMLDivElement;
     if(indeterminateSpinner) indeterminateSpinner.hidden = true;
   }
 
   let completionPercentage = Math.floor((loadedElements/totalElements) * 100);
-  console.log("Completion Percentage: ", completionPercentage);
-  progressBarContainer.style.width = `${completionPercentage}%`;
-  if(progressBarContainer['ariaValueNow']) {
-    progressBarContainer['ariaValueNow'] = completionPercentage.toString();
+  progressBar.style.width = `${completionPercentage}%`;
+  if(progressBar['ariaValueNow']) {
+    progressBar['ariaValueNow'] = completionPercentage.toString();
   }
-  console.log("Setting progress text to: ", `${loadedElements} / ${totalElements}`)
-  progressBarContainer.innerText = `${loadedElements} / ${totalElements}`;
+  progressBar.innerText = `${loadedElements} / ${totalElements}`;
 }
 
 /**
@@ -646,10 +651,10 @@ async function syncItemsWithCodeBeamer(cbItems: []): Promise<void> {
   for (let cbItem of cbItems) {
     await MiroService.getInstance().createOrUpdateCbItem(cbItem);
     updateLoadingProgress(++count, cbItems.length);
-    console.log("count/length: ", count, cbItems.length);
   }
   for (let cbItem of cbItems) {
     miro.showNotification("Creating relations between items...");
+    updateLoadingProgress(0,0, true);
     await createUpdateOrDeleteRelationLines(cbItem);
   }
 }
