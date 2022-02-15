@@ -576,6 +576,7 @@ function updateLoadingProgress(loadedElements: number, totalElements: number, re
   if(resumeIndeterminateState) {
     progressBarContainer.hidden = true;
     if(indeterminateSpinner) indeterminateSpinner.hidden = false;
+    return;
   }
 
   if(progressBarContainer.hidden == true) {
