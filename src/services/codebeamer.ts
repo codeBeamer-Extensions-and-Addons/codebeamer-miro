@@ -283,6 +283,17 @@ export default class CodeBeamerService {
       throw new Error(`Failed getting association details for association ${associationId}: ${err.status}`);
     }
   }
+
+  /**
+   * @param trackerId Id of the tracker in question
+   * @returns Detailed list of the given Tracker's properties (the schema).
+   */
+  async getTrackerSchema(trackerId: string): Promise<any> {
+    const path = `/trackers/${trackerId}/schema`;
+
+    const response = await this.get(path, '', 'Failed fetching Tracker schema');
+    return response.json();
+  }
   
   /**
    * Enriches given item's data by providing more details on its tracker and a more detailed description.
