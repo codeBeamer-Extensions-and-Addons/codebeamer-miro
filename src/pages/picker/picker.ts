@@ -383,7 +383,14 @@ async function executeQueryAndBuildResultTable(query: string) {
   if (!tableBuildup) clearResultTable();
 }
 
-function populateDataTable(data) {
+function populateDataTable(data: CodeBeamerItem[]) {
+  data = data.filter(item => {
+    if(item.categories?.length) {
+      if(item.categories.find(c => c.name == 'Folder' || c.name == 'Information')) return false;
+    }
+    return true;
+  });
+
   let pickedAttributeData = data.map(({ id, name }) => ({ ID: id, Name: name }))
   let table = document.getElementById("dataTable") as HTMLTableElement;
   if (table){
