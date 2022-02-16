@@ -161,8 +161,9 @@ describe('Picker', () => {
 
         describe('simple search', () => {
 
-            //* RETINA-1565422
-            it('has a button to switch between AND and OR chaining with AND as default for every criteria (but clicking it changes it for all of them)', () => {
+            //* RETINA-1565423
+            it.skip('has a button to switch between AND and OR chaining with AND as default for every criteria (but clicking it changes it for all of them)', () => {
+                //TODO adapt or remove
                 cy.get('select#selectedTracker').select('4877085');
                 cy.get('#add-filter').click()
 
@@ -175,82 +176,87 @@ describe('Picker', () => {
                 cy.get('.chaining-label').last().should('have.text', 'OR');
             });
 
-            //* RETINA-1565422
-            it('adds a filter input after clicking the button to add filter criteria', () => {
+            //* RETINA-1565423
+            it.only('adds a badge displaying the criteria after clicking the button to add a filter', () => {
                 cy.get('select#selectedTracker').select('4877085');
-                cy.get('#add-filter').click()
-                cy.get('.filter-criteria').find('.criteria').find('input');
+                cy.get('#filter-type').select('Team');
+                cy.get('#filter-value').type('Edelweiss');
+                cy.get('#add-filter').click();
+                cy.get('.filter-criteria').find('.criteria').first().should('have.text', 'Team:').and('have.text', 'Edelweiss');
             });
 
-            //* RETINA-1565422
-            it('allows to filter by standard criteria', () => {
+            //* RETINA-1565423
+            it.only('allows to filter by standard criteria', () => {
                 cy.get('select#selectedTracker').select('4877085');
-                cy.get('#simpleSearch').find('#add-filter').click();
 
                 const criteria = Object.keys(FilterCriteria).map(e => FilterCriteria[e]);
 
                 for(let criterion of criteria) {
-                    cy.get('#simpleSearch').find('.criteria').find('select').should('contain.html', criterion);
+                    cy.get('#simpleSearch').find('#filter-type').should('contain.html', criterion);
                 }
             });
 
             //* RETINA-1565422
-            it('filters the result table by the configured standard-criteria when it\'s updated', () => {                
+            it.only('filters the result table by the configured standard-criteria when it\'s updated', () => {                
                 cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query', []).as('query')
                 cy.intercept('GET', 'https://retinatest.roche.com/cb/api/v3/trackers/4877085/schema', []).as('schemaQuery');
                 
                 cy.get('select#selectedTracker').select('4877085');
                 const trackerQuery = "tracker.id IN (4877085)";
                 cy.wait('@query').its('request.body.queryString').should('equal', trackerQuery);
-                
-                cy.get('#simpleSearch').find('#add-filter').click();
-                cy.get('#simpleSearch').find('.filter-criteria input').first().type('Edelweiss').type('{enter}');
+
+                cy.get('#filter-type').select('Team');
+                cy.get('#filter-value').type('Edelweiss');
+                cy.get('#add-filter').click();
                 const trackerAndOneCriterionQuery = "tracker.id IN (4877085) AND (teamName = 'Edelweiss')";
                 cy.wait('@query').its('request.body.queryString').should('equal', trackerAndOneCriterionQuery);
                 
-                cy.get('#simpleSearch').find('#add-filter').click();
-                cy.get('#simpleSearch').find('.filter-criteria input').last().type('Rover (Migration)').type('{enter}');
+                cy.get('#filter-type').select('Team');
+                cy.get('#filter-value').type('Rover (Migration)');
+                cy.get('#add-filter').click();
+
                 const trackerAndTwoCriteriaQuery = "tracker.id IN (4877085) AND (teamName = 'Edelweiss' AND teamName = 'Rover (Migration)')";
                 cy.wait('@query').its('request.body.queryString').should('equal', trackerAndTwoCriteriaQuery);
             });
 
             //*RETINA-1565423
-            it('allows to choose tracker-specific filter criteria', () => {
+            it.only('allows to choose tracker-specific filter criteria', () => {
                 cy.intercept('GET', 'https://retinatest.roche.com/cb/api/v3/trackers/4877085/schema', { fixture: 'tracker_schema.json'}).as('schemaQuery');
 
                 cy.get('select#selectedTracker').select('4877085');
-                cy.get('#simpleSearch').find('#add-filter').click();
                 //load schema only when the user really wants to filter further
                 cy.wait('@schemaQuery');
 
                 //loops through the schema and checks whether all fields can be selected
                 cy.fixture('tracker_schema.json').then((json) => {
                     for(let field of json) {
-                        cy.get('#simpleSearch').find('.criteria').find('select').should('contain.html', field.name);
+                        cy.get('#simpleSearch').find('#filter-type').should('contain.html', field.name);
                     }
                 });
             });
             
             //*RETINA-1565423
-            it('filters the result table by the configured tracker-specific criteria when it\'s updated', () => {
+            it.only('filters the result table by the configured tracker-specific criteria when it\'s updated', () => {
                 cy.intercept('GET', 'https://retinatest.roche.com/cb/api/v3/trackers/4877085/schema', { fixture: 'tracker_schema.json'}).as('schemaQuery');
                 cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query', []).as('query')
                 
                 cy.get('select#selectedTracker').select('4877085');
                 cy.wait('@query');
-                cy.get('#simpleSearch').find('#add-filter').click();
-                cy.wait('@schemaQuery');
                 
+                cy.get('#filter-type').click();
+                cy.wait('@schemaQuery');
+
+                cy.get('#filter-type').select('Sprint');
+                cy.get('#filter-value').type('PI5.2');
                 cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query', []).as('query')
                 const trackerQuery = "tracker.id IN (4877085) AND ('4877085.versions' = 'PI5.2')";
-                cy.get('#simpleSearch').find('.criteria').find('select').select('Sprint');
-                cy.get('#simpleSearch').find('.filter-criteria input').first().type('PI5.2').type('{enter}');
+                cy.get('#add-filter').click();
                 cy.wait('@query').its('request.body.queryString').should('equal', trackerQuery);
                 
-                cy.get('#simpleSearch').find('#add-filter').click();
+                cy.get('#filter-type').select('Acceptance Criteria');
+                cy.get('#filter-value').type('Work Properly');
                 const secondTrackerQuery = "tracker.id IN (4877085) AND ('4877085.versions' = 'PI5.2' AND '4877085.acceptanceCriteria' = 'Work properly')";
-                cy.get('#simpleSearch').find('.criteria').find('select').last().select('Acceptance Criteria');
-                cy.get('#simpleSearch').find('.filter-criteria input').last().type('Work properly').type('{enter}');
+                cy.get('#add-filter').click();
                 cy.wait('@query').its('request.body.queryString').should('equal', secondTrackerQuery);
             });
         });
