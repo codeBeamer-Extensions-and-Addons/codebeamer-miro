@@ -146,29 +146,40 @@ button svg {
 	display: flex;
 	flex-flow: row wrap;
 	margin: 0;
-	max-width: 70%;
 }
-.filter-criteria button {
-	width: auto;
-}
-.filter-criteria .chaining-label, .filter-criteria .remove-criteria-label {
-	position: relative;
-    top: -2px;
-}
-.criteria select {
+#filter-type {
 	background-color: #fff;
     border: none;
 	cursor: pointer;
+	margin-right: 1rem;
+    max-width: 100px;
 }
-.criteria select:focus-visible {
-	border: none;
+#add-filter {
+	margin-left: 0px;
 }
-.criteria input {
-	max-width: 150px;
+.criteria {
+	max-width: 200px;
+	max-height: 25px;
+	font-weight: lighter;
+    font-size: xx-small;
+	cursor: initial;
+	user-select: none;
+	align-self: end;
+    margin-bottom: 0.6em;
 }
-.criteria span.input-group-text {
-	padding: 0 !important;
-	background-color: #fff !important;
+.criteria:hover {
+	background-color: #f2f2f2 !important;
+}
+.criteria svg {
+	cursor: pointer;
+	border-radius: 50%;
+}
+.criteria .filter-removal{
+	display: inline;
+	cursor: pointer;
+}
+.criteria .filter-removal:hover svg{
+	background-color: #d9d9d9 !important;
 }
 
 /*utilities*/
