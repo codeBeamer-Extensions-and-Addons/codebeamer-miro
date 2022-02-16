@@ -1,4 +1,4 @@
-import { StandardItemProperty, BoardSetting, LocalSetting, ImportConfiguration, SubqueryLinkMethod, FilterCriteria } from "../../entities";
+import { StandardItemProperty, BoardSetting, LocalSetting, ImportConfiguration, SubqueryLinkMethod, FilterCriteria, CodeBeamerItem } from "../../entities";
 import { MAX_ITEMS_PER_IMPORT, DEFAULT_ITEMS_PER_PAGE, DEFAULT_RESULT_PAGE, MAX_ITEMS_PER_SYNCH } from "../../constants/cb-import-defaults";
 import CodeBeamerService from "../../services/codebeamer";
 import MiroService from "../../services/miro";
@@ -647,9 +647,20 @@ async function getAndSyncItemsWithCodeBeamer(itemIds: string[]): Promise<number>
  * @param cbItems Array of codeBeamer items.
  * @returns Number of items synchronized.
  */
-async function syncItemsWithCodeBeamer(cbItems: []): Promise<void> {
+async function syncItemsWithCodeBeamer(cbItems: CodeBeamerItem[]): Promise<void> {
   let count = 0;
   for (let cbItem of cbItems) {
+
+    if(cbItem.categories?.length) {
+      console.log("We've got categories");
+      if(cbItem.categories.find(c => c.name == 'Folder' || c.name == 'Information')){
+        console.log("We've got a folder / information: ", cbItem);
+        miro.showNotification("Skipping Folder / Information Item " + cbItem.name);
+        continue;
+      }
+    }
+    console.log("No folder/info");
+
     await MiroService.getInstance().createOrUpdateCbItem(cbItem);
     updateLoadingProgress(++count, cbItems.length);
   }
