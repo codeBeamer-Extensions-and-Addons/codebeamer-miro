@@ -656,24 +656,28 @@ async function getAndSyncItemsWithCodeBeamer(itemIds: string[]): Promise<number>
  */
 async function syncItemsWithCodeBeamer(cbItems: CodeBeamerItem[]): Promise<void> {
   let count = 0;
-  for (let cbItem of cbItems) {
 
+  for (let cbItem of cbItems) {
     if(cbItem.categories?.length) {
-      console.log("We've got categories");
       if(cbItem.categories.find(c => c.name == 'Folder' || c.name == 'Information')){
-        console.log("We've got a folder / information: ", cbItem);
         miro.showNotification("Skipping Folder / Information Item " + cbItem.name);
         continue;
       }
     }
-    console.log("No folder/info");
-
     await MiroService.getInstance().createOrUpdateCbItem(cbItem);
     updateLoadingProgress(++count, cbItems.length);
   }
+
+  miro.showNotification("Creating relations between items...");
+  count = 0;
+  updateLoadingProgress(0, 0, true);
   for (let cbItem of cbItems) {
-    miro.showNotification("Creating relations between items...");
-    updateLoadingProgress(0,0, true);
+    updateLoadingProgress(++count, cbItems.length);
+    if(cbItem.categories?.length) {
+      if(cbItem.categories.find(c => c.name == 'Folder' || c.name == 'Information')){
+        continue;
+      }
+    }
     await createUpdateOrDeleteRelationLines(cbItem);
   }
 }
