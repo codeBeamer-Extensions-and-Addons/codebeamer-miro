@@ -6,6 +6,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### [0.10.0]
+
+#### Added
+- Import Page
+  - Filter Criteria can now be chosen from the three standard criteria Team/Release/Subject AND all of a Tracker's fields on top.
+
+### [0.9.11]
+
+#### Changed
+- Import Page
+  - No longer displays Items of category "Folder" or "Information".
+  - Also omits such items when mass-importing.
+
 ### [0.9.10]
 
 Summarizes minor changes between 0.9.4 and 0.9.10. These versions mainly comprise of technical improvements and bug-fixes.
@@ -16,7 +29,7 @@ Summarizes minor changes between 0.9.4 and 0.9.10. These versions mainly compris
 #### Changed
 - Import Page
   - "Import All" button now works with filters and adnavced search.
-  
+
 ### [0.9.4]
 
 #### Changed
