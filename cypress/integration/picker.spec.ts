@@ -112,6 +112,11 @@ describe('Picker', () => {
             
             cy.mockLogin();
             cy.visit('picker.html');
+
+            //stub cb API calls to fixed responses and therefore static assertions
+            //also allows to run tests without RCN connection
+            cy.intercept('GET', 'https://retinatest.roche.com/cb/api/v3/projects/**/trackers', { fixture: 'trackers.json' });
+            cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query', { fixture: 'trackerItems_page1.json' });
         });
 
         it('disables the import button by default', () => {
@@ -120,12 +125,6 @@ describe('Picker', () => {
 
         //requires the selected Project to have trackers (select has 1 option when it's empty, so we expect > 1 (which there are in the fixture))
         it('shows Trackers in the Tracker Select-select', () => {
-
-            //stub cb API calls to fixed responses and therefore static assertions
-            //also allows to run tests without RCN connection
-            cy.intercept('GET', 'https://retinatest.roche.com/cb/api/v3/projects/**/trackers', { fixture: 'trackers.json' });
-            cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query', { fixture: 'trackerItems_page1.json' });
-
             cy.get('select#selectedTracker').find('option').should(($options) => {
                 expect($options.length).to.be.greaterThan(1);
             });
@@ -133,30 +132,16 @@ describe('Picker', () => {
     
         //requires the selected project to be 907 on retinatest
         it('shows the "Miro sync test by urecha" Tracker as an option', () => {
-            //stub cb API calls to fixed responses and therefore static assertions
-            //also allows to run tests without RCN connection
-            cy.intercept('GET', 'https://retinatest.roche.com/cb/api/v3/projects/**/trackers', { fixture: 'trackers.json' });
-
             cy.get('select#selectedTracker').find('option[value=\"4877085\"]').contains('Miro sync test by urecha');
         });
     
         it('displays a table of Items when selecting a Tracker with items in it', () => {
-            //stub cb API calls to fixed responses and therefore static assertions
-            //also allows to run tests without RCN connection
-            cy.intercept('GET', 'https://retinatest.roche.com/cb/api/v3/projects/**/trackers', { fixture: 'trackers.json' });
-            cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query', { fixture: 'trackerItems_page1.json' });
-
             cy.get('select#selectedTracker').select('4877085');
     
             cy.get('div#table-container').should('have.descendants', 'tr').should('have.descendants', 'td');
         });
         
         it('enables the import button when an item is checked', () => {
-            //stub cb API calls to fixed responses and therefore static assertions
-            //also allows to run tests without RCN connection
-            cy.intercept('GET', 'https://retinatest.roche.com/cb/api/v3/projects/**/trackers', { fixture: 'trackers.json' });
-            cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query', { fixture: 'trackerItems_page1.json' });
-
             cy.get('select#selectedTracker').select('4877085');
     
             cy.get('input#1482773').parent().click();
@@ -165,11 +150,6 @@ describe('Picker', () => {
         });
     
         it('displays the amount of items to import on the import button', () => {
-            //stub cb API calls to fixed responses and therefore static assertions
-            //also allows to run tests without RCN connection
-            cy.intercept('GET', 'https://retinatest.roche.com/cb/api/v3/projects/**/trackers', { fixture: 'trackers.json' });
-            cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query', { fixture: 'trackerItems_page1.json' });
-
             cy.get('select#selectedTracker').select('4877085');
     
             cy.get('input#1482773').parent().click();
@@ -177,26 +157,6 @@ describe('Picker', () => {
             cy.get('input#1438657').parent().click();
     
             cy.get('button#importButton').contains('(3)');
-        });
-
-        //* RETINA-1565415
-        it('does not display items of category Folder or Information in the results table', () => {
-            cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query', { fixture: 'trackerItems_with_categories' }).as('query');
-
-            cy.get('select#selectedTracker').select('4877085');
-
-            cy.wait('@query');
-
-            //Folders
-            cy.get('input#1482773').should('not.exist');
-            cy.get('input#1482743').should('not.exist');
-            //Information
-            cy.get('input#1438657').should('not.exist');
-            //Information and Folder
-            cy.get('input#1438622').should('not.exist');
-
-            //regular item
-            cy.get('input#1431188').should('exist');
         });
 
         describe('simple search', () => {
@@ -346,5 +306,27 @@ describe('Picker', () => {
 
         })
     });
+
+    context('dynamic elements without before-hook', () => {
+        //* RETINA-1565415
+        it('does not display items of category Folder or Information in the results table', () => {
+            cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query', { fixture: 'trackerItems_with_categories' }).as('query');
+
+            cy.get('select#selectedTracker').select('4877085');
+
+            cy.wait('@query');
+
+            //Folders
+            cy.get('input#1482773').should('not.exist');
+            cy.get('input#1482743').should('not.exist');
+            //Information
+            cy.get('input#1438657').should('not.exist');
+            //Information and Folder
+            cy.get('input#1438622').should('not.exist');
+
+            //regular item
+            cy.get('input#1431188').should('exist');
+        });
+    })
 
 })
