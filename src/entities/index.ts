@@ -10,3 +10,6 @@ export * from './standard-item-property.enum';
 export * from './user-mapping.if';
 export * from './import-configuration.if';
 export * from './subquery-link-method.enum';
+export * from './codebeamer-reference.if';
+export * from './codebeamer-user-reference.if';
+export * from './codebeamer-item.if';

@@ -117,7 +117,6 @@ describe('Picker', () => {
             //also allows to run tests without RCN connection
             cy.intercept('GET', 'https://retinatest.roche.com/cb/api/v3/projects/**/trackers', { fixture: 'trackers.json' });
             cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query', { fixture: 'trackerItems_page1.json' });
-            //cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query?page=2&pageSize=13&queryString=tracker.id*', { fixture: 'trackerItems_page2.json' });
         });
 
         it('disables the import button by default', () => {
@@ -307,5 +306,43 @@ describe('Picker', () => {
 
         })
     });
+
+    //since all the above tests within the 'dynamic elements' context need their beforehook, but this one doesn't work properly with it
+    //this alternative context was created
+    //refactor as needed when more tests come in
+    context('dynamic elements without before-hook', () => {
+        //* RETINA-1565415
+        it('does not display items of category Folder or Information in the results table', () => {
+            cy.on('uncaught:exception', (err, runnable) => {
+                // * miro.anything will be undefined, so this is ignored
+                // * unfortunately, the error msg doesn't specify miro, so all errors of that
+                // * kind will be ignored, which weakens the testing result slightly.
+                // * only slightly, because this is an e2e test, not a unit test.
+                if (err.message.includes("Cannot read properties of undefined")) {
+                    return false;
+                }
+            });
+            
+            cy.mockLogin();
+            cy.visit('picker.html');
+
+            cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query', { fixture: 'trackerItems_with_categories' }).as('query');
+
+            cy.get('select#selectedTracker').select('4877085');
+
+            cy.wait('@query');
+
+            //Folders
+            cy.get('input#1482773').should('not.exist');
+            cy.get('input#1482743').should('not.exist');
+            //Information
+            cy.get('input#1438657').should('not.exist');
+            //Information and Folder
+            cy.get('input#1438622').should('not.exist');
+
+            //regular item
+            cy.get('input#1431188').should('exist');
+        });
+    })
 
 })

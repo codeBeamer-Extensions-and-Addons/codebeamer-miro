@@ -1,4 +1,4 @@
-import { StandardItemProperty, BoardSetting, LocalSetting, ImportConfiguration, SubqueryLinkMethod, FilterCriteria } from "../../entities";
+import { StandardItemProperty, BoardSetting, LocalSetting, ImportConfiguration, SubqueryLinkMethod, FilterCriteria, CodeBeamerItem } from "../../entities";
 import { MAX_ITEMS_PER_IMPORT, DEFAULT_ITEMS_PER_PAGE, DEFAULT_RESULT_PAGE, MAX_ITEMS_PER_SYNCH } from "../../constants/cb-import-defaults";
 import CodeBeamerService from "../../services/codebeamer";
 import MiroService from "../../services/miro";
@@ -383,7 +383,14 @@ async function executeQueryAndBuildResultTable(query: string) {
   if (!tableBuildup) clearResultTable();
 }
 
-function populateDataTable(data) {
+function populateDataTable(data: CodeBeamerItem[]) {
+  data = data.filter(item => {
+    if(item.categories?.length) {
+      if(item.categories.find(c => c.name == 'Folder' || c.name == 'Information')) return false;
+    }
+    return true;
+  });
+
   let pickedAttributeData = data.map(({ id, name }) => ({ ID: id, Name: name }))
   let table = document.getElementById("dataTable") as HTMLTableElement;
   if (table){
@@ -647,16 +654,31 @@ async function getAndSyncItemsWithCodeBeamer(itemIds: string[]): Promise<number>
  * @param cbItems Array of codeBeamer items.
  * @returns Number of items synchronized.
  */
-async function syncItemsWithCodeBeamer(cbItems: []): Promise<void> {
+async function syncItemsWithCodeBeamer(cbItems: CodeBeamerItem[]): Promise<void> {
   let count = 0;
+
   for (let cbItem of cbItems) {
+    if(cbItem.categories?.length) {
+      if(cbItem.categories.find(c => c.name == 'Folder' || c.name == 'Information')){
+        miro.showNotification("Skipping Folder / Information Item " + cbItem.name);
+        continue;
+      }
+    }
     await MiroService.getInstance().createOrUpdateCbItem(cbItem);
     updateLoadingProgress(++count, cbItems.length);
   }
+
+  miro.showNotification("Creating relations between items...");
+  count = 0;
+  updateLoadingProgress(0, 0, true);
   for (let cbItem of cbItems) {
-    miro.showNotification("Creating relations between items...");
-    updateLoadingProgress(0,0, true);
+    if(cbItem.categories?.length) {
+      if(cbItem.categories.find(c => c.name == 'Folder' || c.name == 'Information')){
+        continue;
+      }
+    }
     await createUpdateOrDeleteRelationLines(cbItem);
+    updateLoadingProgress(++count, cbItems.length);
   }
 }
 
