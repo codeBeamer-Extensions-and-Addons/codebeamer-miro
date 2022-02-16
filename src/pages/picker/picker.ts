@@ -672,13 +672,13 @@ async function syncItemsWithCodeBeamer(cbItems: CodeBeamerItem[]): Promise<void>
   count = 0;
   updateLoadingProgress(0, 0, true);
   for (let cbItem of cbItems) {
-    updateLoadingProgress(++count, cbItems.length);
     if(cbItem.categories?.length) {
       if(cbItem.categories.find(c => c.name == 'Folder' || c.name == 'Information')){
         continue;
       }
     }
     await createUpdateOrDeleteRelationLines(cbItem);
+    updateLoadingProgress(++count, cbItems.length);
   }
 }
 
