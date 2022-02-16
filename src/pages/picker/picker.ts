@@ -358,16 +358,17 @@ function getSelectedTracker(): string {
 function getFilterQuerySubstring(): string {
   const criteria = document.querySelectorAll('.criteria');
   if(!criteria?.length) return '';
-  let chainingMethod = Store.getInstance().getLocalSetting(LocalSetting.SUBQUERY_LINK_METHOD) ?? SubqueryLinkMethod.AND;
+  const chainingMethod = Store.getInstance().getLocalSetting(LocalSetting.SUBQUERY_LINK_METHOD) ?? SubqueryLinkMethod.AND;
   let query = ' AND (';
 
   for(let i = 0; i< criteria.length; i++) {
-    let type = (criteria[i].querySelector('select') as HTMLSelectElement)?.value;
-    let value = (criteria[i].querySelector('input') as HTMLInputElement)?.value;
+    const type = (criteria[i].querySelector('select') as HTMLSelectElement)?.value;
+    const value = (criteria[i].querySelector('input') as HTMLInputElement)?.value;
   
     if(!value || !type) continue;
 
-    let codeBeamerType = CodeBeamerService.getQueryEntityNameForCriteria(type);
+    const trackerId = Store.getInstance().getLocalSetting(LocalSetting.SELECTED_TRACKER);
+    const codeBeamerType = CodeBeamerService.getQueryEntityNameForCriteria(type, trackerId);
 
     query += `${i == 0 ? '' : (' ' + chainingMethod + ' ')}${codeBeamerType} = '${value}'`;
   }
