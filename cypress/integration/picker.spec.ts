@@ -195,7 +195,7 @@ describe('Picker', () => {
             });
 
             //* RETINA-1565422
-            it.only('filters the result table by the configured standard-criteria when it\'s updated', () => {                
+            it('filters the result table by the configured standard-criteria when it\'s updated', () => {                
                 cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query', []).as('query')
                 cy.intercept('GET', 'https://retinatest.roche.com/cb/api/v3/trackers/4877085/schema', []).as('schemaQuery');
                 
