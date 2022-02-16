@@ -1,4 +1,4 @@
-import { StandardItemProperty, BoardSetting, LocalSetting, ImportConfiguration, SubqueryLinkMethod, FilterCriteria, CodeBeamerItem } from "../../entities";
+import { StandardItemProperty, BoardSetting, LocalSetting, ImportConfiguration, SubqueryLinkMethod, FilterCriteria, CodeBeamerItem, CodeBeamerTrackerSchemaField } from "../../entities";
 import { MAX_ITEMS_PER_IMPORT, DEFAULT_ITEMS_PER_PAGE, DEFAULT_RESULT_PAGE, MAX_ITEMS_PER_SYNCH } from "../../constants/cb-import-defaults";
 import CodeBeamerService from "../../services/codebeamer";
 import MiroService from "../../services/miro";
@@ -8,6 +8,7 @@ const importedImage = '/img/checked-box.svg'
 
 let currentlyDisplayedItems: number = 0;
 let currentResultsPage: number = 1;
+let currentlyLoadedTrackerSchema: CodeBeamerTrackerSchemaField[] = [];
 
 miro.onReady(async () => {
   Store.create(miro.getClientId(), (await miro.board.info.get()).id);
@@ -313,10 +314,11 @@ async function cbqlQueryOnChange() {
 }
 
 async function trackersSelectionOnChange() {
-  let selectedTrackerElement = document.getElementById('selectedTracker') as HTMLSelectElement
-  let selectedTracker = selectedTrackerElement.value
+  let selectedTrackerElement = document.getElementById('selectedTracker') as HTMLSelectElement;
+  let selectedTracker = selectedTrackerElement.value;
+  resetInMemoryTrackerSchema();
   if (selectedTracker) {
-    Store.getInstance().saveLocalSettings({ [LocalSetting.SELECTED_TRACKER]: selectedTracker })
+    Store.getInstance().saveLocalSettings({ [LocalSetting.SELECTED_TRACKER]: selectedTracker });
     let importAllButton = document.getElementById('importAllButton') as HTMLButtonElement;
     if(importAllButton) importAllButton.disabled = false;
     let addFilterButton = document.getElementById('add-filter') as HTMLButtonElement;
@@ -858,6 +860,7 @@ function addFilterCriteriaElement() {
     console.error(".filter-criteria container not defined");
     return;
   }
+
   const criteriaTypes = Object.keys(FilterCriteria).map(e => {
     return FilterCriteria[e];
   });
@@ -877,6 +880,45 @@ function addFilterCriteriaElement() {
 
   if(existingCriteria + 1 >= criteriaTypes.length) {
     (document.getElementById('add-filter') as HTMLButtonElement).hidden = true;
+  }
+
+  if(currentlyLoadedTrackerSchema.length) {
+    addTrackerSchemaSelectOptionsToFilterCriteriaElement(inputGroup, currentlyLoadedTrackerSchema);
+  } else {
+    const trackerId = Store.getInstance().getLocalSetting(LocalSetting.SELECTED_TRACKER);
+    //these can be added once fetched, while the standard criteria are already displayed and available
+    CodeBeamerService.getInstance().getTrackerSchema(trackerId).then(schema => {
+      currentlyLoadedTrackerSchema = schema;
+      addTrackerSchemaSelectOptionsToFilterCriteriaElement(inputGroup, schema);
+    });
+  }
+
+}
+
+/**
+ * Adds the given Tracker Schema entries as options in the given filter criteria's select element.
+ * @param criteriaInputGroup The filter criteria element's input group containing the select element to append the option elements to.
+ * @param schema Tracker schema
+ */
+function addTrackerSchemaSelectOptionsToFilterCriteriaElement(criteriaInputGroup: HTMLDivElement, schema: CodeBeamerTrackerSchemaField[]) {
+  const select = criteriaInputGroup.querySelector('select') as HTMLSelectElement;
+
+  const option = document.createElement('option') as HTMLOptionElement;
+  option.disabled = true;
+  option.text = '----- Tracker-Fields -----';
+
+  select.appendChild(option);
+
+  for(let i = 0; i < schema.length; i++) {
+    const { name, legacyRestName, trackerItemField } = schema[i];
+
+    const option = document.createElement('option') as HTMLOptionElement;
+    option.value = trackerItemField ?? legacyRestName;
+    option.text = name;
+    //to differentiate from standard criteria types
+    option.id = 'custom-type-' + i;
+
+    select.appendChild(option);
   }
 }
 
@@ -910,6 +952,8 @@ function createFilterCriteriaInputGroup(criteriaTypes: string[]): HTMLDivElement
     const option = document.createElement('option') as HTMLOptionElement;
     option.value = criteriaTypes[i];
     option.text = criteriaTypes[i]
+    //to differentiate from custom options
+    option.id = 'standard-type-' + i.toString();
     option.selected = i == 0;
 
     select.appendChild(option);
@@ -995,4 +1039,8 @@ function toggleSubQueryLinkMethod(event) {
   Store.getInstance().saveLocalSettings({ [LocalSetting.SUBQUERY_LINK_METHOD]: current });
 
   updateQuery();
+}
+
+function resetInMemoryTrackerSchema() {
+  currentlyLoadedTrackerSchema = [];
 }
