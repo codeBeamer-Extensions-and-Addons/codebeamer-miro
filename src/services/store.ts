@@ -97,7 +97,7 @@ export default class Store {
 	 * Saves given settings in the localStorage.
 	 * @param settings Settings object to save.
 	 */
-	public saveLocalSettings(settings: { [key: string]: string | boolean }) {
+	public saveLocalSettings(settings: { [key: string]: any }) {
 		const currentSettings = localStorage.getItem(
 			this.getLocalSettingsLocalStorageKey()
 		);
