@@ -206,6 +206,7 @@ function getCheckedItems() {
 function importItems() {
   let itemsToImport = getCheckedItems()
   if (itemsToImport.length > 0){
+    displayLoadingScreen(itemsToImport.length);
     miro.showNotification(`Importing ${itemsToImport.length} items from codebeamer...`);
     getAndSyncItemsWithCodeBeamer(itemsToImport)
     .then(() => {
@@ -214,7 +215,7 @@ function importItems() {
     })
     .catch(err => {
       miro.showErrorNotification(err)
-      hideLoadingSpinnerAndShowDataTable();
+      removeLoadingScreen();
     })
   }
 }
@@ -328,7 +329,7 @@ async function trackersSelectionOnChange() {
   let selectedTrackerElement = document.getElementById('selectedTracker') as HTMLSelectElement;
   let selectedTracker = selectedTrackerElement.value;
   resetTrackerSchema();
-  //TODO and either load the new schema or remove all filter inputs
+  resetFilterCriteria();
   if (selectedTracker) {
     Store.getInstance().saveLocalSettings({ [LocalSetting.SELECTED_TRACKER]: selectedTracker });
     let importAllButton = document.getElementById('importAllButton') as HTMLButtonElement;
@@ -342,16 +343,15 @@ async function trackersSelectionOnChange() {
 
 /**
  * Function to run when updating the secondary filter criteria.
- * Will construct the query and trigger updating the resulttable.
+ * Will construct the query and trigger updating the result-table.
  */
 async function updateQuery() {
-  let loadingSpinner = (document.getElementById('loadingSpinner') as HTMLDivElement);
-  loadingSpinner.hidden = false;
+  hideDataTableAndShowLoadingSpinner();
   const selectedTracker = getSelectedTracker();
   const subQuery = getFilterQuerySubstring();
   const queryString = `tracker.id IN (${selectedTracker})${subQuery}`;
   executeQueryAndBuildResultTable(queryString);
-  loadingSpinner.hidden = true;
+  hideLoadingSpinnerAndShowDataTable();
 }
 
 function getSelectedTracker(): string {
@@ -658,7 +658,6 @@ function hideLoadingSpinnerAndShowDataTable() {
  * @returns Amount of items synchronized (since it can differ from number of items in the parameter array if items have been imported from different cb instances).
  */
 async function getAndSyncItemsWithCodeBeamer(itemIds: string[]): Promise<number> {
-  hideDataTableAndShowLoadingSpinner();
   let items = await (await CodeBeamerService
     .getInstance()
     .getCodeBeamerCbqlResult(`item.id IN (${itemIds.join(",")})`, DEFAULT_RESULT_PAGE, MAX_ITEMS_PER_SYNCH)).items;
