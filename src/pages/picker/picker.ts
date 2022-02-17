@@ -372,7 +372,6 @@ function getFilterQuerySubstring(): string {
 
   const filterCriteria = store.getLocalSetting(LocalSetting.FILTER_CRITERIA);
   if(!filterCriteria || !filterCriteria.length) return '';
-  console.log("Filtercriteria: ", filterCriteria);
 
   const chainingMethod = store.getLocalSetting(LocalSetting.SUBQUERY_LINK_METHOD) ?? SubqueryLinkMethod.AND;
 
@@ -1106,7 +1105,6 @@ function resetFilterCriteria() {
   Store.getInstance().saveLocalSettings({[LocalSetting.FILTER_CRITERIA]: filterCriteria});
 
   const criteriaChips = document.querySelectorAll('.criteria');
-  console.log("critChips: ", criteriaChips);
   if(criteriaChips && criteriaChips.length) {
     for(let i = 0; i <criteriaChips.length; i++) {
       criteriaChips[i].remove();
@@ -1121,7 +1119,6 @@ function hideWipeFilterButton() {
   const wipeBadge = document.getElementById('wipe-filter');
   if(wipeBadge) {
     wipeBadge.hidden = true;
-    console.log("hid wipe badge");
   }
 }
 
@@ -1129,6 +1126,5 @@ function showWipeFilterButton() {
   const wipeBadge = document.getElementById('wipe-filter');
   if(wipeBadge) {
     wipeBadge.hidden = false;
-    console.log("unhid wipe badge");
   }
 }
