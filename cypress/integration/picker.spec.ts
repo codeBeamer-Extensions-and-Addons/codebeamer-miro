@@ -117,6 +117,7 @@ describe('Picker', () => {
             //also allows to run tests without RCN connection
             cy.intercept('GET', 'https://retinatest.roche.com/cb/api/v3/projects/**/trackers', { fixture: 'trackers.json' });
             cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query', { fixture: 'trackerItems_page1.json' });
+            cy.intercept('GET', 'https://retinatest.roche.com/cb/api/v3/trackers/4877085/schema', { fixture: 'tracker_schema.json' }).as('schemaQuery');
         });
 
         it('disables the import button by default', () => {
@@ -173,7 +174,6 @@ describe('Picker', () => {
 
             //* RETINA-1565423
             it('adds a badge displaying the criteria after clicking the button to add a filter', () => {
-                cy.intercept('GET', 'https://retinatest.roche.com/cb/api/v3/trackers/4877085/schema', []).as('schemaQuery');
                 cy.get('select#selectedTracker').select('4877085');
                 cy.get('#filter-type').select('Team');
                 cy.get('#filter-value').type('Edelweiss');
@@ -195,7 +195,6 @@ describe('Picker', () => {
             //* RETINA-1565422
             it('filters the result table by the configured standard-criteria when it\'s updated', () => {                
                 cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query', []).as('query')
-                cy.intercept('GET', 'https://retinatest.roche.com/cb/api/v3/trackers/4877085/schema', []).as('schemaQuery');
                 
                 cy.get('select#selectedTracker').select('4877085');
                 const trackerQuery = "tracker.id IN (4877085)";
@@ -217,7 +216,6 @@ describe('Picker', () => {
 
             //*RETINA-1565423
             it('allows to choose tracker-specific filter criteria', () => {
-                cy.intercept('GET', 'https://retinatest.roche.com/cb/api/v3/trackers/4877085/schema', { fixture: 'tracker_schema.json'}).as('schemaQuery');
 
                 cy.get('select#selectedTracker').select('4877085');
                 //load schema only when the user really wants to filter further
@@ -233,7 +231,6 @@ describe('Picker', () => {
             
             //*RETINA-1565423
             it('filters the result table by the configured tracker-specific criteria when it\'s updated', () => {
-                cy.intercept('GET', 'https://retinatest.roche.com/cb/api/v3/trackers/4877085/schema', { fixture: 'tracker_schema.json'}).as('schemaQuery');
                 cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query', []).as('query')
                 
                 cy.get('select#selectedTracker').select('4877085');
