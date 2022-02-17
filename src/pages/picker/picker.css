@@ -5,6 +5,7 @@ body {
 	--miro-primary-text: #050038;
 	--miro-secondary-text: #827F9B;
 	--warn: #ffc107;
+	--info: #0dcaf0;
 	
 	margin: auto;
 	padding: 2rem;
@@ -153,19 +154,27 @@ button svg {
     border: none;
 	cursor: pointer;
 	margin-right: 1rem;
-    max-width: 100px;
+    max-width: 140px;
 }
 #add-filter {
 	margin-left: 0px;
 }
-#wipe-filter {
+.filter-option {
 	cursor: pointer;
 	font-weight: 100;
-	border: 1px solid red;
 	color: black;
+}
+#wipe-filter {
+	border: 1px solid red;
 }
 #wipe-filter:hover {
 	color: red; 
+}
+#query-chaining-method-toggle  {
+	border: 1px solid var(--info);
+}
+#query-chaining-method-toggle:hover  {
+	color: var(--info);
 }
 .criteria {
 	max-width: 200px;

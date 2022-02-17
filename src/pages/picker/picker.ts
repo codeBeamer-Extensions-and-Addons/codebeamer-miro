@@ -38,7 +38,7 @@ export async function initializeHandlers() {
   let lazyLoadButton = document.getElementById('lazy-load-button') as HTMLButtonElement;
   let addFilterCriteriaButton = document.getElementById('add-filter') as HTMLButtonElement;
   let filterValueInput = document.getElementById('filter-value') as HTMLButtonElement;
-  let toggleSubQueryButton = document.getElementById('toggleSubQuery') as HTMLButtonElement;
+  let toggleSubQueryButton = document.getElementById('query-chaining-method-toggle') as HTMLButtonElement;
   let wipeFilterButton = document.getElementById('wipe-filter') as HTMLSpanElement;
 
   let cachedAdvancedSearchEnabled = Store.getInstance().getLocalSetting(LocalSetting.ADVANCED_SEARCH_ENABLED)
@@ -68,7 +68,7 @@ export async function initializeHandlers() {
   }
 
   if(toggleSubQueryButton) {
-    toggleSubQueryButton.onclick = toggleSubQueryLinkMethod;
+    toggleSubQueryButton.onclick = toggleSubQueryChainingMethod;
   }
 
   if(wipeFilterButton) {
@@ -1027,8 +1027,10 @@ function addTrackerSchemaSelectOptions(select: HTMLSelectElement, schema: CodeBe
  * Toggles the stored subQueryLinkMethod between OR and AND, then calls {@link updateQuery}.
  * @param event Generic event containing the HTML target element
  */
-function toggleSubQueryLinkMethod(event) {
-  let current = (event.target as HTMLAnchorElement).text as SubqueryLinkMethod;
+function toggleSubQueryChainingMethod(event) {
+  let span = event.target as HTMLSpanElement;
+  if(!span) return; 
+  let current = span.innerText as SubqueryLinkMethod;
 
   if(current == SubqueryLinkMethod.AND) {
     current = SubqueryLinkMethod.OR;
@@ -1036,11 +1038,8 @@ function toggleSubQueryLinkMethod(event) {
     current = SubqueryLinkMethod.AND;
   }
 
-  document.querySelectorAll('.chaining-label').forEach($label => {
-    $label.textContent = current;
-  })
-
   Store.getInstance().saveLocalSettings({ [LocalSetting.SUBQUERY_LINK_METHOD]: current });
+  span.innerText = current;
 
   updateQuery();
 }
@@ -1126,5 +1125,19 @@ function showWipeFilterButton() {
   const wipeBadge = document.getElementById('wipe-filter');
   if(wipeBadge) {
     wipeBadge.hidden = false;
+  }
+}
+
+function hideQueryChainingMethodToggleButton() {
+  const button = document.getElementById('query-chaining-method-toggle');
+  if(button) {
+    button.hidden = true;
+  }
+}
+
+function showQueryChainingMethodToggleButton() {
+  const button = document.getElementById('query-chaining-method-toggle');
+  if(button) {
+    button.hidden = false;
   }
 }
