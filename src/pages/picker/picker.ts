@@ -1058,14 +1058,13 @@ function resetTrackerSchema() {
 }
 
 /**
- * Enables the three filter control elements type-select, value-input and add-button.
+ * Enables the three filter control elements type-select, value-input but not the add-button.
+ * The latter is enabled dynamically when input is provided by {@link toggleAddFilterDisabled}
  */
 function enableFilterControls() {
   let select = document.getElementById('filter-type') as HTMLSelectElement;
-  let addButton = document.getElementById('add-filter') as HTMLButtonElement;
   let valueInput = document.getElementById('filter-value') as HTMLButtonElement;
   if(select) select.disabled = false;
-  if(addButton) addButton.disabled = false;
   if(valueInput) valueInput.disabled = false;
 }
 
