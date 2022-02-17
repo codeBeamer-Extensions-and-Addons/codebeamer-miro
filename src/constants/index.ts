@@ -5,3 +5,4 @@ export * from './plugin-widget';
 export * from './svg';
 export * from './widget-initial-position-name';
 export * from './cb-associations';
+export * from './criteria-chip-id-prefix';
