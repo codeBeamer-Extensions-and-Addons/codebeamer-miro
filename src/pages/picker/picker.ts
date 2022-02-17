@@ -940,7 +940,7 @@ function addFilterCriteriaChip() {
  */
 function createFilterChip(container: HTMLDivElement, typeName: string, filterValue: string, id: number): void {
   const chip = document.createElement('div') as HTMLDivElement;
-  chip.classList.add('criteria', 'badge' ,'rounded-pill' ,'bg-light', 'text-muted', 'fade-in'); //TODO customize CSS to make it chippy (hover, bg, ::after?)
+  chip.classList.add('criteria', 'badge' ,'rounded-pill' ,'bg-light', 'text-muted', 'fade-in');
   chip.innerText = `${typeName}: ${filterValue}`;
 
   const closeButton = document.createElement('div') as HTMLDivElement;
