@@ -13,3 +13,4 @@ export * from './subquery-link-method.enum';
 export * from './codebeamer-reference.if';
 export * from './codebeamer-user-reference.if';
 export * from './codebeamer-item.if';
+export * from './codebeamer-tracker-schema-field.if';

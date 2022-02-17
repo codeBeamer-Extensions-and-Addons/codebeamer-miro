@@ -4,6 +4,9 @@ body {
 	--miro-lightgray: #E1E0E7;
 	--miro-primary-text: #050038;
 	--miro-secondary-text: #827F9B;
+	--warn: #ffc107;
+	--info: #0dcaf0;
+	--light-border: 1px solid var(--miro-lightgray);
 	
 	margin: auto;
 	padding: 2rem;
@@ -142,39 +145,74 @@ button svg {
 }
 
 /*filter criteria*/
+#selectedTracker {
+	max-width: 200px;
+}
 .filter-criteria {
 	display: flex;
 	flex-flow: row wrap;
 	margin: 0;
-	max-width: 70%;
 }
-.filter-criteria button {
-	width: auto;
-}
-.filter-criteria .chaining-label, .filter-criteria .remove-criteria-label {
-	position: relative;
-    top: -2px;
-}
-.criteria select {
+#filter-type {
 	background-color: #fff;
     border: none;
 	cursor: pointer;
+	margin-right: 1rem;
+    max-width: 130px;
+	border-bottom: var(--light-border);
 }
-.criteria select:focus-visible {
-	border: none;
+#filter-value {
+	border: var(--light-border);
 }
-.criteria input {
-	max-width: 150px;
+#add-filter {
+	margin-left: 0px;
+	border: var(--light-border);
 }
-.criteria span.input-group-text {
-	padding: 0 !important;
-	background-color: #fff !important;
+.filter-option {
+	cursor: pointer;
+	font-weight: 100;
+	color: black;
+}
+#wipe-filter {
+	border: 1px solid red;
+}
+#wipe-filter:hover {
+	color: red; 
+}
+#query-chaining-method-toggle  {
+	border: 1px solid var(--info);
+}
+#query-chaining-method-toggle:hover  {
+	color: var(--info);
+}
+.criteria {
+	max-width: 200px;
+	max-height: 25px;
+	font-weight: lighter;
+    font-size: xx-small;
+	cursor: initial;
+	user-select: none;
+	align-self: end;
+    margin-bottom: 0.6em;
+}
+.criteria:hover {
+	background-color: var(--miro-lightestgray) !important;
+}
+.criteria svg {
+	cursor: pointer;
+	border-radius: 50%;
+}
+.criteria .filter-removal{
+	display: inline;
+	cursor: pointer;
+}
+.criteria .filter-removal:hover svg{
+	background-color: var(--miro-lightgray) !important;
 }
 
 /*utilities*/
 .miro-input--warning {
-	/*bootstrap warning color*/
-	border-color: #ffc107;
+	border-color: var(--warn);
 }
 .row {
 	display: flex;

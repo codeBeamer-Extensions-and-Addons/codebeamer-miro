@@ -283,6 +283,17 @@ export default class CodeBeamerService {
       throw new Error(`Failed getting association details for association ${associationId}: ${err.status}`);
     }
   }
+
+  /**
+   * @param trackerId Id of the tracker in question
+   * @returns Detailed list of the given Tracker's properties (the schema).
+   */
+  async getTrackerSchema(trackerId: string): Promise<any> {
+    const path = `/trackers/${trackerId}/schema`;
+
+    const response = await this.get(path, '', 'Failed fetching Tracker schema');
+    return response.json();
+  }
   
   /**
    * Enriches given item's data by providing more details on its tracker and a more detailed description.
@@ -356,14 +367,14 @@ export default class CodeBeamerService {
    * Maps FilterCriteria enum values to codeBeamer Query language entity names
    * @param criteria FilterCriteria as enum value or string (for custom fields)
    * @param trackerId Optional trackerId (required only for custom fields)
-   * @returns the matching codebeamer query language entity's name to a Filter Criteria, e.g. "teamName" for Team.
+   * @returns the matching codebeamer query language entity's name to a Filter Criteria, e.g. "teamName" for Team. For non-enumerated criteria, it constructs a customField query string.
    */
   public static getQueryEntityNameForCriteria(criteria: FilterCriteria | string, trackerId?: string): string {
     switch(criteria) {
       case FilterCriteria.TEAM: return 'teamName';
       case FilterCriteria.RELEASE: return 'release';
       case FilterCriteria.SUBJECT: return 'subjectName';
-      default: return `${trackerId ?? ''}.${criteria}`;
+      default: return `'${trackerId}.${criteria}'`;
     }
   }
   

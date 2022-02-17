@@ -1,7 +1,7 @@
 {
   "author": "Max Poprawe",
   "name": "codebeamer-miro",
-  "version": "0.9.11",
+  "version": "0.11.1",
   "license": "AGPL-3.0",
   "files": [
     "src/**/*"

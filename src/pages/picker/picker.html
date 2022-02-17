@@ -42,24 +42,43 @@
       <div>
         <div id='simpleSearch' class="fade-in">
           <div class="row">
-            <div class="col">
-              <label class="block-label">
+            <div class="col-auto align-self-end">
+              <label class="block-label text-muted">
                 Tracker
               </label>
               <select id='selectedTracker' class="miro-select miro-select--small miro-select--secondary-bordered">
                 <option value="" disabled selected hidden>Select Tracker...</option>
               </select>
-            </div>
-            <div class="filter-criteria align-self-end relative">
-              <button id="add-filter" disabled title="Add criteria" class="mx-1 align-self-end miro-btn miro-btn--small miro-btn--secondary-bordered">
-                <img class="ionicon" src="img/funnel-outline.svg">
-              </button>
-            </div>
-          </div>
-          </div>
 
+            </div>
+
+            <div class="col-auto relative align-self-end">
+              <div class="py-1">
+                <label class="text-muted">
+                  Filter
+                </label>
+                <span hidden id="wipe-filter" class="mx-2 badge fade-in filter-option rounded-pill bg-light" title="Remove all filter criteria">Clear</span>
+                <span id="query-chaining-method-toggle" class="badge fade-in filter-option rounded-pill bg-light" title="Toggle between AND and OR chaining">AND</span>
+              </div>
+              <div class="input-group">
+                <select id="filter-type" placeholder="Type" disabled>
+                  <option disabled selected>Type</option>
+                </select>
+                <input id="filter-value" disabled type="texmiro-input--primary">
+                <button id="add-filter" disabled class="miroz-btn miro-btn--secondary-bordered miro-btn--small" title="Add filter">
+                  <img class="ionicon" src="img/filter-outline.svg">
+                </button>
+              </div>
+            </div>
+
+            <div id="filter-criteria" class="col filter-criteria">
+              <!-- js-generated chips -->
+            </div>
+
+          </div>
         </div>
-
+      </div>
+      
         <div id='advancedSearch' class="fade-in" style="display:none;">
           <label class="block-label">
             Enter CBQL query

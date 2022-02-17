@@ -1,5 +1,5 @@
-import { StandardItemProperty, BoardSetting, LocalSetting, ImportConfiguration, SubqueryLinkMethod, FilterCriteria, CodeBeamerItem } from "../../entities";
-import { MAX_ITEMS_PER_IMPORT, DEFAULT_ITEMS_PER_PAGE, DEFAULT_RESULT_PAGE, MAX_ITEMS_PER_SYNCH } from "../../constants/cb-import-defaults";
+import { StandardItemProperty, BoardSetting, LocalSetting, ImportConfiguration, SubqueryLinkMethod, FilterCriteria, CodeBeamerItem, CodeBeamerTrackerSchemaField } from "../../entities";
+import { MAX_ITEMS_PER_IMPORT, DEFAULT_ITEMS_PER_PAGE, DEFAULT_RESULT_PAGE, MAX_ITEMS_PER_SYNCH, CRITERIA_CHIP_ID_PREFIX } from "../../constants";
 import CodeBeamerService from "../../services/codebeamer";
 import MiroService from "../../services/miro";
 import Store from "../../services/store";
@@ -8,6 +8,7 @@ const importedImage = '/img/checked-box.svg'
 
 let currentlyDisplayedItems: number = 0;
 let currentResultsPage: number = 1;
+let currentlyLoadedTrackerSchema: CodeBeamerTrackerSchemaField[] = [];
 
 miro.onReady(async () => {
   Store.create(miro.getClientId(), (await miro.board.info.get()).id);
@@ -36,7 +37,9 @@ export async function initializeHandlers() {
   let secondaryFilterCriteria = document.getElementById('filter-criteria') as HTMLInputElement;
   let lazyLoadButton = document.getElementById('lazy-load-button') as HTMLButtonElement;
   let addFilterCriteriaButton = document.getElementById('add-filter') as HTMLButtonElement;
-  let toggleSubQueryButton = document.getElementById('toggleSubQuery') as HTMLButtonElement;
+  let filterValueInput = document.getElementById('filter-value') as HTMLButtonElement;
+  let toggleSubQueryButton = document.getElementById('query-chaining-method-toggle') as HTMLButtonElement;
+  let wipeFilterButton = document.getElementById('wipe-filter') as HTMLSpanElement;
 
   let cachedAdvancedSearchEnabled = Store.getInstance().getLocalSetting(LocalSetting.ADVANCED_SEARCH_ENABLED)
 
@@ -55,16 +58,25 @@ export async function initializeHandlers() {
   if(addFilterCriteriaButton) {
     let trackerSelected = Store.getInstance().getLocalSetting(LocalSetting.SELECTED_TRACKER);
     if(trackerSelected) {
-      addFilterCriteriaButton.disabled = false;
+      enableFilterControls();
     }
-    addFilterCriteriaButton.onclick = addFilterCriteriaElement;
+    addFilterCriteriaButton.onclick = addFilterCriteriaChip;
+  }
+
+  if(filterValueInput) {
+    filterValueInput.oninput = toggleAddFilterDisabled;
   }
 
   if(toggleSubQueryButton) {
-    toggleSubQueryButton.onclick = toggleSubQueryLinkMethod;
+    toggleSubQueryButton.onclick = toggleSubQueryChainingMethod;
+  }
+
+  if(wipeFilterButton) {
+    wipeFilterButton.onclick = resetFilterCriteria;
   }
   
   buildImportConfiguration();
+  buildFilterChipsFromStorage();
 
   if(importAllButton){
     if(!Store.getInstance().getLocalSetting(LocalSetting.SELECTED_TRACKER) || 
@@ -313,16 +325,18 @@ async function cbqlQueryOnChange() {
 }
 
 async function trackersSelectionOnChange() {
-  let selectedTrackerElement = document.getElementById('selectedTracker') as HTMLSelectElement
-  let selectedTracker = selectedTrackerElement.value
+  let selectedTrackerElement = document.getElementById('selectedTracker') as HTMLSelectElement;
+  let selectedTracker = selectedTrackerElement.value;
+  resetTrackerSchema();
+  //TODO and either load the new schema or remove all filter inputs
   if (selectedTracker) {
-    Store.getInstance().saveLocalSettings({ [LocalSetting.SELECTED_TRACKER]: selectedTracker })
+    Store.getInstance().saveLocalSettings({ [LocalSetting.SELECTED_TRACKER]: selectedTracker });
     let importAllButton = document.getElementById('importAllButton') as HTMLButtonElement;
     if(importAllButton) importAllButton.disabled = false;
-    let addFilterButton = document.getElementById('add-filter') as HTMLButtonElement;
-    if(addFilterButton) addFilterButton.disabled = false;
 
     updateQuery();
+    loadFilterTypes();
+    enableFilterControls();
   }
 }
 
@@ -354,22 +368,26 @@ function getSelectedTracker(): string {
  * @returns CBQL Query substring like "AND ... = ..." if any criteria was selected.
  */
 function getFilterQuerySubstring(): string {
-  const criteria = document.querySelectorAll('.criteria');
-  if(!criteria?.length) return '';
-  let chainingMethod = Store.getInstance().getLocalSetting(LocalSetting.SUBQUERY_LINK_METHOD) ?? SubqueryLinkMethod.AND;
-  let query = ' AND (';
+  const store = Store.getInstance();
 
-  for(let i = 0; i< criteria.length; i++) {
-    let type = (criteria[i].querySelector('select') as HTMLSelectElement)?.value;
-    let value = (criteria[i].querySelector('input') as HTMLInputElement)?.value;
+  const filterCriteria = store.getLocalSetting(LocalSetting.FILTER_CRITERIA);
+  if(!filterCriteria || !filterCriteria.length) return '';
+
+  const chainingMethod = store.getLocalSetting(LocalSetting.SUBQUERY_LINK_METHOD) ?? SubqueryLinkMethod.AND;
+
+  let index = 0;
+  let query = ' AND (';
+  for(let criteria of filterCriteria) {
+    const type = criteria.fieldName;
+    const value = criteria.value;
   
     if(!value || !type) continue;
 
-    let codeBeamerType = CodeBeamerService.getQueryEntityNameForCriteria(type);
+    const trackerId = store.getLocalSetting(LocalSetting.SELECTED_TRACKER);
+    const codeBeamerType = CodeBeamerService.getQueryEntityNameForCriteria(type, trackerId);
 
-    query += `${i == 0 ? '' : (' ' + chainingMethod + ' ')}${codeBeamerType} = '${value}'`;
+    query += `${index++ == 0 ? '' : (' ' + chainingMethod + ' ')}${codeBeamerType} = '${value}'`;
   }
-  
   query += ')';
   return query;
 }
@@ -849,62 +867,16 @@ function createDefaultImportConfigurationObject(): ImportConfiguration {
 }
 
 /**
- * Generates the HTML for a filter criteria.
+ * Fills the filter-type select's options with the standard criteria and loads tracker-specific types.
+ * The latter are loaded asynchronously and added with {@link addTrackerSchemaSelectOptions} when the data is fetched.
  */
-function addFilterCriteriaElement() {
-  const container = document.querySelector('.filter-criteria');
-  if(!container) {
-    miro.showErrorNotification("Something went wrong adding a criteria.")
-    console.error(".filter-criteria container not defined");
-    return;
-  }
+function loadFilterTypes() {
+  const select = document.getElementById('filter-type') as HTMLSelectElement;
+  if(!select) return;
+
   const criteriaTypes = Object.keys(FilterCriteria).map(e => {
     return FilterCriteria[e];
   });
-
-  const existingCriteria = document.querySelectorAll('.criteria').length;
-  if(existingCriteria >= criteriaTypes.length) return;
-
-  const div = createFilterCriteriaDiv();
-  const inputGroup = createFilterCriteriaInputGroup(criteriaTypes);
-  const chainingMethodLabel = createChainingMethodLabel();
-  const removeLabel = createFilterCriteriaRemoveLabel();
-
-  div.appendChild(chainingMethodLabel);
-  div.appendChild(removeLabel);
-  div.append(inputGroup);
-  container.appendChild(div);
-
-  if(existingCriteria + 1 >= criteriaTypes.length) {
-    (document.getElementById('add-filter') as HTMLButtonElement).hidden = true;
-  }
-}
-
-/**
- * Creates a div with the classes destined for a filter-criteria container.
- * @returns Created HTMLDivElement
- */
-function createFilterCriteriaDiv(): HTMLDivElement {
-  const div = document.createElement('div') as HTMLDivElement;
-  div.classList.add('mx-2', 'mt-2', 'align-self-end', 'criteria', 'fade-in');
-  return div;
-}
-
-/**
- * Creates an input group allowing to configure a query criteria.
- * Consists of a prepended type-select and a text-input with change-handler {@link updateQuery}.
- * @param criteriaTypes Options to select the criteria type from
- * @returns HTMLDivElement with a type-select and text-input.
- */
-function createFilterCriteriaInputGroup(criteriaTypes: string[]): HTMLDivElement {
-  const inputGroup = document.createElement('div') as HTMLDivElement;
-  inputGroup.classList.add('input-group');
-
-  const inputGroupPrepend = document.createElement('span') as HTMLSpanElement;
-  inputGroupPrepend.classList.add('input-group-text');
-
-  const select = document.createElement('select') as HTMLSelectElement;
-  select.classList.add('mx-2');
 
   for(let i = 0; i < criteriaTypes.length; i++) {
     const option = document.createElement('option') as HTMLOptionElement;
@@ -915,72 +887,151 @@ function createFilterCriteriaInputGroup(criteriaTypes: string[]): HTMLDivElement
     select.appendChild(option);
   }
 
-  const input = document.createElement('input') as HTMLInputElement;
-  input.type = 'text';
-  input.classList.add('miro-input', 'miro-input--small', 'miro-input--primary');
-  input.onchange = updateQuery;
-
-  inputGroupPrepend.appendChild(select);
-  inputGroup.appendChild(inputGroupPrepend);
-  inputGroup.appendChild(input);
-
-  return inputGroup;
+  if(currentlyLoadedTrackerSchema.length) {
+    addTrackerSchemaSelectOptions(select, currentlyLoadedTrackerSchema);
+  } else {
+    const trackerId = Store.getInstance().getLocalSetting(LocalSetting.SELECTED_TRACKER);
+    //these can be added once fetched, while the standard criteria are already displayed and available
+    CodeBeamerService.getInstance().getTrackerSchema(trackerId).then(schema => {
+      currentlyLoadedTrackerSchema = schema;
+      addTrackerSchemaSelectOptions(select, schema);
+    });
+  }
 }
 
 /**
- * Creates the chaining-method-label with respective styling and information and clickhandler {@link toggleSubQueryLinkMethod}
- * @returns HTMLLabelElement styled as an info-badge, telling the user what chaining method is currently configured. 
+ * Generates a filter chip using {@link createFilterChip} and saves its data in the local storage, then runs {@link updateQuery}
  */
-function createChainingMethodLabel(): HTMLLabelElement {
-  const chainingMethodLabel = document.createElement('label') as HTMLLabelElement;
-  chainingMethodLabel.classList.add('text-muted', 'font-size-smaller');
+function addFilterCriteriaChip() {
+  const container = document.getElementById('filter-criteria') as HTMLDivElement;
+  const filterTypeSelect = document.getElementById('filter-type') as HTMLSelectElement;
+  const filterValueInput = document.getElementById('filter-value') as HTMLInputElement;
 
-  const toggleChainingMethodAnchor = document.createElement('a') as HTMLAnchorElement;
-  toggleChainingMethodAnchor.title = "Click to toggle";
-  toggleChainingMethodAnchor.classList.add('badge', 'bg-info', 'chaining-label');
-  toggleChainingMethodAnchor.text = Store.getInstance().getLocalSetting(LocalSetting.SUBQUERY_LINK_METHOD) ?? SubqueryLinkMethod.AND;
-  toggleChainingMethodAnchor.onclick = toggleSubQueryLinkMethod;
+  if(!container || !filterTypeSelect || !filterValueInput) return;
+  
+  const selectedTypeName = filterTypeSelect.options[filterTypeSelect.selectedIndex].innerText;
+  const selectedTypeValue = filterTypeSelect.value;
+  const filterValue = filterValueInput.value;
+  
+  //save/overwrite filter in local settings
+  let filterCriteria = Store.getInstance().getLocalSetting(LocalSetting.FILTER_CRITERIA);
+  if(!filterCriteria || !filterCriteria.length) {
+    filterCriteria = [];
+    showWipeFilterButton();
+  }
+  let insertIndex = filterCriteria.length;
+  createFilterChip(container, selectedTypeName, filterValue, insertIndex);
 
-  chainingMethodLabel.appendChild(toggleChainingMethodAnchor);
+  //TODO interface or smth like that to make it less magic
+  //! doesn't allow specifying two teams or sprints etc.
+  filterCriteria.push({id: insertIndex, slug: selectedTypeName, fieldName: selectedTypeValue, value: filterValue });
+  Store.getInstance().saveLocalSettings({ [LocalSetting.FILTER_CRITERIA]: filterCriteria });
 
-  return chainingMethodLabel;
+  filterValueInput.value = '';
+  updateQuery();
 }
 
 /**
- * @returns HTMLLabelElement styled as a danger-badge with {@link removeFilterCriteriaElement} as onclick-handler.
+ * Creates a filterchip for the given parameters
+ * @param container Div to append the chip to
+ * @param typeName TypeName to display in the chip 
+ * @param typeValue TypeName to store for the cb query
+ * @param filterValue Value to query the type for
  */
-function createFilterCriteriaRemoveLabel(): HTMLLabelElement {
-  const removeLabel = document.createElement('label') as HTMLLabelElement;
-  removeLabel.classList.add('text-muted', 'font-size-smaller', 'mx-2');
+function createFilterChip(container: HTMLDivElement, typeName: string, filterValue: string, id: number): void {
+  const chip = document.createElement('div') as HTMLDivElement;
+  chip.classList.add('criteria', 'badge' ,'rounded-pill' ,'bg-light', 'text-muted', 'fade-in');
+  chip.innerText = `${typeName}: ${filterValue}`;
 
-  const removeAnchor = document.createElement('a') as HTMLAnchorElement;
-  removeAnchor.title = "Click to remove criteria";
-  removeAnchor.classList.add('badge', 'bg-danger', 'remove-criteria-label');
-  removeAnchor.text = 'x';
-  removeAnchor.onclick = removeFilterCriteriaElement;
+  const closeButton = document.createElement('div') as HTMLDivElement;
+  closeButton.classList.add('filter-removal', 'm-1');
+  closeButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><title>Close</title><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M368 368L144 144M368 144L144 368"/></svg>';
+  //for easy removal later
+  closeButton.id = `${CRITERIA_CHIP_ID_PREFIX}${id}`;
+  closeButton.onclick = removeFilterCriteria;
 
-  removeLabel.appendChild(removeAnchor);
-
-  return removeLabel;
+  chip.appendChild(closeButton);
+  container.appendChild(chip);
 }
 
 /**
- * Removes the target filter criteria element and calls {@link updateQuery}
+ * Creates the filter chips according to the loclly stored filter criteria.
+ */
+function buildFilterChipsFromStorage() {
+  const trackerSelected = Store.getInstance().getLocalSetting(LocalSetting.SELECTED_TRACKER);
+  let filterCriteria = Store.getInstance().getLocalSetting(LocalSetting.FILTER_CRITERIA);
+  if(!trackerSelected) {
+    resetFilterCriteria();
+    return;
+  }
+  if(!filterCriteria || !filterCriteria.length) return;
+  const container = document.getElementById('filter-criteria') as HTMLDivElement;
+  for(let criteria of filterCriteria) {
+    createFilterChip(container, criteria.slug, criteria.value, criteria.id);
+  }
+  showWipeFilterButton();
+}
+
+/**
+ * Removes the target filter criteria chip and calls {@link updateQuery}
  * @param event Event containing the target element
  */
-function removeFilterCriteriaElement(event) {
-  if(!event.target || !(event.target instanceof HTMLAnchorElement)) return;
-  event.target.closest('.criteria')?.remove();
-  (document.getElementById('add-filter') as HTMLButtonElement).hidden = false;
+ function removeFilterCriteria(event) {
+  if(!event.target) return;
+  const criteriaChip = event.target.closest('.criteria') as HTMLDivElement;
+  const closeButton = event.target.closest('div') as HTMLDivElement;
+  const criteriaId = closeButton.id.split('-')[1];
+  //remove criteria from local storage
+  let filterCriteria: any[] = Store.getInstance().getLocalSetting(LocalSetting.FILTER_CRITERIA);
+  if(filterCriteria.length == 1){
+    filterCriteria = [];
+    hideWipeFilterButton();
+  } else {
+    const criteria = filterCriteria.find(c => c.id == criteriaId);
+    const index = filterCriteria.indexOf(criteria);
+    filterCriteria.splice(index, 1);
+  }
+  console.log("FC post: ", filterCriteria);
+
+  Store.getInstance().saveLocalSettings({[LocalSetting.FILTER_CRITERIA]: filterCriteria });
+
+  criteriaChip.remove();
   updateQuery();
+}
+
+/**
+ * Adds the given Tracker Schema entries as options in the given select element.
+ * @param select The select element to add options to
+ * @param schema Tracker schema
+ */
+function addTrackerSchemaSelectOptions(select: HTMLSelectElement, schema: CodeBeamerTrackerSchemaField[]) {
+  const option = document.createElement('option') as HTMLOptionElement;
+  option.disabled = true;
+  option.text = '----- Tracker-Fields -----';
+
+  select.appendChild(option);
+
+  for(let i = 0; i < schema.length; i++) {
+    const { name, legacyRestName, trackerItemField } = schema[i];
+
+    const option = document.createElement('option') as HTMLOptionElement;
+    option.value = trackerItemField ?? legacyRestName;
+    option.text = name;
+    //to differentiate from standard criteria types
+    option.id = 'custom-type-' + i;
+
+    select.appendChild(option);
+  }
 }
 
 /**
  * Toggles the stored subQueryLinkMethod between OR and AND, then calls {@link updateQuery}.
  * @param event Generic event containing the HTML target element
  */
-function toggleSubQueryLinkMethod(event) {
-  let current = (event.target as HTMLAnchorElement).text as SubqueryLinkMethod;
+function toggleSubQueryChainingMethod(event) {
+  let span = event.target as HTMLSpanElement;
+  if(!span) return; 
+  let current = span.innerText as SubqueryLinkMethod;
 
   if(current == SubqueryLinkMethod.AND) {
     current = SubqueryLinkMethod.OR;
@@ -988,11 +1039,105 @@ function toggleSubQueryLinkMethod(event) {
     current = SubqueryLinkMethod.AND;
   }
 
-  document.querySelectorAll('.chaining-label').forEach($label => {
-    $label.textContent = current;
-  })
-
   Store.getInstance().saveLocalSettings({ [LocalSetting.SUBQUERY_LINK_METHOD]: current });
+  span.innerText = current;
 
   updateQuery();
+}
+
+/**
+ * Clears the {@link currentlyLoadedTrackerSchema} array
+ */
+function resetTrackerSchema() {
+  currentlyLoadedTrackerSchema = [];
+  let filterTypeSelect = document.getElementById('filter-type');
+  if(filterTypeSelect) {
+    filterTypeSelect.querySelectorAll('option').forEach($el => {
+      if($el.value) $el.remove();
+    })
+  }
+}
+
+/**
+ * Enables the three filter control elements type-select, value-input but not the add-button.
+ * The latter is enabled dynamically when input is provided by {@link toggleAddFilterDisabled}
+ */
+function enableFilterControls() {
+  let select = document.getElementById('filter-type') as HTMLSelectElement;
+  let valueInput = document.getElementById('filter-value') as HTMLButtonElement;
+  if(select) select.disabled = false;
+  if(valueInput) valueInput.disabled = false;
+}
+
+/**
+ * Disables the three filter control elements type-select, value-input and add-button.
+ */
+function disableFilterControls() {
+  let select = document.getElementById('filter-type') as HTMLSelectElement;
+  let addButton = document.getElementById('add-filter') as HTMLButtonElement;
+  let valueInput = document.getElementById('filter-value') as HTMLButtonElement;
+  if(select) select.disabled = true;
+  if(addButton) addButton.disabled = true;
+  if(valueInput) valueInput.disabled = true;
+}
+
+/**
+ * Eventhandler for the filter-value input element. Toggles disabled status of the add-filter button.
+ * Therefore, one can't add a filter if you haven't specified a value.
+ * @param event onchange event data
+ */
+function toggleAddFilterDisabled(event) {
+  let addButton = document.getElementById('add-filter') as HTMLButtonElement;
+  if(!addButton) return;
+  if(event.target.value) {
+    addButton.disabled = false;
+  } else {
+    addButton.disabled = true;
+  }
+}
+
+/**
+ * Resets all filter criteria, removing all chips and the wipe-button and clearing the respective storage.
+ */
+function resetFilterCriteria() {
+  const filterCriteria = [];
+  Store.getInstance().saveLocalSettings({[LocalSetting.FILTER_CRITERIA]: filterCriteria});
+
+  const criteriaChips = document.querySelectorAll('.criteria');
+  if(criteriaChips && criteriaChips.length) {
+    for(let i = 0; i <criteriaChips.length; i++) {
+      criteriaChips[i].remove();
+    }
+  }
+  hideWipeFilterButton();
+
+  updateQuery();
+}
+
+function hideWipeFilterButton() {
+  const wipeBadge = document.getElementById('wipe-filter');
+  if(wipeBadge) {
+    wipeBadge.hidden = true;
+  }
+}
+
+function showWipeFilterButton() {
+  const wipeBadge = document.getElementById('wipe-filter');
+  if(wipeBadge) {
+    wipeBadge.hidden = false;
+  }
+}
+
+function hideQueryChainingMethodToggleButton() {
+  const button = document.getElementById('query-chaining-method-toggle');
+  if(button) {
+    button.hidden = true;
+  }
+}
+
+function showQueryChainingMethodToggleButton() {
+  const button = document.getElementById('query-chaining-method-toggle');
+  if(button) {
+    button.hidden = false;
+  }
 }
