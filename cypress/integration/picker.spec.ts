@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-import { FilterCriteria, StandardItemProperty, LocalSetting } from '../../src/entities';
+import { FilterCriteria, StandardItemProperty, LocalSetting, SubqueryLinkMethod } from '../../src/entities';
 
 /**
  * Test specification for the picker.html site and its respective script.
@@ -162,22 +162,17 @@ describe('Picker', () => {
         describe('simple search', () => {
 
             //* RETINA-1565423
-            it.skip('has a button to switch between AND and OR chaining with AND as default for every criteria (but clicking it changes it for all of them)', () => {
-                //TODO adapt or remove
+            it('has a button to switch between AND and OR chaining with AND as default for every criteria', () => {
+
                 cy.get('select#selectedTracker').select('4877085');
-                cy.get('#add-filter').click()
 
-                cy.get('.chaining-label').first().should('have.text', 'AND');
-                cy.get('.chaining-label').last().should('have.text', 'AND');
-
-                cy.get('.chaining-label').first().click();
-
-                cy.get('.chaining-label').first().should('have.text', 'OR');
-                cy.get('.chaining-label').last().should('have.text', 'OR');
+                cy.get('#query-chaining-method-toggle').should('have.text', 'AND');
+                cy.get('#query-chaining-method-toggle').click();
+                cy.get('#query-chaining-method-toggle').should('have.text', 'OR');
             });
 
             //* RETINA-1565423
-            it.only('adds a badge displaying the criteria after clicking the button to add a filter', () => {
+            it('adds a badge displaying the criteria after clicking the button to add a filter', () => {
                 cy.intercept('GET', 'https://retinatest.roche.com/cb/api/v3/trackers/4877085/schema', []).as('schemaQuery');
                 cy.get('select#selectedTracker').select('4877085');
                 cy.get('#filter-type').select('Team');
@@ -187,7 +182,7 @@ describe('Picker', () => {
             });
 
             //* RETINA-1565423
-            it.only('allows to filter by standard criteria', () => {
+            it('allows to filter by standard criteria', () => {
                 cy.get('select#selectedTracker').select('4877085');
 
                 const criteria = Object.keys(FilterCriteria).map(e => FilterCriteria[e]);
@@ -198,7 +193,7 @@ describe('Picker', () => {
             });
 
             //* RETINA-1565422
-            it.only('filters the result table by the configured standard-criteria when it\'s updated', () => {                
+            it('filters the result table by the configured standard-criteria when it\'s updated', () => {                
                 cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query', []).as('query')
                 cy.intercept('GET', 'https://retinatest.roche.com/cb/api/v3/trackers/4877085/schema', []).as('schemaQuery');
                 
@@ -221,7 +216,7 @@ describe('Picker', () => {
             });
 
             //*RETINA-1565423
-            it.only('allows to choose tracker-specific filter criteria', () => {
+            it('allows to choose tracker-specific filter criteria', () => {
                 cy.intercept('GET', 'https://retinatest.roche.com/cb/api/v3/trackers/4877085/schema', { fixture: 'tracker_schema.json'}).as('schemaQuery');
 
                 cy.get('select#selectedTracker').select('4877085');
@@ -237,7 +232,7 @@ describe('Picker', () => {
             });
             
             //*RETINA-1565423
-            it.only('filters the result table by the configured tracker-specific criteria when it\'s updated', () => {
+            it('filters the result table by the configured tracker-specific criteria when it\'s updated', () => {
                 cy.intercept('GET', 'https://retinatest.roche.com/cb/api/v3/trackers/4877085/schema', { fixture: 'tracker_schema.json'}).as('schemaQuery');
                 cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query', []).as('query')
                 
