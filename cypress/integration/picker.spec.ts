@@ -178,11 +178,12 @@ describe('Picker', () => {
 
             //* RETINA-1565423
             it.only('adds a badge displaying the criteria after clicking the button to add a filter', () => {
+                cy.intercept('GET', 'https://retinatest.roche.com/cb/api/v3/trackers/4877085/schema', []).as('schemaQuery');
                 cy.get('select#selectedTracker').select('4877085');
                 cy.get('#filter-type').select('Team');
                 cy.get('#filter-value').type('Edelweiss');
                 cy.get('#add-filter').click();
-                cy.get('.filter-criteria').find('.criteria').first().should('have.text', 'Team:').and('have.text', 'Edelweiss');
+                cy.get('.filter-criteria').find('.criteria').first().should('include.text', 'Team: Edelweiss');
             });
 
             //* RETINA-1565423
@@ -243,7 +244,6 @@ describe('Picker', () => {
                 cy.get('select#selectedTracker').select('4877085');
                 cy.wait('@query');
                 
-                cy.get('#filter-type').click();
                 cy.wait('@schemaQuery');
 
                 cy.get('#filter-type').select('Sprint');
