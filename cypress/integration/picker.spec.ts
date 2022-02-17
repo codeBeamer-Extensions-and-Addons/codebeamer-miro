@@ -348,7 +348,8 @@ describe('Picker', () => {
     //refactor as needed when more tests come in
     context('dynamic elements without before-hook', () => {
         //* RETINA-1565415
-        it('does not display items of category Folder or Information in the results table', () => {    
+        it('does not display items of category Folder or Information in the results table', () => {  
+            cy.intercept('GET', 'https://retinatest.roche.com/cb/api/v3/trackers/4877085/schema', { fixture: 'tracker_schema.json' });  
             cy.intercept('GET', 'https://retinatest.roche.com/cb/api/v3/projects/**/trackers', { fixture: 'trackers.json' });        
             cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query', { fixture: 'trackerItems_with_categories' }).as('query');
             
