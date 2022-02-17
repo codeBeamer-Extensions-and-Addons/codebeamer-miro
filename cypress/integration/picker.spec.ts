@@ -255,7 +255,7 @@ describe('Picker', () => {
                 
                 cy.get('#filter-type').select('Acceptance Criteria');
                 cy.get('#filter-value').type('Work Properly');
-                const secondTrackerQuery = "tracker.id IN (4877085) AND ('4877085.versions' = 'PI5.2' AND '4877085.acceptanceCriteria' = 'Work properly')";
+                const secondTrackerQuery = "tracker.id IN (4877085) AND ('4877085.versions' = 'PI5.2' AND '4877085.acceptanceCriteria' = 'Work Properly')";
                 cy.get('#add-filter').click();
                 cy.wait('@query').its('request.body.queryString').should('equal', secondTrackerQuery);
             });
