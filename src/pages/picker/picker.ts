@@ -979,8 +979,8 @@ function buildFilterChipsFromStorage() {
  function removeFilterCriteria(event) {
   if(!event.target) return;
   const criteriaChip = event.target.closest('.criteria') as HTMLDivElement;
-  const closeButton = event.target as HTMLDivElement;
-  const criteriaId = +closeButton.id.split('-')[1];
+  const closeButton = event.target.closest('div') as HTMLDivElement;
+  const criteriaId = closeButton.id.split('-')[1];
   //remove criteria from local storage
   let filterCriteria: any[] = Store.getInstance().getLocalSetting(LocalSetting.FILTER_CRITERIA);
   if(filterCriteria.length == 1){
@@ -991,6 +991,7 @@ function buildFilterChipsFromStorage() {
     const index = filterCriteria.indexOf(criteria);
     filterCriteria.splice(index, 1);
   }
+  console.log("FC post: ", filterCriteria);
 
   Store.getInstance().saveLocalSettings({[LocalSetting.FILTER_CRITERIA]: filterCriteria });
 
