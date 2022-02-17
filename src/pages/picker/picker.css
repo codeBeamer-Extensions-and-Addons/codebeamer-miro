@@ -148,6 +148,14 @@ button svg {
 #selectedTracker {
 	max-width: 200px;
 }
+#filter-label {
+	position: relative;
+}
+#filter-label.loading::after {
+	position: absolute;
+	bottom: 0;
+	left: -20px;
+}
 .filter-criteria {
 	display: flex;
 	flex-flow: row wrap;
