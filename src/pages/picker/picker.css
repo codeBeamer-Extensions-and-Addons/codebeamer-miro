@@ -6,6 +6,7 @@ body {
 	--miro-secondary-text: #827F9B;
 	--warn: #ffc107;
 	--info: #0dcaf0;
+	--light-border: 1px solid var(--miro-lightgray);
 	
 	margin: auto;
 	padding: 2rem;
@@ -158,9 +159,14 @@ button svg {
 	cursor: pointer;
 	margin-right: 1rem;
     max-width: 130px;
+	border-bottom: var(--light-border);
+}
+#filter-value {
+	border: var(--light-border);
 }
 #add-filter {
 	margin-left: 0px;
+	border: var(--light-border);
 }
 .filter-option {
 	cursor: pointer;
