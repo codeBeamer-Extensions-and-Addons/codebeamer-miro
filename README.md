@@ -3,7 +3,7 @@
 This is a [codeBeamer](https://codebeamer.com/) <-> [Miro](https://miro.com/) integration web-plugin for Miro.
 It's main goal is to automate and therefore greatly speed up the process of mirroring codeBeamer items in Miro for planning/visualization purposes.
 
-The Plugin takes inspirtaion from thea lready existend [Jira Cards](https://miro.com/works-with-atlassian/) and [Azure Cards](https://miro.com/marketplace/azure-cards/) plugins.
+The Plugin takes inspiration from the already existent [Jira Cards](https://miro.com/works-with-atlassian/) and [Azure Cards](https://miro.com/marketplace/azure-cards/) plugins for Miro.
 
 # Installation
 
@@ -22,15 +22,15 @@ Installing the app on your team will also give you an Installation URL to share 
 
 ## Abstract
 
-The plugin allows you to connect to a specific codeBeamer instance with your codeBeamer credentials. 
-Once connected, you can open the [Import page](#import-page) to query items in a project, by selecting a Tracker and optionally specifying some additional criteria. Advanced users can also query items with CBQL.  
+The plugin allows you to connect to a specific codeBeamer instance with your codeBeamer credentials. This can be done via the [Plugin Widget](#plugin-widget).
+Once connected, you can open the [Import page](#import-page) to query items in a project, by selecting a Tracker and optionally specifying filter criteria. Advanced users can also query items directly with CBQL.  
 These items can then be imported into Miro, which will result in Card Widgets that display some of the items' properties and relations between them.
 
 ## Plugin settings
 
 ### Plugin widget
 
-Once installed, the plugin will create the below widget in your board. This widget contains some basic information and allows opening the [Settings Page](#Settings-Page) with the codeBeamer-button in it's toolbar.  
+Once installed, the plugin will create the below widget in your board. This widget contains some basic information and allows opening the [Settings Page](#Settings-Page) with the codeBeamer-Button in it's toolbar.  
 _If the widget is deleted, it will be regenerated when reloading the page, as long as the plugin is loaded._
 
 ![Plugin widget](readmeImg/plugin_widget.png "The widget created by the plugin")
@@ -64,7 +64,7 @@ The Import Page gives access to the app's main functionality; Importing items fr
 
 #### Query Items
 
-You can query items from your codeBeamer instance by Tracker and Team, Release or Subject. Users familiar with CBQL can alternatively specify the exact query they want to make with a CodeBeamer Query string in the [CBQL query input](#Advanced-Search).
+In order to query items you can either use the [regular search](#regular-search), which provides you with dropdowns and inputs to specify specific filter criteria or, if you're familiar with the [CQBL](https://codebeamer.com/cb/wiki/871101), you can also specify the exact query you want to make with a CodeBeamer Query Language string in the [advanced search](#Advanced-Search).
 
 ##### Regular Search
 
@@ -72,10 +72,20 @@ First, select a tracker within the specified project from the dropdown.
 
 ![Tracker select](readmeImg/picker_tracker_select.png "Tracker select")
 
-Additionally, the results can be filtered by either _Team_, _Release_, or _Subject_, which are standard codeBeamer item properties. _Mind that results only appear if the entered name precisely equals the entity (Team/Release/Subject) its name and doesn't match partial names._  
-Add up to three criteria with the button next to the Tracker select, then choose the entity type and enter a value to filter by the selected Tracker _and_ these criteria. The criteria themselves can be chained as either _and_ or _or_, which you can change by clicking the respective badge above a criteria (currently you can only toggle all criteria to be chained as _and_ or _or_ together).
+This will query for all Items in the selected Tracker. To narrow them further down, these Items can be filtered by virtually any property; The standard properties are _Team_, _Release_ and _Subject_, but the dropdown to select your criteria type from (1) will allow to choose from all of the selected Tracker's properties.
 
-![Filter criteria](readmeImg/picker_filter_criteria.png "Filter tracker items")
+![Filter criteria](readmeImg/import-filtering.png "Filter tracker items")
+
+Image legend
+1. Select a property to filter by
+2. Enter the property's value  
+Mind that this value must *exactly* correspond to the property's (text-)value for the query to work.
+3. Add the specified filter by clicking this button
+4. Your added criteria appear as chips to the right.  
+You can remove them individually here by clicking on their X-Button
+5. This button allows removing all specified filter criteria with a single click.
+6. This button allows to toggle between linking the specified criteria with AND or OR.  
+E.g. imagine you specified two teams, "Edelweiss" and "Margarite" as filters, this allows you to either filter for Itmes that have both "Edelweiss" *and* "Margarite" assigned (AND / intersection of the result sets) or Items that have either Team "Edelweiss" *or* Team "Margarite" assigned (OR / union of the result sets).
 
 ##### Advanced Search
 
@@ -104,8 +114,6 @@ Additionally, if the card has _upstream references_ or _outgoing relations_, the
 
 ![Relation visualized](readmeImg/plugin_relations.png "Relation visualized")
 
-_Displaying the association's name as a caption on the line is currently not working, but a planned feature. Following table shows what association type has what color:_
-
 | Type                         | Color                |
 | ---------------------------- | -------------------- |
 | depends on                   | Red - #FF1500        |
@@ -120,8 +128,9 @@ _Displaying the association's name as a caption on the line is currently not wor
 
 ##### Import Configuration
 
-By clicking the "Settings" button on the top right of the Page, you open a modal where you can configure import behaviour.  
-Currently, the only configuration option is selecting what properties, from a pre-defined list, you want to be imported and displayed on the resulting Miro Cards as Badges/Tags.
+Via the "Settings" button on the top right of the Page, you can open a modal where you can configure import behaviour.  
+Currently, the only configuration option available is selecting what properties you want to be imported and displayed on the resulting Miro Cards as Badges/Tags.  
+Mind that this list of properties is currently static. Choosing a Tracker with a different configuration won't change it.
 
 ![Import configuration](readmeImg/picker_import_config.png "Import configuration modal")
 
@@ -132,7 +141,7 @@ Just check a property and the next time you import / update items, the respectiv
 Since data of cards based on a codeBeamer item are read-only and can therefore not be changed in Miro, you have to do so in codeBeamer itself.  
 Any changes made in codeBeamer can then be synchronized to the Miro board via the `Update Synched Items (y)` button on the _Import from codeBeamer_ modal.
 
-![Update button](readmeImg/picker_modal_actions_sync.png "Update button")
+![Update button](readmeImg/plugin_update_button.png "Update button")
 
 Clicking the button updates the data (relations included) of **all** codeBeamer-originating widgets on the board, so mind that it can take its time. *There's currently no way of updating only a select amount of items.*
 
@@ -149,7 +158,7 @@ Consider that:
 
 # Contribute
 
-Anyone can contribute. Just branch off of `develop` and create a Pull request when your feature is ready. If you want to propose something instead, feel free to create an [Issue](https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/issues).
+Anyone can contribute. Just branch off of `develop` and create a Pull request when your feature is ready. If you want to propose a feature or report a bug instead, feel free to create an [Issue](https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/issues).
 
 ## Local setup (deprecated)
 
@@ -176,7 +185,3 @@ If you make a change to any of the html files, you will need to stop the http se
 
 ![Console Commands](readmeImg/consoleCommands.jpg "Three consoles with the commands to run")
 ![Running Consoles](readmeImg/consoleRunning.jpg "The running consoles when running locally")
-
-# Contribute
-
-You can simply create a branch, make your changes and submit a pull request to master.
