@@ -1,6 +1,7 @@
 # Deckt den nicht-automatisierten Teil der Test-Suite für die beschriebene Funktionalität
+# Veralteter Test
 
-@RETINA-1565408
+@RETINA-1565408 @deprecated
 Funktionalität: Items nach verschiedenen Standard-Eigenschaften suchen- / filtern
 
 	Items sollen, nachdem ein Tracker ausgewählt wurde, auch noch nach Team, Release oder Subject gefiltert werden können.
