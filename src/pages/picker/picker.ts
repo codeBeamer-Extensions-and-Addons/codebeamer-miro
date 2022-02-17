@@ -1,5 +1,5 @@
 import { StandardItemProperty, BoardSetting, LocalSetting, ImportConfiguration, SubqueryLinkMethod, FilterCriteria, CodeBeamerItem, CodeBeamerTrackerSchemaField } from "../../entities";
-import { MAX_ITEMS_PER_IMPORT, DEFAULT_ITEMS_PER_PAGE, DEFAULT_RESULT_PAGE, MAX_ITEMS_PER_SYNCH } from "../../constants/cb-import-defaults";
+import { MAX_ITEMS_PER_IMPORT, DEFAULT_ITEMS_PER_PAGE, DEFAULT_RESULT_PAGE, MAX_ITEMS_PER_SYNCH, CRITERIA_CHIP_ID_PREFIX } from "../../constants";
 import CodeBeamerService from "../../services/codebeamer";
 import MiroService from "../../services/miro";
 import Store from "../../services/store";
@@ -37,7 +37,9 @@ export async function initializeHandlers() {
   let secondaryFilterCriteria = document.getElementById('filter-criteria') as HTMLInputElement;
   let lazyLoadButton = document.getElementById('lazy-load-button') as HTMLButtonElement;
   let addFilterCriteriaButton = document.getElementById('add-filter') as HTMLButtonElement;
+  let filterValueInput = document.getElementById('filter-value') as HTMLButtonElement;
   let toggleSubQueryButton = document.getElementById('toggleSubQuery') as HTMLButtonElement;
+  let wipeFilterButton = document.getElementById('wipe-filter') as HTMLSpanElement;
 
   let cachedAdvancedSearchEnabled = Store.getInstance().getLocalSetting(LocalSetting.ADVANCED_SEARCH_ENABLED)
 
@@ -61,11 +63,20 @@ export async function initializeHandlers() {
     addFilterCriteriaButton.onclick = addFilterCriteriaChip;
   }
 
+  if(filterValueInput) {
+    filterValueInput.oninput = toggleAddFilterDisabled;
+  }
+
   if(toggleSubQueryButton) {
     toggleSubQueryButton.onclick = toggleSubQueryLinkMethod;
   }
+
+  if(wipeFilterButton) {
+    wipeFilterButton.onclick = resetFilterCriteria;
+  }
   
   buildImportConfiguration();
+  buildFilterChipsFromStorage();
 
   if(importAllButton){
     if(!Store.getInstance().getLocalSetting(LocalSetting.SELECTED_TRACKER) || 
@@ -360,18 +371,16 @@ function getFilterQuerySubstring(): string {
   const store = Store.getInstance();
 
   const filterCriteria = store.getLocalSetting(LocalSetting.FILTER_CRITERIA);
+  if(!filterCriteria || !filterCriteria.length) return '';
   console.log("Filtercriteria: ", filterCriteria);
-  const keys = Object.keys(filterCriteria);
-
-  if(!filterCriteria || !keys.length) return '';
 
   const chainingMethod = store.getLocalSetting(LocalSetting.SUBQUERY_LINK_METHOD) ?? SubqueryLinkMethod.AND;
 
   let index = 0;
   let query = ' AND (';
-  for(let key of keys) {
-    const type = filterCriteria[key].fieldName;
-    const value = filterCriteria[key].value;
+  for(let criteria of filterCriteria) {
+    const type = criteria.fieldName;
+    const value = criteria.value;
   
     if(!value || !type) continue;
 
@@ -892,7 +901,7 @@ function loadFilterTypes() {
 }
 
 /**
- * Generates a chip based on the selected filter criteria and filters the table accordingly
+ * Generates a filter chip using {@link createFilterChip} and saves its data in the local storage, then runs {@link updateQuery}
  */
 function addFilterCriteriaChip() {
   const container = document.getElementById('filter-criteria') as HTMLDivElement;
@@ -904,31 +913,64 @@ function addFilterCriteriaChip() {
   const selectedTypeName = filterTypeSelect.options[filterTypeSelect.selectedIndex].innerText;
   const selectedTypeValue = filterTypeSelect.value;
   const filterValue = filterValueInput.value;
-
-  const chip = document.createElement('div') as HTMLDivElement;
-  chip.classList.add('criteria', 'badge' ,'rounded-pill' ,'bg-light', 'text-muted'); //TODO customize CSS to make it chippy (hover, bg, ::after?)
-  chip.innerText = `${selectedTypeName}: ${filterValue}`;
   
   //save/overwrite filter in local settings
   let filterCriteria = Store.getInstance().getLocalSetting(LocalSetting.FILTER_CRITERIA);
-  if(!filterCriteria) {
-    filterCriteria = {};
-  } 
+  if(!filterCriteria || !filterCriteria.length) {
+    filterCriteria = [];
+    showWipeFilterButton();
+  }
+  let insertIndex = filterCriteria.length;
+  createFilterChip(container, selectedTypeName, filterValue, insertIndex);
+
   //TODO interface or smth like that to make it less magic
-  filterCriteria[selectedTypeName] = { fieldName: selectedTypeValue, value: filterValue } ;
+  //! doesn't allow specifying two teams or sprints etc.
+  filterCriteria.push({id: insertIndex, slug: selectedTypeName, fieldName: selectedTypeValue, value: filterValue });
   Store.getInstance().saveLocalSettings({ [LocalSetting.FILTER_CRITERIA]: filterCriteria });
+
+  filterValueInput.value = '';
+  updateQuery();
+}
+
+/**
+ * Creates a filterchip for the given parameters
+ * @param container Div to append the chip to
+ * @param typeName TypeName to display in the chip 
+ * @param typeValue TypeName to store for the cb query
+ * @param filterValue Value to query the type for
+ */
+function createFilterChip(container: HTMLDivElement, typeName: string, filterValue: string, id: number): void {
+  const chip = document.createElement('div') as HTMLDivElement;
+  chip.classList.add('criteria', 'badge' ,'rounded-pill' ,'bg-light', 'text-muted', 'fade-in'); //TODO customize CSS to make it chippy (hover, bg, ::after?)
+  chip.innerText = `${typeName}: ${filterValue}`;
 
   const closeButton = document.createElement('div') as HTMLDivElement;
   closeButton.classList.add('filter-removal', 'm-1');
   closeButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><title>Close</title><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M368 368L144 144M368 144L144 368"/></svg>';
+  //for easy removal later
+  closeButton.id = `${CRITERIA_CHIP_ID_PREFIX}${id}`;
   closeButton.onclick = removeFilterCriteria;
 
   chip.appendChild(closeButton);
   container.appendChild(chip);
+}
 
-  filterValueInput.value = '';
-
-  updateQuery();
+/**
+ * Creates the filter chips according to the loclly stored filter criteria.
+ */
+function buildFilterChipsFromStorage() {
+  const trackerSelected = Store.getInstance().getLocalSetting(LocalSetting.SELECTED_TRACKER);
+  let filterCriteria = Store.getInstance().getLocalSetting(LocalSetting.FILTER_CRITERIA);
+  if(!trackerSelected) {
+    resetFilterCriteria();
+    return;
+  }
+  if(!filterCriteria || !filterCriteria.length) return;
+  const container = document.getElementById('filter-criteria') as HTMLDivElement;
+  for(let criteria of filterCriteria) {
+    createFilterChip(container, criteria.slug, criteria.value, criteria.id);
+  }
+  showWipeFilterButton();
 }
 
 /**
@@ -938,11 +980,19 @@ function addFilterCriteriaChip() {
  function removeFilterCriteria(event) {
   if(!event.target) return;
   const criteriaChip = event.target.closest('.criteria') as HTMLDivElement;
-  const type = criteriaChip.innerText.toString().split(':')[0];
-  console.log("Type: ", type);
+  const closeButton = event.target as HTMLDivElement;
+  const criteriaId = +closeButton.id.split('-')[1];
   //remove criteria from local storage
-  let filterCriteria = Store.getInstance().getLocalSetting(LocalSetting.FILTER_CRITERIA);
-  delete filterCriteria[type];
+  let filterCriteria: any[] = Store.getInstance().getLocalSetting(LocalSetting.FILTER_CRITERIA);
+  if(filterCriteria.length == 1){
+    filterCriteria = [];
+    hideWipeFilterButton();
+  } else {
+    const criteria = filterCriteria.find(c => c.id == criteriaId);
+    const index = filterCriteria.indexOf(criteria);
+    filterCriteria.splice(index, 1);
+  }
+
   Store.getInstance().saveLocalSettings({[LocalSetting.FILTER_CRITERIA]: filterCriteria });
 
   criteriaChip.remove();
@@ -1009,18 +1059,76 @@ function resetTrackerSchema() {
   }
 }
 
+/**
+ * Enables the three filter control elements type-select, value-input and add-button.
+ */
 function enableFilterControls() {
   let select = document.getElementById('filter-type') as HTMLSelectElement;
   let addButton = document.getElementById('add-filter') as HTMLButtonElement;
+  let valueInput = document.getElementById('filter-value') as HTMLButtonElement;
   if(select) select.disabled = false;
-  if(addButton) {
-    addButton.disabled = false;
-  }
+  if(addButton) addButton.disabled = false;
+  if(valueInput) valueInput.disabled = false;
 }
 
+/**
+ * Disables the three filter control elements type-select, value-input and add-button.
+ */
 function disableFilterControls() {
   let select = document.getElementById('filter-type') as HTMLSelectElement;
   let addButton = document.getElementById('add-filter') as HTMLButtonElement;
+  let valueInput = document.getElementById('filter-value') as HTMLButtonElement;
   if(select) select.disabled = true;
   if(addButton) addButton.disabled = true;
+  if(valueInput) valueInput.disabled = true;
+}
+
+/**
+ * Eventhandler for the filter-value input element. Toggles disabled status of the add-filter button.
+ * Therefore, one can't add a filter if you haven't specified a value.
+ * @param event onchange event data
+ */
+function toggleAddFilterDisabled(event) {
+  let addButton = document.getElementById('add-filter') as HTMLButtonElement;
+  if(!addButton) return;
+  if(event.target.value) {
+    addButton.disabled = false;
+  } else {
+    addButton.disabled = true;
+  }
+}
+
+/**
+ * Resets all filter criteria, removing all chips and the wipe-button and clearing the respective storage.
+ */
+function resetFilterCriteria() {
+  const filterCriteria = [];
+  Store.getInstance().saveLocalSettings({[LocalSetting.FILTER_CRITERIA]: filterCriteria});
+
+  const criteriaChips = document.querySelectorAll('.criteria');
+  console.log("critChips: ", criteriaChips);
+  if(criteriaChips && criteriaChips.length) {
+    for(let i = 0; i <criteriaChips.length; i++) {
+      criteriaChips[i].remove();
+    }
+  }
+  hideWipeFilterButton();
+
+  updateQuery();
+}
+
+function hideWipeFilterButton() {
+  const wipeBadge = document.getElementById('wipe-filter');
+  if(wipeBadge) {
+    wipeBadge.hidden = true;
+    console.log("hid wipe badge");
+  }
+}
+
+function showWipeFilterButton() {
+  const wipeBadge = document.getElementById('wipe-filter');
+  if(wipeBadge) {
+    wipeBadge.hidden = false;
+    console.log("unhid wipe badge");
+  }
 }

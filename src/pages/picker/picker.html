@@ -51,15 +51,18 @@
               </select>
             </div>
 
-            <div class="col-auto relative">
-              <label class="block-label text-muted">
-                Filter
-              </label>
+            <div class="col-auto relative align-self-end">
+              <div>
+                <label class="text-muted">
+                  Filter
+                </label>
+                <span hidden id="wipe-filter" class="mx-2 badge rounded-pill bg-light" title="Remove all filter criteria">Clear</span>
+              </div>
               <div class="input-group">
                 <select id="filter-type" placeholder="Type" disabled>
                   <option disabled selected>Type</option>
                 </select>
-                <input id="filter-value" type="text" class="miro-input miro-input--small miro-input--primary">
+                <input id="filter-value" disabled type="text" class="miro-input miro-input--small miro-input--primary">
                 <button id="add-filter" disabled class="miro-btn miro-btn--secondary-bordered miro-btn--small" title="Add filter">
                   <img class="ionicon" src="img/filter-outline.svg">
                 </button>
