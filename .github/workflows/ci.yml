@@ -20,9 +20,9 @@ jobs:
         uses: cypress-io/github-action@v2
         with:
           build: npm run build-linux
-          start: npm run start
-          wait-on: "http://127.0.0.1:8080"
-          wait-on-timeout: 20
+          # start: npm run start
+          # wait-on: "http://127.0.0.1:8080"
+          # wait-on-timeout: 20
           browser: chrome
           record: true
           parallel: false
