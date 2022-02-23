@@ -1,0 +1,786 @@
+[
+    {
+        "id": 0,
+        "name": "ID",
+        "type": "IntegerField",
+        "hidden": false,
+        "valueModel": "IntegerFieldValue",
+        "mandatoryInStatuses": [],
+        "legacyRestName": "id",
+        "trackerItemField": "id"
+    },
+    {
+        "id": 1,
+        "name": "Tracker",
+        "type": "ReferenceField",
+        "hidden": false,
+        "valueModel": "NotSupportedFieldValue",
+        "mandatoryInStatuses": [],
+        "legacyRestName": "tracker",
+        "trackerItemField": "tracker"
+    },
+    {
+        "id": 2,
+        "name": "Priority",
+        "type": "OptionChoiceField",
+        "hidden": false,
+        "valueModel": "ChoiceFieldValue<ChoiceOptionReference>",
+        "title": "P",
+        "mandatoryInStatuses": [],
+        "multipleValues": false,
+        "options": [
+            {
+                "id": 0,
+                "name": "Unset",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 1,
+                "name": "Highest",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 2,
+                "name": "High",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 3,
+                "name": "Normal",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 4,
+                "name": "Low",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 5,
+                "name": "Lowest",
+                "type": "ChoiceOptionReference"
+            }
+        ],
+        "legacyRestName": "priority",
+        "trackerItemField": "priority",
+        "referenceType": "ChoiceOptionReference"
+    },
+    {
+        "id": 3,
+        "name": "Summary",
+        "type": "TextField",
+        "hidden": false,
+        "valueModel": "TextFieldValue",
+        "mandatoryInStatuses": [
+            {
+                "id": 0,
+                "name": "Unset",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 1,
+                "name": "New",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 2,
+                "name": "Approved",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 3,
+                "name": "Committed",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 4,
+                "name": "Done",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 5,
+                "name": "Ready for Review",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 6,
+                "name": "In Progress",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 7,
+                "name": "Rejected",
+                "type": "ChoiceOptionReference"
+            }
+        ],
+        "legacyRestName": "name",
+        "trackerItemField": "name"
+    },
+    {
+        "id": 4,
+        "name": "Submitted at",
+        "type": "DateField",
+        "hidden": false,
+        "valueModel": "DateFieldValue",
+        "mandatoryInStatuses": [],
+        "legacyRestName": "submittedAt",
+        "trackerItemField": "createdAt"
+    },
+    {
+        "id": 5,
+        "name": "Assigned to",
+        "type": "UserChoiceField",
+        "hidden": false,
+        "valueModel": "ChoiceFieldValue<UserReference>",
+        "mandatoryInStatuses": [],
+        "multipleValues": true,
+        "legacyRestName": "assignedTo",
+        "trackerItemField": "assignedTo",
+        "referenceType": "UserReference"
+    },
+    {
+        "id": 6,
+        "name": "Submitted by",
+        "type": "UserChoiceField",
+        "hidden": false,
+        "valueModel": "ChoiceFieldValue<UserReference>",
+        "mandatoryInStatuses": [],
+        "multipleValues": false,
+        "legacyRestName": "submitter",
+        "trackerItemField": "createdBy",
+        "referenceType": "UserReference"
+    },
+    {
+        "id": 7,
+        "name": "Status",
+        "type": "OptionChoiceField",
+        "hidden": false,
+        "valueModel": "ChoiceFieldValue<ChoiceOptionReference>",
+        "mandatoryInStatuses": [],
+        "multipleValues": false,
+        "options": [
+            {
+                "id": 0,
+                "name": "Unset",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 1,
+                "name": "New",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 2,
+                "name": "Approved",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 3,
+                "name": "Committed",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 4,
+                "name": "Done",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 5,
+                "name": "Ready for Review",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 6,
+                "name": "In Progress",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 7,
+                "name": "Rejected",
+                "type": "ChoiceOptionReference"
+            }
+        ],
+        "legacyRestName": "status",
+        "trackerItemField": "status",
+        "referenceType": "ChoiceOptionReference"
+    },
+    {
+        "id": 8,
+        "name": "Start Date",
+        "type": "DateField",
+        "hidden": false,
+        "valueModel": "DateFieldValue",
+        "mandatoryInStatuses": [],
+        "legacyRestName": "startDate",
+        "trackerItemField": "startDate"
+    },
+    {
+        "id": 9,
+        "name": "End Date",
+        "type": "DateField",
+        "hidden": false,
+        "valueModel": "DateFieldValue",
+        "mandatoryInStatuses": [],
+        "legacyRestName": "endDate",
+        "trackerItemField": "endDate"
+    },
+    {
+        "id": 10,
+        "name": "Planned Effort",
+        "type": "DurationField",
+        "hidden": false,
+        "valueModel": "DurationFieldValue",
+        "title": "Planned<br>Effort",
+        "mandatoryInStatuses": [],
+        "legacyRestName": "estimatedMillis",
+        "trackerItemField": "estimatedMillis"
+    },
+    {
+        "id": 11,
+        "name": "Spent Effort",
+        "type": "DurationField",
+        "hidden": false,
+        "valueModel": "DurationFieldValue",
+        "title": "Spent<br>Effort",
+        "mandatoryInStatuses": [],
+        "legacyRestName": "spentMillis",
+        "trackerItemField": "spentMillis"
+    },
+    {
+        "id": 12,
+        "name": "% Spent / Plan",
+        "type": "DecimalField",
+        "hidden": false,
+        "valueModel": "DecimalFieldValue",
+        "mandatoryInStatuses": [],
+        "legacyRestName": "spentEstimatedHours"
+    },
+    {
+        "id": 13,
+        "name": "PBI Type",
+        "type": "OptionChoiceField",
+        "hidden": false,
+        "valueModel": "ChoiceFieldValue<ChoiceOptionReference>",
+        "mandatoryInStatuses": [],
+        "multipleValues": false,
+        "options": [
+            {
+                "id": 0,
+                "name": "Unset",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 1,
+                "name": "Folder",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 3,
+                "name": "Business",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 4,
+                "name": "Architectural enabler",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 5,
+                "name": "Prototype",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 6,
+                "name": "Spike - Exploration Enabler",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 7,
+                "name": "Compliance enabler",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 8,
+                "name": "Service",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 9,
+                "name": "Capability",
+                "type": "ChoiceOptionReference"
+            }
+        ],
+        "legacyRestName": "pBIType",
+        "trackerItemField": "categories",
+        "referenceType": "ChoiceOptionReference"
+    },
+    {
+        "id": 14,
+        "name": "Severity",
+        "type": "OptionChoiceField",
+        "hidden": false,
+        "valueModel": "ChoiceFieldValue<ChoiceOptionReference>",
+        "mandatoryInStatuses": [],
+        "multipleValues": false,
+        "options": [],
+        "legacyRestName": "severity",
+        "trackerItemField": "severities",
+        "referenceType": "ChoiceOptionReference"
+    },
+    {
+        "id": 15,
+        "name": "Resolution",
+        "type": "OptionChoiceField",
+        "hidden": false,
+        "valueModel": "ChoiceFieldValue<ChoiceOptionReference>",
+        "mandatoryInStatuses": [],
+        "multipleValues": false,
+        "options": [],
+        "legacyRestName": "resolution",
+        "trackerItemField": "resolutions",
+        "referenceType": "ChoiceOptionReference"
+    },
+    {
+        "id": 17,
+        "name": "Requirements",
+        "type": "OptionChoiceField",
+        "hidden": true,
+        "valueModel": "ChoiceFieldValue<ChoiceOptionReference>",
+        "mandatoryInStatuses": [],
+        "multipleValues": false,
+        "options": [],
+        "legacyRestName": "requirements",
+        "trackerItemField": "subjects",
+        "referenceType": "ChoiceOptionReference"
+    },
+    {
+        "id": 18,
+        "name": "Accrued Effort",
+        "type": "DurationField",
+        "hidden": false,
+        "valueModel": "DurationFieldValue",
+        "title": "Accrued<br>Effort",
+        "mandatoryInStatuses": [],
+        "legacyRestName": "accruedMillis",
+        "trackerItemField": "accruedMillis"
+    },
+    {
+        "id": 19,
+        "name": "Story Points",
+        "type": "IntegerField",
+        "hidden": false,
+        "valueModel": "IntegerFieldValue",
+        "title": "Points",
+        "mandatoryInStatuses": [],
+        "legacyRestName": "storyPoints",
+        "trackerItemField": "storyPoints"
+    },
+    {
+        "id": 21,
+        "name": "Team",
+        "type": "TrackerItemChoiceField",
+        "hidden": false,
+        "valueModel": "ChoiceFieldValue<TrackerItemReference>",
+        "mandatoryInStatuses": [],
+        "multipleValues": true,
+        "legacyRestName": "team",
+        "trackerItemField": "teams",
+        "referenceType": "TrackerItemReference"
+    },
+    {
+        "id": 29,
+        "name": "Assigned at",
+        "type": "DateField",
+        "hidden": false,
+        "valueModel": "DateFieldValue",
+        "mandatoryInStatuses": [],
+        "legacyRestName": "assignedAt",
+        "trackerItemField": "assignedAt"
+    },
+    {
+        "id": 31,
+        "name": "Sprint",
+        "type": "TrackerItemChoiceField",
+        "hidden": false,
+        "valueModel": "ChoiceFieldValue<TrackerItemReference>",
+        "mandatoryInStatuses": [],
+        "multipleValues": false,
+        "legacyRestName": "versions",
+        "trackerItemField": "versions",
+        "referenceType": "TrackerItemReference"
+    },
+    {
+        "id": 32,
+        "name": "Product Owner",
+        "type": "UserChoiceField",
+        "hidden": false,
+        "valueModel": "ChoiceFieldValue<UserReference>",
+        "mandatoryInStatuses": [
+            {
+                "id": 2,
+                "name": "Approved",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 3,
+                "name": "Committed",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 4,
+                "name": "Done",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 5,
+                "name": "Ready for Review",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 6,
+                "name": "In Progress",
+                "type": "ChoiceOptionReference"
+            }
+        ],
+        "multipleValues": false,
+        "legacyRestName": "supervisors",
+        "trackerItemField": "owners",
+        "referenceType": "UserReference"
+    },
+    {
+        "id": 74,
+        "name": "Modified at",
+        "type": "DateField",
+        "hidden": false,
+        "valueModel": "DateFieldValue",
+        "mandatoryInStatuses": [],
+        "legacyRestName": "modifiedAt",
+        "trackerItemField": "modifiedAt"
+    },
+    {
+        "id": 75,
+        "name": "Modified by",
+        "type": "UserChoiceField",
+        "hidden": false,
+        "valueModel": "ChoiceFieldValue<UserReference>",
+        "mandatoryInStatuses": [],
+        "multipleValues": false,
+        "legacyRestName": "modifier",
+        "trackerItemField": "modifiedBy",
+        "referenceType": "UserReference"
+    },
+    {
+        "id": 76,
+        "name": "Parent",
+        "type": "ReferenceField",
+        "hidden": false,
+        "valueModel": "NotSupportedFieldValue",
+        "mandatoryInStatuses": [],
+        "legacyRestName": "parent",
+        "trackerItemField": "parent"
+    },
+    {
+        "id": 79,
+        "name": "Children",
+        "type": "ReferenceField",
+        "hidden": false,
+        "valueModel": "NotSupportedFieldValue",
+        "mandatoryInStatuses": [],
+        "legacyRestName": "children",
+        "trackerItemField": "children"
+    },
+    {
+        "id": 80,
+        "name": "Description",
+        "type": "WikiTextField",
+        "hidden": false,
+        "valueModel": "WikiTextFieldValue",
+        "mandatoryInStatuses": [
+            {
+                "id": 2,
+                "name": "Approved",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 3,
+                "name": "Committed",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 4,
+                "name": "Done",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 5,
+                "name": "Ready for Review",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 6,
+                "name": "In Progress",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 7,
+                "name": "Rejected",
+                "type": "ChoiceOptionReference"
+            }
+        ],
+        "legacyRestName": "description",
+        "trackerItemField": "description"
+    },
+    {
+        "id": 81,
+        "name": "Closed at",
+        "type": "DateField",
+        "hidden": false,
+        "valueModel": "DateFieldValue",
+        "mandatoryInStatuses": [],
+        "legacyRestName": "closedAt",
+        "trackerItemField": "closedAt"
+    },
+    {
+        "id": 83,
+        "name": "Staff",
+        "type": "UserChoiceField",
+        "hidden": false,
+        "valueModel": "ChoiceFieldValue<UserReference>",
+        "mandatoryInStatuses": [],
+        "multipleValues": false,
+        "legacyRestName": "staff",
+        "referenceType": "UserReference"
+    },
+    {
+        "id": 84,
+        "name": "Description Format",
+        "type": "TextField",
+        "hidden": false,
+        "valueModel": "TextFieldValue",
+        "mandatoryInStatuses": [],
+        "legacyRestName": "descFormat",
+        "trackerItemField": "descriptionFormat"
+    },
+    {
+        "id": 85,
+        "name": "Flags",
+        "type": "IntegerField",
+        "hidden": false,
+        "valueModel": "IntegerFieldValue",
+        "mandatoryInStatuses": [],
+        "legacyRestName": "flags"
+    },
+    {
+        "id": 88,
+        "name": "Attachments",
+        "type": "ReferenceField",
+        "hidden": true,
+        "valueModel": "NotSupportedFieldValue",
+        "mandatoryInStatuses": [],
+        "legacyRestName": "comments",
+        "trackerItemField": "comments"
+    },
+    {
+        "id": 1000,
+        "name": "Realised Feature",
+        "type": "TrackerItemChoiceField",
+        "hidden": false,
+        "valueModel": "ChoiceFieldValue<TrackerItemReference>",
+        "mandatoryInStatuses": [
+            {
+                "id": 2,
+                "name": "Approved",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 3,
+                "name": "Committed",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 4,
+                "name": "Done",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 5,
+                "name": "Ready for Review",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 6,
+                "name": "In Progress",
+                "type": "ChoiceOptionReference"
+            }
+        ],
+        "multipleValues": false,
+        "legacyRestName": "realisedFeature",
+        "referenceType": "TrackerItemReference"
+    },
+    {
+        "id": 1001,
+        "name": "PBI Category",
+        "type": "OptionChoiceField",
+        "hidden": false,
+        "valueModel": "ChoiceFieldValue<ChoiceOptionReference>",
+        "mandatoryInStatuses": [],
+        "multipleValues": false,
+        "options": [
+            {
+                "id": 0,
+                "name": "Unset",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 1,
+                "name": "Performance",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 2,
+                "name": "Scalability",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 3,
+                "name": "Capacity",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 4,
+                "name": "Availability",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 5,
+                "name": "Recoverability",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 6,
+                "name": "Maintainability",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 7,
+                "name": "Accessibility",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 8,
+                "name": "Integration",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 9,
+                "name": "Data migration",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 10,
+                "name": "Compliance Debt",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 11,
+                "name": "Compliance Debt - Enhancement",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 12,
+                "name": "Compliance Debt - Recommendation",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 13,
+                "name": "CC Retro",
+                "type": "ChoiceOptionReference"
+            }
+        ],
+        "legacyRestName": "pBICategory",
+        "referenceType": "ChoiceOptionReference"
+    },
+    {
+        "id": 1003,
+        "name": "Release",
+        "type": "TrackerItemChoiceField",
+        "hidden": false,
+        "valueModel": "ChoiceFieldValue<TrackerItemReference>",
+        "mandatoryInStatuses": [],
+        "multipleValues": true,
+        "legacyRestName": "release",
+        "referenceType": "TrackerItemReference"
+    },
+    {
+        "id": 10000,
+        "name": "Color",
+        "description": "On the critical path (set to red)  or not (no value)",
+        "type": "ColorField",
+        "hidden": false,
+        "valueModel": "ColorFieldValue",
+        "mandatoryInStatuses": [],
+        "legacyRestName": "color"
+    },
+    {
+        "id": 10001,
+        "name": "Acceptance Criteria",
+        "type": "WikiTextField",
+        "hidden": false,
+        "valueModel": "WikiTextFieldValue",
+        "title": "Acc Crit",
+        "mandatoryInStatuses": [
+            {
+                "id": 2,
+                "name": "Approved",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 3,
+                "name": "Committed",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 4,
+                "name": "Done",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 5,
+                "name": "Ready for Review",
+                "type": "ChoiceOptionReference"
+            },
+            {
+                "id": 6,
+                "name": "In Progress",
+                "type": "ChoiceOptionReference"
+            }
+        ],
+        "legacyRestName": "acceptanceCriteria"
+    },
+    {
+        "id": 10002,
+        "name": "Informally Tested",
+        "type": "BoolField",
+        "hidden": true,
+        "valueModel": "BoolFieldValue",
+        "mandatoryInStatuses": [],
+        "legacyRestName": "informallyTested"
+    },
+    {
+        "id": 10003,
+        "name": "Blocked",
+        "type": "BoolField",
+        "hidden": false,
+        "valueModel": "BoolFieldValue",
+        "mandatoryInStatuses": [],
+        "legacyRestName": "blocked"
+    },
+    {
+        "id": 10004,
+        "name": "GitLab Integration",
+        "type": "WikiTextField",
+        "hidden": false,
+        "valueModel": "WikiTextFieldValue",
+        "mandatoryInStatuses": [],
+        "legacyRestName": "gitLabIntegration"
+    }
+]

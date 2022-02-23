@@ -1,10 +1,5 @@
-import {
-	RELATION_OUT_ASSOCIATION_TYPE,
-	RELATION_UPSTREAM_REF_TYPE,
-} from "../constants/cb-relation-names";
-import { CardData } from "../entities/carddata.if";
-import { UserMapping } from "../entities/user-mapping.if";
-import { WIDGET_INITIAL_POSITION } from "../entities/widget-initial-position-name";
+import { BoardSetting, CardData, ImportConfiguration, StandardItemProperty } from "../entities";
+import { CB_ITEM_NAME_PROPERTY_NAME, RELATION_OUT_ASSOCIATION_TYPE, CODEBEAMER_ASSOCIATIONS, WIDGET_INITIAL_POSITION } from "../constants";
 import CodeBeamerService from "./codebeamer";
 import Store from "./store";
 
@@ -100,9 +95,14 @@ export default class MiroService {
 			widgetData.x = viewport.x + viewport.width / 2 + randomXOffset;
 			widgetData.y = viewport.y + viewport.height / 2 + randomYOffset;
 		}
-		let widget = (await miro.board.widgets.create(widgetData))[0];
+		let widget;
+		try {
+			widget = (await miro.board.widgets.create(widgetData))[0];
+		} catch (error) {
+			console.error(error);
+		}
 		let itemId = widget.metadata[Store.getInstance().appId].id;
-		console.log(
+		console.info(
 			`[codeBeamer-sync] ${widget.type} widget ${
 				widget.id
 			} has been created to match item ${
@@ -147,7 +147,7 @@ export default class MiroService {
 	async updateWidget(widgetData) {
 		let widget = (await miro.board.widgets.update(widgetData))[0];
 		let itemId = widget.metadata[Store.getInstance().appId].id;
-		console.log(
+		console.info(
 			`[codeBeamer-sync] ${widget.type} widget ${
 				widget.id
 			} has been updated to match item ${
@@ -186,13 +186,7 @@ export default class MiroService {
 						new URL(window.location.href).origin
 					}/img/codeBeamer-Logo-BW.png`,
 				},
-				customFields: [
-					{
-						mainColor: "#4f8ae8",
-						fontColor: "#ffffff",
-						value: `Status: ${item.status.name}`,
-					},
-				],
+				customFields: [],
 			},
 			capabilities: {
 				editable: false,
@@ -203,52 +197,8 @@ export default class MiroService {
 				},
 			},
 		};
-		// additional custom fields
-		if (item.release) {
-			cardData.card?.customFields?.push({
-				value: `Rel: ${item.release.name}`,
-			});
-		}
-		if (item.storyPoints) {
-			cardData.card?.customFields?.push({
-				value: `SP: ${item.storyPoints}`,
-			});
-		}
 
-		delete cardData.assignee; // so that it gets cleared if no value is set (but was previously set so is current on the card)
-		if (item.assignedTo) {
-			let mappedUser = item.assignedTo
-				.map((assignedUser) => assignedUser.id) // get cbUserID
-				.map((cbId: string) =>
-					Store.getInstance().getUserMapping({ cbUserId: cbId })
-				) // get mapping
-				// take the first mapping that is found (some users in CB might not be defined. If multiple are, we only take the first as the field is single select in miro)
-				.find((mapping: UserMapping | undefined) => !!mapping);
-
-			if (mappedUser) {
-				cardData.assignee = { userId: mappedUser.miroUserId };
-			}
-		}
-
-		if (item.startDate) {
-			let date = new Date(item.startDate).toLocaleDateString();
-			let customField = {
-				mainColor: "#393b3a",
-				fontColor: "#fff",
-				value: `Start: ${date}`,
-			};
-			cardData.card?.customFields?.push(customField);
-		}
-
-		if (item.endDate) {
-			let date = new Date(item.endDate).toLocaleDateString();
-			let customField = {
-				mainColor: "#393b3a",
-				fontColor: "#fff",
-				value: `End: ${date}`,
-			};
-			cardData.card?.customFields?.push(customField);
-		}
+		this.addCustomCardFields(cardData, item);
 
 		// background Color
 		let colorFieldValue = this.findColorFieldOnItem(item);
@@ -269,12 +219,104 @@ export default class MiroService {
 		return cardData;
 	}
 
+	private addCustomCardFields(cardData, item) {
+		//custom tags according to import Configuration
+		let importConfiguration: ImportConfiguration;
+		const NO_IMPORT_CONFIGURATION = "No import configuration defined";
+		try {
+			importConfiguration = Store.getInstance().getBoardSetting(BoardSetting.IMPORT_CONFIGURATION);
+
+			if(!importConfiguration) throw new Error(NO_IMPORT_CONFIGURATION);
+
+			const standardConfiguration = importConfiguration.standard;
+			const standardConfigurationKeys = Object.keys(standardConfiguration);
+			//a foreach on Object.keys got me the ky's indexes instead of keys as entries.
+			for(let i = 0; i < standardConfigurationKeys.length; i++) {
+				const key = standardConfigurationKeys[i] as StandardItemProperty;
+				const value = standardConfiguration[key];
+
+				if(value == false) continue;
+
+				const itemPropertyName = this.getCodeBeamerPropertyNameByFieldLabel(key);
+				if(!item[itemPropertyName]) continue;
+				let field = item[itemPropertyName];
+
+				let content: string;
+
+				if(field == null) continue;
+
+				if(typeof field === 'object') {
+					if(Array.isArray(field)) {
+						//* display comma-seperated names of all entries
+						content = '';
+						for(let j = 0; j < field.length; j++) {
+							let entry = field[j];
+							let slug = entry[CB_ITEM_NAME_PROPERTY_NAME];
+							content += `${slug}, `;
+						}
+						//remove trailing ", "
+						content = content.substring(0, content.length-2);
+					} else {
+						//* display the name-property
+						content = field[CB_ITEM_NAME_PROPERTY_NAME];
+					}
+				} else {
+					//* just show the field
+					content = field.toString();
+				}
+
+				let customField = {
+					//TODO custom colors
+					mainColor: this.getColorForFieldLabel(key),
+					fontColor: "#ffffff",
+					value: `${key}: ${content}`,
+				};
+				cardData.card?.customFields?.push(customField);
+			}
+		} catch (error) {
+			if(error.message !== NO_IMPORT_CONFIGURATION) {
+				miro.showErrorNotification("Something went wrong creating Tags for your item.");
+				console.error(error);
+			}
+		}
+
+		//status is always displayed, if the item has one
+		if(item.status) {
+			cardData.card?.customFields?.push({
+				mainColor: "#4f8ae8",
+				fontColor: "#ffffff",
+				value: `Status: ${item.status.name}`,
+			});
+		}
+
+		return cardData;
+	}
+
+	/**
+	 * Creates an {@link ILineWidget} based on the given data
+	 * @param relation CodeBeamer relation to visualize
+	 * @param fromCardId Id of the card to start the line from
+	 * @param toCardId Id of the card to lead the line to
+	 * @returns {@link ILineWidget} from {@link fromCardId} to {@link toCardId} with a customized style, defined by the {@link relation}'s type
+	 */
 	async convert2Line(relation, fromCardId, toCardId) {
+		let caption = '';
+		let relationDetails: any;
+		
+		if (relation.type === RELATION_OUT_ASSOCIATION_TYPE) {
+			relationDetails =
+			await CodeBeamerService.getInstance().getCodeBeamerAssociationDetails(
+				relation.id.toString()
+				);
+			caption = CODEBEAMER_ASSOCIATIONS.find(type => type.id == relationDetails.type.id)?.name ?? '';
+		}
+
 		return {
 			type: "LINE",
 			startWidgetId: fromCardId,
 			endWidgetId: toCardId,
-			style: await this.getLineStyleByRelationType(relation),
+			style: this.getLineStyle(relationDetails),
+			captions: [{ text: caption }],
 			capabilities: {
 				editable: false,
 			},
@@ -286,47 +328,28 @@ export default class MiroService {
 		};
 	}
 
-	async getLineStyleByRelationType(relation) {
+	/**
+	 * Creates the miro {@link ILineWidget}'s style object depending on what relation is given
+	 * @param relation CodeBeamer relation
+	 * @returns An object containing the styles definition for given relation
+	 */
+	getLineStyle(relation?: any): { lineColor: string, lineEndStyle: string, lineStartStyle: string, lineStyle: string, lineThickness: number, lineType: string} {
 		let style: any = {
 			lineType: miro.enums.lineType.ARROW,
 			lineStyle: miro.enums.lineStyle.NORMAL,
-			lineEndStyle: miro.enums.lineArrowheadStyle.ARC_ARROW,
+			lineEndStyle: miro.enums.lineArrowheadStyle.ARROW,
 			lineStartStyle: miro.enums.lineArrowheadStyle.NONE,
-			lineThickness: 1,
+			lineThickness: 2,
+			lineColor: "#000000",
 		};
 
-		if (relation.type === RELATION_OUT_ASSOCIATION_TYPE) {
-			let associationDetails =
-				await CodeBeamerService.getInstance().getCodeBeamerAssociationDetails(
-					relation.id.toString()
-				);
-			switch (associationDetails.type.id) {
-				case 1: // depends
-					style.lineColor = "#cf7f30"; // orange
-					style.lineEndStyle = miro.enums.lineArrowheadStyle.ARROW;
-					style.lineThickness = 5;
-					break;
-				case 4: // related
-				case 9: // copy of
-					style.lineColor = "#21cfb7"; // turquise
-					style.lineStyle = miro.enums.lineStyle.DASHED;
-					style.lineStartStyle = 1;
-					break;
-				case 6: // violates
-				case 8: // invalidates
-				case 7: // excludes
-					style.lineColor = "#b32525"; // red
-					break;
-				case 2: // parent
-				case 3: // child
-				case 5: // derived
-				default:
-				// leave default
+		if (relation) {
+			let associationType = CODEBEAMER_ASSOCIATIONS.find(type => type.id == relation.type.id);
+			if(associationType) {
+				style.lineColor = associationType.color;
 			}
-		} else if (relation.type === RELATION_UPSTREAM_REF_TYPE) {
-			style.lineThickness = 3;
+			style.lineStyle = miro.enums.lineStyle.DASHED;
 		}
-
 		return style;
 	}
 
@@ -337,5 +360,54 @@ export default class MiroService {
 			  )
 			: null;
 		return colorField ? colorField.value : null;
+	}
+
+	/**
+	 * Gets the static codeBeamer Item property name for a {@link StandardItemProperty} value
+	 * @param fieldLabel 
+	 * @returns Name of the codeBeamer item property labelled by {@link fieldLabel}
+	 */
+	private getCodeBeamerPropertyNameByFieldLabel(fieldLabel: StandardItemProperty): string {
+		switch(fieldLabel) {
+			case StandardItemProperty.ID: return "id";
+			case StandardItemProperty.TEAMS: return "teams";
+			case StandardItemProperty.OWNER: return "owners";
+			case StandardItemProperty.RELEASE: return "release";
+			case StandardItemProperty.PRIORITY: return "namedPriority";
+			case StandardItemProperty.STORY_POINTS: return "storyPoints";
+			case StandardItemProperty.START_DATE: return "startDate";
+			case StandardItemProperty.END_DATE: return "endDate";
+			case StandardItemProperty.ASSIGNED_TO: return "assignedTo";
+			case StandardItemProperty.ASSIGNED_AT: return "assignedAt";
+			case StandardItemProperty.SUBMITTED_AT: return "submittedAt";
+			case StandardItemProperty.SUBMITTED_BY: return "submitter";
+			case StandardItemProperty.MODIFIED_AT: return "modifiedAt";
+			case StandardItemProperty.MODIFIED_BY: return "modifier";
+		}
+	}
+
+	/**
+	 * Gets the static color for a given property, to be used as background for its custom card field.
+	 * @param fieldLabel Fieldlabel to get color for
+	 * @returns Color to use as background for creating custom card fields for given {@link fieldLabel}
+	 */
+	private getColorForFieldLabel(fieldLabel: StandardItemProperty): string {
+		switch(fieldLabel) {
+			case StandardItemProperty.ID: return "#bf4040";
+			case StandardItemProperty.TEAMS: return "#40bf95";
+			case StandardItemProperty.OWNER: return "#4095bf";
+			case StandardItemProperty.RELEASE: return "#406abf";
+			case StandardItemProperty.PRIORITY: return "#40bfbf";
+			case StandardItemProperty.STORY_POINTS: return "#bfbf40";
+			case StandardItemProperty.START_DATE: return "#9540bf";
+			case StandardItemProperty.END_DATE: return "#bf40bf";
+			case StandardItemProperty.ASSIGNED_TO: return "#95bf40";
+			case StandardItemProperty.ASSIGNED_AT: return "#6abf40";
+			case StandardItemProperty.SUBMITTED_AT: return "#40bf6a";
+			case StandardItemProperty.SUBMITTED_BY: return "#40bf40";
+			case StandardItemProperty.MODIFIED_AT: return "#bf9540";
+			case StandardItemProperty.MODIFIED_BY: return "#bf6840";
+			default: return '#303030'
+		}
 	}
 }

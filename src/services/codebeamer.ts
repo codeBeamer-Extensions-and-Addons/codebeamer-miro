@@ -7,6 +7,7 @@ import { BoardSetting } from '../entities/board-setting.enum';
 import Store from './store';
 import { CreateCbItem } from '../entities/create-cb-item.if';
 import { DEFAULT_ITEMS_PER_PAGE, DEFAULT_RESULT_PAGE } from '../constants/cb-import-defaults';
+import { FilterCriteria } from '../entities/filter-criteria.enum';
 
 /**
  * Provides an interface to the codeBeamer API.
@@ -85,8 +86,14 @@ export default class CodeBeamerService {
    * @returns An URL pointing to the codeBeamer address as saved in the settings.
    */
   private getBaseUrl(): URL {
-    let cbAddress = this.store.getBoardSetting(BoardSetting.CB_ADDRESS)
-    return new URL(cbAddress)
+    try {
+      let cbAddress = this.store.getBoardSetting(BoardSetting.CB_ADDRESS)
+      return new URL(cbAddress)
+    } catch (error) {
+      miro.showErrorNotification(error);
+      miro.board.ui.openModal('picker.html');
+      return new URL('');
+    }
   }
   
   /**
@@ -194,7 +201,14 @@ export default class CodeBeamerService {
    * @returns All a Project's trackers
    */
   public async getCodeBeamerProjectTrackers(projectId?: string): Promise<any> {
-    if (!projectId) projectId = Store.getInstance().getBoardSetting(BoardSetting.PROJECT_ID);
+    if (!projectId) {
+      try {
+        projectId = Store.getInstance().getBoardSetting(BoardSetting.PROJECT_ID);
+      } catch (error) {
+        miro.showErrorNotification(error);
+        miro.board.ui.openModal('picker.html');
+      }
+    }
     const requestUrl = `${this.getApiBasePath()}/projects/${projectId}/trackers`;
 
     try {
@@ -269,6 +283,17 @@ export default class CodeBeamerService {
       throw new Error(`Failed getting association details for association ${associationId}: ${err.status}`);
     }
   }
+
+  /**
+   * @param trackerId Id of the tracker in question
+   * @returns Detailed list of the given Tracker's properties (the schema).
+   */
+  async getTrackerSchema(trackerId: string): Promise<any> {
+    const path = `/trackers/${trackerId}/schema`;
+
+    const response = await this.get(path, '', 'Failed fetching Tracker schema');
+    return response.json();
+  }
   
   /**
    * Enriches given item's data by providing more details on its tracker and a more detailed description.
@@ -291,49 +316,67 @@ export default class CodeBeamerService {
     return cbItem;
   }
 
-    /**
-   * Creates a codeBeamer item based on a miro item.
-   * <p>
-   * The item is created in the "Inbox tracker" defined by it's id in the plugin's settings.
-   * If any part of the operation fails, the settings modal is opened and an error message is displayed.
-   * </p>
-   * @param item CbItem to create
-   * @returns Created item's data
-   */
-     async create(item: CreateCbItem): Promise<any> {
-      let trackerId = this.store.getBoardSetting(BoardSetting.INBOX_TRACKER_ID);
-      if(!trackerId) {
-        throw new Error('You must define an "Inbox Tracker ID" first!');
-      }
-  
-      if(item.description) {
-        item.description = sanitizeHtml(
-          item.description,
-          { 
-            allowedTags: [], 
-            allowedAttributes: {} 
-          });
-      }
-  
-      const requestUrl = `${this.getApiBasePath()}/trackers/${trackerId}/items`;
-  
-      try {
-        const response = await fetch(requestUrl, {
-          method: 'POST',
-          headers: this.getCbHeaders(),
-          body: JSON.stringify(item),
-        })
-        return response.json();
-      } catch (err) {
-        console.error(err);
-  
-        //TODO outsource
-        miro.board.ui.openModal('settings.html');
-        miro.showErrorNotification(`Please verify the settings are correct. Error: ${err}`)
-  
-        throw new Error(`Please verify the settings are correct. ErrorCode: ${err.status}`);
-      }
+  /**
+ * Creates a codeBeamer item based on a miro item.
+ * <p>
+ * The item is created in the "Inbox tracker" defined by it's id in the plugin's settings.
+ * If any part of the operation fails, the settings modal is opened and an error message is displayed.
+ * </p>
+ * @param item CbItem to create
+ * @returns Created item's data
+ */
+    async create(item: CreateCbItem): Promise<any> {
+    let trackerId;
+    try {
+      trackerId = this.store.getBoardSetting(BoardSetting.INBOX_TRACKER_ID);
+    } catch (error) {
+      miro.showErrorNotification('You must define an "Inbox Tracker ID" first!');
+      miro.board.ui.openModal('picker.html');
     }
+
+    if(item.description) {
+      item.description = sanitizeHtml(
+        item.description,
+        { 
+          allowedTags: [], 
+          allowedAttributes: {} 
+        });
+    }
+
+    const requestUrl = `${this.getApiBasePath()}/trackers/${trackerId}/items`;
+
+    try {
+      const response = await fetch(requestUrl, {
+        method: 'POST',
+        headers: this.getCbHeaders(),
+        body: JSON.stringify(item),
+      })
+      return response.json();
+    } catch (err) {
+      console.error(err);
+
+      //TODO outsource
+      miro.board.ui.openModal('settings.html');
+      miro.showErrorNotification(`Please verify the settings are correct. Error: ${err}`)
+
+      throw new Error(`Please verify the settings are correct. ErrorCode: ${err.status}`);
+    }
+  }
+
+  /**
+   * Maps FilterCriteria enum values to codeBeamer Query language entity names
+   * @param criteria FilterCriteria as enum value or string (for custom fields)
+   * @param trackerId Optional trackerId (required only for custom fields)
+   * @returns the matching codebeamer query language entity's name to a Filter Criteria, e.g. "teamName" for Team. For non-enumerated criteria, it constructs a customField query string.
+   */
+  public static getQueryEntityNameForCriteria(criteria: FilterCriteria | string, trackerId?: string): string {
+    switch(criteria) {
+      case FilterCriteria.TEAM: return 'teamName';
+      case FilterCriteria.RELEASE: return 'release';
+      case FilterCriteria.SUBJECT: return 'subjectName';
+      default: return `'${trackerId}.${criteria}'`;
+    }
+  }
   
   /**
    * Generic method to POST to the codeBeamer API

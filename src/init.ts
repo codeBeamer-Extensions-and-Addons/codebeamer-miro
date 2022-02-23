@@ -25,7 +25,7 @@ miro.onReady(async () => {
 				onClick: async () => {
 					try {
 						await CodeBeamerService.getInstance().getCodeBeamerUser();
-						miro.board.ui.openModal("picker.html");
+						miro.board.ui.openModal("picker.html", { width: 1080, height: 680});
 					} catch (err) {
 						console.error(err);
 						miro.showErrorNotification(
@@ -39,7 +39,7 @@ miro.onReady(async () => {
 				var menuItems: SDK.IWidgetMenuItem[] = [];
 				if (isSelectionConvertable(selectedWidgets))
 					menuItems.push({
-						tooltip: "Convert to codeBeamer Tracker",
+						tooltip: "Convert to codeBeamer Item",
 						svgIcon: CODEBEAMER_UPLOAD,
 						onClick: () => {
 							if (
@@ -77,7 +77,7 @@ miro.onReady(async () => {
 	});
 
 	console.info(
-		`[codeBeamer-sync] Plugin v0.4.1 initialized. Experiencing issues? Let us know at https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/issues`
+		`[codeBeamer-sync] Plugin v0.11.2 initialized. Experiencing issues? Let us know at https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/issues`
 	);
 });
 

@@ -1,8 +1,4 @@
-import { BoardSetting } from "../entities/board-setting.enum";
-import { LocalSetting } from "../entities/local-setting.enum";
-import { SessionSetting } from "../entities/session-setting.enum";
-import { SettingKey } from "../entities/setting-key.enum";
-import { UserMapping } from "../entities/user-mapping.if";
+import { ImportConfiguration, BoardSetting, LocalSetting, SessionSetting, SettingKey, UserMapping } from "../entities";
 
 export default class Store {
 	private static _instance: Store;
@@ -53,10 +49,6 @@ export default class Store {
 			localStorage.getItem(this.getBoardSettingsLocalStorageKey()) || "{}"
 		);
 		if (!data) {
-			miro.showNotification(
-				`Couldn't load board settings. Please re-enter them and then retry.`
-			);
-			miro.board.ui.openModal("settings.html");
 			throw new Error(
 				`Coudnn't load board settings. Please verify their integrity in the plugin settings.`
 			);
@@ -105,7 +97,7 @@ export default class Store {
 	 * Saves given settings in the localStorage.
 	 * @param settings Settings object to save.
 	 */
-	public saveLocalSettings(settings: { [key: string]: string | boolean }) {
+	public saveLocalSettings(settings: { [key: string]: any }) {
 		const currentSettings = localStorage.getItem(
 			this.getLocalSettingsLocalStorageKey()
 		);
@@ -176,10 +168,12 @@ export default class Store {
 	}
 
 	public async storeUserMapping(mapping: UserMapping) {
-		let storedMappings = this.getBoardSetting(
-			BoardSetting.USER_MAPPING
-		) as UserMapping[];
-		if (!storedMappings) storedMappings = [];
+		let storedMappings: UserMapping[];
+		try {
+			storedMappings = this.getBoardSetting(BoardSetting.USER_MAPPING) as UserMapping[];
+		} catch (error) {
+			storedMappings = [];
+		}
 
 		// remove all mappings for both, the cbUser and the miroUser
 		storedMappings = storedMappings.filter(
@@ -194,9 +188,12 @@ export default class Store {
 	}
 
 	public getUserMapping(userDetails: Partial<UserMapping>) {
-		let storedMappings = this.getBoardSetting(
-			BoardSetting.USER_MAPPING
-		) as UserMapping[];
+		let storedMappings: UserMapping[];
+		try {
+			storedMappings = this.getBoardSetting(BoardSetting.USER_MAPPING) as UserMapping[];
+		} catch (error) {
+			return null;
+		}
 		return storedMappings.find(
 			(m) =>
 				(!userDetails.cbUserId || m.cbUserId == userDetails.cbUserId) &&
