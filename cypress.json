@@ -1,5 +1,5 @@
 {
-    "baseUrl": "https://urecha.github.io/",
+    "baseUrl": "http://127.0.0.1:8080",
     "retries": {
         "runMode": 1,
         "openMode": 1
