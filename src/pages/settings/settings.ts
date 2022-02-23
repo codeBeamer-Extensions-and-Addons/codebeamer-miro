@@ -1,6 +1,4 @@
-import { BoardSetting } from "../../entities/board-setting.enum";
-import { LocalSetting } from "../../entities/local-setting.enum";
-import { SessionSetting } from "../../entities/session-setting.enum";
+import { BoardSetting, LocalSetting, SessionSetting } from "../../entities";
 import CodeBeamerService from "../../services/codebeamer";
 import MiroService from "../../services/miro";
 import Store from "../../services/store";
