@@ -35,16 +35,6 @@ describe('Picker', () => {
         it('has an update button', () => {
             cy.get('button#synchButton');
         }); 
-        
-        //* RETINA-1565419
-        it('has a button to load more search results with', () => {
-            cy.get('#lazy-load-button');
-        });
-        
-        //* RETINA-1565419
-        it('hides the button to load more search results with by default', () => {
-            cy.get('#lazy-load-button').should('have.attr', 'hidden');
-        })
 
         it.skip('shows the Tracker Select by default', () => {
             cy.get('div#simpleSearch').should('have.class', 'visible');
@@ -209,7 +199,6 @@ describe('Picker', () => {
                 cy.get('#filter-type').select('Team');
                 cy.get('#filter-value').type('Rover (Migration)');
                 cy.get('#add-filter').click();
-
                 const trackerAndTwoCriteriaQuery = "tracker.id IN (4877085) AND (teamName = 'Edelweiss' AND teamName = 'Rover (Migration)')";
                 cy.wait('@query').its('request.body.queryString').should('equal', trackerAndTwoCriteriaQuery);
             });
@@ -256,17 +245,11 @@ describe('Picker', () => {
         describe('loading additional results', () => {
 
             //* RETINA-1565419
-            it('enables the "load more results" button when there are more items that can be loaded for the selected criteria', () => {
-                cy.get('select#selectedTracker').select('4877085');
-                cy.get('#lazy-load-button').should('not.have.attr', 'disabled');
-            });
-
-            //* RETINA-1565419
-            it('loads additional search results when clicking the "load more results" button and appends them to the results table', () => {
+            it('loads additional search results when scrolling to the last result and appends them to the results table', () => {
                 cy.intercept('POST', 'https://retinatest.roche.com/cb/api/v3/items/query', { fixture: 'trackerItems_page2.json'}).as('query')
 
                 cy.get('select#selectedTracker').select('4877085');
-                cy.get('#lazy-load-button').click();
+                cy.get('#table-container').scrollTo('bottom');
 
                 //expect it to be called
                 cy.wait('@query');
