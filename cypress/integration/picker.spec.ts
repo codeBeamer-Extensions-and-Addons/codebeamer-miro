@@ -35,16 +35,6 @@ describe('Picker', () => {
         it('has an update button', () => {
             cy.get('button#synchButton');
         }); 
-        
-        //* RETINA-1565419
-        it('has a button to load more search results with', () => {
-            cy.get('#lazy-load-button');
-        });
-        
-        //* RETINA-1565419
-        it('hides the button to load more search results with by default', () => {
-            cy.get('#lazy-load-button').should('have.attr', 'hidden');
-        })
 
         it.skip('shows the Tracker Select by default', () => {
             cy.get('div#simpleSearch').should('have.class', 'visible');
