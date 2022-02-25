@@ -359,6 +359,7 @@ async function updateQuery() {
   const selectedTracker = getSelectedTracker();
   const subQuery = getFilterQuerySubstring();
   const queryString = `tracker.id IN (${selectedTracker})${subQuery}`;
+  currentResultsPage = 1;
   executeQueryAndBuildResultTable(queryString);
   hideLoadingSpinnerAndShowDataTable();
 }
@@ -1003,7 +1004,6 @@ function buildFilterChipsFromStorage() {
     const index = filterCriteria.indexOf(criteria);
     filterCriteria.splice(index, 1);
   }
-  console.log("FC post: ", filterCriteria);
 
   Store.getInstance().saveLocalSettings({[LocalSetting.FILTER_CRITERIA]: filterCriteria });
 
@@ -1150,10 +1150,9 @@ function createLazyLoadObserver() {
   const cb = (entries, observer) => {
     if(!entries[0]) return;
     if(!entries[0].isIntersecting) return;
+    observer.unobserve(entries[0].target);
 
     loadAndAppendNextResultPage();
-
-    observer.unobserve(entries[0].target);
   }
 
   lazyLoadObserver = new IntersectionObserver(cb, options);
