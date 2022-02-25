@@ -60,15 +60,17 @@
                 <span id="query-chaining-method-toggle" class="badge fade-in filter-option rounded-pill bg-light" title="Toggle between AND and OR chaining">AND</span>
                 <span hidden id="wipe-filter" class="mx-2 badge fade-in filter-option rounded-pill bg-light" title="Remove all filter criteria">Clear</span>
               </div>
-              <div class="input-group">
-                <select id="filter-type" placeholder="Type" disabled>
-                  <option disabled selected>Type</option>
-                </select>
-                <input id="filter-value" disabled type="texmiro-input--primary">
-                <button id="add-filter" disabled class="miroz-btn miro-btn--secondary-bordered miro-btn--small" title="Add filter">
-                  <img class="ionicon" src="img/funnel-outline.svg">
-                </button>
-              </div>
+              <form>
+                <div class="input-group">
+                  <select id="filter-type" placeholder="Type" disabled>
+                    <option disabled selected>Type</option>
+                  </select>
+                  <input id="filter-value" disabled type="texmiro-input--primary">
+                  <button id="add-filter" type="submit" disabled class="miroz-btn miro-btn--secondary-bordered miro-btn--small" title="Add filter">
+                    <img class="ionicon" src="img/funnel-outline.svg">
+                  </button>
+                </div>
+              </form>
             </div>
 
             <div id="filter-criteria" class="col filter-criteria">
@@ -94,14 +96,14 @@
 
     <div id='table-container'>
       <table id='dataTable' class="table table-sm"></table>
-      <div class="text-center py-1">
+      <!-- <div class="text-center py-1">
         <button id="lazy-load-button" hidden class="miro-btn miro-btn--secondary miro-btn--small">
           Load more results
         </button>
-      </div>
+      </div> -->
       <div id='loadingSpinner' class="pt-4 loading loading-medium" hidden></div>
-      <div id='end-of-content' class="text-center">
-        <span class="p-4 text-muted" hidden>End of stream.</span>
+      <div id='end-of-content' class="text-center" hidden>
+        <span class="p-4 text-muted">No more items.</span>
       </div>
     </div>
     <footer>
