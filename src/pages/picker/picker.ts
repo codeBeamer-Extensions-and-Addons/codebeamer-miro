@@ -9,6 +9,7 @@ const importedImage = '/img/checked-box.svg'
 let currentlyDisplayedItems: number = 0;
 let currentResultsPage: number = 1;
 let currentlyLoadedTrackerSchema: CodeBeamerTrackerSchemaField[] = [];
+var lazyLoadObserver;
 
 miro.onReady(async () => {
   Store.create(miro.getClientId(), (await miro.board.info.get()).id);
@@ -26,6 +27,7 @@ setTimeout(() => {
  */
 export async function initializeHandlers() {
   removeLoadingScreen();
+  createLazyLoadObserver();
 
   let trackersSelection = document.getElementById('selectedTracker') as HTMLSelectElement
   let importButton = document.getElementById('importButton')
@@ -61,6 +63,7 @@ export async function initializeHandlers() {
       enableFilterControls();
     }
     addFilterCriteriaButton.onclick = addFilterCriteriaChip;
+    addFilterCriteriaButton.onsubmit = addFilterCriteriaChip;
   }
 
   if(filterValueInput) {
@@ -224,6 +227,7 @@ function synchItems() {
   return MiroService.getInstance().getAllSynchedCodeBeamerCardItemIds()
   .then(itemsToSynch => {
     if (itemsToSynch.length > 0){
+      displayLoadingScreen(itemsToSynch.length);
       miro.showNotification(`Updating items...`);
         getAndSyncItemsWithCodeBeamer(itemsToSynch)
           .then((updated) => {
@@ -240,7 +244,7 @@ function synchItems() {
           })
           .catch(err => {
             miro.showErrorNotification(err)
-            hideLoadingSpinnerAndShowDataTable();
+            removeLoadingScreen();
           })
         }
     })
@@ -255,7 +259,7 @@ async function clearResultTable() {
   populateDataTable([]);
   currentlyDisplayedItems = 0;
   currentResultsPage = 1;
-  (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = true;
+  //(document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = true;
   (document.getElementById('end-of-content') as HTMLSpanElement).hidden = true;
 }
 
@@ -267,7 +271,7 @@ async function clearResultTable() {
 async function buildResultTable(cbqlQuery, page = 1) {
   let queryReturn = await CodeBeamerService.getInstance().getCodeBeamerCbqlResult(cbqlQuery, page, DEFAULT_ITEMS_PER_PAGE);
   if (queryReturn.message) {
-    (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = true;
+    //(document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = true;
     miro.showNotification(`Invalid query: ${queryReturn.message}`);
     return false;
   } else {
@@ -275,17 +279,22 @@ async function buildResultTable(cbqlQuery, page = 1) {
     let totalItems = queryReturn.total
     //enables lazy loading when there are more items to load
     if(totalItems > DEFAULT_ITEMS_PER_PAGE) {
-      (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = false;
+      //(document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = false;
     } else {
-      (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = true;
+      //(document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = true;
     }
 
     populateDataTable(queryReturn.items);
     updateImportCountOnImportButton();
     currentlyDisplayedItems += queryReturn.items.length;
 
-    if(currentlyDisplayedItems >= totalItems) {
-      (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = true;
+    if(currentlyDisplayedItems < totalItems) {
+      // (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = true;
+
+      setTimeout(() => {
+        let lastResult = document.querySelector('#dataTable tbody tr:last-child')
+        lazyLoadObserver.observe(lastResult);
+      },0);
     }
     
     let totalItemsDisplay = document.getElementById('total-items')
@@ -742,14 +751,13 @@ async function createUpdateOrDeleteRelationLines(cbItem) {
  * Loads the next results page for the current search criteria (or advanced query string) and calls {@link appendResultsToDataTable}.
  */
 async function loadAndAppendNextResultPage() {
-  (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = true;
+  (document.getElementById('loadingSpinner') as HTMLButtonElement).hidden = false;
   const isAdvancedSearch = Store.getInstance().getLocalSetting(LocalSetting.ADVANCED_SEARCH_ENABLED);
   let queryString = '';
   if(isAdvancedSearch) {
     const storedCBQString = Store.getInstance().getLocalSetting(LocalSetting.CBQL_STRING);
     if(!storedCBQString) {
       miro.showErrorNotification("Something went wrong trying to execute the query!");
-      (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = false;
       return;
     }
     queryString = storedCBQString;
@@ -765,11 +773,15 @@ async function loadAndAppendNextResultPage() {
   currentlyDisplayedItems += items.length;
 
   if(currentlyDisplayedItems >= totalItems) {
-    (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = true;
+    //(document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = true;
     (document.getElementById('end-of-content') as HTMLSpanElement).hidden = false;
   } else {
-    (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = false;
+    setTimeout(() => {
+      let lastResult = document.querySelector('#dataTable tbody tr:last-child')
+      lazyLoadObserver.observe(lastResult);
+    },0)
   }
+  (document.getElementById('loadingSpinner') as HTMLButtonElement).hidden = true;
 }
 
 /**
@@ -901,7 +913,8 @@ function loadFilterTypes() {
 /**
  * Generates a filter chip using {@link createFilterChip} and saves its data in the local storage, then runs {@link updateQuery}
  */
-function addFilterCriteriaChip() {
+function addFilterCriteriaChip(event) {
+  event.preventDefault();
   const container = document.getElementById('filter-criteria') as HTMLDivElement;
   const filterTypeSelect = document.getElementById('filter-type') as HTMLSelectElement;
   const filterValueInput = document.getElementById('filter-value') as HTMLInputElement;
@@ -1127,16 +1140,21 @@ function showWipeFilterButton() {
   }
 }
 
-function hideQueryChainingMethodToggleButton() {
-  const button = document.getElementById('query-chaining-method-toggle');
-  if(button) {
-    button.hidden = true;
-  }
-}
+function createLazyLoadObserver() {
+  const options = {
+    root: document.getElementById('table-container'),
+    rootMargin: '0px',
+    threshold: 1,
+  };
 
-function showQueryChainingMethodToggleButton() {
-  const button = document.getElementById('query-chaining-method-toggle');
-  if(button) {
-    button.hidden = false;
+  const cb = (entries, observer) => {
+    if(!entries[0]) return;
+    if(!entries[0].isIntersecting) return;
+
+    loadAndAppendNextResultPage();
+
+    observer.unobserve(entries[0].target);
   }
+
+  lazyLoadObserver = new IntersectionObserver(cb, options);
 }
