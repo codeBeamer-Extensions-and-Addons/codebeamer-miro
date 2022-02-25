@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.0]
+
+### Added
+
+- Filters can be added by pressing "enter" when in the respective input. (No need to always manually click the button.)
+- Import (respectively update-) progress bar now shows when updating/synchronizing items.
+
+### Changed
+
+- Loading additional results into the table is no longer triggered with a button, but with scroll-detection. Meaning more results are loaded as you scroll down the table
+
 ## [0.11.0]
 
 ### Changed
