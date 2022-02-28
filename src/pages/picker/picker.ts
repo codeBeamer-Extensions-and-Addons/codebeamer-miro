@@ -4,7 +4,7 @@ import CodeBeamerService from "../../services/codebeamer";
 import MiroService from "../../services/miro";
 import Store from "../../services/store";
 
-const importedImage = '/img/checked-box.svg'
+const importedImage = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="imported-checkBox"><title>Imported</title><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M352 176L217.6 336 160 272"/><rect x="64" y="64" width="384" height="384" rx="48" ry="48" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="32"/></svg>';
 
 let currentlyDisplayedItems: number = 0;
 let currentResultsPage: number = 1;
@@ -71,6 +71,10 @@ export async function initializeHandlers() {
   }
 
   if(toggleSubQueryButton) {
+    let activeLinkMethod = Store.getInstance().getLocalSetting(LocalSetting.SUBQUERY_LINK_METHOD);
+
+    toggleSubQueryButton.textContent = activeLinkMethod ?? 'AND';
+
     toggleSubQueryButton.onclick = toggleSubQueryChainingMethod;
   }
 
@@ -97,7 +101,7 @@ export async function initializeHandlers() {
     try {
       availableTrackers = await CodeBeamerService.getInstance().getCodeBeamerProjectTrackers(Store.getInstance().getBoardSetting(BoardSetting.PROJECT_ID));
     } catch (error) {
-      miro.showErrorNotification(error);
+      miro.showNotification(error);
       miro.board.ui.openModal('picker.html');
       return;
     }
@@ -217,7 +221,7 @@ function importItems() {
       miro.board.ui.closeModal()
     })
     .catch(err => {
-      miro.showErrorNotification(err)
+      miro.showNotification(err)
       removeLoadingScreen();
     })
   }
@@ -235,7 +239,7 @@ function synchItems() {
             try {
               suffix = itemsToSynch.length > updated ? ` from ${Store.getInstance().getBoardSetting(BoardSetting.CB_ADDRESS)}` : "";
             } catch (error) {
-              miro.showErrorNotification(error);
+              miro.showNotification(error);
               miro.board.ui.openModal('picker.html');
               return;
             }
@@ -243,7 +247,7 @@ function synchItems() {
             miro.board.ui.closeModal();
           })
           .catch(err => {
-            miro.showErrorNotification(err)
+            miro.showNotification(err)
             removeLoadingScreen();
           })
         }
@@ -260,7 +264,8 @@ async function clearResultTable() {
   currentlyDisplayedItems = 0;
   currentResultsPage = 1;
   //(document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = true;
-  (document.getElementById('end-of-content') as HTMLSpanElement).hidden = true;
+  lazyLoadObserver.disconnect();
+  (document.getElementById('end-of-content') as HTMLDivElement).hidden = true;
 }
 
 /**
@@ -270,31 +275,21 @@ async function clearResultTable() {
  */
 async function buildResultTable(cbqlQuery, page = 1) {
   let queryReturn = await CodeBeamerService.getInstance().getCodeBeamerCbqlResult(cbqlQuery, page, DEFAULT_ITEMS_PER_PAGE);
-  if (queryReturn.message) {
-    //(document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = true;
-    miro.showNotification(`Invalid query: ${queryReturn.message}`);
+  if (queryReturn.message || queryReturn.items?.length == 0) {
+    miro.showNotification(`Invalid/Empty query: ${queryReturn.message}`);
     return false;
   } else {
-    // query was successull
     let totalItems = queryReturn.total
-    //enables lazy loading when there are more items to load
-    if(totalItems > DEFAULT_ITEMS_PER_PAGE) {
-      //(document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = false;
-    } else {
-      //(document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = true;
-    }
 
     populateDataTable(queryReturn.items);
     updateImportCountOnImportButton();
     currentlyDisplayedItems += queryReturn.items.length;
 
     if(currentlyDisplayedItems < totalItems) {
-      // (document.getElementById('lazy-load-button') as HTMLButtonElement).hidden = true;
-
       setTimeout(() => {
-        let lastResult = document.querySelector('#dataTable tbody tr:last-child')
-        lazyLoadObserver.observe(lastResult);
-      },0);
+        let lastResult = document.querySelector('#dataTable tbody tr:last-child');
+        if(lastResult) lazyLoadObserver.observe(lastResult);
+      }, 50);
     }
     
     let totalItemsDisplay = document.getElementById('total-items')
@@ -334,11 +329,15 @@ async function cbqlQueryOnChange() {
   }
 }
 
-async function trackersSelectionOnChange() {
+async function trackersSelectionOnChange(event?: any) {
+  event?.preventDefault(); 
+  event?.stopPropagation();
+
   let selectedTrackerElement = document.getElementById('selectedTracker') as HTMLSelectElement;
   let selectedTracker = selectedTrackerElement.value;
   resetTrackerSchema();
-  resetFilterCriteria();
+  resetFilterCriteria(false);
+  clearResultTable();
   if (selectedTracker) {
     Store.getInstance().saveLocalSettings({ [LocalSetting.SELECTED_TRACKER]: selectedTracker });
     let importAllButton = document.getElementById('importAllButton') as HTMLButtonElement;
@@ -356,10 +355,17 @@ async function trackersSelectionOnChange() {
  */
 async function updateQuery() {
   hideDataTableAndShowLoadingSpinner();
-  const selectedTracker = getSelectedTracker();
+  let selectedTracker = '';
+  try {
+    selectedTracker = getSelectedTracker();
+  } catch (err) {
+    hideLoadingSpinnerAndShowDataTable();
+    return;
+  }
   const subQuery = getFilterQuerySubstring();
   const queryString = `tracker.id IN (${selectedTracker})${subQuery}`;
   currentResultsPage = 1;
+  currentlyDisplayedItems = 0;
   executeQueryAndBuildResultTable(queryString);
   hideLoadingSpinnerAndShowDataTable();
 }
@@ -367,7 +373,7 @@ async function updateQuery() {
 function getSelectedTracker(): string {
   const selectedTracker = Store.getInstance().getLocalSetting(LocalSetting.SELECTED_TRACKER);
   if(!selectedTracker) {
-    miro.showErrorNotification("Please select a Tracker.");
+    miro.showNotification("Please select a Tracker.");
     throw new Error("No tracker selected");
   }
   return selectedTracker;
@@ -440,7 +446,7 @@ function appendResultsToDataTable(items) {
   let leanItems = items.map(({id, name}) => ({ID: id, Name: name}));
   let table = document.getElementById("dataTable") as HTMLTableElement;
   if(!table) {
-    miro.showErrorNotification("Something went wrong when trying to add items to the result table!");
+    miro.showNotification("Something went wrong when trying to add items to the result table!");
     console.error("dataTable not found");
     return;
   }
@@ -493,11 +499,7 @@ async function generateTableContent(tableBody: HTMLTableSectionElement, data: an
 
     // if item is already synched, dont create checkbox
     if (alreadySynchedItems.some((val) => val == element.ID)) {
-      let img = document.createElement('img');
-      img.src = importedImage;
-      img.classList.add('imported-checkedBox');
-      img.title = 'Imported';
-      cell.appendChild(img);
+      cell.innerHTML = importedImage;
     } else {
       let label = document.createElement("label")
       label.className = "miro-checkbox"
@@ -555,7 +557,7 @@ async function importAllQueriedItems() {
   let queryReturn = await CodeBeamerService.getInstance().getCodeBeamerCbqlResult(query, DEFAULT_RESULT_PAGE, MAX_ITEMS_PER_IMPORT);
   
   if(queryReturn.message) {
-    miro.showErrorNotification(`Failed importing items: ${queryReturn.message}`);
+    miro.showNotification(`Failed importing items: ${queryReturn.message}`);
     return;
   } else {
     // query was successfull
@@ -758,7 +760,7 @@ async function loadAndAppendNextResultPage() {
   if(isAdvancedSearch) {
     const storedCBQString = Store.getInstance().getLocalSetting(LocalSetting.CBQL_STRING);
     if(!storedCBQString) {
-      miro.showErrorNotification("Something went wrong trying to execute the query!");
+      miro.showNotification("Something went wrong trying to execute the query!");
       return;
     }
     queryString = storedCBQString;
@@ -974,7 +976,7 @@ function buildFilterChipsFromStorage() {
   const trackerSelected = Store.getInstance().getLocalSetting(LocalSetting.SELECTED_TRACKER);
   let filterCriteria = Store.getInstance().getLocalSetting(LocalSetting.FILTER_CRITERIA);
   if(!trackerSelected) {
-    resetFilterCriteria();
+    resetFilterCriteria(false);
     return;
   }
   if(!filterCriteria || !filterCriteria.length) return;
@@ -1111,7 +1113,7 @@ function toggleAddFilterDisabled(event) {
 /**
  * Resets all filter criteria, removing all chips and the wipe-button and clearing the respective storage.
  */
-function resetFilterCriteria() {
+function resetFilterCriteria(runQuery?) {
   const filterCriteria = [];
   Store.getInstance().saveLocalSettings({[LocalSetting.FILTER_CRITERIA]: filterCriteria});
 
@@ -1123,7 +1125,10 @@ function resetFilterCriteria() {
   }
   hideWipeFilterButton();
 
-  updateQuery();
+  if(runQuery != false) {
+    updateQuery();
+  } else {
+  }
 }
 
 function hideWipeFilterButton() {

@@ -74,10 +74,10 @@ button svg {
 	width: 15px;
 }
 .imported-checkedBox {
-	width: 16px;
-	position: relative;
-	left: 0px;
-	top: 2px;
+	width: 19px;
+    position: relative;
+    left: -2px;
+    top: 0px;
 }
 .loading::after {
 	width: 1rem;
