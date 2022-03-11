@@ -1,27 +1,25 @@
-# Deckt den nicht-automatisierten Teil der Test-Suite für die beschriebene Funktionalität
-# In diesem Fall die korrekte Darstellung von verschiedenen Assoziationen auf dem Miro Board.
+# Covers the non-automated part of the end to end test of the described functionality
 
-Funktionalität: Visuelle Unterscheidung verschiedener Assoziationen zwischen Items
+Feature: Visualizing associations between imported Items
 
-    Die neun Assoziationstypen in codeBeamer sollen unterschiedlich visualisiert werden.
+    Associations shall be visualized and distinctively.
 
-    Grundlage: 
-        Angenommen ich bin Mitglied im "Toolchains@Temp" Projekt auf Retina-Test
-		Und ich habe das Plugin auf das "Toolchains@Temp" Projekt auf Retina-Test konfiguriert und mich authentifiziert
-        Und ich habe bin auf einem leeren Miro-Board
-		Und ich habe das "Import Items from codeBeamer" Modal geöffnet
-        Und ich habe "Miro Sync Tests by urecha" als Tracker ausgewählt
+    Background:
+        Given I am a member of the "Toolchains@Temp" Project on Retinatest
+        And I have configured the plugin with the "Toolchains@Temp" Project on Retinatest and authenticated myself
+        And I am on an empty Miro board
+        And I have opened the "Import Items from codeBeamer" modal
+        And I have selected "Miro Sync Tests by urecha" as tracker
 
-    Szenario: Korrekte Darstellung einer "<assoziationsTyp>" Assoziation
-        Wenn ich die Items "<firstItem>" und "<secondItem>" für den Import auswähle
-        Und den "Import" Button drücke
-        Dann werden die beiden Items als Miro Cards generiert
-        Und eine gestrichelte Verbindungslinie besteht zwischen den beiden Items
-        Und die Verbindungslinie ist "<farbe>"
-        Und ihr Pfeil geht von Item "<secondItem>" zu Item "<firstItem>"
+    Scenario: "<association>" is visualized with "<color>" color
+        When I import "<firstItem>" and "<secondItem>" 
+        Then the two Items are mapped to Card widgets
+        And the cards have a dashed line connecting them
+        And the line is colored "<color>"
+        And the line is directed towards "<firstItem>"
 
-        Beispiele: 
-        | assoziationsTyp | farbe | firstItem | secondItem |
+        Examples: 
+        | association | color | firstItem | secondItem |
         | depends on | rot | 1599511 | 1599512 |
         | copy of | türkis | 1599514 | 1599513 |
         | subordinate to | hellgrün | 1599513 | 1599511 |
