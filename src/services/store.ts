@@ -177,10 +177,13 @@ export default class Store {
 	public async storeUserMapping(mapping: UserMapping) {
 		let storedMappings: UserMapping[];
 
-		storedMappings =
-			(this.getBoardSetting(
+		try {
+			storedMappings = this.getBoardSetting(
 				BoardSetting.USER_MAPPING
-			) as UserMapping[]) || [];
+			) as UserMapping[];
+		} catch (err) {
+			storedMappings = [];
+		}
 
 		// remove all mappings for both, the cbUser and the miroUser
 		storedMappings = storedMappings.filter(
