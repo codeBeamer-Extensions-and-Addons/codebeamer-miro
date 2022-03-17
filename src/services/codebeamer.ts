@@ -209,7 +209,9 @@ export default class CodeBeamerService {
       } catch (error) {
         miro.showErrorNotification(error);
         console.error(error);
-        miro.board.ui.openModal('picker.html');
+        miro.board.ui.closeModal();
+        miro.board.ui.openModal('settings.html');
+        return;
       }
     }
     const requestUrl = `${this.getApiBasePath()}/projects/${projectId}/trackers`;
