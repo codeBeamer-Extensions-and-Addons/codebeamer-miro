@@ -50,7 +50,7 @@ export default class Store {
 		);
 		if (!data) {
 			throw new Error(
-				`Coudnn't load board settings. Please verify their integrity in the plugin settings.`
+				`Couldn't load board settings. Please verify their integrity in the plugin settings.`
 			);
 		}
 		return data[setting];
