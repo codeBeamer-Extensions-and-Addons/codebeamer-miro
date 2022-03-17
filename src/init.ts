@@ -2,16 +2,16 @@ import {
 	CODEBEAMER_DOWNLOAD,
 	CODEBEAMER_SETTINGS,
 	CODEBEAMER_UPLOAD,
-} from "./constants/svg";
-import CodeBeamerService from "./services/codebeamer";
-import App from "./services/app";
-import MiroService from "./services/miro";
-import Store from "./services/store";
+} from './constants/svg';
+import CodeBeamerService from './services/codebeamer';
+import App from './services/app';
+import MiroService from './services/miro';
+import Store from './services/store';
 
 miro.onReady(async () => {
 	App.create();
 	Store.create(miro.getClientId(), (await miro.board.info.get()).id);
-	
+
 	if (!(await miro.isAuthorized())) {
 		await miro.requestAuthorization();
 	}
@@ -19,27 +19,30 @@ miro.onReady(async () => {
 	await miro.initialize({
 		extensionPoints: {
 			toolbar: {
-				title: "Import Items from codeBeamer",
+				title: 'Import Items from codeBeamer',
 				librarySvgIcon: CODEBEAMER_DOWNLOAD,
 				toolbarSvgIcon: CODEBEAMER_DOWNLOAD,
 				onClick: async () => {
 					try {
 						await CodeBeamerService.getInstance().getCodeBeamerUser();
-						miro.board.ui.openModal("picker.html", { width: 1080, height: 680 });
+						miro.board.ui.openModal('picker.html', {
+							width: 1080,
+							height: 680,
+						});
 					} catch (err) {
 						console.error(err);
 						miro.showErrorNotification(
 							`CodeBeamer connection could not be established. Please check the Connection settings.`
 						);
-						miro.board.ui.openModal("settings.html");
-					};
+						miro.board.ui.openModal('settings.html');
+					}
 				},
 			},
 			getWidgetMenuItems: function (selectedWidgets) {
 				var menuItems: SDK.IWidgetMenuItem[] = [];
 				if (isSelectionConvertable(selectedWidgets))
 					menuItems.push({
-						tooltip: "Convert to codeBeamer Item",
+						tooltip: 'Convert to codeBeamer Item',
 						svgIcon: CODEBEAMER_UPLOAD,
 						onClick: () => {
 							if (
@@ -47,7 +50,7 @@ miro.onReady(async () => {
 								selectedWidgets.length > 1
 							) {
 								miro.showErrorNotification(
-									"You can currently only create one item at a time."
+									'You can currently only create one item at a time.'
 								);
 								return;
 							}
@@ -58,10 +61,10 @@ miro.onReady(async () => {
 					});
 				if (isSettingsWidgetSelected(selectedWidgets))
 					menuItems.push({
-						tooltip: "Open codeBeamer-sync settings",
+						tooltip: 'Open codeBeamer-sync settings',
 						svgIcon: CODEBEAMER_SETTINGS,
 						onClick: () => {
-							miro.board.ui.openModal("settings.html");
+							miro.board.ui.openModal('settings.html');
 						},
 					});
 				// if (isSelectionOpenable(selectedWidgets))
@@ -90,14 +93,11 @@ function isSettingsWidget(widget: SDK.IWidget) {
 }
 
 function isSettingsWidgetSelected(selectedWidgets: SDK.IWidget[]) {
-	return (
-		selectedWidgets.length === 1 &&
-		isSettingsWidget(selectedWidgets[0])
-	);
+	return selectedWidgets.length === 1 && isSettingsWidget(selectedWidgets[0]);
 }
 
 function isWidgetConvertable(widget: SDK.IWidget) {
-	let supportedWidgetTypes = ["STICKER", "CARD", "TEXT", "SHAPE"];
+	let supportedWidgetTypes = ['STICKER', 'CARD', 'TEXT', 'SHAPE'];
 	return (
 		(!widget.metadata || !widget.metadata[Store.getInstance().appId]) && // only allow items NOT created by this plugin
 		supportedWidgetTypes.includes(widget.type)
@@ -107,7 +107,6 @@ function isWidgetConvertable(widget: SDK.IWidget) {
 function isSelectionConvertable(selectedWidgets: SDK.IWidget[]) {
 	// only single selection supported
 	return (
-		selectedWidgets.length === 1 &&
-		isWidgetConvertable(selectedWidgets[0])
+		selectedWidgets.length === 1 && isWidgetConvertable(selectedWidgets[0])
 	);
 }
