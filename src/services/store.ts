@@ -57,10 +57,8 @@ export default class Store {
 		let data = JSON.parse(
 			localStorage.getItem(this.getBoardSettingsLocalStorageKey()) || '{}'
 		);
-		if (!data) {
-			throw new Error(
-				`Couldn't load board settings. Please verify their integrity in the plugin settings.`
-			);
+		if (!data[setting]) {
+			throw new Error(`There is no value stored for ${setting}!`);
 		}
 		return data[setting];
 	}
