@@ -80,7 +80,7 @@ miro.onReady(async () => {
 	});
 
 	console.info(
-		`[codeBeamer-sync] Plugin v0.12.1 initialized. Experiencing issues? Let us know at https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/issues`
+		`[codeBeamer-sync] Plugin v0.12.2 initialized. Experiencing issues? Let us know at https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/issues`
 	);
 });
 
