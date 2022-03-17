@@ -26,23 +26,26 @@ let currentlyDisplayedItems: number = 0;
 let currentResultsPage: number = 1;
 let currentlyLoadedTrackerSchema: CodeBeamerTrackerSchemaField[] = [];
 var lazyLoadObserver;
+let handlersInitializedOnReady: boolean = false;
 
 miro.onReady(async () => {
 	Store.create(miro.getClientId(), (await miro.board.info.get()).id);
+	if (!handlersInitializedOnReady) {
+		handlersInitializedOnReady = true;
+		initializeHandlers();
+	}
 });
 
 setTimeout(() => {
-	//calling this with a delay since above miro.onReady creates the Store instance asynchronously
-	//while following method would do it synchronously if no Store exists yet.
-	//(to allow for cypress testing, you can't just put it after the Store.create() above)
-	initializeHandlers();
+	//Make sure to initialize handlers when on the test environment
+	if (!handlersInitializedOnReady) initializeHandlers();
 }, 500);
 
 /**
  * Initializes event handlers for the page's elements and executes those only done once in the beginning.
  */
 export async function initializeHandlers() {
-	removeLoadingScreen();
+	displayLoadingScreen();
 	createLazyLoadObserver();
 
 	let trackersSelection = document.getElementById(
@@ -193,6 +196,8 @@ export async function initializeHandlers() {
 			}
 		}
 	}
+
+	removeLoadingScreen();
 }
 
 function getSwitchSearchButtonOnClick(switchToAdvanced: boolean) {
