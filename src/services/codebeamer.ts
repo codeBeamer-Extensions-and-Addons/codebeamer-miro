@@ -91,6 +91,7 @@ export default class CodeBeamerService {
       return new URL(cbAddress)
     } catch (error) {
       miro.showErrorNotification(error);
+      console.error(error);
       miro.board.ui.openModal('picker.html');
       return new URL('');
     }
@@ -203,9 +204,11 @@ export default class CodeBeamerService {
   public async getCodeBeamerProjectTrackers(projectId?: string): Promise<any> {
     if (!projectId) {
       try {
-        projectId = Store.getInstance().getBoardSetting(BoardSetting.PROJECT_ID);
+        //! TODO if a test-store has been initialized, you might fail here if you use Store.getInstance() again
+        projectId = this.store.getBoardSetting(BoardSetting.PROJECT_ID);
       } catch (error) {
         miro.showErrorNotification(error);
+        console.error(error);
         miro.board.ui.openModal('picker.html');
       }
     }
@@ -331,6 +334,7 @@ export default class CodeBeamerService {
       trackerId = this.store.getBoardSetting(BoardSetting.INBOX_TRACKER_ID);
     } catch (error) {
       miro.showErrorNotification('You must define an "Inbox Tracker ID" first!');
+      console.warn('You must define an "Inbox Tracker ID" first', error);
       miro.board.ui.openModal('picker.html');
     }
 
@@ -357,7 +361,8 @@ export default class CodeBeamerService {
 
       //TODO outsource
       miro.board.ui.openModal('settings.html');
-      miro.showErrorNotification(`Please verify the settings are correct. Error: ${err}`)
+      miro.showErrorNotification(`Please verify the settings are correct`)
+      console.warn(err);
 
       throw new Error(`Please verify the settings are correct. ErrorCode: ${err.status}`);
     }
