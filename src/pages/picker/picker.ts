@@ -45,7 +45,7 @@ setTimeout(() => {
  * Initializes event handlers for the page's elements and executes those only done once in the beginning.
  */
 export async function initializeHandlers() {
-	displayLoadingScreen();
+	removeLoadingScreen();
 	createLazyLoadObserver();
 
 	let trackersSelection = document.getElementById(
@@ -196,8 +196,6 @@ export async function initializeHandlers() {
 			}
 		}
 	}
-
-	removeLoadingScreen();
 }
 
 function getSwitchSearchButtonOnClick(switchToAdvanced: boolean) {
