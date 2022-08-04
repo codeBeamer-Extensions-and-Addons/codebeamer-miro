@@ -129,6 +129,7 @@ export default class MiroService {
 		} catch (err) {
 			miro.board.ui.openModal("settings.html");
 			miro.showErrorNotification(err);
+			console.error(err);
 			return;
 		}
 

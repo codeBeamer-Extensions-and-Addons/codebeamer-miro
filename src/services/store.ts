@@ -1,27 +1,34 @@
-import { ImportConfiguration, BoardSetting, LocalSetting, SessionSetting, SettingKey, UserMapping } from "../entities";
+import {
+	ImportConfiguration,
+	BoardSetting,
+	LocalSetting,
+	SessionSetting,
+	SettingKey,
+	UserMapping,
+} from '../entities';
 
 export default class Store {
 	private static _instance: Store;
 
-	private _appId: string = (100000 + (Math.random()*999999)).toString();
+	private _appId: string = (100000 + Math.random() * 999999).toString();
 
-  public get appId(): string {
+	public get appId(): string {
 		return this._appId;
 	}
-  
-	private _boardId: string = (100000 + (Math.random()*999999)).toString();
+
+	private _boardId: string = (100000 + Math.random() * 999999).toString();
 
 	public get boardId(): string {
 		return this._boardId;
 	}
 
 	private constructor(clientId, boardId: string) {
-    this._appId = clientId;
+		this._appId = clientId;
 		this._boardId = boardId;
 	}
 
 	public static create(clientId: string, boardId: string): Store {
-    this._instance = new Store(clientId, boardId);
+		this._instance = new Store(clientId, boardId);
 		return this._instance;
 	}
 
@@ -31,9 +38,11 @@ export default class Store {
 			// ? on miro.onReady, which should always trigger instantly on the modals.
 			// * So this provides a standardized Store for e2e tests, since Store.create() done there doesn't
 			// * appear to allow for getting it in the plugin's context (contrary to cypress claims...).
-			console.warn("Store not initialized. Initializing a test-store with test-ids.");
-			const fakeClientId = "e2e-test";
-			const fakeBoardId = "e2e-test";
+			console.warn(
+				'Store not initialized. Initializing a test-store with test-ids.'
+			);
+			const fakeClientId = 'e2e-test';
+			const fakeBoardId = 'e2e-test';
 			return Store.create(fakeClientId, fakeBoardId);
 		}
 		return this._instance;
@@ -46,12 +55,10 @@ export default class Store {
 	 */
 	public getBoardSetting(setting: BoardSetting) {
 		let data = JSON.parse(
-			localStorage.getItem(this.getBoardSettingsLocalStorageKey()) || "{}"
+			localStorage.getItem(this.getBoardSettingsLocalStorageKey()) || '{}'
 		);
-		if (!data) {
-			throw new Error(
-				`Coudnn't load board settings. Please verify their integrity in the plugin settings.`
-			);
+		if (!data[setting]) {
+			throw new Error(`There is no value stored for ${setting}!`);
 		}
 		return data[setting];
 	}
@@ -60,21 +67,21 @@ export default class Store {
 	 * @returns Localstorage key for the "local" data.
 	 */
 	private getLocalSettingsLocalStorageKey() {
-		return SettingKey.LS_KEY + "-" + this.boardId;
+		return SettingKey.LS_KEY + '-' + this.boardId;
 	}
 
 	/**
 	 * @returns Sessionstorage key for the "session" data.
 	 */
 	private getSessionStorageKey() {
-		return SettingKey.SS_KEY + "-" + this.boardId;
+		return SettingKey.SS_KEY + '-' + this.boardId;
 	}
 
 	/**
 	 * @returns Localstorage key for the "boardSettings" data.
 	 */
 	private getBoardSettingsLocalStorageKey() {
-		return SettingKey.LS_BS_KEY + "-" + this.boardId;
+		return SettingKey.LS_BS_KEY + '-' + this.boardId;
 	}
 
 	/**
@@ -132,13 +139,13 @@ export default class Store {
 	 */
 	public getLocalSetting(setting: LocalSetting) {
 		let data = JSON.parse(
-			localStorage.getItem(this.getLocalSettingsLocalStorageKey()) || "{}"
+			localStorage.getItem(this.getLocalSettingsLocalStorageKey()) || '{}'
 		);
 		if (!data) {
 			miro.showNotification(
 				`Couldn't load local settings. Please re-enter them and then retry.`
 			);
-			miro.board.ui.openModal("settings.html");
+			miro.board.ui.openModal('settings.html');
 			throw new Error(
 				`Coudnn't load local settings. Please verify their integrity in the plugin settings.`
 			);
@@ -153,13 +160,13 @@ export default class Store {
 	 */
 	public getSessionSetting(setting: SessionSetting) {
 		let data = JSON.parse(
-			sessionStorage.getItem(this.getSessionStorageKey()) || "{}"
+			sessionStorage.getItem(this.getSessionStorageKey()) || '{}'
 		);
 		if (!data) {
 			miro.showNotification(
 				`Couldn't load local settings. Please re-enter them and then retry.`
 			);
-			miro.board.ui.openModal("settings.html");
+			miro.board.ui.openModal('settings.html');
 			throw new Error(
 				`Coudnn't load session settings. Please verify their integrity in the plugin settings.`
 			);
@@ -169,9 +176,12 @@ export default class Store {
 
 	public async storeUserMapping(mapping: UserMapping) {
 		let storedMappings: UserMapping[];
+
 		try {
-			storedMappings = this.getBoardSetting(BoardSetting.USER_MAPPING) as UserMapping[];
-		} catch (error) {
+			storedMappings = this.getBoardSetting(
+				BoardSetting.USER_MAPPING
+			) as UserMapping[];
+		} catch (err) {
 			storedMappings = [];
 		}
 
@@ -190,7 +200,9 @@ export default class Store {
 	public getUserMapping(userDetails: Partial<UserMapping>) {
 		let storedMappings: UserMapping[];
 		try {
-			storedMappings = this.getBoardSetting(BoardSetting.USER_MAPPING) as UserMapping[];
+			storedMappings = this.getBoardSetting(
+				BoardSetting.USER_MAPPING
+			) as UserMapping[];
 		} catch (error) {
 			return null;
 		}
