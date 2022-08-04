@@ -1,33 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/src/assets/style.css" />
-    <script src="https://miro.com/app/static/sdk/v2/miro.js"></script>
-  </head>
-  <body>
-    <div class="grid container">
-      <div class="cs1 ce12">
-        <img src="/src/assets/welcome.png" alt="" />
-      </div>
-      <div class="cs1 ce12">
-        <h1>Great, your app is running locally</h1>
-        <p>
-          You can now create your Developer team to get your app running in
-          Miro.
-        </p>
-      </div>
-      <div class="cs1 ce12">
-        <a
-          class="button button-primary"
-          href="https://developers.miro.com/docs/build-your-first-hello-world-app#step-2-create-a-developer-team-in-miro"
-          target="_blank"
-        >
-          Create a Developer team
-        </a>
-      </div>
-    </div>
-    <script type="module" src="/src/index.ts"></script>
-  </body>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="stylesheet" href="/src/assets/style.css" />
+		<script src="https://miro.com/app/static/sdk/v2/miro.js"></script>
+		<title>CB-Miro v0.13.0</title>
+	</head>
+	<body>
+		<div class="grid container">
+			<div class="cs1 ce3">
+				<img class="cb-logo" src="src/assets/codeBeamer-Logo.png" />
+			</div>
+
+			<div class="cs10 ce12">
+				<img id="miro-logo" src="src/assets/miro-Logo.png" />
+			</div>
+			<div class="cs1 ce12">
+				<h1>
+					CodeBeamer / Miro Integration Plugin v0.13.0<br /><small
+						class="muted"
+						>by
+						<a href="https://github.com/max-poprawe">max-poprawe</a
+						>, <a href="https://github.com/TimMaa">TimMaa</a>,
+						<a href="https://github.com/urecha">urecha</a>
+						@ Roche Diagnostics Int.
+					</small>
+				</h1>
+				<p>
+					To install, copy the link to this page and paste it in the
+					URL field under <em>App-URL</em> in your Miro app
+					settings.<br />
+					Grant the <em>board:write</em> and
+					<em>board:read</em> permissions to the Plugin.
+				</p>
+			</div>
+			<div class="cs1 ce12">
+				<a
+					class="button button-secondary flex-centered"
+					href="https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro"
+					title="Check out the Github page"
+				>
+					<img
+						id="github-logo"
+						src="src/assets/github-transparent.png"
+						alt="Github Logo"
+					/>
+					Github Page
+				</a>
+			</div>
+		</div>
+		<script type="module" src="/src/index.ts"></script>
+	</body>
 </html>
