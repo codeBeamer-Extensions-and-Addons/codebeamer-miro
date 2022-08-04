@@ -1,4 +1,5 @@
 import * as React from 'react';
+import AuthForm from './components/auth';
 import { createRoot } from 'react-dom/client';
 
 // async function addSticky() {
@@ -10,34 +11,25 @@ import { createRoot } from 'react-dom/client';
 // }
 
 function App() {
+	const [connected, setConnected] = React.useState(false);
+
 	React.useEffect(() => {
 		//addSticky();
+		//TODO check cb connection
+		setConnected(false);
 	}, []);
 
-	return (
-		<div className="grid wrapper">
-			<div className="cs1 ce12">
-				<img src="/src/assets/congratulations.png" alt="" />
-			</div>
-			<div className="cs1 ce12">
-				<h1>Congratulations!</h1>
-				<p>You've just created your first Miro app!</p>
-				<p>
-					To explore more and build your own app, see the Miro
-					Developer Platform documentation.
-				</p>
-			</div>
-			<div className="cs1 ce12">
-				<a
-					className="button button-primary"
-					target="_blank"
-					href="https://developers.miro.com"
-				>
-					Read the documentation
-				</a>
-			</div>
-		</div>
-	);
+	if (!connected) {
+		return <AuthForm />;
+	} else {
+		return (
+			<>
+				<div className="grid wrapper">
+					<div className="cs1 ce12">Sup</div>
+				</div>
+			</>
+		);
+	}
 }
 
 const container = document.getElementById('root');
