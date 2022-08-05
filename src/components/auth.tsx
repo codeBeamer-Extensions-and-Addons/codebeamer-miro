@@ -1,7 +1,6 @@
 import { Field, Formik } from 'formik';
 import * as React from 'react';
 import Header from './header';
-import CodeBeamerService from '../api/codebeamer.service';
 
 import './auth.css';
 import { useDispatch, useSelector } from 'react-redux';
@@ -14,14 +13,16 @@ interface Errors {
 	cbPassword?: string;
 }
 
-export default function AuthForm() {
-	//TODO will have to move up a component to trigger conditional logic
-	const cb: CodeBeamerService = CodeBeamerService.getInstance();
-
+export default function AuthForm(props: { loading: boolean; error: any }) {
 	const { cbAddress, cbUsername, cbPassword } = useSelector(
 		(state: RootState) => state.apiConnection
 	);
 	const dispatch = useDispatch();
+
+	if (props.error) {
+		//TODO (for the miro devs) show notification
+		console.error('Invalid Credentials for this address!', props.error);
+	}
 
 	return (
 		<>
@@ -68,20 +69,6 @@ export default function AuthForm() {
 							})
 						);
 						dispatch(setCbAddress(values.cbAddress));
-
-						try {
-							await cb.getCodeBeamerUser(
-								values.cbAddress,
-								values.cbUsername,
-								values.cbPassword
-							);
-							alert('Submitted');
-						} catch (error: any) {
-							alert(
-								"Couldn't establish connection. Please check the values and try again. See console for full error."
-							);
-							console.error(error);
-						}
 					}}
 				>
 					{({
@@ -160,9 +147,11 @@ export default function AuthForm() {
 							<div className="flex-centered">
 								<button
 									type="submit"
-									disabled={isSubmitting}
+									disabled={isSubmitting || props.loading}
 									className={`button button-primary ${
-										isSubmitting ? 'button-loading' : ''
+										isSubmitting || props.loading
+											? 'button-loading'
+											: ''
 									}`}
 								>
 									<svg

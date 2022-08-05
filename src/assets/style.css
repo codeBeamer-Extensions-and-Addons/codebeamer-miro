@@ -44,6 +44,12 @@ img {
 .icon {
 	display: inline-block !important;
 }
+.ionIcon {
+	width: 25px;
+}
+.mr-1 {
+	margin-right: 1rem;
+}
 .pos-adjusted-down {
 	position: relative;
 	bottom: -3px;

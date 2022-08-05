@@ -4,27 +4,24 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 
 import AuthForm from '../components/auth';
-import { useGetUserByNameQuery } from '../api/codeBeamerApi';
+import {
+	useGetUserByNameQuery,
+	useTestAuthenticationQuery,
+} from '../api/codeBeamerApi';
 
 export default function Content() {
-	const { cbUsername } = useSelector(
+	const { cbAddress, cbUsername, cbPassword } = useSelector(
 		(state: RootState) => state.apiConnection
 	);
 
-	const { data, error, isLoading } = useGetUserByNameQuery(cbUsername);
+	const { data, error, isLoading } = useTestAuthenticationQuery({
+		cbAddress,
+		cbUsername,
+		cbPassword,
+	});
 
-	if (isLoading) {
-		return (
-			<div className="centered">
-				<h5>Establishing connection...</h5>
-				<button
-					type="button"
-					className="button button-secondary button-loading"
-				></button>
-			</div>
-		);
-	} else if (error) {
-		return <AuthForm />;
+	if (isLoading || error) {
+		return <AuthForm loading={isLoading} error={error} />;
 	} else
 		return (
 			<div className="grid wrapper">
