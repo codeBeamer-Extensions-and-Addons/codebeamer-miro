@@ -1,6 +1,10 @@
 import * as React from 'react';
-import AuthForm from './components/auth';
 import { createRoot } from 'react-dom/client';
+import { Provider } from 'react-redux';
+
+import { store } from './store/store';
+
+import AuthForm from './components/auth';
 
 // async function addSticky() {
 // const stickyNote = await miro.board.createStickyNote({
@@ -20,14 +24,18 @@ function App() {
 	}, []);
 
 	if (!connected) {
-		return <AuthForm />;
+		return (
+			<Provider store={store}>
+				<AuthForm />
+			</Provider>
+		);
 	} else {
 		return (
-			<>
+			<Provider store={store}>
 				<div className="grid wrapper">
 					<div className="cs1 ce12">Sup</div>
 				</div>
-			</>
+			</Provider>
 		);
 	}
 }

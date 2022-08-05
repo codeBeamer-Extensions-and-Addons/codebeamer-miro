@@ -4,16 +4,24 @@ import Header from './header';
 import CodeBeamerService from '../api/codebeamer.service';
 
 import './auth.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../store/store';
+import { setCbAddress, setCredentials } from '../store/apiConnectionSlice';
 
 interface Errors {
 	cbAddress?: string;
-	projectId?: string;
 	cbUsername?: string;
 	cbPassword?: string;
 }
 
 export default function AuthForm() {
+	//TODO will have to move up a component to trigger conditional logic
 	const cb: CodeBeamerService = CodeBeamerService.getInstance();
+
+	const { cbAddress, cbUsername, cbPassword } = useSelector(
+		(state: RootState) => state.apiConnection
+	);
+	const dispatch = useDispatch();
 
 	return (
 		<>
@@ -28,10 +36,9 @@ export default function AuthForm() {
 			<div>
 				<Formik
 					initialValues={{
-						cbAddress: '',
-						projectId: '',
-						cbUsername: '',
-						cbPassword: '',
+						cbAddress: cbAddress,
+						cbUsername: cbUsername,
+						cbPassword: cbPassword,
 					}}
 					validate={(values) => {
 						const errors: Errors = {};
@@ -43,7 +50,6 @@ export default function AuthForm() {
 								errors.cbAddress =
 									'Not a valid CB Address! Must specify the protocol (HTTP(S)) and end with /cb';
 						}
-						if (!values.projectId) errors.projectId = 'Required';
 						if (!values.cbUsername) errors.cbUsername = 'Required';
 						if (!values.cbPassword) errors.cbPassword = 'Required';
 
@@ -54,6 +60,15 @@ export default function AuthForm() {
 					onSubmit={async (values, { setSubmitting }) => {
 						setSubmitting(true);
 						console.log('onSubmit');
+
+						dispatch(
+							setCredentials({
+								username: values.cbUsername,
+								password: values.cbPassword,
+							})
+						);
+						dispatch(setCbAddress(values.cbAddress));
+
 						try {
 							await cb.getCodeBeamerUser(
 								values.cbAddress,
@@ -98,34 +113,6 @@ export default function AuthForm() {
 								{errors.cbAddress && touched.cbAddress && (
 									<div className="status-text">
 										{errors.cbAddress}
-									</div>
-								)}
-							</div>
-
-							<div
-								className={`form-group ${
-									touched.projectId
-										? errors.projectId
-											? 'error'
-											: 'success'
-										: ''
-								}`}
-							>
-								<label className="flex-row">
-									Project ID
-									<span
-										className="icon icon-help-question"
-										title="Only use the numeric ID, which you can find in the URL when you have your Project open in Retina"
-									></span>
-								</label>
-								<Field
-									type="number"
-									name="projectId"
-									className="input"
-								/>
-								{errors.projectId && touched.projectId && (
-									<div className="status-text">
-										{errors.projectId}
 									</div>
 								)}
 							</div>
