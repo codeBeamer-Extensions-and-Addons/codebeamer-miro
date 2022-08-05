@@ -1,0 +1,20 @@
+div,
+p {
+	margin: 1rem;
+}
+
+.button .custom-icon {
+	width: 20px;
+}
+
+input {
+	width: 100%;
+}
+
+label .icon {
+	margin-left: 5px;
+}
+
+.status-text {
+	font-size: small;
+}
