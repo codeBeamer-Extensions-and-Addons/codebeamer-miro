@@ -16,7 +16,10 @@ export default function AuthForm() {
 			<Header centered={true}>
 				CodeBeamer / Miro Integration
 				<br />
-				<small>Connect to your CodeBeamer Instance</small>
+				<small>
+					<span className="icon icon-plug pos-adjusted-down"></span>{' '}
+					Connect to your CodeBeamer Instance
+				</small>
 			</Header>
 			<div>
 				<Formik
@@ -166,7 +169,7 @@ export default function AuthForm() {
 								>
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
-										className="custom-icon"
+										className="custom-icon pos-adjusted-down"
 										viewBox="0 0 512 512"
 									>
 										<path

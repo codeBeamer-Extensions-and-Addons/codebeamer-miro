@@ -5,6 +5,7 @@ p {
 
 .button .custom-icon {
 	width: 20px;
+	margin: 0 5px;
 }
 
 input {

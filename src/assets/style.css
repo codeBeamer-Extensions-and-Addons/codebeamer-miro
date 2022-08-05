@@ -33,6 +33,13 @@ body {
 img {
 	max-width: 100%;
 }
+.icon {
+	display: inline-block !important;
+}
+.pos-adjusted-down {
+	position: relative;
+	bottom: -3px;
+}
 
 .button {
 	text-decoration: none;
