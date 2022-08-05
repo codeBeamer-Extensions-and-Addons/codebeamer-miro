@@ -96,6 +96,7 @@ export default function AuthForm(props: { loading: boolean; error: any }) {
 									type="text"
 									name="cbAddress"
 									className="input"
+									data-test="cbAddress"
 								/>
 								{errors.cbAddress && touched.cbAddress && (
 									<div className="status-text">
@@ -116,6 +117,7 @@ export default function AuthForm(props: { loading: boolean; error: any }) {
 									type="text"
 									name="cbUsername"
 									className="input"
+									data-test="cbUsername"
 								/>
 								{errors.cbUsername && touched.cbUsername && (
 									<div className="status-text">
@@ -136,6 +138,7 @@ export default function AuthForm(props: { loading: boolean; error: any }) {
 									type="password"
 									name="cbPassword"
 									className="input"
+									data-test="cbPassword"
 								/>
 								{errors.cbPassword && touched.cbPassword && (
 									<div className="status-text">
@@ -153,6 +156,7 @@ export default function AuthForm(props: { loading: boolean; error: any }) {
 											? 'button-loading'
 											: ''
 									}`}
+									data-test="submit"
 								>
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
