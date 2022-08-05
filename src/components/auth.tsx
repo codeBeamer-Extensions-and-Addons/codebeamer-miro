@@ -1,7 +1,9 @@
 import { Field, Formik } from 'formik';
 import * as React from 'react';
-import './auth.css';
 import Header from './header';
+import CodeBeamerService from '../api/codebeamer.service';
+
+import './auth.css';
 
 interface Errors {
 	cbAddress?: string;
@@ -11,6 +13,8 @@ interface Errors {
 }
 
 export default function AuthForm() {
+	const cb: CodeBeamerService = CodeBeamerService.getInstance();
+
 	return (
 		<>
 			<Header centered={true}>
@@ -47,15 +51,22 @@ export default function AuthForm() {
 							return errors;
 						}
 					}}
-					onSubmit={(values, { setSubmitting }) => {
-						console.log('on submit');
-						//TODO attempt auth
-						setTimeout(() => {
-							console.log(
-								`Authenticated as ${values.cbUsername}`
+					onSubmit={async (values, { setSubmitting }) => {
+						setSubmitting(true);
+						console.log('onSubmit');
+						try {
+							await cb.getCodeBeamerUser(
+								values.cbAddress,
+								values.cbUsername,
+								values.cbPassword
 							);
-							setSubmitting(false);
-						}, 400);
+							alert('Submitted');
+						} catch (error: any) {
+							alert(
+								"Couldn't establish connection. Please check the values and try again. See console for full error."
+							);
+							console.error(error);
+						}
 					}}
 				>
 					{({
