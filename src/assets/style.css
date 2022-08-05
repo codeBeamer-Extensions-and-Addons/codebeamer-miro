@@ -34,16 +34,6 @@ img {
 	max-width: 100%;
 }
 
-#miro-logo {
-	width: 152px;
-}
-
-#github-logo {
-	width: 20px;
-	height: 20px;
-	margin-right: 10px;
-}
-
 .button {
 	text-decoration: none;
 }
@@ -52,7 +42,21 @@ img {
 	background-color: lightgray;
 }
 
-.flex-centered {
+.flex-row {
+	display: flex !important;
+	flex-direction: row;
+}
+
+.flex-col {
+	display: flex !important;
+	flex-direction: col;
+}
+
+.align-end {
+	align-self: flex-end;
+}
+
+.align .flex-centered {
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -65,4 +69,8 @@ img {
 .muted {
 	font-size: xx-small;
 	color: gray;
+}
+
+.w-50 {
+	width: 50%;
 }
