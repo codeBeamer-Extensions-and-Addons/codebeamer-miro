@@ -30,6 +30,14 @@ body {
 	border-radius: var(--border-radius-xlarge);
 }
 
+.centered {
+	position: absolute;
+	top: 50%;
+	left: 50;
+	translate: (-50%, -50%);
+	text-align: center;
+}
+
 img {
 	max-width: 100%;
 }
