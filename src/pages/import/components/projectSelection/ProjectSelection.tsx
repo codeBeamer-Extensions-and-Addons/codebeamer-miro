@@ -1,10 +1,10 @@
 import { Field, Formik, useFormikContext } from 'formik';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
-import { useGetProjectsQuery } from '../../../api/codeBeamerApi';
-import Header from '../../../components/header';
-import { ProjectListView } from '../../../models/projectListView.if';
-import { setProjectId } from '../../../store/slices/boardSettingsSlice';
+import { useGetProjectsQuery } from '../../../../api/codeBeamerApi';
+import Header from '../../../../components/header';
+import { ProjectListView } from '../../../../models/projectListView.if';
+import { setProjectId } from '../../../../store/slices/boardSettingsSlice';
 
 export default function ProjectSelection() {
 	const dispatch = useDispatch();

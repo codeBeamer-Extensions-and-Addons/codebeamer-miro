@@ -1,4 +1,4 @@
-import ProjectSelection from './projectSelection';
+import ProjectSelection from './ProjectSelection';
 
 describe('<ProjectSelection>', () => {
 	it('mounts', () => {
