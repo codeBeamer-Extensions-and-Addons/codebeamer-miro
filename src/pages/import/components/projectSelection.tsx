@@ -6,62 +6,6 @@ import Header from '../../../components/header';
 import { ProjectListView } from '../../../models/projectListView.if';
 import { setProjectId } from '../../../store/slices/boardSettingsSlice';
 
-const ProjectField = (props: {
-	projects: ProjectListView[] | undefined;
-	loading: boolean;
-}) => {
-	const {
-		values: { projectId },
-		setFieldValue,
-	} = useFormikContext<{ projectId: number }>();
-
-	React.useEffect(() => {
-		if (projectId !== 0) {
-			setFieldValue('project', projectId);
-		} else {
-			setFieldValue('project', '-');
-		}
-	}, [projectId]);
-
-	return (
-		<Field
-			as="select"
-			name="project"
-			className="input w-100"
-			data-test="project"
-		>
-			<option value="-">--</option>
-			{props.loading && <option>Loading Projects...</option>}
-			{!props.loading &&
-				props.projects?.map((p) => {
-					return <option value={p.id}>{p.name}</option>;
-				})}
-		</Field>
-	);
-};
-
-const ProjectIdField = () => {
-	const {
-		values: { project },
-		setFieldValue,
-	} = useFormikContext<{ project: string }>();
-
-	React.useEffect(() => {
-		if (project !== '-') {
-			setFieldValue('projectId', parseInt(project));
-		}
-	}, [project]);
-
-	return (
-		<Field
-			type="number"
-			name="projectId"
-			className="input w-25 ml-1"
-			data-test="projectId"
-		/>
-	);
-};
-
 export default function ProjectSelection() {
 	const dispatch = useDispatch();
 
@@ -167,3 +111,59 @@ export default function ProjectSelection() {
 		</div>
 	);
 }
+
+const ProjectField = (props: {
+	projects: ProjectListView[] | undefined;
+	loading: boolean;
+}) => {
+	const {
+		values: { projectId },
+		setFieldValue,
+	} = useFormikContext<{ projectId: number }>();
+
+	React.useEffect(() => {
+		if (projectId !== 0) {
+			setFieldValue('project', projectId);
+		} else {
+			setFieldValue('project', '-');
+		}
+	}, [projectId]);
+
+	return (
+		<Field
+			as="select"
+			name="project"
+			className="input w-100"
+			data-test="project"
+		>
+			<option value="-">--</option>
+			{props.loading && <option>Loading Projects...</option>}
+			{!props.loading &&
+				props.projects?.map((p) => {
+					return <option value={p.id}>{p.name}</option>;
+				})}
+		</Field>
+	);
+};
+
+const ProjectIdField = () => {
+	const {
+		values: { project },
+		setFieldValue,
+	} = useFormikContext<{ project: string }>();
+
+	React.useEffect(() => {
+		if (project !== '-') {
+			setFieldValue('projectId', parseInt(project));
+		}
+	}, [project]);
+
+	return (
+		<Field
+			type="number"
+			name="projectId"
+			className="input w-25 ml-1"
+			data-test="projectId"
+		/>
+	);
+};
