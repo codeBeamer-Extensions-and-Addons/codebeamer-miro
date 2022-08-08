@@ -13,7 +13,7 @@ export default function ImportHeader() {
 
 	return (
 		<div className="flex flex-spaced">
-			<div className="miro-h2">
+			<div className="h1">
 				<span className="icon icon-download mr-1 pos-adjusted-down"></span>
 				CodeBeamer Importer
 			</div>
