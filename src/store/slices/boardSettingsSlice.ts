@@ -3,6 +3,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import { BoardSetting } from '../boardSetting.enum';
 import { UserMapping } from '../../models/user-mapping.if';
 import { ImportConfiguration } from '../../models/import-configuration.if';
+import { UserSetting } from '../userSetting.enum';
 
 export interface BoardSettingsState {
 	loading: boolean;
@@ -39,6 +40,10 @@ export const boardSettingsSlice = createSlice({
 	reducers: {
 		setCbAddress: (state, action: PayloadAction<string>) => {
 			miro.board.setAppData(BoardSetting.CB_ADDRESS, action.payload);
+
+			//additionally stored in local storage because only then can we use it
+			//in the api's baseQuery factory
+			localStorage.setItem(BoardSetting.CB_ADDRESS, action.payload);
 
 			state.cbAddress = action.payload;
 		},
