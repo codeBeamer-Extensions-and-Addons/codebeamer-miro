@@ -30,7 +30,7 @@ export default function AuthForm(props: { loading: boolean; error: any }) {
 	}
 
 	return (
-		<div class="container">
+		<div className="container">
 			<Header centered={true}>
 				CodeBeamer / Miro Integration
 				<br />
