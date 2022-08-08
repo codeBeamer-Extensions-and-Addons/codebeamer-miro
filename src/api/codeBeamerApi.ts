@@ -1,14 +1,14 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { Setting } from '../store/settings.enum';
+import { UserSetting } from '../store/userSetting.enum';
 import { RootState } from '../store/store';
 
 export const codeBeamerApi = createApi({
 	baseQuery: fetchBaseQuery({
-		baseUrl: `${localStorage.getItem(Setting.CB_ADDRESS)}/api/v3/`,
+		baseUrl: `${localStorage.getItem(UserSetting.CB_ADDRESS)}/api/v3/`,
 		prepareHeaders: (headers, { getState }) => {
 			const token = btoa(
-				`${(getState() as RootState).apiConnection.cbUsername}:${
-					(getState() as RootState).apiConnection.cbPassword
+				`${(getState() as RootState).userSettings.cbUsername}:${
+					(getState() as RootState).userSettings.cbPassword
 				}`
 			);
 
