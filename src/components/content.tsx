@@ -4,12 +4,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 
 import AuthForm from '../pages/auth/auth';
-import {
-	useGetUserByNameQuery,
-	useTestAuthenticationQuery,
-} from '../api/codeBeamerApi';
+import { useTestAuthenticationQuery } from '../api/codeBeamerApi';
 import { loadBoardSettings } from '../store/slices/boardSettingsSlice';
-import ProjectSelection from '../pages/import/components/projectSelection';
+import ProjectSelection from '../pages/import/components/projectSelection/ProjectSelection';
+import Import from '../pages/import/Import';
 
 export default function Content() {
 	const dispatch = useDispatch();
@@ -32,14 +30,8 @@ export default function Content() {
 		cbPassword,
 	});
 
-	if (isLoading || error) {
+	if (isLoading || error)
 		return <AuthForm loading={isLoading} error={error} />;
-	} else if (!projectId) {
-		return <ProjectSelection />;
-	} else
-		return (
-			<div className="grid wrapper">
-				<div className="cs1 ce12">Sup</div>
-			</div>
-		);
+	else if (!projectId) return <ProjectSelection />;
+	else return <Import />;
 }
