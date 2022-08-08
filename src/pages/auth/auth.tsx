@@ -25,8 +25,8 @@ export default function AuthForm(props: { loading: boolean; error: any }) {
 	);
 
 	if (props.error) {
-		//TODO (for the miro devs) show notification
-		console.error('Invalid Credentials for this address!', props.error);
+		//TODO miro.showErrorNotif
+		console.error('Invalid Credentials and/or address!', props.error);
 	}
 
 	return (
