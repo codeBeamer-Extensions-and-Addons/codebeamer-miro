@@ -1,3 +1,4 @@
+//TODO move into ./enums
 export enum BoardSetting {
 	PROJECT_ID = 'projectId',
 	CB_ADDRESS = 'cbAddress',
