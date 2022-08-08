@@ -11,6 +11,13 @@ export default function ProjectSelection() {
 
 	const { data, error, isLoading } = useGetProjectsQuery();
 
+	React.useEffect(() => {
+		if (error) {
+			console.error(error);
+			//TODO miro.showErrorNotif
+		}
+	}, [error]);
+
 	return (
 		<div className="container">
 			<Header centered={true}>
