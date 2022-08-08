@@ -1,8 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/dist/query';
 
-import userSettingsSlice from './userSettingsSlice';
-import boardSettingsSlice from './boardSettingsSlice';
+import userSettingsSlice from './slices/userSettingsSlice';
+import boardSettingsSlice from './slices/boardSettingsSlice';
 
 import { codeBeamerApi } from '../api/codeBeamerApi';
 

@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import { UserSetting } from './userSetting.enum';
+import { UserSetting } from '../userSetting.enum';
 
 export interface UserSettingsState {
 	cbAddress: string;

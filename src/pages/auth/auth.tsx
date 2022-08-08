@@ -1,12 +1,12 @@
 import { Field, Formik } from 'formik';
 import * as React from 'react';
-import Header from './header';
+import Header from '../../components/header';
 
 import './auth.css';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../store/store';
-import { setCredentials } from '../store/userSettingsSlice';
-import { setCbAddress } from '../store/boardSettingsSlice';
+import { RootState } from '../../store/store';
+import { setCredentials } from '../../store/slices/userSettingsSlice';
+import { setCbAddress } from '../../store/slices/boardSettingsSlice';
 
 interface Errors {
 	cbAddress?: string;

@@ -3,12 +3,12 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { RootState } from '../store/store';
 
-import AuthForm from '../components/auth';
+import AuthForm from '../pages/auth/auth';
 import {
 	useGetUserByNameQuery,
 	useTestAuthenticationQuery,
 } from '../api/codeBeamerApi';
-import { loadBoardSettings } from '../store/boardSettingsSlice';
+import { loadBoardSettings } from '../store/slices/boardSettingsSlice';
 
 export default function Content() {
 	const dispatch = useDispatch();

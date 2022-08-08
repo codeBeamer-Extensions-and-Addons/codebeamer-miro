@@ -1,9 +1,8 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import { Json } from '@mirohq/websdk-types';
-import { BoardSetting } from './boardSetting.enum';
-import { UserMapping } from '../models/user-mapping.if';
-import { ImportConfiguration } from '../models/import-configuration.if';
+import { BoardSetting } from '../boardSetting.enum';
+import { UserMapping } from '../../models/user-mapping.if';
+import { ImportConfiguration } from '../../models/import-configuration.if';
 
 export interface BoardSettingsState {
 	loading: boolean;
