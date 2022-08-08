@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { UserSetting } from '../store/userSetting.enum';
 import { RootState } from '../store/store';
+import { ProjectListView } from '../models/projectListView.if';
 
 export const codeBeamerApi = createApi({
 	baseQuery: fetchBaseQuery({
@@ -20,7 +21,6 @@ export const codeBeamerApi = createApi({
 		},
 	}),
 	endpoints: (builder) => ({
-		//TODO interface for that, AuthData or smth
 		testAuthentication: builder.query<
 			string,
 			{ cbAddress: string; cbUsername: string; cbPassword: string }
@@ -30,8 +30,14 @@ export const codeBeamerApi = createApi({
 		getUserByName: builder.query<string, string>({
 			query: (name) => `users/findByName?name=${name}`,
 		}),
+		getProjects: builder.query<ProjectListView[], void>({
+			query: () => `projects`,
+		}),
 	}),
 });
 
-export const { useTestAuthenticationQuery, useGetUserByNameQuery } =
-	codeBeamerApi;
+export const {
+	useTestAuthenticationQuery,
+	useGetUserByNameQuery,
+	useGetProjectsQuery,
+} = codeBeamerApi;
