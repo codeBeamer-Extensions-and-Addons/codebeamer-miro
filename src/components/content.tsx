@@ -9,6 +9,7 @@ import {
 	useTestAuthenticationQuery,
 } from '../api/codeBeamerApi';
 import { loadBoardSettings } from '../store/slices/boardSettingsSlice';
+import ProjectSelection from '../pages/import/components/projectSelection';
 
 export default function Content() {
 	const dispatch = useDispatch();
@@ -21,7 +22,7 @@ export default function Content() {
 		(state: RootState) => state.userSettings
 	);
 
-	const { cbAddress, loading } = useSelector(
+	const { cbAddress, projectId, loading } = useSelector(
 		(state: RootState) => state.boardSettings
 	);
 
@@ -33,6 +34,8 @@ export default function Content() {
 
 	if (isLoading || error) {
 		return <AuthForm loading={isLoading} error={error} />;
+	} else if (!projectId) {
+		return <ProjectSelection />;
 	} else
 		return (
 			<div className="grid wrapper">
