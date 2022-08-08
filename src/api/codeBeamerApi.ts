@@ -3,6 +3,8 @@ import { UserSetting } from '../store/userSetting.enum';
 import { RootState } from '../store/store';
 import { ProjectListView } from '../models/projectListView.if';
 import { TrackerListView } from '../models/trackerListView.if';
+import { ItemQueryPage } from '../models/itemQueryPage';
+import { CodeBeamerItemsQuery } from '../models/itemQuery';
 
 export const codeBeamerApi = createApi({
 	baseQuery: fetchBaseQuery({
@@ -37,6 +39,16 @@ export const codeBeamerApi = createApi({
 		getTrackers: builder.query<TrackerListView[], string>({
 			query: (projectId) => `projects/${projectId}/trackers`,
 		}),
+		getItems: builder.query<ItemQueryPage, CodeBeamerItemsQuery>({
+			query: (parameters) => {
+				return {
+					url: `/items/query`,
+					method: 'POST',
+					body: parameters,
+					headers: { 'Content-type': 'application/json' },
+				};
+			},
+		}),
 	}),
 });
 
@@ -45,4 +57,5 @@ export const {
 	useGetUserByNameQuery,
 	useGetProjectsQuery,
 	useGetTrackersQuery,
+	useGetItemsQuery,
 } = codeBeamerApi;
