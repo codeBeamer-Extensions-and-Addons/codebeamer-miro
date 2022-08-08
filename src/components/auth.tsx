@@ -5,7 +5,8 @@ import Header from './header';
 import './auth.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/store';
-import { setCbAddress, setCredentials } from '../store/apiConnectionSlice';
+import { setCredentials } from '../store/userSettingsSlice';
+import { setCbAddress } from '../store/boardSettingsSlice';
 
 interface Errors {
 	cbAddress?: string;
@@ -14,10 +15,14 @@ interface Errors {
 }
 
 export default function AuthForm(props: { loading: boolean; error: any }) {
-	const { cbAddress, cbUsername, cbPassword } = useSelector(
-		(state: RootState) => state.apiConnection
-	);
 	const dispatch = useDispatch();
+
+	const { cbUsername, cbPassword } = useSelector(
+		(state: RootState) => state.userSettings
+	);
+	const { cbAddress } = useSelector(
+		(state: RootState) => state.boardSettings
+	);
 
 	if (props.error) {
 		//TODO (for the miro devs) show notification
@@ -41,6 +46,7 @@ export default function AuthForm(props: { loading: boolean; error: any }) {
 						cbUsername: cbUsername,
 						cbPassword: cbPassword,
 					}}
+					enableReinitialize={true}
 					validate={(values) => {
 						const errors: Errors = {};
 
