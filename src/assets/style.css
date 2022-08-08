@@ -22,39 +22,6 @@ body {
 	padding: 2rem;
 }
 
-.container {
-	max-width: 580px;
-	margin: 0 auto;
-	background-color: var(--indigo50);
-	padding: var(--space-xxxlarge);
-	border-radius: var(--border-radius-xlarge);
-}
-
-.centered {
-	position: absolute;
-	top: 50%;
-	left: 50;
-	translate: (-50%, -50%);
-	text-align: center;
-}
-
-img {
-	max-width: 100%;
-}
-.icon {
-	display: inline-block !important;
-}
-.ionIcon {
-	width: 25px;
-}
-.mr-1 {
-	margin-right: 1rem;
-}
-.pos-adjusted-down {
-	position: relative;
-	bottom: -3px;
-}
-
 .button {
 	text-decoration: none;
 }
@@ -63,6 +30,84 @@ img {
 	background-color: lightgray;
 }
 
+.container {
+	max-width: 580px;
+	margin: 0 auto;
+	background-color: var(--indigo50);
+	padding: var(--space-xxxlarge);
+	border-radius: var(--border-radius-xlarge);
+}
+
+img {
+	max-width: 100%;
+}
+
+/**icon adjustments*/
+
+.icon {
+	display: inline-block !important;
+}
+.ionIcon {
+	width: 25px;
+}
+
+.badge-icon {
+	position: absolute;
+	top: 0;
+}
+
+.badge-icon[data-position='right'] {
+	right: 0;
+}
+.badge-icon[data-position='left'] {
+	left: 0;
+}
+
+.pos-adjusted-down {
+	position: relative;
+	bottom: -3px;
+}
+
+/**centering*/
+.centered {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.centered-50 {
+	margin: auto;
+	max-width: 50%;
+}
+
+.text-center {
+	text-align: center;
+}
+
+/**margin & padding*/
+
+.mr-1 {
+	margin-right: 1rem;
+}
+.ml-1 {
+	margin-left: 1rem;
+}
+.mt-1 {
+	margin-top: 1rem;
+}
+.mt-3 {
+	margin-top: 3rem;
+}
+
+/**flex containers*/
+
+.flex {
+	display: flex;
+}
+.flex-spaced {
+	justify-content: space-between;
+}
 .flex-row {
 	display: flex !important;
 	flex-direction: row;
@@ -76,15 +121,19 @@ img {
 .align-end {
 	align-self: flex-end;
 }
-
+.align-items-center {
+	align-items: center;
+}
 .align .flex-centered {
 	display: flex;
 	justify-content: center;
 	align-items: center;
 }
 
-.text-center {
-	text-align: center;
+/**font*/
+
+.font-small {
+	font-size: xx-small;
 }
 
 .muted {
@@ -92,6 +141,25 @@ img {
 	color: gray;
 }
 
+/**width*/
+.w-25 {
+	width: 25%;
+}
 .w-50 {
 	width: 50%;
+}
+.w-100 {
+	width: 100%;
+}
+.w-fill {
+	width: -webkit-fill-available;
+}
+
+/**position & display*/
+
+.position-relative {
+	position: relative;
+}
+.inline {
+	display: inline !important;
 }
