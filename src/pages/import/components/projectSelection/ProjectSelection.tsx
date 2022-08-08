@@ -140,14 +140,18 @@ const ProjectField = (props: {
 		<Field
 			as="select"
 			name="project"
-			className="input w-100"
+			className="select w-100"
 			data-test="project"
 		>
 			<option value="-">--</option>
 			{props.loading && <option>Loading Projects...</option>}
 			{!props.loading &&
 				props.projects?.map((p) => {
-					return <option value={p.id}>{p.name}</option>;
+					return (
+						<option value={p.id} key={p.id}>
+							{p.name}
+						</option>
+					);
 				})}
 		</Field>
 	);
