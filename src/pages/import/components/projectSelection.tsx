@@ -1,8 +1,72 @@
-import { Field, Formik } from 'formik';
+import { Field, Formik, useFormikContext } from 'formik';
 import * as React from 'react';
+import { useDispatch } from 'react-redux';
+import { useGetProjectsQuery } from '../../../api/codeBeamerApi';
 import Header from '../../../components/header';
+import { ProjectListView } from '../../../models/projectListView.if';
+import { setProjectId } from '../../../store/slices/boardSettingsSlice';
+
+const ProjectField = (props: {
+	projects: ProjectListView[] | undefined;
+	loading: boolean;
+}) => {
+	const {
+		values: { projectId },
+		setFieldValue,
+	} = useFormikContext<{ projectId: number }>();
+
+	React.useEffect(() => {
+		if (projectId !== 0) {
+			setFieldValue('project', projectId);
+		} else {
+			setFieldValue('project', '-');
+		}
+	}, [projectId]);
+
+	return (
+		<Field
+			as="select"
+			name="project"
+			className="input w-100"
+			data-test="project"
+		>
+			<option value="-">--</option>
+			{props.loading && <option>Loading Projects...</option>}
+			{!props.loading &&
+				props.projects?.map((p) => {
+					return <option value={p.id}>{p.name}</option>;
+				})}
+		</Field>
+	);
+};
+
+const ProjectIdField = () => {
+	const {
+		values: { project },
+		setFieldValue,
+	} = useFormikContext<{ project: string }>();
+
+	React.useEffect(() => {
+		if (project !== '-') {
+			setFieldValue('projectId', parseInt(project));
+		}
+	}, [project]);
+
+	return (
+		<Field
+			type="number"
+			name="projectId"
+			className="input w-25 ml-1"
+			data-test="projectId"
+		/>
+	);
+};
 
 export default function ProjectSelection() {
+	const dispatch = useDispatch();
+
+	const { data, error, isLoading } = useGetProjectsQuery();
+
 	return (
 		<div className="container">
 			<Header centered={true}>
@@ -17,7 +81,7 @@ export default function ProjectSelection() {
 				<Formik
 					initialValues={{
 						projectId: 0,
-						project: 'this',
+						project: '-',
 					}}
 					validate={(values) => {
 						const errors: { projectId?: string; project?: string } =
@@ -33,7 +97,7 @@ export default function ProjectSelection() {
 					onSubmit={(values, { setSubmitting }) => {
 						setSubmitting(true);
 
-						//TODO dispatch some stuff
+						dispatch(setProjectId(values.projectId));
 					}}
 				>
 					{({
@@ -57,12 +121,7 @@ export default function ProjectSelection() {
 								}`}
 							>
 								<label className="inline">Project ID: </label>
-								<Field
-									type="number"
-									name="projectId"
-									className="input w-25 ml-1"
-									data-test="projectId"
-								/>
+								<ProjectIdField />
 								{errors.projectId && touched.projectId && (
 									<div className="status-text">
 										{errors.projectId}
@@ -79,15 +138,10 @@ export default function ProjectSelection() {
 								}`}
 							>
 								<label className="inline">Project</label>
-								<Field
-									as="select"
-									name="project"
-									className="input w-100"
-									data-test="project"
-								>
-									<option value="this">This</option>
-									<option value="that">That</option>
-								</Field>
+								<ProjectField
+									projects={data}
+									loading={isLoading}
+								/>
 								{errors.project && touched.project && (
 									<div className="status-text">
 										{errors.project}
