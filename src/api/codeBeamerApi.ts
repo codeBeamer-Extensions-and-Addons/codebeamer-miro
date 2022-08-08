@@ -2,6 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { UserSetting } from '../store/userSetting.enum';
 import { RootState } from '../store/store';
 import { ProjectListView } from '../models/projectListView.if';
+import { TrackerListView } from '../models/trackerListView.if';
 
 export const codeBeamerApi = createApi({
 	baseQuery: fetchBaseQuery({
@@ -33,6 +34,9 @@ export const codeBeamerApi = createApi({
 		getProjects: builder.query<ProjectListView[], void>({
 			query: () => `projects`,
 		}),
+		getTrackers: builder.query<TrackerListView[], string>({
+			query: (projectId) => `projects/${projectId}/trackers`,
+		}),
 	}),
 });
 
@@ -40,4 +44,5 @@ export const {
 	useTestAuthenticationQuery,
 	useGetUserByNameQuery,
 	useGetProjectsQuery,
+	useGetTrackersQuery,
 } = codeBeamerApi;
