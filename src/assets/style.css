@@ -19,7 +19,7 @@ body {
 	height: 100%;
 	line-height: 1.5;
 	margin: 0;
-	padding: 2rem;
+	padding: 0;
 }
 
 .button {
@@ -67,6 +67,10 @@ img {
 	position: relative;
 	bottom: -3px;
 }
+.pos-adjusted-up {
+	position: relative;
+	bottom: 3px;
+}
 
 /**centering*/
 .centered {
@@ -112,12 +116,10 @@ img {
 	display: flex !important;
 	flex-direction: row;
 }
-
 .flex-col {
 	display: flex !important;
 	flex-direction: col;
 }
-
 .align-end {
 	align-self: flex-end;
 }
