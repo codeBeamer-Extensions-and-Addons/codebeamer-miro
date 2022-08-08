@@ -30,7 +30,7 @@ export default function AuthForm(props: { loading: boolean; error: any }) {
 	}
 
 	return (
-		<>
+		<div class="container">
 			<Header centered={true}>
 				CodeBeamer / Miro Integration
 				<br />
@@ -151,7 +151,7 @@ export default function AuthForm(props: { loading: boolean; error: any }) {
 								)}
 							</div>
 
-							<div className="flex-centered">
+							<div className="flex-centered mt-3">
 								<button
 									type="submit"
 									disabled={isSubmitting || props.loading}
@@ -170,6 +170,6 @@ export default function AuthForm(props: { loading: boolean; error: any }) {
 					)}
 				</Formik>
 			</div>
-		</>
+		</div>
 	);
 }
