@@ -66,8 +66,6 @@ export default function AuthForm(props: { loading: boolean; error: any }) {
 					}}
 					onSubmit={async (values, { setSubmitting }) => {
 						setSubmitting(true);
-						console.log('onSubmit');
-
 						dispatch(
 							setCredentials({
 								username: values.cbUsername,
