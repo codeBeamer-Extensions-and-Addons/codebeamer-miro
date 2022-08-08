@@ -6,7 +6,7 @@ import { ImportConfiguration } from '../../models/import-configuration.if';
 
 export interface BoardSettingsState {
 	loading: boolean;
-	cbAddress: any; // in reality only string
+	cbAddress: any;
 	projectId: any;
 	inboxTrackerId: any;
 	userMapping: any[];
@@ -42,6 +42,12 @@ export const boardSettingsSlice = createSlice({
 
 			state.cbAddress = action.payload;
 		},
+		setProjectId: (state, action: PayloadAction<number | string>) => {
+			const id = action.payload.toString();
+			miro.board.setAppData(BoardSetting.PROJECT_ID, id);
+
+			state.projectId = id;
+		},
 	},
 	extraReducers: (builder) => {
 		builder
@@ -68,6 +74,6 @@ export const boardSettingsSlice = createSlice({
 	},
 });
 
-export const { setCbAddress } = boardSettingsSlice.actions;
+export const { setCbAddress, setProjectId } = boardSettingsSlice.actions;
 
 export default boardSettingsSlice.reducer;
