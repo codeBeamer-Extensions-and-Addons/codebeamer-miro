@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { RootState } from '../store/store';
 
@@ -8,10 +8,21 @@ import {
 	useGetUserByNameQuery,
 	useTestAuthenticationQuery,
 } from '../api/codeBeamerApi';
+import { loadBoardSettings } from '../store/boardSettingsSlice';
 
 export default function Content() {
-	const { cbAddress, cbUsername, cbPassword } = useSelector(
-		(state: RootState) => state.apiConnection
+	const dispatch = useDispatch();
+
+	React.useEffect(() => {
+		dispatch(loadBoardSettings());
+	}, []);
+
+	const { cbUsername, cbPassword } = useSelector(
+		(state: RootState) => state.userSettings
+	);
+
+	const { cbAddress, loading } = useSelector(
+		(state: RootState) => state.boardSettings
 	);
 
 	const { data, error, isLoading } = useTestAuthenticationQuery({
