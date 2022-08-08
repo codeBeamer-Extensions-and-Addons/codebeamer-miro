@@ -17,6 +17,6 @@
 		"forceConsistentCasingInFileNames": true,
 		"typeRoots": ["./node_modules/@types", "./node_modules/@mirohq"]
 	},
-	"include": ["global.d.ts", "cypress.d.ts", "src"],
+	"include": ["global.d.ts", "cypress.d.ts", "src", "cypress"],
 	"exclude": ["node_modules"]
 }
