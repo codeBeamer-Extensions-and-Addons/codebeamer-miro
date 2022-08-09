@@ -1,0 +1,42 @@
+[
+	{
+		"id": 1,
+		"name": "Increments and Sprints",
+		"type": "TrackerReference"
+	},
+	{
+		"id": 2,
+		"name": "Team",
+		"type": "TrackerReference"
+	},
+	{
+		"id": 3,
+		"name": "Versions",
+		"type": "TrackerReference"
+	},
+	{
+		"id": 4,
+		"name": "Releases",
+		"type": "TrackerReference"
+	},
+	{
+		"id": 5,
+		"name": "OKR",
+		"type": "TrackerReference"
+	},
+	{
+		"id": 6,
+		"name": "PBI",
+		"type": "TrackerReference"
+	},
+	{
+		"id": 7,
+		"name": "Epics",
+		"type": "TrackerReference"
+	},
+	{
+		"id": 8,
+		"name": "Features",
+		"type": "TrackerReference"
+	}
+]
