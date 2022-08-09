@@ -37,20 +37,10 @@ export default function QueryResults() {
 			</div>
 		);
 	} else if (error) {
-		//TODO, and handle differently in CBQL input
+		//TODO only for CBQL input I think
 		return (
 			<div className="centered">
 				<h3 className="h3 error">Invalid query</h3>
-				<p className="muted">
-					If the error persists, contact us
-					<a
-						className="link link-text"
-						href="https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/issues"
-					>
-						here
-					</a>
-					.
-				</p>
 			</div>
 		);
 	} else if (trackerId) {

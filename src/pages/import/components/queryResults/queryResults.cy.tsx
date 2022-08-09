@@ -27,6 +27,4 @@ describe('<QueryResults>', () => {
 			.its('request.body.queryString')
 			.should('equal', queryString);
 	});
-
-	it('shows an info message when the tracker has no items');
 });
