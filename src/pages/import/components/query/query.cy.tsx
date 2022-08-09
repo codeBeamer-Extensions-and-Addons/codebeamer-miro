@@ -19,7 +19,7 @@ describe('<Query>', () => {
 	});
 
 	describe('tracker select', () => {
-		beforeEach(() => {
+		it('displays the project its trackers in the select', () => {
 			const store = getStore();
 			const cbAddress = 'https://fake.codebeamer.com/cb';
 			store.dispatch(setCbAddress(cbAddress));
@@ -29,9 +29,7 @@ describe('<Query>', () => {
 			});
 
 			cy.mountWithStore(<Query />, store);
-		});
 
-		it('displays the project its trackers in the select', () => {
 			cy.getBySel('trackerSelect')
 				.find('option')
 				.should('contain.text', 'Features')
@@ -40,6 +38,12 @@ describe('<Query>', () => {
 
 		it('updates the selected Tracker in the store', () => {
 			const store = getStore();
+			const cbAddress = 'https://fake.codebeamer.com/cb';
+			store.dispatch(setCbAddress(cbAddress));
+
+			cy.intercept(`${cbAddress}/projects/**/trackers`, {
+				fixture: 'trackers.json',
+			});
 
 			cy.mountWithStore(<Query />, store);
 
@@ -48,6 +52,22 @@ describe('<Query>', () => {
 			cy.getBySel('trackerSelect').select('PBI');
 
 			expect('@dispatch').to.have.been.calledWith(setTrackerId('5'));
+		});
+
+		it('automatically selects the cached Tracker if there is one', () => {
+			const store = getStore();
+			const cbAddress = 'https://fake.codebeamer.com/cb';
+			const trackerId = '1';
+			store.dispatch(setCbAddress(cbAddress));
+			store.dispatch(setTrackerId(trackerId));
+
+			cy.intercept(`${cbAddress}/projects/**/trackers`, {
+				fixture: 'trackers.json',
+			});
+
+			cy.mountWithStore(<Query />, store);
+
+			cy.getBySel('trackerSelect').should('have.value', trackerId);
 		});
 	});
 });

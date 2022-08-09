@@ -11,7 +11,7 @@ export default function Query() {
 		(state: RootState) => state.boardSettings
 	);
 
-	const { advancedSearch } = useSelector(
+	const { advancedSearch, trackerId } = useSelector(
 		(state: RootState) => state.userSettings
 	);
 
@@ -23,6 +23,18 @@ export default function Query() {
 			//TODO miro.showErrorNotif
 		}
 	}, [error]);
+
+	/**
+	 * Once we got or update (latter shouldn't ever be the case) the trackers, programmatically
+	 * select the cached selected Tracker for the user's convenience.
+	 */
+	React.useEffect(() => {
+		if (data && !isLoading) {
+			(
+				document.getElementById('trackerSelect') as HTMLSelectElement
+			).value = trackerId;
+		}
+	}, [data]);
 
 	const handleSelect = (event: any) => {
 		dispatch(setTrackerId(event.target.value));
@@ -39,6 +51,7 @@ export default function Query() {
 							className="select"
 							onChange={handleSelect}
 							data-test="trackerSelect"
+							id="trackerSelect"
 						>
 							<option value="0">--</option>
 							{!isLoading &&
