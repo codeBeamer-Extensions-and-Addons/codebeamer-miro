@@ -40,8 +40,14 @@ export default function ProjectSelection() {
 
 						if (!values.projectId)
 							errors.projectId = 'Select an ID';
-						if (!values.project)
-							errors.project = "Can't find Project";
+						// if (!values.project || values.project == '-')
+						// 	errors.project = "Can't find Project";
+						if (
+							data &&
+							!data.find((p) => p.id == values.projectId)
+						) {
+							errors.projectId = 'No Project found with this ID';
+						}
 
 						return errors;
 					}}
@@ -74,7 +80,10 @@ export default function ProjectSelection() {
 								<label className="inline">Project ID: </label>
 								<ProjectIdField />
 								{errors.projectId && touched.projectId && (
-									<div className="status-text">
+									<div
+										className="status-text ml-1"
+										data-test="projectIdErrors"
+									>
 										{errors.projectId}
 									</div>
 								)}
@@ -93,7 +102,7 @@ export default function ProjectSelection() {
 									projects={data}
 									loading={isLoading}
 								/>
-								{errors.project && touched.project && (
+								{errors.project && (
 									<div className="status-text">
 										{errors.project}
 									</div>
@@ -102,7 +111,11 @@ export default function ProjectSelection() {
 							<div className="flex-centered mt-3">
 								<button
 									type="submit"
-									disabled={isSubmitting}
+									disabled={
+										isSubmitting ||
+										errors.project ||
+										errors.projectId
+									}
 									className={`button button-primary ${
 										isSubmitting && 'button-loading'
 									}`}
@@ -129,6 +142,8 @@ const ProjectField = (props: {
 	} = useFormikContext<{ projectId: number }>();
 
 	React.useEffect(() => {
+		//to add a 2nd error msg below this input, which I think is obsolete
+		//&& props.projects?.find((p) => p.id == projectId)
 		if (projectId !== 0) {
 			setFieldValue('project', projectId);
 		} else {
