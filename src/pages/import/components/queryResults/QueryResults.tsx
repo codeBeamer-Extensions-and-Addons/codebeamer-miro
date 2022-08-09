@@ -36,9 +36,11 @@ export default function QueryResults() {
 						<td>Name</td>
 					</tr>
 				</thead>
-				{data?.items?.map((i) => (
-					<QueryResult item={i} key={i.id} />
-				))}
+				<tbody>
+					{data?.items?.map((i) => (
+						<QueryResult item={i} key={i.id} />
+					))}
+				</tbody>
 			</table>
 		</div>
 	);
