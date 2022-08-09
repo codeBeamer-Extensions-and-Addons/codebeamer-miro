@@ -6,15 +6,21 @@ import boardSettingsSlice from './slices/boardSettingsSlice';
 
 import { codeBeamerApi } from '../api/codeBeamerApi';
 
-export const store = configureStore({
+const configuration = {
 	reducer: {
 		userSettings: userSettingsSlice,
 		boardSettings: boardSettingsSlice,
 		[codeBeamerApi.reducerPath]: codeBeamerApi.reducer,
 	},
-	middleware: (getDefaultMiddleware) =>
+	middleware: (getDefaultMiddleware: () => any[]) =>
 		getDefaultMiddleware().concat(codeBeamerApi.middleware),
-});
+};
+
+export const store = configureStore(configuration);
+
+export function getStore() {
+	return configureStore(configuration);
+}
 
 setupListeners(store.dispatch);
 
