@@ -8,10 +8,12 @@ import {
 import { RootState } from '../../../../store/store';
 import QueryResult from '../queryResult/QueryResult';
 
+import './queryResults.css';
+
 export default function QueryResults() {
 	const [page, setPage] = useState(DEFAULT_RESULT_PAGE);
 
-	const { cbqlString } = useSelector(
+	const { cbqlString, trackerId } = useSelector(
 		(state: RootState) => state.userSettings
 	);
 
@@ -26,22 +28,57 @@ export default function QueryResults() {
 		//TODO miro.showErrorNotif
 	}, [error]);
 
-	return (
-		<div>
-			<table className="table">
-				<thead>
-					<tr>
-						<td>Imported</td>
-						<td>ID</td>
-						<td>Name</td>
-					</tr>
-				</thead>
-				<tbody>
-					{data?.items?.map((i) => (
-						<QueryResult item={i} key={i.id} />
-					))}
-				</tbody>
-			</table>
-		</div>
-	);
+	if (data && (data.total == 0 || !data.items.length)) {
+		return (
+			<div className="centered">
+				<h3 className="h3 muted-info" data-test="noItemsInTracker">
+					No Items in this Tracker
+				</h3>
+			</div>
+		);
+	} else if (error) {
+		//TODO, and handle differently in CBQL input
+		return (
+			<div className="centered">
+				<h3 className="h3 error">Invalid query</h3>
+				<p className="muted">
+					If the error persists, contact us
+					<a
+						className="link link-text"
+						href="https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/issues"
+					>
+						here
+					</a>
+					.
+				</p>
+			</div>
+		);
+	} else if (trackerId) {
+		return (
+			<div>
+				<table className="table">
+					<thead>
+						<tr>
+							<td>Imported</td>
+							<td>ID</td>
+							<td>Name</td>
+						</tr>
+					</thead>
+					<tbody>
+						{data?.items?.map((i) => (
+							<QueryResult item={i} key={i.id} />
+						))}
+					</tbody>
+				</table>
+			</div>
+		);
+	} else {
+		return (
+			<div className="centered">
+				<h3 className="h3 muted-color">
+					Select a Tracker to load its Items
+				</h3>
+			</div>
+		);
+	}
 }
