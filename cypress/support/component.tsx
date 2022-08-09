@@ -19,7 +19,11 @@ import './commands';
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
 
-import { mount } from 'cypress/react';
+import { mount, MountOptions, MountReturn } from 'cypress/react';
+
+import { getStore, RootState } from '../../src/store/store';
+import { Provider } from 'react-redux';
+import { EnhancedStore } from '@reduxjs/toolkit';
 
 // Augment the Cypress namespace to include type definitions for
 // your custom command.
@@ -33,11 +37,25 @@ declare global {
 				selector: string,
 				...args: any
 			): Chainable<JQuery<Element>>;
+			mountWithStore(
+				component: React.ReactNode,
+				options?: MountOptions & {
+					reduxStore?: EnhancedStore<RootState>;
+				}
+			): Chainable<MountReturn>;
 		}
 	}
 }
 
 Cypress.Commands.add('mount', mount);
+
+Cypress.Commands.add('mountWithStore', (component, options = {}) => {
+	const { reduxStore = getStore(), ...mountOptions } = options;
+
+	const wrapped = <Provider store={reduxStore}>{component}</Provider>;
+
+	return mount(wrapped, mountOptions);
+});
 
 Cypress.Commands.add('getBySel', (selector, ...args) => {
 	return cy.get(`[data-test=${selector}]`, ...args);
