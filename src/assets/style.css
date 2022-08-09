@@ -165,3 +165,19 @@ img {
 .inline {
 	display: inline !important;
 }
+
+/**custom scrollbar*/
+::-webkit-scrollbar {
+	width: 10px;
+}
+::-webkit-scrollbar-track {
+	background: #eee;
+	border-radius: 5px;
+}
+::-webkit-scrollbar-thumb {
+	background: var(--accent-color);
+	border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+	background: #455bed;
+}
