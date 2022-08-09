@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useGetTrackersQuery } from '../../../../api/codeBeamerApi';
 import { setTrackerId } from '../../../../store/slices/userSettingsSlice';
@@ -38,7 +38,7 @@ export default function Query() {
 						<select
 							className="select"
 							onChange={handleSelect}
-							data-test="tracker-select"
+							data-test="trackerSelect"
 						>
 							<option value="0">--</option>
 							{!isLoading &&
