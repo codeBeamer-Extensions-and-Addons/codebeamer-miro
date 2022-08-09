@@ -56,8 +56,7 @@ describe('<Auth>', () => {
 		it('shows an error when entering an invalid codebeamer address', () => {
 			cy.getBySel('cbAddress').type('tcp:/my.cb.io');
 
-			//TODO just should have some text, not sure whether you need to pass anything
-			cy.getBySel('cbAddressErrors').should('have.text');
+			cy.getBySel('cbAddressErrors').should('exist');
 		});
 
 		it('shows (an) error(s) when submitting without having filled all inputs', () => {
