@@ -38,6 +38,7 @@ describe('<ProjectSelection>', () => {
 		cy.getBySel('projectId').type(projectId);
 		cy.getBySel('submit').click();
 
+		//? to be or to have been?
 		expect('@dispatch').to.be.calledWith(setProjectId(projectId));
 	});
 
