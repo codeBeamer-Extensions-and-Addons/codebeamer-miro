@@ -19,7 +19,7 @@ export default function ProjectSelection() {
 	}, [error]);
 
 	return (
-		<div className="container">
+		<div data-test="project-selection" className="container">
 			<Header centered={true}>
 				Project selection
 				<br />

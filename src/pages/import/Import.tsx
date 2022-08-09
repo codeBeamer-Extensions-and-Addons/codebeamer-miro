@@ -7,10 +7,10 @@ import './import.css';
 
 export default function Import() {
 	return (
-		<>
+		<div data-test="import">
 			<ImportHeader />
 			<Query />
 			<QueryResults />
-		</>
+		</div>
 	);
 }
