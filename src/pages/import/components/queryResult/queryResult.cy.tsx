@@ -1,7 +1,9 @@
+import { ItemListView } from '../../../../models/itemListView';
 import QueryResult from './QueryResult';
 
 describe('<QueryResult>', () => {
 	it('mounts', () => {
-		cy.mount(<QueryResult />);
+		const item: ItemListView = { id: '1', name: 'Testitem' };
+		cy.mount(<QueryResult item={item} onSelect={() => {}} />);
 	});
 });
