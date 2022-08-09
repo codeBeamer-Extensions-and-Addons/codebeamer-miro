@@ -7,3 +7,9 @@
 .error {
 	color: var(--red800);
 }
+.table {
+	display: block;
+	width: 100%;
+	overflow-y: scroll;
+	max-height: 500px;
+}

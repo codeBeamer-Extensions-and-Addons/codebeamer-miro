@@ -27,4 +27,10 @@ describe('<QueryResults>', () => {
 			.its('request.body.queryString')
 			.should('equal', queryString);
 	});
+
+	//TODO
+	describe('lazy loading items', () => {
+		it.skip('lazy loads');
+		it.skip('shows eos info when all items for a query have been loaded');
+	});
 });
