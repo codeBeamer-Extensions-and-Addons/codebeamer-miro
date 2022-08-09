@@ -14,7 +14,13 @@ interface Errors {
 	cbPassword?: string;
 }
 
-export default function AuthForm(props: { loading: boolean; error: any }) {
+/**
+ * The authentication form lets a user define the codeBeamer instance they want to connect to
+ * and provide their credentials. This only directly modifies the values kept in the store,
+ * while actual connection attempts are made in the Content component.
+ * @param props Loading defines whether or not to show a loading spinner on the button, errors show in notifications.
+ */
+export default function AuthForm(props: { loading?: boolean; error?: any }) {
 	const dispatch = useDispatch();
 
 	const { cbUsername, cbPassword } = useSelector(
@@ -103,7 +109,10 @@ export default function AuthForm(props: { loading: boolean; error: any }) {
 									data-test="cbAddress"
 								/>
 								{errors.cbAddress && touched.cbAddress && (
-									<div className="status-text">
+									<div
+										className="status-text"
+										data-test="cbAddressErrors"
+									>
 										{errors.cbAddress}
 									</div>
 								)}
