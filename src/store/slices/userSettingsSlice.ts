@@ -3,7 +3,6 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import { UserSetting } from '../userSetting.enum';
 import { SubqueryLinkMethod } from '../enums/subquery-link-method.enum';
 import { FilterCriteria } from '../../models/filterCriteria.if';
-import getFilterQuerySubstring from '../util/updateCbqlString';
 import getCbqlString from '../util/updateCbqlString';
 
 export interface UserSettingsState {
@@ -55,11 +54,13 @@ export const userSettingsSlice = createSlice({
 			state.trackerId = action.payload;
 			localStorage.setItem(UserSetting.SELECTED_TRACKER, action.payload);
 
-			state.cbqlString = getCbqlString(
+			const cbqlString = getCbqlString(
 				state.activeFilters,
 				state.subqueryChaining.toString(),
 				state.trackerId
 			);
+			state.cbqlString = cbqlString;
+			localStorage.setItem(UserSetting.CBQL_STRING, cbqlString);
 		},
 		setAdvancedSearch: (state, action: PayloadAction<boolean>) => {
 			state.advancedSearch = action.payload;
@@ -71,20 +72,24 @@ export const userSettingsSlice = createSlice({
 		addFilter: (state, action: PayloadAction<FilterCriteria>) => {
 			//TODO add to state
 
-			state.cbqlString = getCbqlString(
+			const cbqlString = getCbqlString(
 				state.activeFilters,
 				state.subqueryChaining.toString(),
 				state.trackerId
 			);
+			state.cbqlString = cbqlString;
+			localStorage.setItem(UserSetting.CBQL_STRING, cbqlString);
 		},
 		removeFilter: (state, action: PayloadAction<string | number>) => {
 			//TODO remove from state
 
-			state.cbqlString = getCbqlString(
+			const cbqlString = getCbqlString(
 				state.activeFilters,
 				state.subqueryChaining.toString(),
 				state.trackerId
 			);
+			state.cbqlString = cbqlString;
+			localStorage.setItem(UserSetting.CBQL_STRING, cbqlString);
 		},
 	},
 });
