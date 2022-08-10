@@ -1,24 +1,21 @@
 import * as React from 'react';
-import { setCbAddress } from '../../../../store/slices/boardSettingsSlice';
 import { setTrackerId } from '../../../../store/slices/userSettingsSlice';
 import { getStore } from '../../../../store/store';
 import QueryResults from './QueryResults';
 
 describe('<QueryResults>', () => {
 	it('mounts', () => {
-		cy.mount(<QueryResults />);
+		cy.mountWithStore(<QueryResults />);
 	});
 
 	it('queries items with the cached cbqlString when mounted', () => {
 		const store = getStore();
-		const cbAddress = 'https://fake.codebeamer.com/cb';
 		const trackerId = '123';
-		const queryString = `tracker.id in (${trackerId})`;
+		const queryString = `tracker.id IN (${trackerId})`;
 		//the cbqlString value in the store is set indirectly whenever value that it depends on change
 		store.dispatch(setTrackerId(trackerId));
-		store.dispatch(setCbAddress(cbAddress));
 
-		cy.intercept('POST', `${cbAddress}/api/v3/items/query`, {
+		cy.intercept('POST', `**/api/v3/items/query`, {
 			fixture: 'query.json',
 		}).as('itemQuery');
 
