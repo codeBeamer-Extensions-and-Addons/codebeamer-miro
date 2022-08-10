@@ -28,24 +28,26 @@ describe('<Auth>', () => {
 		});
 	});
 
-	it('saves values in store when submitting the form', () => {
+	it.only('saves values in store when submitting the form', () => {
 		const store = getStore();
 
 		cy.mountWithStore(<Auth />, { reduxStore: store });
 
 		cy.spy(store, 'dispatch').as('dispatch');
 
-		cy.getBySel('cbAddress').type('address');
+		cy.getBySel('cbAddress').type('https://codebeamer.com/cb');
 		cy.getBySel('cbUsername').type('user');
 		cy.getBySel('cbPassword').type('pass');
 
 		cy.getBySel('submit').click();
 
 		//? no idea whether this works
-		expect('@dispatch').to.be.calledWith(
-			setCredentials({ username: 'user', password: 'pass' })
-		);
-		expect('@dispatch').to.be.calledWith(setCbAddress('address'));
+		cy.get('@dispatch').then((dispatch) => {
+			expect(dispatch).to.be.calledWith(
+				setCredentials({ username: 'user', password: 'pass' })
+			);
+			expect(dispatch).to.be.calledWith(setCbAddress('address'));
+		});
 	});
 
 	describe('input validation', () => {
@@ -88,5 +90,10 @@ describe('<Auth>', () => {
 		cy.getBySel('cbAddress').should('have.text', cbAddress);
 		cy.getBySel('cbUsername').should('have.text', username);
 		cy.getBySel('cbPassword').should('have.text', password);
+	});
+
+	afterEach(() => {
+		localStorage.clear();
+		sessionStorage.clear();
 	});
 });
