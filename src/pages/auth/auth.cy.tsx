@@ -6,12 +6,12 @@ import Auth from './auth';
 
 describe('<Auth>', () => {
 	it('mounts', () => {
-		cy.mount(<Auth />);
+		cy.mountWithStore(<Auth />);
 	});
 
 	describe('form elements', () => {
 		beforeEach(() => {
-			cy.mount(<Auth />);
+			cy.mountWithStore(<Auth />);
 		});
 
 		it('has an input for the CodeBeamer Address', () => {
@@ -28,36 +28,38 @@ describe('<Auth>', () => {
 		});
 	});
 
-	it.only('saves values in store when submitting the form', () => {
+	it('saves values in store when submitting the form', () => {
 		const store = getStore();
+		const cbAddress = 'https://codebeamer.com/cb';
+		const username = 'user';
+		const password = 'pass';
 
 		cy.mountWithStore(<Auth />, { reduxStore: store });
 
 		cy.spy(store, 'dispatch').as('dispatch');
 
-		cy.getBySel('cbAddress').type('https://codebeamer.com/cb');
-		cy.getBySel('cbUsername').type('user');
-		cy.getBySel('cbPassword').type('pass');
+		cy.getBySel('cbAddress').type(cbAddress);
+		cy.getBySel('cbUsername').type(username);
+		cy.getBySel('cbPassword').type(password);
 
 		cy.getBySel('submit').click();
 
-		//? no idea whether this works
 		cy.get('@dispatch').then((dispatch) => {
 			expect(dispatch).to.be.calledWith(
-				setCredentials({ username: 'user', password: 'pass' })
+				setCredentials({ username: username, password: password })
 			);
-			expect(dispatch).to.be.calledWith(setCbAddress('address'));
+			expect(dispatch).to.be.calledWith(setCbAddress(cbAddress));
 		});
 	});
 
 	describe('input validation', () => {
 		//not going into all the details here, since it's just nice to have
 		beforeEach(() => {
-			cy.mount(<Auth />);
+			cy.mountWithStore(<Auth />);
 		});
 
 		it('shows an error when entering an invalid codebeamer address', () => {
-			cy.getBySel('cbAddress').type('tcp:/my.cb.io');
+			cy.getBySel('cbAddress').type('tcp:/my.cb.io{enter}');
 
 			cy.getBySel('cbAddressErrors').should('exist');
 		});
@@ -65,31 +67,27 @@ describe('<Auth>', () => {
 		it('shows (an) error(s) when submitting without having filled all inputs', () => {
 			cy.getBySel('submit').click();
 
-			cy.get('status-text');
+			cy.get('.status-text');
 		});
 	});
 
 	it('loads cached values into the form', () => {
-		const cbAddress = 'https://retina.roche.com';
+		const cbAddress = 'https://retina.roche.com/cb';
 		const username = 'anon';
 		const password = 'pass';
 
-		cy.stub(miro.board, 'getAppData').returns({
-			cbAddress: cbAddress,
-		});
-
 		const store = getStore();
-
+		//"cache" is mocked by manually loading the values into store
+		store.dispatch(setCbAddress(cbAddress));
 		store.dispatch(
 			setCredentials({ username: username, password: password })
 		);
 
 		cy.mountWithStore(<Auth />, { reduxStore: store });
 
-		//! not sure whether the async Loading function for the board settings is done by now
-		cy.getBySel('cbAddress').should('have.text', cbAddress);
-		cy.getBySel('cbUsername').should('have.text', username);
-		cy.getBySel('cbPassword').should('have.text', password);
+		cy.getBySel('cbAddress').should('have.value', cbAddress);
+		cy.getBySel('cbUsername').should('have.value', username);
+		cy.getBySel('cbPassword').should('have.value', password);
 	});
 
 	afterEach(() => {
