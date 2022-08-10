@@ -1,20 +1,16 @@
 import * as React from 'react';
-import {
-	setCbAddress,
-	setProjectId,
-} from '../../../../store/slices/boardSettingsSlice';
-import { setCredentials } from '../../../../store/slices/userSettingsSlice';
+import { setProjectId } from '../../../../store/slices/boardSettingsSlice';
 import { getStore } from '../../../../store/store';
 import ProjectSelection from './ProjectSelection';
 
 describe('<ProjectSelection>', () => {
 	it('mounts', () => {
-		cy.mount(<ProjectSelection />);
+		cy.mountWithStore(<ProjectSelection />);
 	});
 
-	describe('inputs', () => {
+	context('inputs', () => {
 		beforeEach(() => {
-			cy.mount(<ProjectSelection />);
+			cy.mountWithStore(<ProjectSelection />);
 		});
 
 		it('has a project ID input', () => {
@@ -30,42 +26,36 @@ describe('<ProjectSelection>', () => {
 
 	it('saves the projectId in store when submitting the form', () => {
 		const store = getStore();
-		const projectId = '123';
+		const projectId = 123;
 
 		cy.mountWithStore(<ProjectSelection />, { reduxStore: store });
 
 		cy.spy(store, 'dispatch').as('dispatch');
 
-		cy.getBySel('projectId').type(projectId);
+		cy.getBySel('projectId').type(projectId.toString());
 		cy.getBySel('submit').click();
 
-		//? to be or to have been?
-		expect('@dispatch').to.be.calledWith(setProjectId(projectId));
+		cy.get('@dispatch').then((dispatch) =>
+			expect(dispatch).to.have.been.calledWith(setProjectId(projectId))
+		);
 	});
 
-	describe('with project data', () => {
+	context('with project data', () => {
 		beforeEach(() => {
-			const cbAddress = 'https://fake.codebeamer.com/cb';
-			const credentials = { username: 'anon', password: 'pass' };
-
-			const store = getStore();
-
-			store.dispatch(setCredentials(credentials));
-			store.dispatch(setCbAddress(cbAddress));
-
-			cy.intercept(`${cbAddress}/api/v3/projects`, {
+			cy.intercept('GET', `**/api/v3/projects`, {
 				fixture: 'projects.json',
 			});
-
-			cy.mountWithStore(<ProjectSelection />, { reduxStore: store });
 		});
 
 		it('shows loaded projects as options in the respective dropdown', () => {
+			cy.mountWithStore(<ProjectSelection />);
 			//Melon is the name of a project in the fixture
 			cy.getBySel('project').should('contain.text', 'Melon');
 		});
 
 		it('selects a project in the dropdown based on the entered project Id', () => {
+			cy.mountWithStore(<ProjectSelection />);
+
 			cy.getBySel('projectId').type('3');
 			cy.get('[data-test="project"] option:selected').should(
 				'have.text',
@@ -74,13 +64,18 @@ describe('<ProjectSelection>', () => {
 		});
 
 		it('enters the project Id into its input when selecting a project from the dropdown', () => {
+			cy.mountWithStore(<ProjectSelection />);
+
 			cy.getBySel('project').select('Cherry');
 			//? not sure, but this might need to go into a then() call
 			cy.getBySel('projectId').should('have.value', '4');
 		});
 
 		it('shows an error message if there is no project for an entered Id', () => {
+			cy.mountWithStore(<ProjectSelection />);
 			cy.getBySel('projectId').type('8');
+			//unfocus input
+			cy.get('body').click();
 			cy.getBySel('projectIdErrors').should('exist');
 		});
 	});
