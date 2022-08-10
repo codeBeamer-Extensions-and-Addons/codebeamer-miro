@@ -16,42 +16,49 @@ describe('<Content>', () => {
 	});
 
 	describe('uses cached values to automate procedures', () => {
-		let cbAddress: string;
-		let store: any;
+		const username = 'anon';
+		const password = '123';
+		const cbAddress = 'https://test.codebeamer.com/cb';
 
 		beforeEach(() => {
-			cbAddress = 'https://test.codebeamer.com/cb';
-			const username = 'anon';
-
-			//! ?
-			store = getStore();
-			store.dispatch(setCbAddress(cbAddress));
-			store.dispatch(
-				setCredentials({ username: username, password: '123' })
-			);
-
-			//! not sure whether the following tests really have the reference
 			cy.intercept('GET', `${cbAddress}/api/v3/users/findByName*`, {
 				statusCode: 200,
 			}).as('auth');
 		});
 
 		it('checks whether it can connect to the cached codeBeamer instance when opened', () => {
+			const store = getStore();
+			store.dispatch(setCbAddress(cbAddress));
+			store.dispatch(
+				setCredentials({ username: username, password: password })
+			);
+
 			cy.mountWithStore(<Content />, { reduxStore: store });
 
 			cy.wait('@auth');
 		});
 
 		it('proceeds to the project selection when authenticated successfully', () => {
-			cy.mountWithStore(<Content />, store);
+			const store = getStore();
+			store.dispatch(setCbAddress(cbAddress));
+			store.dispatch(
+				setCredentials({ username: username, password: password })
+			);
+
+			cy.mountWithStore(<Content />, { reduxStore: store });
 
 			cy.getBySel('project-selection').should('exist');
 		});
 
-		it.skip('proceeds to the import component when authenticated & a project is already selected', () => {
+		it('proceeds to the import component when authenticated & a project is already selected', () => {
+			const store = getStore();
+			store.dispatch(setCbAddress(cbAddress));
+			store.dispatch(
+				setCredentials({ username: username, password: password })
+			);
 			store.dispatch(setProjectId(1));
 
-			cy.mountWithStore(<Content />, store);
+			cy.mountWithStore(<Content />, { reduxStore: store });
 
 			cy.getBySel('import').should('exist');
 		});
