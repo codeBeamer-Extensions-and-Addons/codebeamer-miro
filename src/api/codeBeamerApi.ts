@@ -8,7 +8,10 @@ import { CodeBeamerItemsQuery } from '../models/itemQuery';
 
 export const codeBeamerApi = createApi({
 	baseQuery: fetchBaseQuery({
-		baseUrl: `${localStorage.getItem(UserSetting.CB_ADDRESS)}/api/v3/`,
+		baseUrl: `${
+			localStorage.getItem(UserSetting.CB_ADDRESS) ??
+			'https://codebeamer.com/cb'
+		}/api/v3/`,
 		prepareHeaders: (headers, { getState }) => {
 			const token = btoa(
 				`${(getState() as RootState).userSettings.cbUsername}:${
