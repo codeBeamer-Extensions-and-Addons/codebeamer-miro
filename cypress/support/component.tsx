@@ -20,6 +20,7 @@ import './commands';
 // require('./commands')
 
 import { mount, MountOptions, MountReturn } from 'cypress/react';
+import * as React from 'react';
 
 import { getStore, RootState } from '../../src/store/store';
 import { Provider } from 'react-redux';
