@@ -14,10 +14,11 @@ export default function QueryResult(props: {
 					onChange={(e) =>
 						props.onSelect(props.item, e.target.checked)
 					}
+					data-test="itemCheck"
 				></input>
 			</td>
-			<td>{props.item.id}</td>
-			<td>{props.item.name}</td>
+			<td data-test="itemId">{props.item.id}</td>
+			<td data-test="itemName">{props.item.name}</td>
 		</tr>
 	);
 }

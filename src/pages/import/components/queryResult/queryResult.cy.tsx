@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { ItemListView } from '../../../../models/itemListView';
 import QueryResult from './QueryResult';
 
@@ -7,7 +8,23 @@ describe('<QueryResult>', () => {
 		cy.mount(<QueryResult item={item} onSelect={() => {}} />);
 	});
 
-	//TODO
+	context('displayvalues', () => {
+		const itemId = 1;
+		const itemName = 'TestItem';
+
+		beforeEach(() => {
+			const item: ItemListView = { id: itemId, name: itemName };
+			cy.mount(<QueryResult item={item} onSelect={() => {}} />);
+		});
+
+		it('displays the Item its id', () => {
+			cy.getBySel('itemId').should('have.text', itemId);
+		});
+
+		it('displays the Item its name', () => {
+			cy.getBySel('itemName').should('have.text', itemName);
+		});
+	});
 
 	afterEach(() => {
 		localStorage.clear();
