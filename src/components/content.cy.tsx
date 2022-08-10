@@ -63,4 +63,9 @@ describe('<Content>', () => {
 			cy.getBySel('import').should('exist');
 		});
 	});
+
+	afterEach(() => {
+		localStorage.clear();
+		sessionStorage.clear();
+	});
 });

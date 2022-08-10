@@ -34,4 +34,9 @@ describe('<QueryResults>', () => {
 		it.skip('lazy loads');
 		it.skip('shows eos info when all items for a query have been loaded');
 	});
+
+	afterEach(() => {
+		localStorage.clear();
+		sessionStorage.clear();
+	});
 });

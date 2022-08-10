@@ -71,4 +71,9 @@ describe('<Query>', () => {
 			cy.getBySel('trackerSelect').should('have.value', trackerId);
 		});
 	});
+
+	afterEach(() => {
+		localStorage.clear();
+		sessionStorage.clear();
+	});
 });

@@ -8,4 +8,9 @@ describe('<QueryResult>', () => {
 	});
 
 	//TODO
+
+	afterEach(() => {
+		localStorage.clear();
+		sessionStorage.clear();
+	});
 });

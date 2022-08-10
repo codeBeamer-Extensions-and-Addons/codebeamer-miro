@@ -84,4 +84,9 @@ describe('<ProjectSelection>', () => {
 			cy.getBySel('projectIdErrors').should('exist');
 		});
 	});
+
+	afterEach(() => {
+		localStorage.clear();
+		sessionStorage.clear();
+	});
 });
