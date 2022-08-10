@@ -58,6 +58,14 @@ export default function QueryResults() {
 		);
 	};
 
+	/**
+	 * Reset the items cache whenever we change filter or tracker
+	 * Must run before the hook that adds the items from the newly fetched query
+	 */
+	React.useEffect(() => {
+		setItems([]);
+	}, [cbqlString]);
+
 	//append loaded items whenever we get new ones
 	//! this should (must, or else it doesn't really work) only trigger when we load another page of query results
 	React.useEffect(() => {
