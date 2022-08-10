@@ -1,4 +1,5 @@
 import Header from './header';
+import * as React from 'react';
 
 describe('<Header>', () => {
 	it('mounts', () => {

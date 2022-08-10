@@ -6,4 +6,6 @@ describe('<QueryResult>', () => {
 		const item: ItemListView = { id: '1', name: 'Testitem' };
 		cy.mount(<QueryResult item={item} onSelect={() => {}} />);
 	});
+
+	//TODO
 });

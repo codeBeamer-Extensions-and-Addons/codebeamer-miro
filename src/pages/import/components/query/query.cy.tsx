@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { setCbAddress } from '../../../../store/slices/boardSettingsSlice';
 import { setTrackerId } from '../../../../store/slices/userSettingsSlice';
 import { getStore } from '../../../../store/store';
@@ -24,11 +25,11 @@ describe('<Query>', () => {
 			const cbAddress = 'https://fake.codebeamer.com/cb';
 			store.dispatch(setCbAddress(cbAddress));
 
-			cy.intercept(`${cbAddress}/projects/**/trackers`, {
+			cy.intercept(`${cbAddress}/api/v3/projects/**/trackers`, {
 				fixture: 'trackers.json',
 			});
 
-			cy.mountWithStore(<Query />, store);
+			cy.mountWithStore(<Query />, { reduxStore: store });
 
 			cy.getBySel('trackerSelect')
 				.find('option')
@@ -41,11 +42,11 @@ describe('<Query>', () => {
 			const cbAddress = 'https://fake.codebeamer.com/cb';
 			store.dispatch(setCbAddress(cbAddress));
 
-			cy.intercept(`${cbAddress}/projects/**/trackers`, {
+			cy.intercept(`${cbAddress}/api/v3/projects/**/trackers`, {
 				fixture: 'trackers.json',
 			});
 
-			cy.mountWithStore(<Query />, store);
+			cy.mountWithStore(<Query />, { reduxStore: store });
 
 			cy.spy(store, 'dispatch').as('dispatch');
 
@@ -61,11 +62,11 @@ describe('<Query>', () => {
 			store.dispatch(setCbAddress(cbAddress));
 			store.dispatch(setTrackerId(trackerId));
 
-			cy.intercept(`${cbAddress}/projects/**/trackers`, {
+			cy.intercept(`${cbAddress}/api/v3/projects/**/trackers`, {
 				fixture: 'trackers.json',
 			});
 
-			cy.mountWithStore(<Query />, store);
+			cy.mountWithStore(<Query />, { reduxStore: store });
 
 			cy.getBySel('trackerSelect').should('have.value', trackerId);
 		});

@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { setCbAddress } from '../../../../store/slices/boardSettingsSlice';
 import { setTrackerId } from '../../../../store/slices/userSettingsSlice';
 import { getStore } from '../../../../store/store';
@@ -17,11 +18,11 @@ describe('<QueryResults>', () => {
 		store.dispatch(setTrackerId(trackerId));
 		store.dispatch(setCbAddress(cbAddress));
 
-		cy.intercept('POST', `${cbAddress}/items/query`, {
+		cy.intercept('POST', `${cbAddress}/api/v3/items/query`, {
 			fixture: 'query.json',
 		}).as('itemQuery');
 
-		cy.mountWithStore(<QueryResults />, store);
+		cy.mountWithStore(<QueryResults />, { reduxStore: store });
 
 		cy.wait('@itemQuery')
 			.its('request.body.queryString')

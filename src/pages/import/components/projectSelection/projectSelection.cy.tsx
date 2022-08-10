@@ -1,3 +1,4 @@
+import * as React from 'react';
 import {
 	setCbAddress,
 	setProjectId,
@@ -31,7 +32,7 @@ describe('<ProjectSelection>', () => {
 		const store = getStore();
 		const projectId = '123';
 
-		cy.mountWithStore(<ProjectSelection />, store);
+		cy.mountWithStore(<ProjectSelection />, { reduxStore: store });
 
 		cy.spy(store, 'dispatch').as('dispatch');
 
@@ -55,6 +56,8 @@ describe('<ProjectSelection>', () => {
 			cy.intercept(`${cbAddress}/api/v3/projects`, {
 				fixture: 'projects.json',
 			});
+
+			cy.mountWithStore(<ProjectSelection />, { reduxStore: store });
 		});
 
 		it('shows loaded projects as options in the respective dropdown', () => {

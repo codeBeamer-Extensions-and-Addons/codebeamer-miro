@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { setCbAddress } from '../../store/slices/boardSettingsSlice';
 import { setCredentials } from '../../store/slices/userSettingsSlice';
 import { getStore } from '../../store/store';
@@ -30,7 +31,7 @@ describe('<Auth>', () => {
 	it('saves values in store when submitting the form', () => {
 		const store = getStore();
 
-		cy.mountWithStore(<Auth />, store);
+		cy.mountWithStore(<Auth />, { reduxStore: store });
 
 		cy.spy(store, 'dispatch').as('dispatch');
 
@@ -81,7 +82,7 @@ describe('<Auth>', () => {
 			setCredentials({ username: username, password: password })
 		);
 
-		cy.mountWithStore(<Auth />, store);
+		cy.mountWithStore(<Auth />, { reduxStore: store });
 
 		//! not sure whether the async Loading function for the board settings is done by now
 		cy.getBySel('cbAddress').should('have.text', cbAddress);
