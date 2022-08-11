@@ -5,6 +5,7 @@ import { ProjectListView } from '../models/projectListView.if';
 import { TrackerListView } from '../models/trackerListView.if';
 import { ItemQueryPage } from '../models/itemQueryPage';
 import { CodeBeamerItemsQuery } from '../models/itemQuery';
+import TrackerDetails from '../models/trackerDetails.if';
 
 export const codeBeamerApi = createApi({
 	baseQuery: fetchBaseQuery({
@@ -52,6 +53,9 @@ export const codeBeamerApi = createApi({
 				};
 			},
 		}),
+		getTrackerDetails: builder.query<TrackerDetails, string>({
+			query: (trackerId) => `trackers/${trackerId}`,
+		}),
 	}),
 });
 
@@ -62,4 +66,5 @@ export const {
 	useGetTrackersQuery,
 	useGetItemsQuery,
 	useLazyGetItemsQuery,
+	useGetTrackerDetailsQuery,
 } = codeBeamerApi;
