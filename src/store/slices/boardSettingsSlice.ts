@@ -3,7 +3,6 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import { BoardSetting } from '../boardSetting.enum';
 import { UserMapping } from '../../models/user-mapping.if';
 import { ImportConfiguration } from '../../models/import-configuration.if';
-import { UserSetting } from '../userSetting.enum';
 
 export interface BoardSettingsState {
 	loading: boolean;
@@ -11,7 +10,7 @@ export interface BoardSettingsState {
 	projectId: any;
 	inboxTrackerId: any;
 	userMapping: any[];
-	importConfiguration: object;
+	importConfiguration: any;
 }
 
 const initialState: BoardSettingsState = {
@@ -20,7 +19,7 @@ const initialState: BoardSettingsState = {
 	projectId: '',
 	inboxTrackerId: '',
 	userMapping: [],
-	importConfiguration: {},
+	importConfiguration: { standard: {}, trackerSpecific: {} },
 };
 
 export const loadBoardSettings = createAsyncThunk(
@@ -71,7 +70,7 @@ export const boardSettingsSlice = createSlice({
 				state.importConfiguration =
 					(action.payload[
 						BoardSetting.IMPORT_CONFIGURATION
-					] as unknown as ImportConfiguration[]) ?? {};
+					] as unknown as ImportConfiguration) ?? {};
 
 				state.loading = false;
 			})
