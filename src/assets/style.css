@@ -103,6 +103,9 @@ img {
 .mt-3 {
 	margin-top: 3rem;
 }
+.mr-5p {
+	margin-right: 5px;
+}
 
 /**flex containers*/
 
@@ -126,7 +129,7 @@ img {
 .align-items-center {
 	align-items: center;
 }
-.align .flex-centered {
+.flex-centered {
 	display: flex;
 	justify-content: center;
 	align-items: center;
