@@ -61,4 +61,5 @@ export const {
 	useGetProjectsQuery,
 	useGetTrackersQuery,
 	useGetItemsQuery,
+	useLazyGetItemsQuery,
 } = codeBeamerApi;
