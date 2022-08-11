@@ -56,12 +56,6 @@ describe('<QueryResults>', () => {
 			});
 	});
 
-	//TODO now
-	context('state management', () => {
-		it('sets an item as selected when its checkbox is checked');
-		it('clears the cached items when the cbql string changes');
-	});
-
 	//TODO when getting to that part
 	it.skip('fetches items when the filter changes', () => {});
 	describe('lazy loading', () => {
