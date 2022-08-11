@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useGetItemsQuery } from '../../../../api/codeBeamerApi';
+import {
+	useGetItemsQuery,
+	useLazyGetItemsQuery,
+} from '../../../../api/codeBeamerApi';
 import {
 	DEFAULT_ITEMS_PER_PAGE,
 	DEFAULT_RESULT_PAGE,
+	MAX_ITEMS_PER_IMPORT,
 } from '../../../../constants/cb-import-defaults';
 import { ItemQueryResultView } from '../../../../models/itemQueryResultView';
 import { RootState } from '../../../../store/store';
@@ -16,6 +20,8 @@ export default function QueryResults() {
 	const [page, setPage] = useState(DEFAULT_RESULT_PAGE);
 	const [items, setItems] = useState<ItemQueryResultView[]>([]);
 	const [eos, setEos] = useState(false);
+	const [importing, setImporting] = useState(false);
+	const [imported, setImported] = useState(0);
 
 	let lazyLoadObserver: IntersectionObserver;
 
@@ -28,6 +34,8 @@ export default function QueryResults() {
 		pageSize: DEFAULT_ITEMS_PER_PAGE,
 		queryString: cbqlString,
 	});
+
+	const [trigger, result, lastPromiseInfo] = useLazyGetItemsQuery();
 
 	/**
 	 * Fetches items indirectly by increasing the observed {@link page} variable.
@@ -107,15 +115,45 @@ export default function QueryResults() {
 
 	const handleImportSelected = () => {
 		console.log('handle import selected');
+		setImporting(true);
+		importItems(
+			items.filter((i) => i.selected).map((i) => i.id.toString())
+		);
 	};
 
 	const handleImportAll = () => {
 		console.log('handle import all');
+		setImporting(true);
+		importItems(items.map((i) => i.id.toString()));
 	};
 
 	const handleSync = () => {
+		setImporting(true);
 		console.log('handle sync');
 	};
+
+	const importItems = (itemIds: string[]) => {
+		//TODO filter out info / folder (only once you got the intel) and already imported items, if done here
+
+		let query = `tracker.id = ${trackerId} AND item.id IN (${itemIds.join(
+			','
+		)})`;
+		trigger({
+			page: DEFAULT_RESULT_PAGE,
+			pageSize: MAX_ITEMS_PER_IMPORT,
+			queryString: query,
+		});
+	};
+
+	React.useEffect(() => {
+		if (!result) return;
+		if (result.error || !result.currentData?.items.length) {
+			setImporting(false);
+			//TODO miro.showErrorNotif
+		}
+
+		//TODO create the cards
+	}, [result]);
 
 	//*********************************************************************** */
 	//********************************RENDER********************************* */
@@ -156,9 +194,13 @@ export default function QueryResults() {
 							/>
 						))}
 					</tbody>
-					<div className="text-center">
-						{eos && <span className="muted">End of stream</span>}
-					</div>
+					<tfoot>
+						<tr className="text-center">
+							{eos && (
+								<span className="muted">End of stream</span>
+							)}
+						</tr>
+					</tfoot>
 				</table>
 				<ImportActions
 					selectedCount={items.filter((i) => i.selected).length}
