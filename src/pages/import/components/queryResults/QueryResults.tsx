@@ -1,17 +1,15 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
-import {
-	useGetItemsQuery,
-	useLazyGetItemsQuery,
-} from '../../../../api/codeBeamerApi';
+import { useGetItemsQuery } from '../../../../api/codeBeamerApi';
 import {
 	DEFAULT_ITEMS_PER_PAGE,
 	DEFAULT_RESULT_PAGE,
-	MAX_ITEMS_PER_IMPORT,
 } from '../../../../constants/cb-import-defaults';
+import { ItemListView } from '../../../../models/itemListView';
 import { ItemQueryResultView } from '../../../../models/itemQueryResultView';
 import { RootState } from '../../../../store/store';
-import ImportActions from '../importActions/importActions';
+import ImportActions from '../importActions/ImportActions';
+import Importer from '../importer/importer';
 import QueryResult from '../queryResult/QueryResult';
 
 import './queryResults.css';
@@ -19,9 +17,9 @@ import './queryResults.css';
 export default function QueryResults() {
 	const [page, setPage] = useState(DEFAULT_RESULT_PAGE);
 	const [items, setItems] = useState<ItemQueryResultView[]>([]);
+	const [itemsToImport, setItemsToImport] = useState<string[]>([]);
 	const [eos, setEos] = useState(false);
 	const [importing, setImporting] = useState(false);
-	const [imported, setImported] = useState(0);
 
 	let lazyLoadObserver: IntersectionObserver;
 
@@ -34,8 +32,6 @@ export default function QueryResults() {
 		pageSize: DEFAULT_ITEMS_PER_PAGE,
 		queryString: cbqlString,
 	});
-
-	const [trigger, result, lastPromiseInfo] = useLazyGetItemsQuery();
 
 	/**
 	 * Fetches items indirectly by increasing the observed {@link page} variable.
@@ -81,7 +77,9 @@ export default function QueryResults() {
 		if (data && data.items.length) {
 			setItems([
 				...items,
-				...data.items.map((i) => new ItemQueryResultView(i.id, i.name)),
+				...data.items.map(
+					(i: ItemListView) => new ItemQueryResultView(i.id, i.name)
+				),
 			]);
 		}
 	}, [data]);
@@ -115,45 +113,27 @@ export default function QueryResults() {
 
 	const handleImportSelected = () => {
 		console.log('handle import selected');
-		setImporting(true);
-		importItems(
+		setItemsToImport(
 			items.filter((i) => i.selected).map((i) => i.id.toString())
 		);
+		setImporting(true);
 	};
 
 	const handleImportAll = () => {
 		console.log('handle import all');
+		setItemsToImport(items.map((i) => i.id.toString()));
 		setImporting(true);
-		importItems(items.map((i) => i.id.toString()));
 	};
 
 	const handleSync = () => {
-		setImporting(true);
 		console.log('handle sync');
+		setImporting(true);
 	};
 
-	const importItems = (itemIds: string[]) => {
-		//TODO filter out info / folder (only once you got the intel) and already imported items, if done here
-
-		let query = `tracker.id = ${trackerId} AND item.id IN (${itemIds.join(
-			','
-		)})`;
-		trigger({
-			page: DEFAULT_RESULT_PAGE,
-			pageSize: MAX_ITEMS_PER_IMPORT,
-			queryString: query,
-		});
+	//just to debug with
+	const closeModalDebugOnly = () => {
+		setImporting(false);
 	};
-
-	React.useEffect(() => {
-		if (!result) return;
-		if (result.error || !result.currentData?.items.length) {
-			setImporting(false);
-			//TODO miro.showErrorNotif
-		}
-
-		//TODO create the cards
-	}, [result]);
 
 	//*********************************************************************** */
 	//********************************RENDER********************************* */
@@ -209,6 +189,12 @@ export default function QueryResults() {
 					onImportAll={handleImportAll}
 					onSync={handleSync}
 				/>
+				{importing && (
+					<Importer
+						items={itemsToImport}
+						onClose={closeModalDebugOnly}
+					/>
+				)}
 			</div>
 		);
 	} else {
