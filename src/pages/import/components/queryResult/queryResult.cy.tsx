@@ -26,6 +26,17 @@ describe('<QueryResult>', () => {
 		});
 	});
 
+	it('calls the function given as prop when its checkbox is clicked', () => {
+		const item: ItemListView = { id: '1', name: 'Testitem' };
+		const callbackSpy = cy.spy().as('clickHandlerSpy');
+
+		cy.mount(<QueryResult item={item} onSelect={callbackSpy} />);
+
+		cy.getBySel('itemCheck').click();
+
+		cy.get('@clickHandlerSpy').should('have.been.calledWith', item, true);
+	});
+
 	afterEach(() => {
 		localStorage.clear();
 		sessionStorage.clear();
