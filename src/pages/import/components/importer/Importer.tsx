@@ -3,7 +3,10 @@ import Modal from 'react-bootstrap/Modal';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 import Spinner from 'react-bootstrap/Spinner';
 import { useSelector } from 'react-redux';
-import { useGetItemsQuery } from '../../../../api/codeBeamerApi';
+import {
+	useGetItemsQuery,
+	useGetTrackerDetailsQuery,
+} from '../../../../api/codeBeamerApi';
 import {
 	DEFAULT_RESULT_PAGE,
 	MAX_ITEMS_PER_IMPORT,
@@ -21,13 +24,6 @@ export default function Importer(props: {
 
 	const [loaded, setLoaded] = useState(0);
 
-	// const [trigger, result, lastPromiseInfo] = useLazyGetItemsQuery({
-	// 	selectFromResult: (result) => ({
-	// 		items: (result.currentData?.items as CodeBeamerItem[]) ?? [],
-	// 		error: result.error,
-	// 	}),
-	// });
-
 	const { data, error, isLoading } = useGetItemsQuery({
 		page: DEFAULT_RESULT_PAGE,
 		pageSize: MAX_ITEMS_PER_IMPORT,
@@ -36,25 +32,29 @@ export default function Importer(props: {
 		)})`,
 	});
 
-	// React.useEffect(() => {
-	// 	console.log('result-changed effect');
-	// 	if (!result) return;
-	// 	if (result.error || !result.items.length) {
-	// 		//TODO miro.showErrorNotif
-	// 	}
-
-	// 	//importItems(result.currentData.items);
-	// }, [result]);
+	const {
+		key,
+		color,
+		error: trackerDetailsQueryError,
+		isLoading: isTrackerDetailsQueryLoading,
+	} = useGetTrackerDetailsQuery(trackerId, {
+		selectFromResult: ({ data, error, isLoading }) => ({
+			key: data?.keyName,
+			color: data?.color,
+			error: error,
+			isLoading: isLoading,
+		}),
+	});
 
 	React.useEffect(() => {
-		if (error) {
+		if (error || trackerDetailsQueryError) {
 			//TODO miro.showErrorNotif
-		} else if (data?.items) {
+		} else if (data && key) {
 			importItems(data.items as CodeBeamerItem[]);
 		}
-	}, [data]);
+	}, [data, key]);
 
-	const importItems = (items: CodeBeamerItem[]) => {
+	const importItems = async (items: CodeBeamerItem[]) => {
 		for (let item of items) {
 			if (item.categories?.length) {
 				if (
@@ -66,6 +66,8 @@ export default function Importer(props: {
 					continue;
 				}
 			}
+			item.tracker.keyName = key;
+			item.tracker.color = color;
 			//TODO miroapi createOrUpdateItem(item);
 			console.log('card created (not really)');
 			setLoaded(loaded + 1);
