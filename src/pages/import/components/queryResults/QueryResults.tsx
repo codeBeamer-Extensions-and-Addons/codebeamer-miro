@@ -7,6 +7,7 @@ import {
 } from '../../../../constants/cb-import-defaults';
 import { ItemQueryResultView } from '../../../../models/itemQueryResultView';
 import { RootState } from '../../../../store/store';
+import ImportActions from '../importActions/importActions';
 import QueryResult from '../queryResult/QueryResult';
 
 import './queryResults.css';
@@ -70,13 +71,10 @@ export default function QueryResults() {
 	//! this should (must, or else it doesn't really work) only trigger when we load another page of query results
 	React.useEffect(() => {
 		if (data && data.items.length) {
-			console.log('Items prev: ', items.length);
-			console.log('Data: ', data);
 			setItems([
 				...items,
 				...data.items.map((i) => new ItemQueryResultView(i.id, i.name)),
 			]);
-			console.log('Items updated: ', items.length);
 		}
 	}, [data]);
 
@@ -106,6 +104,18 @@ export default function QueryResults() {
 
 		lazyLoadObserver = new IntersectionObserver(callback, options);
 	}, []);
+
+	const handleImportSelected = () => {
+		console.log('handle import selected');
+	};
+
+	const handleImportAll = () => {
+		console.log('handle import all');
+	};
+
+	const handleSync = () => {
+		console.log('handle sync');
+	};
 
 	//*********************************************************************** */
 	//********************************RENDER********************************* */
@@ -150,6 +160,13 @@ export default function QueryResults() {
 						{eos && <span className="muted">End of stream</span>}
 					</div>
 				</table>
+				<ImportActions
+					selectedCount={items.filter((i) => i.selected).length}
+					totalCount={data?.total ?? 0}
+					onImportSelected={handleImportSelected}
+					onImportAll={handleImportAll}
+					onSync={handleSync}
+				/>
 			</div>
 		);
 	} else {
