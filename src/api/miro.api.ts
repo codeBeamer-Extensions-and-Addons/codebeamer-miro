@@ -1,23 +1,45 @@
-import { AppCard } from '@mirohq/websdk-types';
+import { AppCard, Card } from '@mirohq/websdk-types';
 import { CodeBeamerItem } from '../models/codebeamer-item.if';
-import addCardFields from './utils/addCustomCardFields';
+import addCardFields from './utils/addCardFields';
 import getCbItemUrl from './utils/getCbItemUrl';
 import getItemColorField from './utils/getItemColorField';
+import getRandomizedInitialCoordSetInViewport from './utils/getRandomizedInitialCoordSetInViewport';
 
-export function createOrUpdateItem(item: CodeBeamerItem) {}
+export async function createOrUpdateItem(item: CodeBeamerItem) {
+	const card: Partial<Card> = await convertToCardData(item);
+	const coords = await getRandomizedInitialCoordSetInViewport();
+	card.x = coords.x;
+	card.y = coords.y;
 
-async function convertToCardData(
-	item: CodeBeamerItem
-): Promise<Partial<AppCard>> {
-	let cardData: Partial<AppCard> = {
-		id: item.id.toString(),
+	if (card.id) {
+		try {
+			const existing = await miro.board.getById(card.id);
+			//TODO update in theory, but we've got AppCards with sync to some datasource now..
+		} catch (err) {
+			//*then it couldn't be found, so it usually doesn't exist
+		}
+	} else {
+		const widget = await miro.board.createCard({
+			...card,
+		});
+	}
+}
+
+async function convertToCardData(item: CodeBeamerItem): Promise<Partial<Card>> {
+	let cardData: Partial<Card> = {
+		// id: item.id.toString(),
 		title: `<a href="${getCbItemUrl(item.id.toString())}">${item.name} - [${
 			item.tracker.keyName + '-' ?? ''
 		}${item.id}]</a>`,
-		fields: [],
+		description: item.description,
+		// fields: [],
 	};
 
-	addCardFields(cardData, item);
+	// try {
+	// 	addCardFields(cardData, item);
+	// } catch (err: any) {
+	// 	//TODO miro.showErrorNotif
+	// }
 
 	// background Color
 	let colorFieldValue = getItemColorField(item);
