@@ -9,7 +9,7 @@ import { ItemListView } from '../../../../models/itemListView';
 import { ItemQueryResultView } from '../../../../models/itemQueryResultView';
 import { RootState } from '../../../../store/store';
 import ImportActions from '../importActions/ImportActions';
-import Importer from '../importer/importer';
+import Importer from '../importer/Importer';
 import QueryResult from '../queryResult/QueryResult';
 
 import './queryResults.css';
@@ -21,7 +21,28 @@ export default function QueryResults() {
 	const [eos, setEos] = useState(false);
 	const [importing, setImporting] = useState(false);
 
-	let lazyLoadObserver: IntersectionObserver;
+	const intersectionObserverOptions = {
+		root: document.getElementById('queryResultsContainer'),
+		rootMargin: '0px',
+		threshold: 1,
+	};
+
+	const intersectionObserverCallback = (
+		entries: IntersectionObserverEntry[],
+		observer: IntersectionObserver
+	) => {
+		console.log('Intersection observed');
+		if (!entries[0]) return;
+		if (!entries[0].isIntersecting) return;
+		observer.unobserve(entries[0].target);
+
+		fetchItems();
+	};
+
+	const lazyLoadObserver: IntersectionObserver = new IntersectionObserver(
+		intersectionObserverCallback,
+		intersectionObserverOptions
+	);
 
 	const { cbqlString, trackerId } = useSelector(
 		(state: RootState) => state.userSettings
@@ -41,7 +62,11 @@ export default function QueryResults() {
 		if (data) {
 			setEos(items.length >= data.total);
 			if (items.length < data.total) {
-				setPage(page + 1);
+				console.log('Page pre inc', page);
+				const previous = page;
+				//TODO the following doesn't work
+				setPage(previous + 1);
+				console.log('Page post inc', page);
 			}
 		}
 	};
@@ -71,6 +96,10 @@ export default function QueryResults() {
 		setItems([]);
 	}, [cbqlString]);
 
+	React.useEffect(() => {
+		lazyLoadObserver.disconnect();
+	}, [trackerId]);
+
 	//append loaded items whenever we get new ones
 	//! this should (must, or else it doesn't really work) only trigger when we load another page of query results
 	React.useEffect(() => {
@@ -85,34 +114,22 @@ export default function QueryResults() {
 	}, [data]);
 
 	React.useEffect(() => {
+		const lastItem = document.querySelector(
+			'#queryResults tbody tr:last-child'
+		);
+		console.log('Last tr: ', lastItem);
+		if (lastItem) {
+			console.log('Now observing: ', lastItem);
+			lazyLoadObserver.observe(lastItem);
+		}
+	}, [items]);
+
+	React.useEffect(() => {
 		console.error(error);
 		//TODO miro.showErrorNotif
 	}, [error]);
 
-	React.useEffect(() => {
-		//TODO get working
-		const options = {
-			root: document.getElementById('queryResults'),
-			rootMargin: '0px',
-			threshold: 1,
-		};
-
-		const callback = (
-			entries: IntersectionObserverEntry[],
-			observer: IntersectionObserver
-		) => {
-			if (!entries[0]) return;
-			if (!entries[0].isIntersecting) return;
-			observer.unobserve(entries[0].target);
-
-			fetchItems();
-		};
-
-		lazyLoadObserver = new IntersectionObserver(callback, options);
-	}, []);
-
 	const handleImportSelected = () => {
-		console.log('handle import selected');
 		setItemsToImport(
 			items.filter((i) => i.selected).map((i) => i.id.toString())
 		);
@@ -120,13 +137,12 @@ export default function QueryResults() {
 	};
 
 	const handleImportAll = () => {
-		console.log('handle import all');
-		setItemsToImport(items.map((i) => i.id.toString()));
+		// passing an empty array == "Which one would you like to import? Yes."
+		setItemsToImport([]);
 		setImporting(true);
 	};
 
 	const handleSync = () => {
-		console.log('handle sync');
 		setImporting(true);
 	};
 
@@ -157,7 +173,11 @@ export default function QueryResults() {
 	} else if (trackerId) {
 		return (
 			<div>
-				<table className="table" id="queryResults">
+				<table
+					className="table"
+					id="queryResults"
+					data-test="resultsTable"
+				>
 					<thead>
 						<tr>
 							<td>Imported</td>
@@ -165,7 +185,7 @@ export default function QueryResults() {
 							<td>Name</td>
 						</tr>
 					</thead>
-					<tbody>
+					<tbody data-test="tableBody">
 						{items.map((i) => (
 							<QueryResult
 								item={i}
@@ -177,7 +197,9 @@ export default function QueryResults() {
 					<tfoot>
 						<tr className="text-center">
 							{eos && (
-								<span className="muted">End of stream</span>
+								<span className="muted" data-test="eosInfo">
+									End of stream
+								</span>
 							)}
 						</tr>
 					</tfoot>

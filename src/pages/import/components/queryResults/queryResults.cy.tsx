@@ -58,9 +58,51 @@ describe('<QueryResults>', () => {
 
 	//TODO when getting to that part
 	it.skip('fetches items when the filter changes', () => {});
+
 	describe('lazy loading', () => {
-		it.skip('lazy loads');
-		it.skip('shows eos info when all items for a query have been loaded');
+		beforeEach(() => {
+			const store = getStore();
+			const trackerId = '123';
+			//the cbqlString value in the store is set indirectly whenever value that it depends on change
+			store.dispatch(setTrackerId(trackerId));
+
+			cy.intercept('POST', `**/api/v3/items/query`, {
+				fixture: 'query_multi-page.json',
+			});
+
+			cy.mountWithStore(<QueryResults />, { reduxStore: store });
+		});
+
+		it.only('fetches the next result page of the current query when scrolling near the table its bottom', () => {
+			cy.on('uncaught:exception', (err, runnable) => {
+				//* not providing a new fixture for each page, so we'll get duplicates.
+				if (err.message.includes('two children with the same key')) {
+					return false;
+				}
+			});
+
+			const expectedPage = 2;
+
+			cy.intercept('POST', `**/api/v3/items/query`).as('itemQuery');
+
+			cy.getBySel('resultsTable').scrollTo('bottom');
+
+			cy.wait('@itemQuery')
+				.its('request.body.page')
+				.should('equal', expectedPage);
+		});
+
+		it('shows eos info when all items for a query have been loaded', () => {
+			cy.intercept('POST', `**/api/v3/items/query`, {
+				fixture: 'query_multi-page_2.json',
+			}).as('itemQuery');
+
+			cy.getBySel('resultsTable').scrollTo('bottom');
+			cy.wait(1000);
+			cy.getBySel('resultsTable').scrollTo('bottom');
+
+			cy.getBySel('eosInfo').should('exist');
+		});
 	});
 
 	afterEach(() => {
