@@ -7,6 +7,7 @@ import {
 	useGetItemsQuery,
 	useGetTrackerDetailsQuery,
 } from '../../../../api/codeBeamerApi';
+import { createOrUpdateItem } from '../../../../api/miro.api';
 import {
 	DEFAULT_RESULT_PAGE,
 	MAX_ITEMS_PER_IMPORT,
@@ -47,32 +48,36 @@ export default function Importer(props: {
 	});
 
 	React.useEffect(() => {
+		const importItems = async (items: CodeBeamerItem[]) => {
+			const _items: CodeBeamerItem[] = structuredClone(items);
+			for (let i = 0; i < _items.length; i++) {
+				if (_items[i].categories?.length) {
+					if (
+						_items[i].categories.find(
+							(c) => c.name == 'Folder' || c.name == 'Information'
+						)
+					) {
+						//TODO miro.showNotification("Skipping Folder / Information Item " + _items[i].name);
+						continue;
+					}
+				}
+				_items[i].tracker.keyName = key;
+				_items[i].tracker.color = color;
+				await createOrUpdateItem(_items[i]);
+				//TODO miro.showNotif
+				setLoaded(i + 1);
+			}
+			await miro.board.ui.closeModal();
+		};
+
 		if (error || trackerDetailsQueryError) {
 			//TODO miro.showErrorNotif
 		} else if (data && key) {
-			importItems(data.items as CodeBeamerItem[]);
+			importItems(data.items as CodeBeamerItem[]).catch((err) =>
+				console.error(err)
+			);
 		}
 	}, [data, key]);
-
-	const importItems = async (items: CodeBeamerItem[]) => {
-		for (let item of items) {
-			if (item.categories?.length) {
-				if (
-					item.categories.find(
-						(c) => c.name == 'Folder' || c.name == 'Information'
-					)
-				) {
-					//TODO miro.showNotification("Skipping Folder / Information Item " + item.name);
-					continue;
-				}
-			}
-			item.tracker.keyName = key;
-			item.tracker.color = color;
-			//TODO miroapi createOrUpdateItem(item);
-			console.log('card created (not really)');
-			setLoaded(loaded + 1);
-		}
-	};
 
 	return (
 		<Modal show centered>
