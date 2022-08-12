@@ -1,5 +1,5 @@
 import * as React from 'react';
-import ImportActions from './importActions';
+import ImportActions from './ImportActions';
 
 describe('<ImportActions>', () => {
 	it('mounts', () => {
@@ -30,6 +30,20 @@ describe('<ImportActions>', () => {
 				'have.text',
 				'Import Selected (5)'
 			);
+		});
+
+		it.only('disabled the "Import Selected" button when no items have been selected', () => {
+			cy.mount(
+				<ImportActions
+					selectedCount={0}
+					totalCount={0}
+					onImportSelected={() => {}}
+					onImportAll={() => {}}
+					onSync={() => {}}
+				/>
+			);
+
+			cy.getBySel('importSelected').should('be.disabled');
 		});
 
 		it('displays the passed amount of total Items in the "Import All" button', () => {
