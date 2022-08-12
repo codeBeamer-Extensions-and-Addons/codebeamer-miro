@@ -28,9 +28,11 @@ export default function Importer(props: {
 	const { data, error, isLoading } = useGetItemsQuery({
 		page: DEFAULT_RESULT_PAGE,
 		pageSize: MAX_ITEMS_PER_IMPORT,
-		queryString: `tracker.id = ${trackerId} AND item.id IN (${props.items.join(
-			','
-		)})`,
+		queryString: `tracker.id = ${trackerId}${
+			props.items.length
+				? ' AND item.id IN (' + props.items.join(',') + ')'
+				: ''
+		}`,
 	});
 
 	const {
