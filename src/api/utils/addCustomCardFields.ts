@@ -1,4 +1,4 @@
-import { AppCard } from '@mirohq/websdk-types';
+import { AppCard, CardField } from '@mirohq/websdk-types';
 import { CB_ITEM_NAME_PROPERTY_NAME } from '../../constants/cb-item-name-field-name';
 import { StandardItemProperty } from '../../enums/standard-item-property.enum';
 import { CodeBeamerItem } from '../../models/codebeamer-item.if';
@@ -62,7 +62,7 @@ export default function addCardFields(
 			content = field.toString();
 		}
 
-		let customField = {
+		let customField: CardField = {
 			//TODO custom colors
 			fillColor: getColorForFieldLabel(key),
 			textColor: '#ffffff',
