@@ -45,4 +45,20 @@ describe('<Importer>', () => {
 			.its('request.body.queryString')
 			.should('equal', expectedQuery);
 	});
+
+	it('fetches the details of all items in the selected tracker (without any additional filter criteria) when passing an empty array as prop', () => {
+		const items: string[] = [];
+		const store = getStore();
+		store.dispatch(setTrackerId('1'));
+
+		const expectedQuery = `tracker.id = 1`;
+
+		cy.intercept('POST', '**/api/v3/items/query').as('fetch');
+
+		cy.mountWithStore(<Importer items={items} />, { reduxStore: store });
+
+		cy.wait('@fetch')
+			.its('request.body.queryString')
+			.should('equal', expectedQuery);
+	});
 });
