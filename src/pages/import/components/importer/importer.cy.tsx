@@ -1,8 +1,48 @@
 import * as React from 'react';
+import { setTrackerId } from '../../../../store/slices/userSettingsSlice';
+import { getStore } from '../../../../store/store';
 import Importer from './importer';
 
 describe('<Importer>', () => {
 	it('mounts', () => {
 		cy.mountWithStore(<Importer items={[]} />);
+	});
+
+	it('does not show a close button by default', () => {
+		cy.mountWithStore(<Importer items={[]} />);
+
+		cy.get('[aria-label="close"]').should('not.exist');
+	});
+
+	it('does show a close button if passed an onClose prop', () => {
+		const handler = cy.spy();
+		cy.mountWithStore(<Importer items={[]} onClose={handler} />);
+
+		cy.get('[aria-label="Close"]').should('exist');
+	});
+
+	it('calls the passed onClose handler when the close button is clicked', () => {
+		const handler = cy.spy().as('handler');
+		cy.mountWithStore(<Importer items={[]} onClose={handler} />);
+
+		cy.get('[aria-label="Close"]').click();
+
+		cy.get('@handler').should('have.been.calledOnce');
+	});
+
+	it('fetches the details of the items passed as props', () => {
+		const items: string[] = ['1', '2', '3'];
+		const store = getStore();
+		store.dispatch(setTrackerId('1'));
+
+		const expectedQuery = `tracker.id = 1 AND item.id IN (1,2,3)`;
+
+		cy.intercept('POST', '**/api/v3/items/query').as('fetch');
+
+		cy.mountWithStore(<Importer items={items} />, { reduxStore: store });
+
+		cy.wait('@fetch')
+			.its('request.body.queryString')
+			.should('equal', expectedQuery);
 	});
 });
