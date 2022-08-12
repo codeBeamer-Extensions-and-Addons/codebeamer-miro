@@ -20,6 +20,7 @@ export default function ImportActions(props: {
 			<button
 				className="button button-primary button-small flex flex-centered"
 				onClick={() => props.onImportSelected()}
+				disabled={props.selectedCount == 0}
 				data-test="importSelected"
 			>
 				<span className="mr-5p">
