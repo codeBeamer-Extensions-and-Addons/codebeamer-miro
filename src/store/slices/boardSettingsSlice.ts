@@ -26,7 +26,6 @@ export const loadBoardSettings = createAsyncThunk(
 	'boardSettings/loadBoardSettings',
 	async () => {
 		if (!window.miro || !miro.board) {
-			//TODO simply suspends, doesn't fail
 			throw new Error('Miro not attached to the window');
 		}
 		return await miro.board.getAppData();
