@@ -1,7 +1,6 @@
-import { AppCard } from '@mirohq/websdk-types';
 import { CodeBeamerItem } from '../../models/codebeamer-item.if';
 import { store } from '../../store/store';
-import addCardFields from './addCustomCardFields';
+import addCardFields from './addCardFields';
 
 describe('addCardFields', () => {
 	it('adds a field for the Item its status if it has one', () => {

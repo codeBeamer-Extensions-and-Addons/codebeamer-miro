@@ -15,7 +15,8 @@ export default function addCardFields(
 	let importConfiguration = store.getState().boardSettings
 		.importConfiguration as ImportConfiguration;
 
-	if (!importConfiguration) throw new Error(NO_IMPORT_CONFIGURATION);
+	if (!importConfiguration || !importConfiguration.standard)
+		throw new Error(NO_IMPORT_CONFIGURATION);
 
 	const standardConfiguration = importConfiguration.standard;
 	const standardConfigurationKeys = Object.keys(standardConfiguration);
