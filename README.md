@@ -4,7 +4,7 @@
 </h1>
 
 <p align="center">
-  <a href="https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/tree/refactor/react/readme.md#installation">Installation</a> |
+  <a href="https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/blob/refactor/react/README.md#installation">Installation</a> |
   <a href="https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/blob/refactor/react/CHANGELOG.md">Changelog</a>
 </p>
 
