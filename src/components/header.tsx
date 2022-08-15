@@ -1,11 +1,19 @@
 import * as React from 'react';
 
-export default function Header(props: { centered?: boolean; children?: any }) {
+export default function Header(props: {
+	centered?: boolean;
+	margin?: boolean;
+	children?: any;
+}) {
 	return (
-		<header className={props.centered ? 'text-center' : ''}>
-			<h1 className="h1" data-test="header-container">
+		<header
+			className={`${props.centered ? 'text-center' : ''} ${
+				props.margin ? 'mb-5' : ''
+			}`}
+		>
+			<h2 className="h2" data-test="header-container">
 				{props.children}
-			</h1>
+			</h2>
 		</header>
 	);
 }
