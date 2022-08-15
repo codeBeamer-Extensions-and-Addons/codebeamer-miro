@@ -37,7 +37,7 @@ export default function AuthForm(props: { loading?: boolean; error?: any }) {
 
 	return (
 		<div data-test="auth" className="container">
-			<Header centered={true}>
+			<Header centered={true} margin={true}>
 				CodeBeamer / Miro Integration
 				<br />
 				<small>
@@ -160,7 +160,7 @@ export default function AuthForm(props: { loading?: boolean; error?: any }) {
 								)}
 							</div>
 
-							<div className="flex-centered mt-3">
+							<div className="flex-centered mt-4">
 								<button
 									type="submit"
 									disabled={isSubmitting || props.loading}

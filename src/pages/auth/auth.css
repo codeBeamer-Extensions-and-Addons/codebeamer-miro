@@ -2,6 +2,9 @@ div,
 p {
 	margin: 1rem;
 }
+.container {
+	padding: 3rem;
+}
 
 .button .custom-icon {
 	width: 20px;
