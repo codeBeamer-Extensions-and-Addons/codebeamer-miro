@@ -1,9 +1,26 @@
-# Miro plugin: codeBeamer integration
+<h1 align="center">
+  codebeamer-miro
+  <br/>
+</h1>
 
-This is a [codeBeamer](https://codebeamer.com/) <-> [Miro](https://miro.com/) integration web-plugin for Miro.
-It's main goal is to automate and therefore greatly speed up the process of mirroring codeBeamer items in Miro for planning/visualization purposes.
+<p align="center">
+  <a href="https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/blob/refactor/react/README.md#installation">Installation</a> |
+  <a href="https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/blob/refactor/react/CHANGELOG.md">Changelog</a>
+</p>
 
-The Plugin takes inspiration from the already existent [Jira Cards](https://miro.com/works-with-atlassian/) and [Azure Cards](https://miro.com/marketplace/azure-cards/) plugins for Miro.
+<h3 align="center">Visualize your codeBeamer issues in Miro</h3>
+
+<p align="center">
+    This is a Plugin for <a href="https://miro.com">Miro</a> that allows you to sync Issues managed on a <a href="https://codebeamer.com">codeBeamer</a> instance, <br/> visualizing them as App Cards on your boards.
+</p>
+
+<p align="center">
+<a href="[https://www.npmjs.com/package/cypress](https://dashboard.cypress.io/projects/cumqrv/runs)">
+    <img src="https://img.shields.io/endpoint?url=https://dashboard.cypress.io/badge/detailed/cumqrv&style=flat&logo=cypress" alt="tests"/>
+ </a>
+</p>
+
+--readme not up to date yet
 
 # Installation
 
