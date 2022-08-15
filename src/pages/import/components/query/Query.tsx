@@ -40,7 +40,7 @@ export default function Query() {
 		dispatch(setTrackerId(event.target.value));
 	};
 
-	//TODO select should have "selected" be the locally stored tracker
+	//TODO tracker-select, filter, activeFilters & cbql input components
 	if (!advancedSearch) {
 		return (
 			<div className="grid">
