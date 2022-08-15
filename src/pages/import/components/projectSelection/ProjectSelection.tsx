@@ -20,7 +20,7 @@ export default function ProjectSelection() {
 
 	return (
 		<div data-test="project-selection" className="container">
-			<Header centered={true}>
+			<Header centered={true} margin={true}>
 				Project selection
 				<br />
 				<small>
@@ -108,7 +108,7 @@ export default function ProjectSelection() {
 									</div>
 								)}
 							</div>
-							<div className="flex-centered mt-3">
+							<div className="flex-centered mt-4">
 								<button
 									type="submit"
 									disabled={
