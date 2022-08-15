@@ -31,7 +31,16 @@ export default function Content() {
 	});
 
 	if (isLoading || error)
-		return <AuthForm loading={isLoading} error={error} />;
-	else if (!projectId) return <ProjectSelection />;
+		return (
+			<div className="centered">
+				<AuthForm loading={isLoading} error={error} />
+			</div>
+		);
+	else if (!projectId)
+		return (
+			<div className="centered">
+				<ProjectSelection />
+			</div>
+		);
 	else return <Import />;
 }
