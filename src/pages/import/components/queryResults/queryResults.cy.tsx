@@ -73,7 +73,7 @@ describe('<QueryResults>', () => {
 			cy.mountWithStore(<QueryResults />, { reduxStore: store });
 		});
 
-		it.only('fetches the next result page of the current query when scrolling near the table its bottom', () => {
+		it('fetches the next result page of the current query when scrolling near the table its bottom', () => {
 			cy.on('uncaught:exception', (err, runnable) => {
 				//* not providing a new fixture for each page, so we'll get duplicates.
 				if (err.message.includes('two children with the same key')) {
