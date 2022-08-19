@@ -1,36 +1,36 @@
 # This workflow will run ~end to end tests with Cypress in a locally hosted environment.
 
-name: e2e tests
+name: CI
 
 on:
-  push:
-    branches: [ master, develop ]
-  pull_request:
-    branches: [ master, develop ]
+    push:
+        branches: [master, develop, refactor/raect/mvp]
+    pull_request:
+        branches: [master, develop]
 
-jobs:  
-  e2e-tests:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Run tests
-        uses: cypress-io/github-action@v2
-        with:
-          build: npm run build-linux
-          start: npm run start
-          wait-on: "http://127.0.0.1:8080"
-          wait-on-timeout: 20
-          browser: chrome
-          record: true
-          parallel: false
-          spec: cypress/integration/*
-        env:
-          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CYPRESS_retinaBaseUrl: https://retinatest.roche.com/cb
-          CYPRESS_cbUsername: ${{ secrets.CYPRESS_CBUSERNAME }}
-          CYPRESS_cbPassword: ${{ secrets.CYPRESS_CBPASSWORD }}
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+            - name: Run tests
+              uses: cypress-io/github-action@v4
+              with:
+                  build: npm run build
+                  start: npm run start
+                  wait-on: 'http://localhost:3000'
+                  wait-on-timeout: 20
+                  browser: chrome
+                  component: true
+                  record: true
+                  parallel: false
+              env:
+                  CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+                  CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  CYPRESS_retinaBaseUrl: https://retinatest.roche.com/cb
+                  CYPRESS_cbUsername: ${{ secrets.CYPRESS_CBUSERNAME }}
+                  CYPRESS_cbPassword: ${{ secrets.CYPRESS_CBPASSWORD }}
