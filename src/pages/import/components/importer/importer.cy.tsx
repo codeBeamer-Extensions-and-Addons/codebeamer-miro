@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { setTrackerId } from '../../../../store/slices/userSettingsSlice';
 import { getStore } from '../../../../store/store';
-import Importer from './importer';
+import Importer from './Importer';
 
 describe('<Importer>', () => {
 	it('mounts', () => {
