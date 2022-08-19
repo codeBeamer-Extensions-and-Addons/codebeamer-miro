@@ -7,9 +7,10 @@ import { store } from './store/store';
 import Content from './components/content';
 
 function App() {
-	// manual projectId reset because I haven't implemented it yet in the UI
+	//manual projectId reset because I haven't implemented it yet in the UI
 	// React.useEffect(() => {
 	// 	miro.board.setAppData('projectId', '');
+	// 	miro.board.setAppData('cbAddress', '');
 	// });
 
 	return (
