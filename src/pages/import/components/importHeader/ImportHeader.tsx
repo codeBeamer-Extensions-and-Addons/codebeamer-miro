@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setAdvancedSearch } from '../../../../store/slices/userSettingsSlice';
 import { RootState } from '../../../../store/store';
 
+import './importHeader.css';
+
 export default function ImportHeader() {
 	const dispatch = useDispatch();
 
@@ -20,7 +22,7 @@ export default function ImportHeader() {
 	};
 
 	return (
-		<div className="flex flex-spaced">
+		<header className="flex flex-spaced">
 			<div className="h1">
 				<span className="icon icon-download mr-1 pos-adjusted-down"></span>
 				CodeBeamer Importer
@@ -56,6 +58,6 @@ export default function ImportHeader() {
 					</svg>
 				</button>
 			</div>
-		</div>
+		</header>
 	);
 }
