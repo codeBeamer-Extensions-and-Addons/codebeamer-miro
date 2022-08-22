@@ -31,7 +31,6 @@ export default function QueryResults() {
 		entries: IntersectionObserverEntry[],
 		observer: IntersectionObserver
 	) => {
-		console.log('Intersection observed');
 		if (!entries[0]) return;
 		if (!entries[0].isIntersecting) return;
 		observer.unobserve(entries[0].target);
@@ -62,11 +61,8 @@ export default function QueryResults() {
 		if (data) {
 			setEos(items.length >= data.total);
 			if (items.length < data.total) {
-				console.log('Page pre inc', page);
 				const previous = page;
-				//TODO the following doesn't work
 				setPage(previous + 1);
-				console.log('Page post inc', page);
 			}
 		}
 	};
@@ -117,9 +113,7 @@ export default function QueryResults() {
 		const lastItem = document.querySelector(
 			'#queryResults tbody tr:last-child'
 		);
-		console.log('Last tr: ', lastItem);
 		if (lastItem) {
-			console.log('Now observing: ', lastItem);
 			lazyLoadObserver.observe(lastItem);
 		}
 	}, [items]);
