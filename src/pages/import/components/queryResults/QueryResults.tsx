@@ -191,9 +191,13 @@ export default function QueryResults() {
 					<tfoot>
 						<tr className="text-center">
 							{eos && (
-								<span className="muted" data-test="eosInfo">
+								<td
+									colSpan={3}
+									className="muted"
+									data-test="eosInfo"
+								>
 									End of stream
-								</span>
+								</td>
 							)}
 						</tr>
 					</tfoot>
