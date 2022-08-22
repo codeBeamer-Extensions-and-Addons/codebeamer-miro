@@ -1,4 +1,4 @@
-import { Formik } from 'formik';
+import { Field, Formik } from 'formik';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCbqlString } from '../../../../../store/slices/userSettingsSlice';
@@ -12,26 +12,38 @@ export default function CbqlInput() {
 	);
 
 	return (
-		<div>
+		<div className="my-2">
 			<Formik
 				initialValues={{
 					cbql: cbqlString,
 				}}
+				enableReinitialize={true}
 				validate={(values) => {}}
-				onSubmit={async (values, { setSubmitting }) => {
-					setSubmitting(true);
+				onSubmit={async (values) => {
 					dispatch(setCbqlString(values.cbql));
 				}}
 			>
 				{({ values, errors, touched, handleSubmit, isSubmitting }) => (
 					<form onSubmit={handleSubmit}>
-						<input
-							type="text"
-							name="cbql"
-							className="input"
-							data-test="cbql"
-						/>
-						{/** TODO some neat submit button at the input's end, ya know */}
+						<div className="form-group">
+							<label>CBQL Input</label>
+							<div className="input-group">
+								<Field
+									type="text"
+									name="cbql"
+									className="input"
+									data-test="cbql"
+								/>
+								<span className="input-decoration input-action clickable">
+									<button
+										type="submit"
+										className="button-primary button-icon button-icon-small icon-invitation borderless"
+										title="Query"
+										data-test="submit"
+									></button>
+								</span>
+							</div>
+						</div>
 					</form>
 				)}
 			</Formik>
