@@ -22,8 +22,9 @@ const initialState: UserSettingsState = {
 	cbUsername: localStorage.getItem(UserSetting.CB_USERNAME) ?? '',
 	cbPassword: sessionStorage.getItem(UserSetting.CB_PASSWORD) ?? '',
 	trackerId: localStorage.getItem(UserSetting.SELECTED_TRACKER) ?? '',
-	advancedSearch:
-		localStorage.getItem(UserSetting.ADVANCED_SEARCH_ENABLED) === 'true',
+	advancedSearch: localStorage.getItem(UserSetting.ADVANCED_SEARCH_ENABLED)
+		? localStorage.getItem(UserSetting.ADVANCED_SEARCH_ENABLED) == 'true'
+		: false,
 	activeFilters: [],
 	subqueryChaining:
 		localStorage.getItem(UserSetting.SUBQUERY_LINK_METHOD) ??
