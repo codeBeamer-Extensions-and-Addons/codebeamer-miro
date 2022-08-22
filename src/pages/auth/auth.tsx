@@ -20,7 +20,11 @@ interface Errors {
  * while actual connection attempts are made in the Content component.
  * @param props Loading defines whether or not to show a loading spinner on the button, errors show in notifications.
  */
-export default function AuthForm(props: { loading?: boolean; error?: any }) {
+export default function AuthForm(props: {
+	loading?: boolean;
+	error?: any;
+	headerLess?: boolean;
+}) {
 	const dispatch = useDispatch();
 
 	const { cbUsername, cbPassword } = useSelector(
@@ -37,14 +41,16 @@ export default function AuthForm(props: { loading?: boolean; error?: any }) {
 
 	return (
 		<div data-test="auth" className="container">
-			<Header centered={true} margin={true}>
-				CodeBeamer / Miro Integration
-				<br />
-				<small>
-					<span className="icon icon-plug pos-adjusted-down"></span>
-					Connect to your CodeBeamer Instance
-				</small>
-			</Header>
+			{!props.headerLess && (
+				<Header centered={true} margin={true}>
+					CodeBeamer / Miro Integration
+					<br />
+					<small>
+						<span className="icon icon-plug pos-adjusted-down"></span>
+						Connect to your CodeBeamer Instance
+					</small>
+				</Header>
+			)}
 			<div>
 				<Formik
 					initialValues={{
