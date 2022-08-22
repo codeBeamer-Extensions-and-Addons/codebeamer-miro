@@ -220,8 +220,13 @@ img {
 }
 
 /**custom scrollbar*/
+
+body {
+	--scrollbar-width: 10px;
+}
+
 ::-webkit-scrollbar {
-	width: 10px;
+	width: var(--scrollbar-width);
 }
 ::-webkit-scrollbar-track {
 	background: #eee;
