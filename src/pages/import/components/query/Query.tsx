@@ -1,7 +1,8 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../../store/store';
-import TrackerSelect from './trackerSelect/trackerSelect';
+import CbqlInput from './cbqlInput/CbqlInput';
+import TrackerSelect from './trackerSelect/TrackerSelect';
 
 export default function Query() {
 	const { advancedSearch } = useSelector(
@@ -19,7 +20,6 @@ export default function Query() {
 			</div>
 		);
 	} else {
-		//TODO cqbl input
-		return <div>CBQL Input</div>;
+		return <CbqlInput />;
 	}
 }
