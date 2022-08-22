@@ -234,3 +234,26 @@ img {
 ::-webkit-scrollbar-thumb:hover {
 	background: #455bed;
 }
+
+/**animations*/
+
+.fade-in-normal {
+	animation: fade-in 0.6s ease-in-out forwards;
+}
+.fade-in-quick {
+	animation: fade-in 0.3s ease-in-out forwards;
+}
+.fade-in-slow {
+	animation: fade-in 1s ease-in-out forwards;
+}
+
+/**keyframes*/
+
+@keyframes fade-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
