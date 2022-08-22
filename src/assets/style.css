@@ -72,6 +72,12 @@ img {
 	bottom: 3px;
 }
 
+/**cursors*/
+
+.clickable {
+	cursor: pointer;
+}
+
 /**centering*/
 .centered {
 	position: absolute;
@@ -182,6 +188,28 @@ img {
 }
 .inline {
 	display: inline !important;
+}
+
+/**borders*/
+
+.borderless {
+	border: none;
+}
+
+/**mirotone override*/
+
+.input-action {
+	pointer-events: auto !important;
+	border-left: 1px solid var(--indigo400) !important;
+}
+
+.input-action:hover {
+	background-color: var(--indigo100);
+}
+
+.input-action:hover .button,
+.input-action:hover .button-icon {
+	background-color: var(--indigo100);
 }
 
 /**custom scrollbar*/
