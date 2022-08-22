@@ -11,7 +11,7 @@ export default function Query() {
 
 	if (!advancedSearch) {
 		return (
-			<div className="grid">
+			<div className="grid fade-in-quick">
 				<div className="cs1 ce3">
 					<TrackerSelect />
 				</div>

@@ -32,13 +32,13 @@ export default function Content() {
 
 	if (isLoading || error)
 		return (
-			<div className="centered">
+			<div className="centered fade-in">
 				<AuthForm loading={isLoading} error={error} />
 			</div>
 		);
 	else if (!projectId)
 		return (
-			<div className="centered">
+			<div className="centered fade-in">
 				<ProjectSelection />
 			</div>
 		);

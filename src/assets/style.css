@@ -237,7 +237,7 @@ img {
 
 /**animations*/
 
-.fade-in-normal {
+.fade-in {
 	animation: fade-in 0.6s ease-in-out forwards;
 }
 .fade-in-quick {

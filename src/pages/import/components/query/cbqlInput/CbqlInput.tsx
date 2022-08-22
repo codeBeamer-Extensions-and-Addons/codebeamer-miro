@@ -12,7 +12,7 @@ export default function CbqlInput() {
 	);
 
 	return (
-		<div>
+		<div className="fade-in-quick">
 			<Formik
 				initialValues={{
 					cbql: cbqlString,
