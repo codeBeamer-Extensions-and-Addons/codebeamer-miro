@@ -1,9 +1,21 @@
 import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { setAdvancedSearch } from '../../../../store/slices/userSettingsSlice';
+import { RootState } from '../../../../store/store';
 
 export default function ImportHeader() {
-	const switchToCbqlInput = () => {
-		console.log('Switcheroo');
-		//TODO
+	const dispatch = useDispatch();
+
+	const { advancedSearch } = useSelector(
+		(state: RootState) => state.userSettings
+	);
+
+	React.useEffect(() => {
+		console.log(advancedSearch);
+	}, [advancedSearch]);
+
+	const toggleSearchMethod = () => {
+		dispatch(setAdvancedSearch(!advancedSearch));
 	};
 
 	const openSettingsModal = () => {
@@ -19,11 +31,14 @@ export default function ImportHeader() {
 			</div>
 			<div className="actions flex flex-">
 				<button
-					className="button button-secondary button-small"
-					onClick={switchToCbqlInput}
-				>
-					CBQL
-				</button>
+					className={`mx-2 button-secondary button-icon-small button-icon
+						${advancedSearch ? ' icon-parameters' : ' icon-text'}`}
+					onClick={toggleSearchMethod}
+					title={
+						advancedSearch ? 'Query assistant' : 'CBQL-String Input'
+					}
+					data-test="search-method"
+				></button>
 				<button
 					className="button button-secondary button-small"
 					onClick={openSettingsModal}
