@@ -212,6 +212,13 @@ img {
 	background-color: var(--indigo100);
 }
 
+.button-icon-secondary {
+	background-color: var(--indigo100) !important;
+}
+.button-icon-secondary:hover {
+	background-color: var(--indigo200) !important;
+}
+
 /**custom scrollbar*/
 ::-webkit-scrollbar {
 	width: 10px;

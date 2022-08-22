@@ -12,7 +12,7 @@ export default function CbqlInput() {
 	);
 
 	return (
-		<div className="my-2">
+		<div>
 			<Formik
 				initialValues={{
 					cbql: cbqlString,
@@ -37,7 +37,7 @@ export default function CbqlInput() {
 								<span className="input-decoration input-action clickable">
 									<button
 										type="submit"
-										className="button-primary button-icon button-icon-small icon-invitation borderless"
+										className="button-icon button-icon-small icon-invitation borderless"
 										title="Query"
 										data-test="submit"
 									></button>

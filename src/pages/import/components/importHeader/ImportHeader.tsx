@@ -27,7 +27,7 @@ export default function ImportHeader() {
 			</div>
 			<div className="actions flex flex-">
 				<button
-					className={`mx-2 button-secondary button-icon-small button-icon
+					className={`mx-2 button-icon-secondary button-icon-small button-icon
 						${advancedSearch ? ' icon-parameters' : ' icon-text'}`}
 					onClick={toggleSearchMethod}
 					title={
