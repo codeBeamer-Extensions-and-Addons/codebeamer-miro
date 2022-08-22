@@ -1,15 +1,21 @@
 import { Field, Formik, useFormikContext } from 'formik';
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useGetProjectsQuery } from '../../../../api/codeBeamerApi';
 import Header from '../../../../components/header';
 import { ProjectListView } from '../../../../models/projectListView.if';
 import { setProjectId } from '../../../../store/slices/boardSettingsSlice';
+import { RootState } from '../../../../store/store';
 
-export default function ProjectSelection() {
+//TODO populate with cache
+export default function ProjectSelection(props: { headerLess?: boolean }) {
 	const dispatch = useDispatch();
 
 	const { data, error, isLoading } = useGetProjectsQuery();
+
+	const { projectId } = useSelector(
+		(state: RootState) => state.boardSettings
+	);
 
 	React.useEffect(() => {
 		if (error) {
@@ -20,18 +26,20 @@ export default function ProjectSelection() {
 
 	return (
 		<div data-test="project-selection" className="container">
-			<Header centered={true} margin={true}>
-				Project selection
-				<br />
-				<small>
-					Enter your Project's ID or select it from the Dropdown
-					below.
-				</small>
-			</Header>
+			{!props.headerLess && (
+				<Header centered={true} margin={true}>
+					Project selection
+					<br />
+					<small>
+						Enter your Project's ID or select it from the Dropdown
+						below.
+					</small>
+				</Header>
+			)}
 			<div className="mt-3">
 				<Formik
 					initialValues={{
-						projectId: 0,
+						projectId: projectId,
 						project: '-',
 					}}
 					validate={(values) => {
