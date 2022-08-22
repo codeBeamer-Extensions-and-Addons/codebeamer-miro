@@ -50,6 +50,10 @@ export const userSettingsSlice = createSlice({
 				action.payload.password
 			);
 		},
+		setCbqlString: (state, action: PayloadAction<string>) => {
+			state.cbqlString = action.payload;
+			localStorage.setItem(UserSetting.CBQL_STRING, action.payload);
+		},
 		setTrackerId: (state, action: PayloadAction<string>) => {
 			state.trackerId = action.payload;
 			localStorage.setItem(UserSetting.SELECTED_TRACKER, action.payload);
@@ -100,6 +104,7 @@ export const {
 	setAdvancedSearch,
 	addFilter,
 	removeFilter,
+	setCbqlString,
 } = userSettingsSlice.actions;
 
 export default userSettingsSlice.reducer;
