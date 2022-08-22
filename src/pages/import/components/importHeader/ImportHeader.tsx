@@ -10,10 +10,6 @@ export default function ImportHeader() {
 		(state: RootState) => state.userSettings
 	);
 
-	React.useEffect(() => {
-		console.log(advancedSearch);
-	}, [advancedSearch]);
-
 	const toggleSearchMethod = () => {
 		dispatch(setAdvancedSearch(!advancedSearch));
 	};
