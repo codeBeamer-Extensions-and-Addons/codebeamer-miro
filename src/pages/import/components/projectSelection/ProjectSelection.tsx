@@ -1,5 +1,6 @@
 import { Field, Formik, useFormikContext } from 'formik';
 import * as React from 'react';
+import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useGetProjectsQuery } from '../../../../api/codeBeamerApi';
 import Header from '../../../../components/header/Header';
@@ -7,15 +8,18 @@ import { ProjectListView } from '../../../../models/projectListView.if';
 import { setProjectId } from '../../../../store/slices/boardSettingsSlice';
 import { RootState } from '../../../../store/store';
 
-//TODO populate with cache
+import '../../../auth/auth.css';
+
 export default function ProjectSelection(props: { headerLess?: boolean }) {
 	const dispatch = useDispatch();
 
-	const { data, error, isLoading } = useGetProjectsQuery();
+	const [animateSuccess, setAnimateSuccess] = useState(false);
 
 	const { projectId } = useSelector(
 		(state: RootState) => state.boardSettings
 	);
+
+	const { data, error, isLoading } = useGetProjectsQuery();
 
 	React.useEffect(() => {
 		if (error) {
@@ -23,6 +27,13 @@ export default function ProjectSelection(props: { headerLess?: boolean }) {
 			//TODO miro.showErrorNotif
 		}
 	}, [error]);
+
+	const showSuccessAnimation = () => {
+		setAnimateSuccess(true);
+		setTimeout(() => {
+			setAnimateSuccess(false);
+		}, 2000);
+	};
 
 	return (
 		<div data-test="project-selection" className="container">
@@ -63,6 +74,10 @@ export default function ProjectSelection(props: { headerLess?: boolean }) {
 						setSubmitting(true);
 
 						dispatch(setProjectId(values.projectId));
+
+						showSuccessAnimation();
+
+						setSubmitting(false);
 					}}
 				>
 					{({
@@ -117,20 +132,44 @@ export default function ProjectSelection(props: { headerLess?: boolean }) {
 								)}
 							</div>
 							<div className="flex-centered mt-4">
-								<button
-									type="submit"
-									disabled={
-										isSubmitting ||
-										errors.project ||
-										errors.projectId
-									}
-									className={`button button-primary ${
-										isSubmitting && 'button-loading'
-									}`}
-									data-test="submit"
-								>
-									Confirm
-								</button>
+								{!animateSuccess && (
+									<button
+										type="submit"
+										disabled={
+											isSubmitting ||
+											errors.project ||
+											errors.projectId
+										}
+										className={`fade-in button button-primary ${
+											isSubmitting && 'button-loading'
+										}`}
+										data-test="submit"
+									>
+										Confirm
+									</button>
+								)}
+								{animateSuccess && (
+									<span>
+										<svg
+											className="checkmark"
+											xmlns="http://www.w3.org/2000/svg"
+											viewBox="0 0 52 52"
+										>
+											<circle
+												className="checkmark__circle"
+												cx="26"
+												cy="26"
+												r="25"
+												fill="none"
+											/>
+											<path
+												className="checkmark__check"
+												fill="none"
+												d="M14.1 27.2l7.1 7.2 16.7-16.8"
+											/>
+										</svg>
+									</span>
+								)}
 							</div>
 						</form>
 					)}
