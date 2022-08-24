@@ -23,6 +23,10 @@ label .icon {
 	font-size: small;
 }
 
+.h3 {
+	border-bottom: 1px solid var(--indigo400);
+}
+
 /**animated checkmark, adapted from https://stackoverflow.com/questions/41078478/css-animated-checkmark */
 
 .checkmark {

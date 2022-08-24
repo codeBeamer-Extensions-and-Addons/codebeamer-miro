@@ -1,6 +1,5 @@
 import { Field, Formik } from 'formik';
 import * as React from 'react';
-import Header from '../../components/header/Header';
 import './auth.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
@@ -13,7 +12,6 @@ import {
 	setProjectId,
 } from '../../store/slices/boardSettingsSlice';
 import { useState } from 'react';
-import { codeBeamerApi } from '../../api/codeBeamerApi';
 
 interface Errors {
 	cbAddress?: string;
@@ -59,14 +57,15 @@ export default function AuthForm(props: {
 	return (
 		<div data-test="auth" className="container">
 			{!props.headerLess && (
-				<Header centered={true} margin={true}>
-					CodeBeamer / Miro Integration
-					<br />
-					<small>
+				<header className="text-center mb-5">
+					<h2>CodeBeamer / Miro Integration</h2>
+					<p>
 						<span className="icon icon-plug pos-adjusted-down"></span>
-						Connect to your CodeBeamer Instance
-					</small>
-				</Header>
+						<span className="ml-small">
+							Connect to your CodeBeamer Instance
+						</span>
+					</p>
+				</header>
 			)}
 			<div>
 				<Formik
