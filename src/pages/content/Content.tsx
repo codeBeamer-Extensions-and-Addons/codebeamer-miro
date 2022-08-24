@@ -32,7 +32,7 @@ export default function Content() {
 
 	if (isLoading || error)
 		return (
-			<div className="centered fade-in">
+			<div className="centered">
 				<AuthForm loading={isLoading} error={error} />
 			</div>
 		);
