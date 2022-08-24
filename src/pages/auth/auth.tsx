@@ -27,7 +27,6 @@ export default function AuthForm(props: {
 }) {
 	const dispatch = useDispatch();
 
-	const [previousLoading, setPreviousLoading] = useState(props.loading);
 	const [animateSuccess, setAnimateSuccess] = useState(false);
 
 	const { cbUsername, cbPassword } = useSelector(
