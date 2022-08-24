@@ -3,18 +3,22 @@ import * as React from 'react';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useGetProjectsQuery } from '../../../../api/codeBeamerApi';
-import Header from '../../../../components/header/Header';
 import { ProjectListView } from '../../../../models/projectListView.if';
 import { setProjectId } from '../../../../store/slices/boardSettingsSlice';
 import { setTrackerId } from '../../../../store/slices/userSettingsSlice';
 import { RootState } from '../../../../store/store';
+
+//TODO known bug: when the cbAddress updates in auth.tsx, and the projectId is subsequently set to '',
+//TODO the getProjectsQuery here does NOT refetch, but just returns the cached projects when
+//TODO this component is rendered as a result of the former.
+//TODO so the Projects you're provided with on the screen don't match the cbAddress. Maybe fix by using lazyQuery
 
 export default function ProjectSelection(props: { headerLess?: boolean }) {
 	const dispatch = useDispatch();
 
 	const [animateSuccess, setAnimateSuccess] = useState(false);
 
-	const { projectId } = useSelector(
+	const { cbAddress, projectId } = useSelector(
 		(state: RootState) => state.boardSettings
 	);
 
@@ -37,14 +41,13 @@ export default function ProjectSelection(props: { headerLess?: boolean }) {
 	return (
 		<div data-test="project-selection" className="container">
 			{!props.headerLess && (
-				<Header centered={true} margin={true}>
-					Project selection
-					<br />
-					<small>
+				<header className="text-center mb-5">
+					<h3 className="h3">Project selection</h3>
+					<p>
 						Enter your Project's ID or select it from the Dropdown
 						below.
-					</small>
-				</Header>
+					</p>
+				</header>
 			)}
 			<div className="mt-3">
 				<Formik
@@ -125,6 +128,12 @@ export default function ProjectSelection(props: { headerLess?: boolean }) {
 									projects={data}
 									loading={isLoading}
 								/>
+								<span
+									className="muted-medium"
+									data-test="cb-context"
+								>
+									Projects from: {cbAddress}
+								</span>
 								{errors.project && (
 									<div className="status-text">
 										{errors.project}

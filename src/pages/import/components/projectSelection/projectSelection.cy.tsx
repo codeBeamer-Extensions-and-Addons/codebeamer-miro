@@ -1,5 +1,8 @@
 import * as React from 'react';
-import { setProjectId } from '../../../../store/slices/boardSettingsSlice';
+import {
+	setCbAddress,
+	setProjectId,
+} from '../../../../store/slices/boardSettingsSlice';
 import { setTrackerId } from '../../../../store/slices/userSettingsSlice';
 import { getStore } from '../../../../store/store';
 import ProjectSelection from './ProjectSelection';
@@ -8,6 +11,7 @@ const projectIdSelector = 'projectId';
 const projectSelector = 'project';
 const submitSelector = 'submit';
 const userFeedbackWrapperSelector = 'user-feedback';
+const cbContextSelector = 'cb-context';
 
 describe('<ProjectSelection>', () => {
 	it('mounts', () => {
@@ -71,6 +75,16 @@ describe('<ProjectSelection>', () => {
 		cy.mountWithStore(<ProjectSelection />, { reduxStore: store });
 
 		cy.getBySel(projectIdSelector).should('have.value', projectId);
+	});
+
+	it('displays the cached cbAddress for context', () => {
+		const store = getStore();
+		const context = 'https://codebeamer.com/cb';
+		store.dispatch(setCbAddress(context));
+
+		cy.mountWithStore(<ProjectSelection />, { reduxStore: store });
+
+		cy.getBySel(cbContextSelector).should('contain.text', context);
 	});
 
 	context('with project data', () => {
