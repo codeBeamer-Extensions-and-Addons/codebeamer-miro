@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import { setCredentials } from '../../store/slices/userSettingsSlice';
 import { setCbAddress } from '../../store/slices/boardSettingsSlice';
+import { useState } from 'react';
 
 interface Errors {
 	cbAddress?: string;
@@ -26,6 +27,9 @@ export default function AuthForm(props: {
 }) {
 	const dispatch = useDispatch();
 
+	const [previousLoading, setPreviousLoading] = useState(props.loading);
+	const [animateSuccess, setAnimateSuccess] = useState(false);
+
 	const { cbUsername, cbPassword } = useSelector(
 		(state: RootState) => state.userSettings
 	);
@@ -37,6 +41,13 @@ export default function AuthForm(props: {
 		//TODO miro.showErrorNotif
 		console.error('Invalid Credentials and/or address!', props.error);
 	}
+
+	const showSuccessAnimation = () => {
+		setAnimateSuccess(true);
+		setTimeout(() => {
+			setAnimateSuccess(false);
+		}, 2000);
+	};
 
 	return (
 		<div data-test="auth" className="container">
@@ -84,6 +95,7 @@ export default function AuthForm(props: {
 							})
 						);
 						dispatch(setCbAddress(values.cbAddress));
+						showSuccessAnimation();
 					}}
 				>
 					{({
@@ -166,18 +178,42 @@ export default function AuthForm(props: {
 							</div>
 
 							<div className="flex-centered mt-4">
-								<button
-									type="submit"
-									disabled={isSubmitting || props.loading}
-									className={`button button-primary ${
-										isSubmitting || props.loading
-											? 'button-loading'
-											: ''
-									}`}
-									data-test="submit"
-								>
-									Connect
-								</button>
+								{!animateSuccess && (
+									<button
+										type="submit"
+										disabled={isSubmitting || props.loading}
+										className={`fade-in button button-primary ${
+											isSubmitting || props.loading
+												? 'button-loading'
+												: ''
+										}`}
+										data-test="submit"
+									>
+										Connect
+									</button>
+								)}
+								{animateSuccess && (
+									<span>
+										<svg
+											className="checkmark"
+											xmlns="http://www.w3.org/2000/svg"
+											viewBox="0 0 52 52"
+										>
+											<circle
+												className="checkmark__circle"
+												cx="26"
+												cy="26"
+												r="25"
+												fill="none"
+											/>
+											<path
+												className="checkmark__check"
+												fill="none"
+												d="M14.1 27.2l7.1 7.2 16.7-16.8"
+											/>
+										</svg>
+									</span>
+								)}
 							</div>
 						</form>
 					)}
