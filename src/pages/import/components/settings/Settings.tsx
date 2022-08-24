@@ -12,9 +12,9 @@ import './settings.css';
 export default function Settings(props: { onClose: Function }) {
 	const tabs: ITab[] = [
 		{
-			title: 'Connection',
-			// icon: 'plug',
-			tab: <AuthForm headerLess={true} successAnimation={true} />,
+			title: 'Import',
+			// icon: 'download',
+			tab: <div>Import configuration</div>,
 		},
 		{
 			title: 'Project',
@@ -22,9 +22,9 @@ export default function Settings(props: { onClose: Function }) {
 			tab: <ProjectSelection headerLess={true} />,
 		},
 		{
-			title: 'Import',
-			// icon: 'download',
-			tab: <div>Import configuration</div>,
+			title: 'Connection',
+			// icon: 'plug',
+			tab: <AuthForm headerLess={true} successAnimation={true} />,
 		},
 	];
 
