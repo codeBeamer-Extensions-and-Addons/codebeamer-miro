@@ -28,7 +28,6 @@ describe('<Tabs>', () => {
 		cy.mountWithStore(<Tabs tabs={tabs} />);
 
 		cy.getBySel(tabContentSelector).should('contain.text', expectedContent);
-		//! clearly there, but not for the test
 	});
 
 	it('defaults to the provided initiallySelectedIndex its respective tab content when provided', () => {
@@ -36,6 +35,39 @@ describe('<Tabs>', () => {
 		cy.mountWithStore(<Tabs tabs={tabs} initiallySelectedIndex={1} />);
 
 		cy.getBySel(tabContentSelector).should('contain.text', expectedContent);
-		//! clearly there, but not for the test
+	});
+
+	it('displays the content of tab x when selecting it', () => {
+		const expectedContent = '3';
+		cy.mountWithStore(<Tabs tabs={tabs} />);
+
+		//* x is simply the last one in this example.
+		cy.get('.tab')
+			.last()
+			.click()
+			.then(() => {
+				cy.getBySel('tab-content').should(
+					'contain.text',
+					expectedContent
+				);
+			});
+	});
+
+	it('sets only the clicked tab-header to "active"', () => {
+		const activeClass = 'tab-active';
+		const tabHeader = tabs[2].title;
+		cy.mountWithStore(<Tabs tabs={tabs} />);
+
+		//* using the last header as example
+		//* note that we implicitly test that only one element has the class by chaining .should() off of the filtered
+		//* result of .get(). If the filter returned more than one elements, cypress would complain with an error.
+		cy.get('.tab')
+			.last()
+			.click()
+			.then(() => {
+				cy.get('.tab')
+					.filter((i, t) => t.classList.contains(activeClass))
+					.should('contain.text', tabHeader);
+			});
 	});
 });
