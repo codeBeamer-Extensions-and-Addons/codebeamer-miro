@@ -121,6 +121,9 @@ img {
 .mr-5p {
 	margin-right: 5px;
 }
+.ml-small {
+	margin-left: 5px;
+}
 
 /**flex containers*/
 
@@ -156,9 +159,17 @@ img {
 	font-size: xx-small;
 }
 
+.muted,
+.muted-medium {
+	color: gray;
+}
+
 .muted {
 	font-size: xx-small;
-	color: gray;
+}
+
+.muted-medium {
+	font-size: small;
 }
 
 /**width*/
