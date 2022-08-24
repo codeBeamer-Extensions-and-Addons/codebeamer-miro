@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { store } from './store/store';
 
-import Content from './components/content';
+import Content from './pages/content/Content';
 
 function App() {
 	//manual projectId reset because I haven't implemented it yet in the UI

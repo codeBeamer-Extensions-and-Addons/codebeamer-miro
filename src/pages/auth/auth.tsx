@@ -1,7 +1,6 @@
 import { Field, Formik } from 'formik';
 import * as React from 'react';
-import Header from '../../components/header';
-
+import Header from '../../components/header/Header';
 import './auth.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store/store';

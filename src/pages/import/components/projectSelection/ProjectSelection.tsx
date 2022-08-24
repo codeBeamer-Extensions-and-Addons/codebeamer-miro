@@ -2,7 +2,7 @@ import { Field, Formik, useFormikContext } from 'formik';
 import * as React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useGetProjectsQuery } from '../../../../api/codeBeamerApi';
-import Header from '../../../../components/header';
+import Header from '../../../../components/header/Header';
 import { ProjectListView } from '../../../../models/projectListView.if';
 import { setProjectId } from '../../../../store/slices/boardSettingsSlice';
 import { RootState } from '../../../../store/store';

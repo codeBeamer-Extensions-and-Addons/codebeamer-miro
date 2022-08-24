@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import TabHeader from './TabHeader';
+import TabHeader from './tabHeader/TabHeader';
 
 /**
  * Defines structure of a Tab entity that the {@link Tabs} component can render (an array of).

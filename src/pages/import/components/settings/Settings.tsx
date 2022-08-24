@@ -1,6 +1,6 @@
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
-import Tabs, { ITab } from '../../../../components/Tabs';
+import Tabs, { ITab } from '../../../../components/tabs/Tabs';
 import AuthForm from '../../../auth/auth';
 import ProjectSelection from '../projectSelection/ProjectSelection';
 

@@ -1,4 +1,4 @@
-import Header from './header';
+import Header from './Header';
 import * as React from 'react';
 
 describe('<Header>', () => {
