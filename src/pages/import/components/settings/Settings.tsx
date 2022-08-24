@@ -14,7 +14,7 @@ export default function Settings(props: { onClose: Function }) {
 		{
 			title: 'Connection',
 			// icon: 'plug',
-			tab: <AuthForm headerLess={true} />,
+			tab: <AuthForm headerLess={true} successAnimation={true} />,
 		},
 		{
 			title: 'Project',
