@@ -6,6 +6,7 @@ import ProjectSelection from './ProjectSelection';
 const projectIdSelector = 'projectId';
 const projectSelector = 'project';
 const submitSelector = 'submit';
+const userFeedbackWrapperSelector = 'user-feedback';
 
 describe('<ProjectSelection>', () => {
 	it('mounts', () => {
@@ -91,6 +92,19 @@ describe('<ProjectSelection>', () => {
 			//unfocus input
 			cy.get('body').click();
 			cy.getBySel('projectIdErrors').should('exist');
+		});
+
+		it('communicates the user the success of the operation when the projectId was updated', () => {
+			const projectId = '2';
+			cy.mountWithStore(<ProjectSelection />);
+
+			cy.getBySel(projectIdSelector).type(projectId);
+			cy.getBySel(submitSelector)
+				.click()
+				.then(() => {
+					cy.getBySel(userFeedbackWrapperSelector).should('exist');
+					cy.getBySel(submitSelector).should('not.exist');
+				});
 		});
 	});
 

@@ -8,8 +8,6 @@ import { ProjectListView } from '../../../../models/projectListView.if';
 import { setProjectId } from '../../../../store/slices/boardSettingsSlice';
 import { RootState } from '../../../../store/store';
 
-import '../../../auth/auth.css';
-
 export default function ProjectSelection(props: { headerLess?: boolean }) {
 	const dispatch = useDispatch();
 
@@ -149,7 +147,7 @@ export default function ProjectSelection(props: { headerLess?: boolean }) {
 									</button>
 								)}
 								{animateSuccess && (
-									<span>
+									<span data-test="user-feedback">
 										<svg
 											className="checkmark"
 											xmlns="http://www.w3.org/2000/svg"
