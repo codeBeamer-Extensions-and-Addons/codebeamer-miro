@@ -4,9 +4,16 @@ import Header from '../../components/header/Header';
 import './auth.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
-import { setCredentials } from '../../store/slices/userSettingsSlice';
-import { setCbAddress } from '../../store/slices/boardSettingsSlice';
+import {
+	setCredentials,
+	setTrackerId,
+} from '../../store/slices/userSettingsSlice';
+import {
+	setCbAddress,
+	setProjectId,
+} from '../../store/slices/boardSettingsSlice';
 import { useState } from 'react';
+import { codeBeamerApi } from '../../api/codeBeamerApi';
 
 interface Errors {
 	cbAddress?: string;
@@ -24,6 +31,7 @@ export default function AuthForm(props: {
 	loading?: boolean;
 	error?: any;
 	headerLess?: boolean;
+	successAnimation?: boolean;
 }) {
 	const dispatch = useDispatch();
 
@@ -87,14 +95,19 @@ export default function AuthForm(props: {
 					}}
 					onSubmit={async (values, { setSubmitting }) => {
 						setSubmitting(true);
+						dispatch(setCbAddress(values.cbAddress));
 						dispatch(
 							setCredentials({
 								username: values.cbUsername,
 								password: values.cbPassword,
 							})
 						);
-						dispatch(setCbAddress(values.cbAddress));
-						showSuccessAnimation();
+						if (values.cbAddress != cbAddress) {
+							dispatch(setProjectId(''));
+							dispatch(setTrackerId(''));
+						}
+
+						if (props.successAnimation) showSuccessAnimation();
 					}}
 				>
 					{({
