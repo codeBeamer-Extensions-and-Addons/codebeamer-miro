@@ -52,8 +52,8 @@ export const codeBeamerApi = createApi({
 		getUserByName: builder.query<string, string>({
 			query: (name) => `users/findByName?name=${name}`,
 		}),
-		getProjects: builder.query<ProjectListView[], string>({
-			query: (projectId) => `projects`,
+		getProjects: builder.query<ProjectListView[], void>({
+			query: () => `projects`,
 		}),
 		getTrackers: builder.query<TrackerListView[], string>({
 			query: (projectId) => `projects/${projectId}/trackers`,
@@ -77,7 +77,7 @@ export const codeBeamerApi = createApi({
 export const {
 	useTestAuthenticationQuery,
 	useGetUserByNameQuery,
-	useGetProjectsQuery,
+	useLazyGetProjectsQuery,
 	useGetTrackersQuery,
 	useGetItemsQuery,
 	useLazyGetItemsQuery,

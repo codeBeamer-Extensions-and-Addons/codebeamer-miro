@@ -114,7 +114,7 @@ describe('<ProjectSelection>', () => {
 			cy.mountWithStore(<ProjectSelection />);
 
 			cy.getBySel(projectSelector).select('Cherry');
-			//? not sure, but this might need to go into a then() call
+
 			cy.getBySel(projectIdSelector).should('have.value', '4');
 		});
 
@@ -137,6 +137,21 @@ describe('<ProjectSelection>', () => {
 					cy.getBySel(userFeedbackWrapperSelector).should('exist');
 					cy.getBySel(submitSelector).should('not.exist');
 				});
+		});
+
+		it('re-queries Projects when the stored cbAddress value changes', () => {
+			const store = getStore();
+			const cbAddress = 'https://fake.codebeamer.com';
+
+			cy.intercept('GET', `https://fake.codebeamer.com/api/v3/projects`, {
+				fixture: 'projects.json',
+			}).as('lazyQuery');
+
+			cy.mountWithStore(<ProjectSelection />, { reduxStore: store });
+
+			store.dispatch(setCbAddress(cbAddress));
+
+			cy.wait('@lazyQuery');
 		});
 	});
 

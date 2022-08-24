@@ -2,16 +2,11 @@ import { Field, Formik, useFormikContext } from 'formik';
 import * as React from 'react';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useGetProjectsQuery } from '../../../../api/codeBeamerApi';
+import { useLazyGetProjectsQuery } from '../../../../api/codeBeamerApi';
 import { ProjectListView } from '../../../../models/projectListView.if';
 import { setProjectId } from '../../../../store/slices/boardSettingsSlice';
 import { setTrackerId } from '../../../../store/slices/userSettingsSlice';
 import { RootState } from '../../../../store/store';
-
-//TODO known bug: when the cbAddress updates in auth.tsx, and the projectId is subsequently set to '',
-//TODO the getProjectsQuery here does NOT refetch, but just returns the cached projects when
-//TODO this component is rendered as a result of the former.
-//TODO so the Projects you're provided with on the screen don't match the cbAddress. Maybe fix by using lazyQuery
 
 export default function ProjectSelection(props: { headerLess?: boolean }) {
 	const dispatch = useDispatch();
@@ -22,14 +17,19 @@ export default function ProjectSelection(props: { headerLess?: boolean }) {
 		(state: RootState) => state.boardSettings
 	);
 
-	const { data, error, isLoading } = useGetProjectsQuery(projectId);
+	const [trigger, result, lastPromiseInfo] =
+		useLazyGetProjectsQuery(projectId);
 
 	React.useEffect(() => {
-		if (error) {
-			console.error(error);
+		trigger();
+	}, [cbAddress]);
+
+	React.useEffect(() => {
+		if (result.isError) {
+			console.error(result.error);
 			//TODO miro.showErrorNotif
 		}
-	}, [error]);
+	}, [result]);
 
 	const showSuccessAnimation = () => {
 		setAnimateSuccess(true);
@@ -64,8 +64,8 @@ export default function ProjectSelection(props: { headerLess?: boolean }) {
 						// if (!values.project || values.project == '-')
 						// 	errors.project = "Can't find Project";
 						if (
-							data &&
-							!data.find((p) => p.id == values.projectId)
+							result.data &&
+							!result.data.find((p) => p.id == values.projectId)
 						) {
 							errors.projectId = 'No Project found with this ID';
 						}
@@ -125,8 +125,8 @@ export default function ProjectSelection(props: { headerLess?: boolean }) {
 							>
 								<label className="inline">Project</label>
 								<ProjectField
-									projects={data}
-									loading={isLoading}
+									projects={result.data}
+									loading={result.isLoading}
 								/>
 								<span
 									className="muted-medium"
