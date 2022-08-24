@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { setProjectId } from '../../../../store/slices/boardSettingsSlice';
+import { setTrackerId } from '../../../../store/slices/userSettingsSlice';
 import { getStore } from '../../../../store/store';
 import ProjectSelection from './ProjectSelection';
 
@@ -42,6 +43,23 @@ describe('<ProjectSelection>', () => {
 
 		cy.get('@dispatch').then((dispatch) =>
 			expect(dispatch).to.have.been.calledWith(setProjectId(projectId))
+		);
+	});
+
+	it('resets the trackerId when a projectId change is submitted', () => {
+		const store = getStore();
+		const projectId = 123;
+		const trackerId = '';
+
+		cy.mountWithStore(<ProjectSelection />, { reduxStore: store });
+
+		cy.spy(store, 'dispatch').as('dispatch');
+
+		cy.getBySel(projectIdSelector).type(projectId.toString());
+		cy.getBySel(submitSelector).click();
+
+		cy.get('@dispatch').then((dispatch) =>
+			expect(dispatch).to.have.been.calledWith(setTrackerId(trackerId))
 		);
 	});
 

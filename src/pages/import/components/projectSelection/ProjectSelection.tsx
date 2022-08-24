@@ -6,6 +6,7 @@ import { useGetProjectsQuery } from '../../../../api/codeBeamerApi';
 import Header from '../../../../components/header/Header';
 import { ProjectListView } from '../../../../models/projectListView.if';
 import { setProjectId } from '../../../../store/slices/boardSettingsSlice';
+import { setTrackerId } from '../../../../store/slices/userSettingsSlice';
 import { RootState } from '../../../../store/store';
 
 export default function ProjectSelection(props: { headerLess?: boolean }) {
@@ -17,7 +18,7 @@ export default function ProjectSelection(props: { headerLess?: boolean }) {
 		(state: RootState) => state.boardSettings
 	);
 
-	const { data, error, isLoading } = useGetProjectsQuery();
+	const { data, error, isLoading } = useGetProjectsQuery(projectId);
 
 	React.useEffect(() => {
 		if (error) {
@@ -72,6 +73,7 @@ export default function ProjectSelection(props: { headerLess?: boolean }) {
 						setSubmitting(true);
 
 						dispatch(setProjectId(values.projectId));
+						dispatch(setTrackerId(''));
 
 						showSuccessAnimation();
 
