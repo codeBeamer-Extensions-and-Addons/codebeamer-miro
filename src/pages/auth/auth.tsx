@@ -177,7 +177,6 @@ export default function AuthForm(props: {
 									}`}
 									data-test="submit"
 								>
-									{/*//TODO icon*/}
 									Connect
 								</button>
 							</div>
