@@ -5,7 +5,7 @@ import {
 	fetchBaseQuery,
 	FetchBaseQueryError,
 } from '@reduxjs/toolkit/query/react';
-import { RootState, store } from '../store/store';
+import { RootState } from '../store/store';
 import { ProjectListView } from '../models/projectListView.if';
 import { TrackerListView } from '../models/trackerListView.if';
 import { ItemQueryPage } from '../models/itemQueryPage';
