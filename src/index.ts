@@ -87,7 +87,7 @@ async function init() {
 	});
 
 	console.info(
-		`[codeBeamer-sync] Plugin v0.13.0 initialized. Experiencing issues? Let us know at https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/issues`
+		`[codeBeamer-sync] Plugin v1.0.0 initialized. Experiencing issues? Let us know at https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/issues`
 	);
 }
 
