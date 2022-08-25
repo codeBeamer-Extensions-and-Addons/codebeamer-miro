@@ -12,13 +12,13 @@ export default function addCardFields(
 	item: CodeBeamerItem
 ): Partial<AppCard> {
 	const NO_IMPORT_CONFIGURATION = 'No import configuration defined';
-	let importConfiguration = store.getState().boardSettings
+	let cardTagConfiguration = store.getState().boardSettings
 		.cardTagConfiguration as IAppCardTagSettings;
 
-	if (!importConfiguration || !importConfiguration.standard)
+	if (!cardTagConfiguration || !cardTagConfiguration.standard)
 		throw new Error(NO_IMPORT_CONFIGURATION);
 
-	const standardConfiguration = importConfiguration.standard;
+	const standardConfiguration = cardTagConfiguration.standard;
 	const standardConfigurationKeys = Object.keys(standardConfiguration);
 
 	if (!cardData.fields) cardData.fields = [];
