@@ -3,5 +3,5 @@ export enum BoardSetting {
 	CB_ADDRESS = 'cbAddress',
 	INBOX_TRACKER_ID = 'inboxTrackerId',
 	USER_MAPPING = 'USER_MAPPING',
-	IMPORT_CONFIGURATION = 'cardTagConfiguration',
+	CARD_TAG_CONFIGURATION = 'cardTagConfiguration',
 }
