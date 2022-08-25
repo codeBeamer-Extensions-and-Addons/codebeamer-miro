@@ -1,7 +1,7 @@
 import { convertToCardData } from './api/miro.api';
 import { CodeBeamerItem } from './models/codebeamer-item.if';
-import { BoardSetting } from './store/boardSetting.enum';
-import { UserSetting } from './store/userSetting.enum';
+import { BoardSetting } from './store/enums/boardSetting.enum';
+import { UserSetting } from './store/enums/userSetting.enum';
 
 async function init() {
 	miro.board.ui.on('icon:click', async () => {

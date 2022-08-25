@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import { BoardSetting } from '../boardSetting.enum';
+import { BoardSetting } from '../enums/boardSetting.enum';
 import { UserMapping } from '../../models/user-mapping.if';
 import { IAppCardTagSettings } from '../../models/import-configuration.if';
 

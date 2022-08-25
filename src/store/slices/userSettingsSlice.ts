@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import { UserSetting } from '../userSetting.enum';
+import { UserSetting } from '../enums/userSetting.enum';
 import { SubqueryLinkMethod } from '../enums/subquery-link-method.enum';
 import { FilterCriteria } from '../../models/filterCriteria.if';
 import getCbqlString from '../util/updateCbqlString';
