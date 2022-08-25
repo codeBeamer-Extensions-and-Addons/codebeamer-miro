@@ -3,6 +3,7 @@ import Modal from 'react-bootstrap/Modal';
 import Tabs, { ITab } from '../../../../components/tabs/Tabs';
 import AuthForm from '../../../auth/auth';
 import ProjectSelection from '../projectSelection/ProjectSelection';
+import AppCardTagSettings from './cardCustomization/AppCardTagSettings';
 
 import './settings.css';
 
@@ -12,9 +13,9 @@ import './settings.css';
 export default function Settings(props: { onClose: Function }) {
 	const tabs: ITab[] = [
 		{
-			title: 'Import',
+			title: 'Card Tags',
 			// icon: 'download',
-			tab: <div>Import configuration</div>,
+			tab: <AppCardTagSettings />,
 		},
 		{
 			title: 'Project',

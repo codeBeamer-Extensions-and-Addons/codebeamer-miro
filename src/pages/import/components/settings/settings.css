@@ -1,3 +1,4 @@
-.modal-content {
-	min-height: 400px;
+.modal-body {
+	height: 520px;
+	overflow-y: auto;
 }
