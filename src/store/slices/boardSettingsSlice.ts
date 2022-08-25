@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, current } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { BoardSetting } from '../enums/boardSetting.enum';
 import { UserMapping } from '../../models/user-mapping.if';
@@ -61,9 +61,9 @@ export const boardSettingsSlice = createSlice({
 			state.cardTagConfiguration.standard[action.payload.property] =
 				action.payload.value;
 
-			localStorage.setItem(
+			miro.board.setAppData(
 				BoardSetting.CARD_TAG_CONFIGURATION,
-				state.cardTagConfiguration
+				structuredClone(current(state.cardTagConfiguration))
 			);
 		},
 	},
