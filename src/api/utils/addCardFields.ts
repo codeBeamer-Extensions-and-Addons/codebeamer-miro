@@ -2,7 +2,7 @@ import { AppCard, CardField } from '@mirohq/websdk-types';
 import { CB_ITEM_NAME_PROPERTY_NAME } from '../../constants/cb-item-name-field-name';
 import { StandardItemProperty } from '../../enums/standard-item-property.enum';
 import { CodeBeamerItem } from '../../models/codebeamer-item.if';
-import { ImportConfiguration } from '../../models/import-configuration.if';
+import { IAppCardTagSettings } from '../../models/import-configuration.if';
 import { store } from '../../store/store';
 import getCodeBeamerPropertyNameByFieldLabel from './getCodeBeamerPropertyNameByFieldLabel';
 import getColorForFieldLabel from './getColorForFieldLabel';
@@ -13,7 +13,7 @@ export default function addCardFields(
 ): Partial<AppCard> {
 	const NO_IMPORT_CONFIGURATION = 'No import configuration defined';
 	let importConfiguration = store.getState().boardSettings
-		.importConfiguration as ImportConfiguration;
+		.cardTagConfiguration as IAppCardTagSettings;
 
 	if (!importConfiguration || !importConfiguration.standard)
 		throw new Error(NO_IMPORT_CONFIGURATION);
