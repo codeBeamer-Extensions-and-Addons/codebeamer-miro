@@ -13,7 +13,36 @@ export default function AppCardTagSettings() {
 		(state: RootState) => state.boardSettings
 	);
 
+	const defaultTags: string[] = ['Summary', 'Description', 'Status'];
+
 	const standardProperties: string[] = Object.values(StandardItemProperty);
+
+	const generateStandardPropJSX = (prop: string) => {
+		return (
+			<div className="property" key={prop}>
+				<label
+					className="checkbox"
+					data-test={`tag-${prop.replace(' ', '-')}`}
+				>
+					<input
+						type="checkbox"
+						checked={cardTagConfiguration.standard[prop] ?? false}
+						onChange={() =>
+							dispatch(
+								setStandardCardTagConfiguration({
+									property: prop,
+									value:
+										!cardTagConfiguration.standard[prop] ??
+										true,
+								})
+							)
+						}
+					/>
+					<span>{prop}</span>
+				</label>
+			</div>
+		);
+	};
 
 	return (
 		<div>
@@ -23,66 +52,29 @@ export default function AppCardTagSettings() {
 					the imported Items' Cards.
 				</p>
 			</div>
-			<div className="my-2">
-				<div className="property">
-					<label
-						className="checkbox"
-						title="Default property"
-						data-test="defaultTag-summary"
-					>
-						<input type="checkbox" disabled checked />
-						<span className="muted-medium">Summary</span>
-					</label>
+			<div className="my-2 grid">
+				<div className="cs1 ce6 border-right-light">
+					{defaultTags.map((dt) => (
+						<div className="property" key={dt}>
+							<label
+								className="checkbox"
+								title="Default property"
+								data-test={`defaultTag-${dt}`}
+							>
+								<input type="checkbox" disabled checked />
+								<span className="muted-medium">{dt}</span>
+							</label>
+						</div>
+					))}
+					{standardProperties
+						.filter((p, i) => i % 2 == 1)
+						.map((p) => generateStandardPropJSX(p))}
 				</div>
-				<div className="property">
-					<label
-						className="checkbox"
-						data-test="defaultTag-description"
-					>
-						<input
-							type="checkbox"
-							title="Default property"
-							disabled
-							checked
-						/>
-						<span className="muted-medium">Description</span>
-					</label>
+				<div className="cs7 ce12">
+					{standardProperties
+						.filter((p, i) => i % 2 == 0)
+						.map((p) => generateStandardPropJSX(p))}
 				</div>
-				<div className="property">
-					<label
-						className="checkbox"
-						title="Default property"
-						data-test="defaultTag-status"
-					>
-						<input type="checkbox" disabled checked />
-						<span className="muted-medium">Status</span>
-					</label>
-				</div>
-				{standardProperties.map((p) => (
-					<div className="property">
-						<label
-							className="checkbox"
-							data-test={`tag-${p.replace(' ', '-')}`}
-						>
-							<input
-								type="checkbox"
-								checked={cardTagConfiguration.standard[p]}
-								onChange={() =>
-									dispatch(
-										setStandardCardTagConfiguration({
-											property: p,
-											value:
-												!cardTagConfiguration.standard[
-													p
-												] ?? true,
-										})
-									)
-								}
-							/>
-							<span>{p}</span>
-						</label>
-					</div>
-				))}
 			</div>
 		</div>
 	);

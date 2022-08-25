@@ -13,13 +13,13 @@ describe('<AppCardTagSettings', () => {
 	it('shows a disabled checkbox for each of the three default properties', () => {
 		cy.mountWithStore(<AppCardTagSettings />);
 
-		cy.getBySel('defaultTag-summary')
+		cy.getBySel('defaultTag-Summary')
 			.find('input[type="checkbox"]')
 			.should('be.disabled');
-		cy.getBySel('defaultTag-description')
+		cy.getBySel('defaultTag-Description')
 			.find('input[type="checkbox"]')
 			.should('be.disabled');
-		cy.getBySel('defaultTag-status')
+		cy.getBySel('defaultTag-Status')
 			.find('input[type="checkbox"]')
 			.should('be.disabled');
 	});
@@ -81,7 +81,7 @@ describe('<AppCardTagSettings', () => {
 			}
 		});
 
-		it.only('updates the stored cardTagConfiguration when a value is (un-)checked', () => {
+		it('updates the stored cardTagConfiguration when a value is (un-)checked', () => {
 			const store = getStore();
 
 			cy.spy(store, 'dispatch').as('dispatch');
