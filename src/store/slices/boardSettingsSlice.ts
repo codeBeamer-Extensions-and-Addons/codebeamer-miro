@@ -2,7 +2,10 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { BoardSetting } from '../enums/boardSetting.enum';
 import { UserMapping } from '../../models/user-mapping.if';
-import { IAppCardTagSettings } from '../../models/import-configuration.if';
+import {
+	IAppCardTagSetting,
+	IAppCardTagSettings,
+} from '../../models/import-configuration.if';
 
 export interface BoardSettingsState {
 	loading: boolean;
@@ -51,6 +54,18 @@ export const boardSettingsSlice = createSlice({
 
 			state.projectId = id;
 		},
+		setStandardCardTagConfiguration: (
+			state,
+			action: PayloadAction<IAppCardTagSetting>
+		) => {
+			state.cardTagConfiguration.standard[action.payload.property] =
+				action.payload.value;
+
+			localStorage.setItem(
+				BoardSetting.CARD_TAG_CONFIGURATION,
+				state.cardTagConfiguration
+			);
+		},
 	},
 	extraReducers: (builder) => {
 		builder
@@ -67,7 +82,7 @@ export const boardSettingsSlice = createSlice({
 						BoardSetting.USER_MAPPING
 					] as unknown as UserMapping[]) ?? {};
 				state.cardTagConfiguration = (action.payload[
-					BoardSetting.IMPORT_CONFIGURATION
+					BoardSetting.CARD_TAG_CONFIGURATION
 				] as unknown as IAppCardTagSettings) ?? {
 					standard: {},
 					trackerSpecific: {},
@@ -79,6 +94,7 @@ export const boardSettingsSlice = createSlice({
 	},
 });
 
-export const { setCbAddress, setProjectId } = boardSettingsSlice.actions;
+export const { setCbAddress, setProjectId, setStandardCardTagConfiguration } =
+	boardSettingsSlice.actions;
 
 export default boardSettingsSlice.reducer;
