@@ -1,4 +1,4 @@
-import { FilterCriteria } from '../enums/filter-criteria.enum';
+import { DefaultFilterCriteria } from '../../enums/default-filter-criteria.enum';
 
 /**
  * Maps FilterCriteria enum values to codeBeamer Query language entity names
@@ -7,15 +7,15 @@ import { FilterCriteria } from '../enums/filter-criteria.enum';
  * @returns the matching codebeamer query language entity's name to a Filter Criteria, e.g. "teamName" for Team. For non-enumerated criteria, it constructs a customField query string.
  */
 export default function getQueryEntityNameForCriteria(
-	criteria: FilterCriteria | string,
+	criteria: DefaultFilterCriteria | string,
 	trackerId?: string
 ): string {
 	switch (criteria) {
-		case FilterCriteria.TEAM:
+		case DefaultFilterCriteria.TEAM:
 			return 'teamName';
-		case FilterCriteria.RELEASE:
+		case DefaultFilterCriteria.RELEASE:
 			return 'release';
-		case FilterCriteria.SUBJECT:
+		case DefaultFilterCriteria.SUBJECT:
 			return 'subjectName';
 		default:
 			return `'${trackerId}.${criteria}'`;
