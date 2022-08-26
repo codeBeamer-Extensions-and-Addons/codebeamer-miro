@@ -4,8 +4,9 @@
 export interface IFilterCriteria {
 	/**
 	 * Unique id among filterCriteria
+	 * Optional just so it can be passed to an initializer
 	 */
-	id: number;
+	id?: number;
 	/**
 	 * Human-readable displayname
 	 */
