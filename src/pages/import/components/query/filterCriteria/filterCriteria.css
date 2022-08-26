@@ -1,0 +1,17 @@
+.tag {
+	cursor: default;
+}
+.tag:hover {
+	background-color: var(--indigo200);
+}
+
+.filter-remove {
+	display: inline;
+	cursor: pointer;
+	width: 20px;
+	border-radius: 50%;
+}
+
+.filter-remove:hover {
+	background-color: var(--indigo400);
+}
