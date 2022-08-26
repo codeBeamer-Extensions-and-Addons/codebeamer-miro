@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { UserSetting } from '../enums/userSetting.enum';
 import { SubqueryLinkMethod } from '../enums/subquery-link-method.enum';
-import { FilterCriteria } from '../../models/filterCriteria.if';
+import { IFilterCriteria } from '../../models/filterCriteria.if';
 import getCbqlString from '../util/updateCbqlString';
 
 export interface UserSettingsState {
@@ -12,7 +12,7 @@ export interface UserSettingsState {
 	cbPassword: string;
 	trackerId: string;
 	advancedSearch: boolean;
-	activeFilters: FilterCriteria[];
+	activeFilters: IFilterCriteria[];
 	subqueryChaining: string;
 }
 
@@ -74,7 +74,7 @@ export const userSettingsSlice = createSlice({
 				action.payload.toString()
 			);
 		},
-		addFilter: (state, action: PayloadAction<FilterCriteria>) => {
+		addFilter: (state, action: PayloadAction<IFilterCriteria>) => {
 			//TODO add to state
 
 			const cbqlString = getCbqlString(
