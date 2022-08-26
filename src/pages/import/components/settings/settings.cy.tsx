@@ -3,7 +3,7 @@ import Settings from './Settings';
 
 describe('<Settings>', () => {
 	it('mounts', () => {
-		cy.mount(<Settings onClose={() => {}} />);
+		cy.mountWithStore(<Settings onClose={() => {}} />);
 	});
 
 	it('calls the passed onClose handler when the close button is clicked', () => {
