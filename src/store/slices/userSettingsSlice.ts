@@ -25,7 +25,9 @@ const initialState: UserSettingsState = {
 	advancedSearch: localStorage.getItem(UserSetting.ADVANCED_SEARCH_ENABLED)
 		? localStorage.getItem(UserSetting.ADVANCED_SEARCH_ENABLED) == 'true'
 		: false,
-	activeFilters: [],
+	activeFilters: JSON.parse(
+		localStorage.getItem(UserSetting.FILTER_CRITERIA) ?? '[]'
+	) as IFilterCriteria[],
 	subqueryChaining:
 		localStorage.getItem(UserSetting.SUBQUERY_LINK_METHOD) ??
 		SubqueryLinkMethod.AND,
@@ -75,29 +77,41 @@ export const userSettingsSlice = createSlice({
 			);
 		},
 		addFilter: (state, action: PayloadAction<IFilterCriteria>) => {
-			const newFilter = action.payload;
-			newFilter.id = state.activeFilters.length;
-			const filters = [...state.activeFilters, newFilter];
+			const newFilter = {
+				...action.payload,
+				id: state.activeFilters.length,
+			};
+			const filters = [...current(state.activeFilters), newFilter];
 
 			state.activeFilters = filters;
+			localStorage.setItem(
+				UserSetting.FILTER_CRITERIA,
+				JSON.stringify(filters)
+			);
 
 			const cbqlString = getCbqlString(
 				filters,
 				state.subqueryChaining.toString(),
 				state.trackerId
 			);
+
 			state.cbqlString = cbqlString;
 			localStorage.setItem(UserSetting.CBQL_STRING, cbqlString);
 		},
 		removeFilter: (state, action: PayloadAction<number>) => {
-			const filters = state.activeFilters
+			const filters = current(state.activeFilters)
 				.filter((f) => f.id !== action.payload)
 				.map((f, i) => {
-					f.id = i + 1;
-					return f;
+					return { ...f, id: i };
 				});
 
 			state.activeFilters = filters;
+
+			state.activeFilters = filters;
+			localStorage.setItem(
+				UserSetting.FILTER_CRITERIA,
+				JSON.stringify(filters)
+			);
 
 			const cbqlString = getCbqlString(
 				filters,
