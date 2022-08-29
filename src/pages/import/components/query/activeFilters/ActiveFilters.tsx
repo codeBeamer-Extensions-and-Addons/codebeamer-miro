@@ -24,7 +24,7 @@ export default function ActiveFilters() {
 					key={
 						`${f.slug}-${f.value}-${f.id}` /*NOT the id, because it will be reused */
 					}
-					showId={true}
+					showId={false}
 					filterCriteria={f}
 					onRemove={removeCriteria}
 				/>
