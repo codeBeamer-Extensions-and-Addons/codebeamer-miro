@@ -1,9 +1,12 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../../store/store';
+import ActiveFilters from './activeFilters/ActiveFilters';
 import CbqlInput from './cbqlInput/CbqlInput';
 import FilterInput from './filterInput/FilterInput';
 import TrackerSelect from './trackerSelect/TrackerSelect';
+
+import './query.css';
 
 export default function Query() {
 	const { advancedSearch } = useSelector(
@@ -19,7 +22,9 @@ export default function Query() {
 				<div className="cs4 ce8 text-center">
 					<FilterInput />
 				</div>
-				<div className="cs9 ce12 text-center">(Active Filters)</div>
+				<div className="cs9 ce12 text-center active-filters-container">
+					<ActiveFilters />
+				</div>
 			</div>
 		);
 	} else {
