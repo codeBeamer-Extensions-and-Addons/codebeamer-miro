@@ -11,6 +11,7 @@ import { TrackerListView } from '../models/trackerListView.if';
 import { ItemQueryPage } from '../models/itemQueryPage';
 import { CodeBeamerItemsQuery } from '../models/itemQuery';
 import TrackerDetails from '../models/trackerDetails.if';
+import { CodeBeamerTrackerSchemaEntry } from '../models/trackerSchema.if';
 
 const dynamicBaseQuery: BaseQueryFn<
 	string | FetchArgs,
@@ -71,6 +72,11 @@ export const codeBeamerApi = createApi({
 		getTrackerDetails: builder.query<TrackerDetails, string>({
 			query: (trackerId) => `trackers/${trackerId}`,
 		}),
+		getTrackerSchema: builder.query<CodeBeamerTrackerSchemaEntry[], string>(
+			{
+				query: (trackerId) => `trackers/${trackerId}/schema`,
+			}
+		),
 	}),
 });
 
@@ -82,4 +88,5 @@ export const {
 	useGetItemsQuery,
 	useLazyGetItemsQuery,
 	useGetTrackerDetailsQuery,
+	useGetTrackerSchemaQuery,
 } = codeBeamerApi;
