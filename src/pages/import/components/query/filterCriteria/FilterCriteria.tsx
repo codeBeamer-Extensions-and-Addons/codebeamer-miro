@@ -9,8 +9,11 @@ export default function FilterCriteria(props: {
 	showId?: boolean;
 }) {
 	return (
-		<span className="tag" data-test={`criteria-${props.filterCriteria.id}`}>
-			{`${props.showId ? props.filterCriteria.id + ') ' : ''}${
+		<span
+			className="tag fade-in"
+			data-test={`criteria-${props.filterCriteria.id}`}
+		>
+			{`${props.showId ? props.filterCriteria.id! + 1 + '. ' : ''}${
 				props.filterCriteria.slug
 			}: ${props.filterCriteria.value}`}
 			<div

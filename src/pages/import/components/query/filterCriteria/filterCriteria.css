@@ -1,5 +1,6 @@
 .tag {
 	cursor: default;
+	margin: 5px;
 }
 .tag:hover {
 	background-color: var(--indigo200);

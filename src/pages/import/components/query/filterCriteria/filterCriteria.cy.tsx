@@ -55,7 +55,10 @@ describe('<FilterCriteria>', () => {
 			/>
 		);
 
-		cy.getBySel(criteriaSelector).should('contain.text', testCriteria.id);
+		cy.getBySel(criteriaSelector).should(
+			'contain.text',
+			testCriteria.id! + 1
+		);
 	});
 
 	it('calls the passed handler with the criteria its id as arg when the remove-button is clicked', () => {
