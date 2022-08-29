@@ -172,7 +172,7 @@ img {
 	font-size: small;
 }
 
-/**width*/
+/**width & height*/
 .w-25 {
 	width: 25%;
 }
@@ -190,6 +190,9 @@ img {
 }
 .w-fit {
 	width: fit-content;
+}
+.h-auto {
+	height: auto;
 }
 
 /**position & display*/
@@ -213,9 +216,14 @@ img {
 	pointer-events: auto !important;
 	border-left: 1px solid var(--indigo400) !important;
 }
-
 .input-action:hover {
 	background-color: var(--indigo100);
+}
+.input-action-disabled {
+	pointer-events: none !important;
+}
+.input-action-disabled:hover {
+	background-color: initial;
 }
 
 .input-action:hover .button,
