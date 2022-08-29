@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, current } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { UserSetting } from '../enums/userSetting.enum';
 import { SubqueryLinkMethod } from '../enums/subquery-link-method.enum';
@@ -75,21 +75,32 @@ export const userSettingsSlice = createSlice({
 			);
 		},
 		addFilter: (state, action: PayloadAction<IFilterCriteria>) => {
-			//TODO add to state
+			const newFilter = action.payload;
+			newFilter.id = state.activeFilters.length;
+			const filters = [...state.activeFilters, newFilter];
+
+			state.activeFilters = filters;
 
 			const cbqlString = getCbqlString(
-				state.activeFilters,
+				filters,
 				state.subqueryChaining.toString(),
 				state.trackerId
 			);
 			state.cbqlString = cbqlString;
 			localStorage.setItem(UserSetting.CBQL_STRING, cbqlString);
 		},
-		removeFilter: (state, action: PayloadAction<string | number>) => {
-			//TODO remove from state
+		removeFilter: (state, action: PayloadAction<number>) => {
+			const filters = state.activeFilters
+				.filter((f) => f.id !== action.payload)
+				.map((f, i) => {
+					f.id = i + 1;
+					return f;
+				});
+
+			state.activeFilters = filters;
 
 			const cbqlString = getCbqlString(
-				state.activeFilters,
+				filters,
 				state.subqueryChaining.toString(),
 				state.trackerId
 			);
