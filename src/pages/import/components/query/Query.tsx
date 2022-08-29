@@ -19,10 +19,10 @@ export default function Query() {
 				<div className="cs1 ce3">
 					<TrackerSelect />
 				</div>
-				<div className="cs4 ce8 text-center">
+				<div className="cs4 ce7 text-center">
 					<FilterInput />
 				</div>
-				<div className="cs9 ce12 text-center active-filters-container">
+				<div className="cs8 ce12 text-center active-filters-container">
 					<ActiveFilters />
 				</div>
 			</div>
