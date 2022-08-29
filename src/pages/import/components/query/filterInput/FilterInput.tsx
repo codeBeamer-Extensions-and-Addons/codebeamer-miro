@@ -39,7 +39,7 @@ export default function FilterInput() {
 			>
 				{({ values, errors, touched, handleSubmit }) => (
 					<form onSubmit={handleSubmit}>
-						<label className="form-group-label">Filters</label>
+						<label className="form-group-label">Filter</label>
 						<div className="input-group">
 							<Field
 								as="select"
