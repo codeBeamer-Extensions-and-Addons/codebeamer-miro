@@ -2,6 +2,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../../store/store';
 import CbqlInput from './cbqlInput/CbqlInput';
+import FilterInput from './filterInput/FilterInput';
 import TrackerSelect from './trackerSelect/TrackerSelect';
 
 export default function Query() {
@@ -15,7 +16,9 @@ export default function Query() {
 				<div className="cs1 ce3">
 					<TrackerSelect />
 				</div>
-				<div className="cs4 ce8 text-center">(Filter Input)</div>
+				<div className="cs4 ce8 text-center">
+					<FilterInput />
+				</div>
 				<div className="cs9 ce12 text-center">(Active Filters)</div>
 			</div>
 		);
