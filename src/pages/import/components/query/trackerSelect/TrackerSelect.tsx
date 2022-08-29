@@ -40,7 +40,7 @@ export default function TrackerSelect() {
 
 	return (
 		<div className="form-group">
-			<label>Tracker</label>
+			<label className="text-center">Tracker</label>
 			<select
 				className="select"
 				onChange={handleSelect}
