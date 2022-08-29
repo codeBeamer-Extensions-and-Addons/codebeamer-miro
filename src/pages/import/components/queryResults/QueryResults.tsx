@@ -151,7 +151,7 @@ export default function QueryResults() {
 
 	if (data && data.total == 0) {
 		return (
-			<div className="centered">
+			<div className="centered h-auto">
 				<h3 className="h3 muted-info" data-test="noItemsInTracker">
 					No Items in this Tracker
 				</h3>
