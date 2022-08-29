@@ -160,7 +160,7 @@ export default function QueryResults() {
 	} else if (error) {
 		//TODO only for CBQL input I think
 		return (
-			<div className="centered">
+			<div className="centered h-auto">
 				<h3 className="h3 error">Invalid query</h3>
 			</div>
 		);
