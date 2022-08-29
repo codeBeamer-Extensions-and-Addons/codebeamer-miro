@@ -1,5 +1,10 @@
 import * as React from 'react';
 import { IFilterCriteria } from '../../../../../models/filterCriteria.if';
+import {
+	addFilter,
+	removeFilter,
+} from '../../../../../store/slices/userSettingsSlice';
+import { getStore } from '../../../../../store/store';
 import ActiveFilters from './ActiveFilters';
 
 const testCriteria: IFilterCriteria[] = [
@@ -10,13 +15,13 @@ const testCriteria: IFilterCriteria[] = [
 		value: 'FR',
 	},
 	{
-		id: 0,
+		id: 1,
 		slug: 'Place',
 		fieldName: 'place',
 		value: 'Avignon',
 	},
 	{
-		id: 0,
+		id: 2,
 		slug: 'Owner',
 		fieldName: 'owner',
 		value: 'Aurelieng',
@@ -28,10 +33,39 @@ describe('<ActiveFilters>', () => {
 		cy.mountWithStore(<ActiveFilters />);
 	});
 
-	it('displays a FilterCriteria component for each filterCriteria in store');
-	it(
-		'removes a filter criteria from store when its component its remove-button is clicked'
-	);
+	it('displays a FilterCriteria component for each filterCriteria in store', () => {
+		const store = getStore();
+		for (let i = 0; i < testCriteria.length; i++) {
+			store.dispatch(addFilter(testCriteria[i]));
+		}
+
+		cy.mountWithStore(<ActiveFilters />, { reduxStore: store });
+
+		for (let i = 0; i < testCriteria.length; i++) {
+			cy.getBySel(`criteria-${testCriteria[i].id}`)
+				.should('exist')
+				.and('contain.text', testCriteria[i].slug);
+		}
+	});
+	it('removes a filter criteria from store when its component its remove-button is clicked', () => {
+		const store = getStore();
+		const criteriaIndex = 1;
+		cy.spy(store, 'dispatch').as('dispatch');
+
+		for (let i = 0; i < testCriteria.length; i++) {
+			store.dispatch(addFilter(testCriteria[i]));
+		}
+
+		cy.mountWithStore(<ActiveFilters />, { reduxStore: store });
+
+		cy.getBySel(`criteria-${criteriaIndex}`).find('.filter-remove').click();
+
+		cy.get('@dispatch').then((dispatch) => {
+			expect(dispatch).to.have.been.calledWith(
+				removeFilter(criteriaIndex)
+			);
+		});
+	});
 
 	//TODO If I got time. Else, submit a US.
 	describe.skip('AND/OR', () => {
