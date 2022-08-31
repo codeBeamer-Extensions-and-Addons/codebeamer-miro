@@ -100,12 +100,22 @@ export default function QueryResults() {
 	//! this should (must, or else it doesn't really work) only trigger when we load another page of query results
 	React.useEffect(() => {
 		if (data && data.items.length) {
-			setItems([
-				...items,
-				...data.items.map(
-					(i: ItemListView) => new ItemQueryResultView(i.id, i.name)
-				),
-			]);
+			if (data.page > 1) {
+				setItems([
+					...items,
+					...data.items.map(
+						(i: ItemListView) =>
+							new ItemQueryResultView(i.id, i.name)
+					),
+				]);
+			} else {
+				setItems(
+					data.items.map(
+						(i: ItemListView) =>
+							new ItemQueryResultView(i.id, i.name)
+					)
+				);
+			}
 		}
 	}, [data]);
 
