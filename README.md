@@ -1,7 +1,6 @@
-<h1 align="center">
-  codebeamer cards
-  <br/>
-</h1>
+<p align="center">
+   <img src="readmeImg/codebeamer-cards.png" alt="codebeamer cards"/>
+</p>
 
 <p align="center">
   <a href="https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/blob/refactor/react#installation">Installation</a> |
