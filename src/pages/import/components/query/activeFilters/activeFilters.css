@@ -7,3 +7,15 @@
 	max-height: 80px;
 	overflow-x: auto;
 }
+
+.activeFiltersWrapper {
+	align-items: center;
+}
+
+.link-label {
+	color: var(--blue600);
+	cursor: pointer;
+}
+.link-label:hover > .link-label-text {
+	text-decoration: underline;
+}
