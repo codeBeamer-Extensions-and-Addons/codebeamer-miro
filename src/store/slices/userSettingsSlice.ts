@@ -57,6 +57,16 @@ export const userSettingsSlice = createSlice({
 			state.cbqlString = action.payload;
 			localStorage.setItem(UserSetting.CBQL_STRING, action.payload);
 		},
+		resetCbqlStringToCurrentParameters: (state) => {
+			const cbqlString = getCbqlString(
+				current(state.activeFilters),
+				state.subqueryChaining.toString(),
+				state.trackerId
+			);
+
+			state.cbqlString = cbqlString;
+			localStorage.setItem(UserSetting.CBQL_STRING, cbqlString);
+		},
 		setTrackerId: (state, action: PayloadAction<string>) => {
 			state.trackerId = action.payload;
 			localStorage.setItem(UserSetting.SELECTED_TRACKER, action.payload);
@@ -131,6 +141,7 @@ export const {
 	addFilter,
 	removeFilter,
 	setCbqlString,
+	resetCbqlStringToCurrentParameters,
 } = userSettingsSlice.actions;
 
 export default userSettingsSlice.reducer;
