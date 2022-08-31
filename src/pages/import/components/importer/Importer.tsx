@@ -19,16 +19,21 @@ import './importer.css';
 
 export default function Importer(props: {
 	items: string[];
+	totalItems?: number;
 	onClose?: Function;
 }) {
-	const { trackerId } = useSelector((state: RootState) => state.userSettings);
+	const { trackerId, cbqlString } = useSelector(
+		(state: RootState) => state.userSettings
+	);
 
 	const [loaded, setLoaded] = useState(0);
 
+	//* applies all currently active filters by using the stored cbqlString,
+	//* then further filters out only the selected items (or takes all of 'em)
 	const { data, error, isLoading } = useGetItemsQuery({
 		page: DEFAULT_RESULT_PAGE,
 		pageSize: MAX_ITEMS_PER_IMPORT,
-		queryString: `tracker.id = ${trackerId}${
+		queryString: `${cbqlString}${
 			props.items.length
 				? ' AND item.id IN (' + props.items.join(',') + ')'
 				: ''
@@ -101,8 +106,11 @@ export default function Importer(props: {
 						className="w-100"
 						variant="primary"
 						now={loaded}
-						max={props.items.length}
-						label={`${loaded}/${props.items.length}`}
+						max={props.totalItems ?? props.items.length}
+						label={`${loaded}/${
+							props.totalItems ?? props.items.length
+						}`}
+						data-test="importProgress"
 					/>
 				</div>
 			</Modal.Body>
