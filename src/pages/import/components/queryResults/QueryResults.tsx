@@ -229,6 +229,11 @@ export default function QueryResults() {
 				{importing && (
 					<Importer
 						items={itemsToImport}
+						totalItems={
+							itemsToImport.length > 0
+								? itemsToImport.length
+								: data?.total
+						}
 						onClose={closeModalDebugOnly}
 					/>
 				)}
