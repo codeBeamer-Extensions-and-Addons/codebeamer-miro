@@ -49,7 +49,7 @@ describe('<FilterInput>', () => {
 			const trackerId = '123';
 			store.dispatch(setTrackerId(trackerId));
 
-			cy.intercept(`**/api/v3/trackers/${trackerId}/schema`, {
+			cy.intercept(`**/api/v3/trackers/*/schema`, {
 				fixture: 'tracker_schema.json',
 			}).as('fetchSchema');
 
