@@ -251,6 +251,24 @@ img {
 	background-color: var(--indigo200);
 }
 
+.loading-spinner::after {
+	-webkit-animation: spinning 0.5s infinite linear;
+	animation: spinning 0.5s infinite linear;
+	border: 2px solid var(--blue700);
+	border-radius: 9999px;
+	border-right-color: transparent;
+	border-top-color: transparent;
+	content: '';
+	display: block;
+	height: 1em;
+	width: 1em;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	margin-top: -0.5em;
+	margin-left: -0.5em;
+}
+
 /**custom scrollbar*/
 
 body {
