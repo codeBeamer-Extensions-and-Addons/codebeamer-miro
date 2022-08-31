@@ -184,8 +184,7 @@ export const userSettingsSlice = createSlice({
 				);
 			}
 
-			cbql = `tracker.id = ${state.trackerId} AND ${cbql}`;
-			console.log('cbql: ', cbql);
+			cbql = `tracker.id = ${state.trackerId} AND (${cbql})`;
 
 			state.cbqlString = cbql;
 			localStorage.setItem(UserSetting.CBQL_STRING, cbql);
