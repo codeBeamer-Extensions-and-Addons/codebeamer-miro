@@ -55,10 +55,6 @@ describe('<FilterInput>', () => {
 
 			cy.mountWithStore(<FilterInput />);
 
-			//TODO
-			//! inconsistent.. even when it logs the interception, the wait down here sometimes
-			//! won't catch it. Maybe just generically wait, or remove it (+ generic wait) since it's just
-			//! an intermediate check, or maybe wildcard the trackerId, if that's not what it seems
 			cy.wait('@fetchSchema');
 
 			cy.fixture('tracker_schema.json').then((json) => {
