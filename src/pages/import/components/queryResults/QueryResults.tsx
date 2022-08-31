@@ -153,7 +153,7 @@ export default function QueryResults() {
 		return (
 			<div className="centered h-auto">
 				<h3 className="h3 muted-info" data-test="noItemsInTracker">
-					No Items in this Tracker
+					No Items in this Query
 				</h3>
 			</div>
 		);
