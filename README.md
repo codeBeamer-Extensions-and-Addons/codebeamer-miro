@@ -1,5 +1,5 @@
 <h1 align="center">
-  codebeamer-miro
+  codebeamer cards
   <br/>
 </h1>
 
