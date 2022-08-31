@@ -159,7 +159,7 @@ export default function QueryResults() {
 	//********************************RENDER********************************* */
 	//*********************************************************************** */
 
-	if (isLoading) {
+	if (!items.length && isLoading) {
 		return (
 			<div className="centered h-auto">
 				<div className="loading-spinner"></div>
@@ -207,6 +207,12 @@ export default function QueryResults() {
 					</tbody>
 					<tfoot>
 						<tr className="text-center">
+							{!eos && (
+								<td
+									colSpan={3}
+									className="position-relative loading-spinner loading-spinner-table-end"
+								></td>
+							)}
 							{eos && (
 								<td
 									colSpan={3}
