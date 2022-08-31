@@ -74,9 +74,14 @@ describe('<ActiveFilters>', () => {
 		});
 	});
 
-	describe.only('AND/OR', () => {
+	describe('AND/OR - 2 or more criteria defined', () => {
 		it('has a button to show the AND/OR logic input', () => {
-			cy.mountWithStore(<ActiveFilters />);
+			const store = getStore();
+			for (let i = 0; i < testCriteria.length; i++) {
+				store.dispatch(addFilter(testCriteria[i]));
+			}
+
+			cy.mountWithStore(<ActiveFilters />, { reduxStore: store });
 
 			cy.getBySel(hideAndOrButtonSelector).should('not.exist');
 			cy.getBySel(showAndOrButtonSelector).should('exist');
@@ -85,7 +90,13 @@ describe('<ActiveFilters>', () => {
 		it('applies stored AND/OR logic to the cbql string when the input is toggled to show', () => {
 			const store = getStore();
 			const andOrLogic = '1 OR 2';
+
 			store.dispatch(setAndOrFilter(andOrLogic));
+			store.dispatch(setAndOrFilterEnabled(false));
+
+			for (let i = 0; i < testCriteria.length; i++) {
+				store.dispatch(addFilter(testCriteria[i]));
+			}
 
 			cy.spy(store, 'dispatch').as('dispatch');
 
@@ -104,6 +115,10 @@ describe('<ActiveFilters>', () => {
 			const store = getStore();
 			store.dispatch(setAndOrFilterEnabled(true));
 
+			for (let i = 0; i < testCriteria.length; i++) {
+				store.dispatch(addFilter(testCriteria[i]));
+			}
+
 			cy.mountWithStore(<ActiveFilters />, { reduxStore: store });
 
 			cy.getBySel(showAndOrButtonSelector).should('not.exist');
@@ -113,6 +128,10 @@ describe('<ActiveFilters>', () => {
 		it('exempts AND/OR logic from the cbql string when the input is toggled to hide', () => {
 			const store = getStore();
 			store.dispatch(setAndOrFilterEnabled(true));
+
+			for (let i = 0; i < testCriteria.length; i++) {
+				store.dispatch(addFilter(testCriteria[i]));
+			}
 
 			cy.spy(store, 'dispatch').as('dispatch');
 
@@ -146,8 +165,13 @@ describe('<ActiveFilters>', () => {
 		describe('Input', () => {
 			it('updates the stored AND/OR string when submitting', () => {
 				const store = getStore();
-				store.dispatch(setAndOrFilterEnabled(true));
 				const andOrLogic = '(1 AND (2 OR 3))';
+
+				store.dispatch(setAndOrFilterEnabled(true));
+
+				for (let i = 0; i < testCriteria.length; i++) {
+					store.dispatch(addFilter(testCriteria[i]));
+				}
 
 				cy.spy(store, 'dispatch').as('dispatch');
 
