@@ -4,6 +4,7 @@ import { UserSetting } from '../enums/userSetting.enum';
 import { SubqueryLinkMethod } from '../enums/subquery-link-method.enum';
 import { IFilterCriteria } from '../../models/filterCriteria.if';
 import getCbqlString from '../util/updateCbqlString';
+import getQueryEntityNameForCriteria from '../util/getQueryEntityNameForCriteria';
 
 export interface UserSettingsState {
 	cbAddress: string;
@@ -14,6 +15,8 @@ export interface UserSettingsState {
 	advancedSearch: boolean;
 	activeFilters: IFilterCriteria[];
 	subqueryChaining: string;
+	andOrFilterEnabled: boolean;
+	andOrFilter: string;
 }
 
 const initialState: UserSettingsState = {
@@ -31,6 +34,10 @@ const initialState: UserSettingsState = {
 	subqueryChaining:
 		localStorage.getItem(UserSetting.SUBQUERY_LINK_METHOD) ??
 		SubqueryLinkMethod.AND,
+	andOrFilterEnabled: localStorage.getItem(UserSetting.AND_OR_FILTER_ENABLED)
+		? localStorage.getItem(UserSetting.AND_OR_FILTER_ENABLED) == 'true'
+		: false,
+	andOrFilter: localStorage.getItem(UserSetting.AND_OR_FILTER_VALUE) ?? '',
 };
 
 export const userSettingsSlice = createSlice({
@@ -131,6 +138,58 @@ export const userSettingsSlice = createSlice({
 			state.cbqlString = cbqlString;
 			localStorage.setItem(UserSetting.CBQL_STRING, cbqlString);
 		},
+		setAndOrFilterEnabled: (state, action: PayloadAction<boolean>) => {
+			state.andOrFilterEnabled = action.payload;
+
+			localStorage.setItem(
+				UserSetting.AND_OR_FILTER_ENABLED,
+				action.payload.toString()
+			);
+		},
+		setAndOrFilter: (state, action: PayloadAction<string>) => {
+			state.andOrFilter = action.payload;
+
+			localStorage.setItem(
+				UserSetting.AND_OR_FILTER_VALUE,
+				action.payload.toString()
+			);
+
+			//* update the CBQL string accordingly
+			let cbql = action.payload;
+
+			for (let filter of current(state.activeFilters)) {
+				const filterCbql = `${getQueryEntityNameForCriteria(
+					filter.fieldName,
+					state.trackerId
+				)} = '${filter.value}'`;
+
+				const visibleFilterId: string = (filter.id! + 1).toString();
+				const filterIdMatchers: string[] = [
+					`([${visibleFilterId}] )`,
+					`([${visibleFilterId}]\\))`,
+					`( [${visibleFilterId}])`,
+				];
+
+				cbql = cbql.replace(
+					new RegExp(filterIdMatchers[0]),
+					filterCbql + ' '
+				);
+				cbql = cbql.replace(
+					new RegExp(filterIdMatchers[1]),
+					filterCbql + ')'
+				);
+				cbql = cbql.replace(
+					new RegExp(filterIdMatchers[2]),
+					' ' + filterCbql
+				);
+			}
+
+			cbql = `tracker.id = ${state.trackerId} AND ${cbql}`;
+			console.log('cbql: ', cbql);
+
+			state.cbqlString = cbql;
+			localStorage.setItem(UserSetting.CBQL_STRING, cbql);
+		},
 	},
 });
 
@@ -142,6 +201,8 @@ export const {
 	removeFilter,
 	setCbqlString,
 	resetCbqlStringToCurrentParameters,
+	setAndOrFilterEnabled,
+	setAndOrFilter,
 } = userSettingsSlice.actions;
 
 export default userSettingsSlice.reducer;
