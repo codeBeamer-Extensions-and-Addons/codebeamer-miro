@@ -149,6 +149,13 @@ export default function QueryResults() {
 	//********************************RENDER********************************* */
 	//*********************************************************************** */
 
+	if (isLoading) {
+		return (
+			<div className="centered h-auto">
+				<div className="loading-spinner"></div>
+			</div>
+		);
+	}
 	if (data && data.total == 0) {
 		return (
 			<div className="centered h-auto">
