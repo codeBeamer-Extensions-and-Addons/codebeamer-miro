@@ -11,18 +11,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Added
 
+-   Project Settings Dialogue to Settings Modal
+-   Connection Settings Dialogue to Settings Modal
+-   Apply supposed board-wide settings for all users. These include:
+    -   CodeBeamer Address
+    -   ProjectId
+    -   Card Tag configuration
+
 #### Changed
 
+-   Logo & Name
 -   Initial Setup UX
     -   More modular setup dialogues
         -   Seperate authentication dialogue
         -   Seperate project selection dialogue
     -   Setup is prompted when attempting to open the app with lacking configuration
 -   Some UI elements have been restyled, using the Mirotone UI library instead of Bootstrap or custom styles.
+-   AND/OR Filter interface adjusted to resemble the UX on codebeamer itself
 
 #### Removed
 
 -   Plugin widget (auto-generated widget, serving as entrypoint to the settings page)
+-   Visualization of associations/relations between Items. (This is not yet supported in SDK v2.)
 
 ## [0.12.0]
 
