@@ -68,9 +68,11 @@ describe('<QueryResults>', () => {
 
 			cy.intercept('POST', `**/api/v3/items/query`, {
 				fixture: 'query_multi-page.json',
-			});
+			}).as('initialQuery');
 
 			cy.mountWithStore(<QueryResults />, { reduxStore: store });
+
+			cy.wait('@initialQuery');
 		});
 
 		it('fetches the next result page of the current query when scrolling near the table its bottom', () => {
