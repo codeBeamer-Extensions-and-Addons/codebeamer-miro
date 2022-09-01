@@ -1,5 +1,9 @@
 import * as React from 'react';
-import { setTrackerId } from '../../../../store/slices/userSettingsSlice';
+import { IFilterCriteria } from '../../../../models/filterCriteria.if';
+import {
+	addFilter,
+	setTrackerId,
+} from '../../../../store/slices/userSettingsSlice';
 import { getStore } from '../../../../store/store';
 import QueryResults from './QueryResults';
 
@@ -56,8 +60,31 @@ describe('<QueryResults>', () => {
 			});
 	});
 
-	//TODO when getting to that part
-	it.skip('fetches items when the filter changes', () => {});
+	it('fetches items when the filter changes', () => {
+		const store = getStore();
+		const trackerId = '123';
+		const filter: IFilterCriteria = {
+			id: 1,
+			slug: 'Place',
+			fieldName: 'place',
+			value: 'Avignon',
+		};
+		const expectedQueryString = `tracker.id IN (${trackerId}) AND ('123.${filter.fieldName}' = '${filter.value}')`;
+
+		cy.intercept('POST', `**/api/v3/items/query`, {
+			fixture: 'query.json',
+		}).as('itemQuery');
+
+		store.dispatch(setTrackerId(trackerId));
+
+		cy.mountWithStore(<QueryResults />, { reduxStore: store });
+
+		store.dispatch(addFilter(filter));
+
+		cy.wait('@itemQuery')
+			.its('request.body.queryString')
+			.should('equal', expectedQueryString);
+	});
 
 	describe('lazy loading', () => {
 		beforeEach(() => {
