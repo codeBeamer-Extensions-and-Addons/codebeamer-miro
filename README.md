@@ -19,186 +19,81 @@
  </a>
 </p>
 
---readme not up to date yet
+---
+
+# Features
+
+The App is entirely focused around the functionality to:
+
+-   **Import codebeamer Items into Miro and visualize them as AppCards**
+
+which is subsidized by following functionality:
+
+-   **Support for self-hosted instances**
+    -   Connect to any codebeamer instance
+-   **Filtering Items**
+    -   Select any Project, then
+    -   Filter Items by a Tracker and
+        -   Filter by any of the Tracker's fields with a codebeamer-like interface
+-   **Configure AppCards**
+    -   Configure what data the AppCards display
+-   **Relation visualization** (to be re-added)
+    -   see associations and hierarchical relations between your Items visualized with differently styled lines
+
+[image: import modal left, result right]
+
+Want to give it a shot? [Install](#installation) the app, then click the <svg className="pos-adjusted-up wh-40p" enableBackground="new 0 0 256 256" version="1.1" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" height="24" width="24"><path d="m142.7 103.9c1.4 12.6 2.6 29.3 21.5 18.5 0.5-0.2 0.9-0.5 1.2-0.7 4.5-6.7-0.2-20.9 5.1-20 5.9 1-1.2 7.6 1.8 12.7 3.1-2.1 3.6-11 7.9-8.3 4.2 2.6-3.4 5.6-3.7 8.9 2.7 1.4 10.4-6 11.4-0.7 0.9 4-9.3 3.4-10.3 5.4 2.1 3.3 12.7 0.7 10.1 6-2.2 4.4-9.4-3.3-13.6-2 1.2 3.7 8.9 4.4 5.7 8-2.9 3.3-6.8-2.5-11.7-7.1-0.6 0.7-1.2 1.4-1.9 2.1-11.9 11.9-26 8.9-33.2-3.5-3.5-6-3.3-9.7-4.3-16.2-1.3 4-2.2 7.8-2.6 11.6-10.5 9.2-19.8 19.1-22.8 34.2 7-5.5 13.6-13.1 20.4-9.8 6.4 3.1 11.4 12.6 13.6 20.2 6.1-2.8 11.2-5.8 12.8-1.6 1.9 5.3-6.8 2.8-9.6 6.4 4 3.1 15.1-2.4 15.7 3.3 0.7 6.9-9.9-0.4-13.6 2.4 0.3 2.6 11.6 6.1 9.1 10.1-3.4 5.3-8.9-5.9-12.3-5.6-1.1 3.8 5.9 10.1 0.3 11.3-5.9 1.2-2.7-8.7-5.2-12.3-5.4 4.2-0.3 14.4-7.2 13.1-6-1.2 4-13.8 2.9-23-2.8-3.3-5.9-6.5-8.9-5.4-6.3 2.5-6.7 9.3-17.9 13.6 8.8 17 33.4 33.9 57.1 32.4 21.4-1.4 46-18.3 36.6-55.5-1.2-4.7-1-6.5 2.1-0.7 14.2 26.8-4.8 72.1-54.3 66.8-58.6-6.2-63.2-56.8-81.2-61.2-4-1-8.1 3.1-11.7 6.2 0.4 8.3 5.1 17.8-0.4 18.4-5.2 0.6-1-6.8-3.7-10.1-3.7 2.9-1.1 14.3-6.5 13.5-6.4-0.9 2.6-8.9 0.8-12.8-2.5-0.3-8.1 9.2-11.2 6-4.2-4.3 7.3-6.7 7.7-9.9-3.2-1.8-10.6 3.2-10.4-2.2 0.2-5.5 8.5-0.5 12.4-2-2.7-5.9-13.1-3.5-10.4-9.5 1.8-3.9 7.4 1.8 13.8 5.3 2-8.1 11.3-21.4 18-21.9 5.4-0.4 9.9 4.1 14.4 8.9-0.2-2.6-0.2-5.2-0.1-7.9 0.5-24.5 9.5-46.2 44.9-61.1 1.4-10.4-9.9-13.4-8-20.8 1.6-5.7 9.5-10.9 16.3-12.7-2.9-5.5-6.5-10.2-2.8-11.9 4.4-2 2.8 5.7 6.1 7.8 2.4-3.6-3-12.7 1.9-13.6 5.8-1 0.2 8.4 2.9 11.4 2.2-0.4 4.4-10.3 8-8.4 4.8 2.6-4.5 7.9-3.9 10.8 3.3 0.7 8.2-5.7 9.6-1 1.4 4.9-7.3 2.8-10.2 5.2 3.9 4.4 12.3-0.5 11.6 5.4-0.6 4.9-10.8-1.8-18.5-1.2-3.3 2.5-7.2 6.1-7 9.4 0.3 5 6.7 9 10.6 13.4 7.4-3.2 6.6-10.9 12-13.8 20-11 51.4 6.3 51.6 14.9 0.1 8.2-17.3 19.7-32.1 23.2-3.5 0.8-6.1-0.5-8.4-1.8-8.8-5.3-11.7 3.1-18.3 9.4" fill="#000"/></svg> Salamander it in the left Toolbar (initially hidden under `>>`) on Miro.
+
+<!--
+* Less might very well be more here.
+* Why bother making a long and intricate manual? Just make the app a good UX and self-explanatory.
+ -->
+
+### Relation Color Table
+
+The lines that visualize relations between Items are colored as follows:
+
+| Type                         | Color                                                     |
+| ---------------------------- | --------------------------------------------------------- |
+| depends on                   | <span style="color: #FF1500;">Red - #FF1500</span>        |
+| is superordinate to (parent) | <span style="color: #008c00;">Green - #008c00</span>      |
+| is subordinate to (child)    | <span style="color: #FFA500;">Orange - #FFA500</span>     |
+| is related to                | <span style="color: #0066CC;">Blue - #0066CC</span>       |
+| is derived from              | <span style="color: #ADD8E8;">Lightblue - #ADD8E8</span>  |
+| copy of                      | <span style="color: #00008b;">Darkblue - #00008b</span>   |
+| violates                     | <span style="color: #c9b00e;">Darkyellow - #c9b00e</span> |
+| excludes                     | <span style="color: #FF00FF;">Magenta - #FF00FF</span>    |
+| invalidates                  | <span style="color: #7100FF;">Violet - #7100FF</span>     |
 
 # Installation
 
-We're not yet on the Miro Marketplace, so in order to get your hands on the plugin, it must be installed with a workaround.
+The app is not (yet) available on the Miro Marketplace, so you'll have to install it in your Team directly.
 
-If one of your peers has already installed the app in their team, they can provide you with an installation-link to then use that installation in any of your teams. Just ask them for the Installation URL. Clicking on it will take you to Miro, where you can then select a Team to enable the app on.
+If a peer of yours has already installed the app in their team, they can provide you with an link for using that installation. Just ask them for the `Installation URL`. Opening it will take you to Miro, where you can then select a Team to enable the app on.
 
-## Host the app (advanced)
-
-To host the app yourself (, which is necessary if you don't have an Installation URL), you can follow steps **two** to **four** of the [Miro Developer Getting started Guide](https://developers.miro.com/docs/getting-started) to install the app on your team.  
+In order to install the App on your Team directly, follow steps **two** to **four** of the [Miro Developer Getting started Guide](https://developers.miro.com/docs/getting-started).  
 Make sure to copy the link to this repository's [Github-Pages](https://codebeamer-extensions-and-addons.github.io/codebeamer-miro/), where we host the plugin, and paste it in the URL field under **App URL** in your app settings.
 
 Installing the app on your team will also give you an Installation URL to share the app with (see point five of the mentioned guide).
 
-# Features
-
-## Abstract
-
-The plugin allows you to connect to a specific codeBeamer instance with your codeBeamer credentials. This can be done via the [Plugin Widget](#plugin-widget).
-Once connected, you can open the [Import page](#import-page) to query items in a project, by selecting a Tracker and optionally specifying filter criteria. Advanced users can also query items directly with CBQL.  
-These items can then be imported into Miro, which will result in Card Widgets that display some of the items' properties and relations between them.
-
-## Plugin settings
-
-### Plugin widget
-
-Once installed, the plugin will create the below widget in your board. This widget contains some basic information and allows opening the [Settings Page](#Settings-Page) with the codeBeamer-Button in it's toolbar.  
-_If the widget is deleted, it will be regenerated when reloading the page, as long as the plugin is loaded._
-
-![Plugin widget](readmeImg/plugin_widget.png 'The widget created by the plugin')
-
-### Settings Page
-
-The basic settings consist of `Project`- and `Authentication` settings. The project settings specify a codeBeamer address in which you can then specify a project to afterwards access it's trackers and import items from.  
-The `Inbox Tracker ID` serves as inbox/dump for cb-items created in Miro. More about that [here](#Create-cb-items-from-miro-widgets)
-
-![Plugin settings](readmeImg/plugin_settings.png 'Plugin connection settings')
-
-#### Credentials/Security
-
-The credentials you enter in the Settings Page are your credentials for the specified codeBeamer instance. In order to improve UX, the credentials are stored **_in plaintext_** within your browser's _session storage_ to reuse them in subsequent requests to the codeBeamer API. Session storage is wiped when you close the browser window or the browser itself. So your credentials won't just lie around for an uncontrolled amount of time.  
-But; preferably don't open your session storage whenever you're presenting your screen.
-
-## Import Page
-
-### Accessing the Page
-
-Once your settings are okay, the plugin's Import Page can be opened via its button in the Miro sidebar.
-By default, you'll find it under "Apps", which you can get to by clicking the three dots at the bottom of the bar. Feel free to drag & drop it into the sidebar for quick access.
-
-![Navbar extension](readmeImg/navbar_extension.png 'How to open the import page')
-
-### Using the Page
-
-The Import Page gives access to the app's main functionality; Importing items from your codeBeamer instance onto the Miro board as Cards.
-
-![Item picker](readmeImg/plugin_picker.png 'Import Page')
-
-#### Query Items
-
-In order to query items you can either use the [regular search](#regular-search), which provides you with dropdowns and inputs to specify specific filter criteria or, if you're familiar with the [CQBL](https://codebeamer.com/cb/wiki/871101), you can also specify the exact query you want to make with a CodeBeamer Query Language string in the [advanced search](#Advanced-Search).
-
-##### Regular Search
-
-First, select a tracker within the specified project from the dropdown.
-
-![Tracker select](readmeImg/picker_tracker_select.png 'Tracker select')
-
-This will query for all Items in the selected Tracker. To narrow them further down, these Items can be filtered by virtually any property; The standard properties are _Team_, _Release_ and _Subject_, but the dropdown to select your criteria type from (1) will allow to choose from all of the selected Tracker's properties.
-
-![Filter criteria](readmeImg/import-filtering.png 'Filter tracker items')
-
-Image legend
-
-1. Select a property to filter by
-2. Enter the property's value  
-   Mind that this value must _exactly_ correspond to the property's (text-)value for the query to work.
-3. Add the specified filter by clicking this button
-4. Your added criteria appear as chips to the right.  
-   You can remove them individually here by clicking on their X-Button
-5. This button allows removing all specified filter criteria with a single click.
-6. This button allows to toggle between linking the specified criteria with AND or OR.  
-   E.g. imagine you specified two teams, "Edelweiss" and "Margarite" as filters, this allows you to either filter for Itmes that have both "Edelweiss" _and_ "Margarite" assigned (AND / intersection of the result sets) or Items that have either Team "Edelweiss" _or_ Team "Margarite" assigned (OR / union of the result sets).
-
-##### Advanced Search
-
-The advanced search is destined for users familiar with [CBQL](https://codebeamer.com/cb/wiki/871101) and gives them full control on their queries. Just enter your query string to run it.
-
-![CBQL Input](readmeImg/picker_cbql_input.png 'CBQL Input')
-
-#### Import
-
-**All imported items are read-only. Mastery of their data is in codeBeamer.**
-
-Queried Items can be selected imported either by selecting them _individually (1)_ and then importing them, or they can be _bulk-imported (2)_.  
-The bulk-import will import all items matching the current criteria, also those not loaded into the table. You'll be warned if there's more than 20 of them, since this can take substantial time (20 items will be imported in about 10 seconds, the time it takes grows proportionally to the amount of items).
-
-![Item selection](readmeImg/plugin_picker_selection.png 'Selecting items for import')
-
-Importing will generate a Miro Card Widget for each of the items. These will by default contain:
-
--   The item's **Title** as the card's title (containing the link to the issue on codeBeamer)
--   The item's **Description** as the card's description
--   The item's **Status** as a badge
-
-![Imported card](readmeImg/plugin_imported_card.png 'A card created by the plugin')
-
-Additionally, if the card has _upstream references_ or _outgoing relations_, these will be rendered by a uni-directional line. Associations are rendered as "dashed" lines and the [nine association types](https://codebeamer.com/cb/wiki/31276#section-Associations) each have their own color. Other relations are visualized as black lines.
-
-![Relation visualized](readmeImg/plugin_relations.png 'Relation visualized')
-
-| Type                         | Color                |
-| ---------------------------- | -------------------- |
-| depends on                   | Red - #FF1500        |
-| is superordinate to (parent) | Green - #008c00      |
-| is subordinate to (child)    | Orange - #FFA500     |
-| is related to                | Blue - #0066CC       |
-| is derived from              | Lightblue - #ADD8E8  |
-| copy of                      | Darkblue - #00008b   |
-| violates                     | Darkyellow - #c9b00e |
-| excludes                     | Magenta - #FF00FF    |
-| invalidates                  | Violet - #7100FF     |
-
-##### Import Configuration
-
-Via the "Settings" button on the top right of the Page, you can open a modal where you can configure import behaviour.  
-Currently, the only configuration option available is selecting what properties you want to be imported and displayed on the resulting Miro Cards as Badges/Tags.  
-Mind that this list of properties is currently static. Choosing a Tracker with a different configuration won't change it.
-
-![Import configuration](readmeImg/picker_import_config.png 'Import configuration modal')
-
-Just check a property and the next time you import / update items, the respective property should be loaded. Mind that due to the fully configurable nature of codeBeamer Trackers, some Items might not display the expected values.
-
-### Update synchronized Items
-
-Since data of cards based on a codeBeamer item are read-only and can therefore not be changed in Miro, you have to do so in codeBeamer itself.  
-Any changes made in codeBeamer can then be synchronized to the Miro board via the `Update Synched Items (y)` button on the _Import from codeBeamer_ modal.
-
-![Update button](readmeImg/plugin_update_button.png 'Update button')
-
-Clicking the button updates the data (relations included) of **all** codeBeamer-originating widgets on the board, so mind that it can take its time. _There's currently no way of updating only a select amount of items._
-
-## Sync from miro to codeBeamer
-
-The plugin supports _creating_ codeBeamer items based on a Miro widget.
-Any widget can be "converted to a cb item" by clicking the respective button in it's toolbar.
-
-Consider that:
-
--   Only **title** and **description** fields will be considered.
--   The widget will be converted to a card and become read-only.
--   The cb item will be created within the `Inbox Tracker ID` specified in the [plugin settings](#Config-Widget).
-
 # Contribute
 
-Anyone can contribute. Just branch off of `develop` and create a Pull request when your feature is ready. If you want to propose a feature or report a bug instead, feel free to create an [Issue](https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/issues).
+Anyone can contribute. Just branch off of `develop` and create a Pull request when your feature is ready.  
+If you want to propose a feature or report a bug instead, feel free to create an [Issue](https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/issues).
 
-## Local setup (deprecated)
+## Tech Stack
+
+-   The app is written in TypeScript and uses the [React](https://reactjs.org/) UI Framework.
+-   Tests are [Cypress](https://cypress.io) Component tests written in TypeScript.
+
+## Local setup
 
 ### Setup
 
-Run `npm install` in the root directory of the repository to install all dependencies
+```bat
+npm i                   // install dependencies
+npm run build           // build the app with vite
+npm run start           // run the development server on localhost 3000 (if available)
+```
 
-### Build
-
-Run `npm run build` (on Windows) or `npm run build-linux` depending on your OS.\
-Afterward, you can run `npm run watch` to continuously watch the TS files for changes and autocompile on save.
-
-### Host locally and use on Miro
-
-To run on Miro, you will need to host the contents of the **dist** directory via HTTP**S**. This can be achieved by running it on http locally and then tunneling to it using ngrok.
-
-Run `npm run start` in a separate terminal to start a local http server on port 8081 \
-Run `npm run ngrok` in yet another terminal (the third terminal :) ) to get an ngrok address that points to your localhost. Only you will be able to browse this.
-
-Now you can set the address of your dev environment miro-plugin to the temporary ngrok address. \
-To develop and see the changes directly on Miro, have one terminal watch the code using the watch command above. After saving a script, Ctrl+F5 the ngrok address in a browser to force it to reload it (Miro will not do this very often). Now refresh Miro and voila.
-
-If you make a change to any of the html files, you will need to stop the http server (to release the dist folder), rerun the build process (it will rebuild the dist folder) and start the http server back up. I have observed that sometimes, you need to manually clear the browser cache completely for Miro to notice the change.
-
-![Console Commands](readmeImg/consoleCommands.jpg 'Three consoles with the commands to run')
-![Running Consoles](readmeImg/consoleRunning.jpg 'The running consoles when running locally')
+To use the locally hosted app on Miro, follow Steps 2 to 4 on [Miro's Guide](https://developers.miro.com/docs/build-your-first-hello-world-app).
