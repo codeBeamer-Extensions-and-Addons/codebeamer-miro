@@ -90,6 +90,7 @@ export default function QueryResults() {
 	 */
 	React.useEffect(() => {
 		setItems([]);
+		setPage(1);
 	}, [cbqlString]);
 
 	React.useEffect(() => {
