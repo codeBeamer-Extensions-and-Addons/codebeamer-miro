@@ -5,25 +5,49 @@ import getCbItemUrl from './utils/getCbItemUrl';
 import getItemColorField from './utils/getItemColorField';
 import getRandomizedInitialCoordSetInViewport from './utils/getRandomizedInitialCoordSetInViewport';
 
-//TODO probably remove the "update" part
-export async function createOrUpdateItem(item: CodeBeamerItem) {
+/**
+ * Create a new app card base on a codeBeamer item
+ * @param item The item to base the card on
+ */
+export async function createAppCard(item: CodeBeamerItem) {
 	const card: Partial<AppCard> = await convertToCardData(item);
 	const coords = await getRandomizedInitialCoordSetInViewport();
 	card.x = coords.x;
 	card.y = coords.y;
 
-	if (card.id) {
-		try {
-			const existing = await miro.board.getById(card.id);
-			//TODO update in theory, but we've got AppCards with sync to some datasource now..
-		} catch (err) {
-			//*then it couldn't be found, so it usually doesn't exist
-		}
-	} else {
-		const widget = await miro.board.createAppCard({
-			...card,
-		});
+	const widget = await miro.board.createAppCard({
+		...card,
+	});
+}
+
+/**
+ * Update an existing appCard with potentially new data
+ * @param item The updated codeBeamer item data
+ * @param cardId The id of the appCard the given item maps to
+ */
+export async function updateAppCard(item: CodeBeamerItem, cardId: string) {
+	const card: Partial<AppCard> = await convertToCardData(item);
+	let existingAppCard: AppCard;
+	try {
+		existingAppCard = (await miro.board.get({ id: cardId }))[0] as AppCard;
+		console.log(
+			'Yaah, got that existing app card, skrrrat: ',
+			existingAppCard
+		);
+	} catch (e) {
+		//! shouldn't ever happen, unless faultily implemented
+		throw new Error(`AppCard with id ${cardId} not found: ${e}`);
 	}
+
+	existingAppCard.title = card.title ?? existingAppCard.title;
+	existingAppCard.description =
+		card.description ?? existingAppCard.description;
+	existingAppCard.fields = card.fields ?? existingAppCard.fields ?? [];
+
+	console.log('Updated card: ', existingAppCard);
+
+	existingAppCard.status = 'connected';
+	await existingAppCard.sync();
 }
 
 export async function convertToCardData(
@@ -32,7 +56,7 @@ export async function convertToCardData(
 	let cardData: Partial<AppCard> = {
 		// id: item.id.toString(),
 		title: `<a href="${getCbItemUrl(item.id.toString())}">${item.name} - [${
-			item.tracker.keyName + '-' ?? ''
+			item.tracker.keyName + '|' ?? ''
 		}${item.id}]</a>`,
 		description: item.description,
 		fields: [],
