@@ -2,6 +2,7 @@ import { AppCard } from '@mirohq/websdk-types';
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useGetItemsQuery } from '../../../../api/codeBeamerApi';
+import { CARD_TITLE_ID_FILTER_REGEX } from '../../../../constants/cardTitleIdFilterRegex';
 import {
 	DEFAULT_ITEMS_PER_PAGE,
 	DEFAULT_RESULT_PAGE,
@@ -104,7 +105,7 @@ export default function QueryResults() {
 					let card = e as AppCard;
 
 					const itemKey = card.title.match(
-						/\[[a-zA-Z0-9_-]*\|?([0-9]+)\]/
+						CARD_TITLE_ID_FILTER_REGEX
 					);
 
 					if (!itemKey?.length) {
