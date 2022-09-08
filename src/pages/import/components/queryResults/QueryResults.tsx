@@ -6,12 +6,14 @@ import {
 	DEFAULT_ITEMS_PER_PAGE,
 	DEFAULT_RESULT_PAGE,
 } from '../../../../constants/cb-import-defaults';
+import { AppCardToItemMapping } from '../../../../models/appCardToItemMapping.if';
 import { ItemListView } from '../../../../models/itemListView';
 import { ItemQueryResultView } from '../../../../models/itemQueryResultView';
 import { RootState } from '../../../../store/store';
 import ImportActions from '../importActions/ImportActions';
 import Importer from '../importer/Importer';
 import QueryResult from '../queryResult/QueryResult';
+import Updater from '../updater/Updater';
 
 import './queryResults.css';
 
@@ -21,8 +23,11 @@ export default function QueryResults() {
 	const [itemsToImport, setItemsToImport] = useState<string[]>([]);
 	const [eos, setEos] = useState(false);
 	const [importing, setImporting] = useState(false);
+	const [synchronizing, setSynchronizing] = useState(false);
 
-	const [importedItemsIds, setImportedItemsIds] = useState<string[]>([]);
+	const [importedItems, setImportedItems] = useState<AppCardToItemMapping[]>(
+		[]
+	);
 
 	const intersectionObserverOptions = {
 		root: document.getElementById('queryResultsContainer'),
@@ -94,12 +99,12 @@ export default function QueryResults() {
 	 */
 	React.useEffect(() => {
 		miro.board.get({ type: 'app_card' }).then((existingCards) => {
-			setImportedItemsIds(
+			setImportedItems(
 				existingCards.map((e) => {
-					let card = e as AppCard; //TODO try-catch
+					let card = e as AppCard;
 
 					const itemKey = card.title.match(
-						/\[[a-zA-Z0-9]*-?([0-9]+)\]/
+						/\[[a-zA-Z0-9_-]*\|?([0-9]+)\]/
 					);
 
 					if (!itemKey?.length) {
@@ -107,11 +112,11 @@ export default function QueryResults() {
 						console.error(
 							"Couldn't extract ID from Card title. Can't sync!"
 						);
-						return '';
+						return { appCardId: card.id, itemId: '' };
 					}
 					const itemId = itemKey[1];
 
-					return itemId;
+					return { appCardId: card.id, itemId: itemId };
 				})
 			);
 		});
@@ -181,7 +186,7 @@ export default function QueryResults() {
 	};
 
 	const handleSync = () => {
-		setImporting(true);
+		setSynchronizing(true);
 	};
 
 	//just to debug with
@@ -236,13 +241,13 @@ export default function QueryResults() {
 								item={i}
 								key={i.id}
 								checked={
-									importedItemsIds.find(
-										(id) => id == i.id
+									importedItems.find(
+										(imported) => imported.itemId == i.id
 									) !== undefined
 								}
 								disabled={
-									importedItemsIds.find(
-										(id) => id == i.id
+									importedItems.find(
+										(imported) => imported.itemId == i.id
 									) !== undefined
 								}
 								onSelect={toggleItemSelected}
@@ -275,6 +280,7 @@ export default function QueryResults() {
 					onImportSelected={handleImportSelected}
 					onImportAll={handleImportAll}
 					onSync={handleSync}
+					importedItems={importedItems}
 				/>
 				{importing && (
 					<Importer
@@ -287,6 +293,7 @@ export default function QueryResults() {
 						onClose={closeModalDebugOnly}
 					/>
 				)}
+				{synchronizing && <Updater items={importedItems} />}
 			</div>
 		);
 	} else {
