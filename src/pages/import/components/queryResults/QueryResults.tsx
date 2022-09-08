@@ -1,3 +1,4 @@
+import { AppCard } from '@mirohq/websdk-types';
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useGetItemsQuery } from '../../../../api/codeBeamerApi';
@@ -20,6 +21,8 @@ export default function QueryResults() {
 	const [itemsToImport, setItemsToImport] = useState<string[]>([]);
 	const [eos, setEos] = useState(false);
 	const [importing, setImporting] = useState(false);
+
+	const [importedItemsIds, setImportedItemsIds] = useState<string[]>([]);
 
 	const intersectionObserverOptions = {
 		root: document.getElementById('queryResultsContainer'),
@@ -83,6 +86,36 @@ export default function QueryResults() {
 			})
 		);
 	};
+
+	/**
+	 * Queries miro for the currently existing app_cards on the board.
+	 * This does mean that this plugin is currently not 100% compatible with others that would create App Cards.
+	 * TODO add an additional filter that filters for metadata, once available, to only get "our" cards
+	 */
+	React.useEffect(() => {
+		miro.board.get({ type: 'app_card' }).then((existingCards) => {
+			setImportedItemsIds(
+				existingCards.map((e) => {
+					let card = e as AppCard; //TODO try-catch
+
+					const itemKey = card.title.match(
+						/\[[a-zA-Z0-9]*-?([0-9]+)\]/
+					);
+
+					if (!itemKey?.length) {
+						//TODO miro showErrorNotif
+						console.error(
+							"Couldn't extract ID from Card title. Can't sync!"
+						);
+						return '';
+					}
+					const itemId = itemKey[1];
+
+					return itemId;
+				})
+			);
+		});
+	}, []);
 
 	/**
 	 * Reset the items cache whenever we change filter or tracker
@@ -202,6 +235,16 @@ export default function QueryResults() {
 							<QueryResult
 								item={i}
 								key={i.id}
+								checked={
+									importedItemsIds.find(
+										(id) => id == i.id
+									) !== undefined
+								}
+								disabled={
+									importedItemsIds.find(
+										(id) => id == i.id
+									) !== undefined
+								}
 								onSelect={toggleItemSelected}
 							/>
 						))}
