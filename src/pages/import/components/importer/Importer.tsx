@@ -7,7 +7,7 @@ import {
 	useGetItemsQuery,
 	useGetTrackerDetailsQuery,
 } from '../../../../api/codeBeamerApi';
-import { createOrUpdateItem } from '../../../../api/miro.api';
+import { createAppCard } from '../../../../api/miro.api';
 import {
 	DEFAULT_RESULT_PAGE,
 	MAX_ITEMS_PER_IMPORT,
@@ -70,7 +70,7 @@ export default function Importer(props: {
 				}
 				_items[i].tracker.keyName = key;
 				_items[i].tracker.color = color;
-				await createOrUpdateItem(_items[i]);
+				await createAppCard(_items[i]);
 				//TODO miro.showNotif
 				setLoaded(i + 1);
 			}
