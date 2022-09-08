@@ -91,7 +91,7 @@ describe('<ProjectSelection>', () => {
 		beforeEach(() => {
 			cy.intercept('GET', `**/api/v3/projects`, {
 				fixture: 'projects.json',
-			});
+			}).as('projectsQuery');
 		});
 
 		it('shows loaded projects as options in the respective dropdown', () => {
@@ -120,9 +120,12 @@ describe('<ProjectSelection>', () => {
 
 		it('shows an error message if there is no project for an entered Id', () => {
 			cy.mountWithStore(<ProjectSelection />);
+			cy.wait('@projectsQuery');
+
 			cy.getBySel(projectIdSelector).type('8');
+
 			//unfocus input
-			cy.get('body').click();
+			cy.get('h3').click();
 			cy.getBySel('projectIdErrors').should('exist');
 		});
 
