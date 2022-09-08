@@ -25,26 +25,26 @@ export async function createAppCard(item: CodeBeamerItem) {
  * @param item The updated codeBeamer item data
  * @param cardId The id of the appCard the given item maps to
  */
-export async function updateAppCard(item: CodeBeamerItem, cardId: string) {
+export async function updateAppCard(
+	item: CodeBeamerItem,
+	cardId: string,
+	onlyFields: boolean = false
+) {
 	const card: Partial<AppCard> = await convertToCardData(item);
 	let existingAppCard: AppCard;
 	try {
 		existingAppCard = (await miro.board.get({ id: cardId }))[0] as AppCard;
-		console.log(
-			'Yaah, got that existing app card, skrrrat: ',
-			existingAppCard
-		);
 	} catch (e) {
 		//! shouldn't ever happen, unless faultily implemented
 		throw new Error(`AppCard with id ${cardId} not found: ${e}`);
 	}
 
-	existingAppCard.title = card.title ?? existingAppCard.title;
-	existingAppCard.description =
-		card.description ?? existingAppCard.description;
+	if (!onlyFields) {
+		existingAppCard.title = card.title ?? existingAppCard.title;
+		existingAppCard.description =
+			card.description ?? existingAppCard.description;
+	}
 	existingAppCard.fields = card.fields ?? existingAppCard.fields ?? [];
-
-	console.log('Updated card: ', existingAppCard);
 
 	existingAppCard.status = 'connected';
 	await existingAppCard.sync();
