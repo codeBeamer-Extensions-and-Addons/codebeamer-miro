@@ -19,7 +19,8 @@ import './commands';
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
 
-import { mount, MountOptions, MountReturn } from 'cypress/react';
+import { mount } from 'cypress/react18';
+import { MountOptions, MountReturn } from 'cypress/react';
 import * as React from 'react';
 
 import { getStore, RootState } from '../../src/store/store';
