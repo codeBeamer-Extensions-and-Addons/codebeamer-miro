@@ -66,6 +66,11 @@ describe('<AppCardTagSettings', () => {
 			cy.intercept('POST', '**/api/v3/items/query', {
 				fixture: 'query.json',
 			}).as('fetch');
+			cy.intercept(
+				'POST',
+				'**/api/v3/projects/**/wiki2html',
+				'fakeDesc'
+			).as('wiki2html');
 
 			cy.mountWithStore(<AppCardTagSettings />);
 
@@ -75,9 +80,14 @@ describe('<AppCardTagSettings', () => {
 					expect(stubBoardGet).to.have.been.called;
 
 					cy.wait('@fetch').then(() => {
-						expect(stubSync).to.have.been.calledTwice;
+						cy.wait('@wiki2html').then(() => {
+							expect(stubSync).to.be.calledOnce;
 
-						cy.get('.checkmark').should('exist');
+							cy.wait('@wiki2html').then(() => {
+								expect(stubSync).to.be.calledOnce;
+								cy.get('.checkmark').should('exist');
+							});
+						});
 					});
 				});
 		});
