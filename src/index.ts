@@ -4,6 +4,7 @@ import { CodeBeamerItem } from './models/codebeamer-item.if';
 import TrackerDetails from './models/trackerDetails.if';
 import { BoardSetting } from './store/enums/boardSetting.enum';
 import { UserSetting } from './store/enums/userSetting.enum';
+import { getStore } from './store/store';
 
 async function init() {
 	miro.board.ui.on('icon:click', async () => {
@@ -42,52 +43,53 @@ async function init() {
 	});
 
 	miro.board.ui.on('app_card:connect', async (_event) => {
-		//* Sync the item (once). Doesn't
+		const message =
+			"This feature is not implemented. You can update Items with the 'Sync' button in the Plugin's UI.";
+		console.warn(message);
+		//TODO miro.showNotification("message")
 
-		let { appCard } = _event;
+		//* Sync the item (once).
+		// let { appCard } = _event;
 
-		const cbBaseUrl = await miro.board.getAppData(BoardSetting.CB_ADDRESS);
-		const username = localStorage.getItem(UserSetting.CB_USERNAME);
-		const trackerId = localStorage.getItem(UserSetting.SELECTED_TRACKER);
-		const password = sessionStorage.getItem(UserSetting.CB_PASSWORD);
+		// const cbBaseUrl = await miro.board.getAppData(BoardSetting.CB_ADDRESS);
+		// const username = localStorage.getItem(UserSetting.CB_USERNAME);
+		// const trackerId = localStorage.getItem(UserSetting.SELECTED_TRACKER);
+		// const password = sessionStorage.getItem(UserSetting.CB_PASSWORD);
 
-		const itemKey = appCard.title.match(CARD_TITLE_ID_FILTER_REGEX);
+		// const itemKey = appCard.title.match(CARD_TITLE_ID_FILTER_REGEX);
 
-		if (!itemKey?.length) {
-			//TODO miro showErrorNotif
-			console.warn("Couldn't extract ID from Card title. Can't sync!");
-			return;
-		}
-		const itemId = itemKey[1];
+		// if (!itemKey?.length) {
+		// 	//TODO miro showErrorNotif
+		// 	console.warn("Couldn't extract ID from Card title. Can't sync!");
+		// 	return;
+		// }
+		// const itemId = itemKey[1];
 
-		const requestArgs = {
-			method: 'GET',
-			headers: new Headers({
-				'Content-Type': 'application/json',
-				Authorization: `Basic ${btoa(username + ':' + password)}`,
-			}),
-		};
+		// const requestArgs = {
+		// 	method: 'GET',
+		// 	headers: new Headers({
+		// 		'Content-Type': 'application/json',
+		// 		Authorization: `Basic ${btoa(username + ':' + password)}`,
+		// 	}),
+		// };
 
-		const cbItem = (await (
-			await fetch(`${cbBaseUrl}/api/v3/items/${itemId}`, requestArgs)
-		).json()) as CodeBeamerItem;
+		// const cbItem = (await (
+		// 	await fetch(`${cbBaseUrl}/api/v3/items/${itemId}`, requestArgs)
+		// ).json()) as CodeBeamerItem;
 
-		const trackerData = (await (
-			await fetch(
-				`${cbBaseUrl}/api/v3/trackers/${trackerId}`,
-				requestArgs
-			)
-		).json()) as TrackerDetails;
+		// const trackerData = (await (
+		// 	await fetch(
+		// 		`${cbBaseUrl}/api/v3/trackers/${trackerId}`,
+		// 		requestArgs
+		// 	)
+		// ).json()) as TrackerDetails;
 
-		cbItem.tracker.keyName = trackerData.keyName;
-		cbItem.tracker.color = trackerData.color;
+		// cbItem.tracker.keyName = trackerData.keyName;
+		// cbItem.tracker.color = trackerData.color;
 
-		try {
-			await updateAppCard(cbItem, appCard.id);
-		} catch (e: any) {
-			console.error('Failed updating app card: ', e);
-			//TODO miro.showErrorNotif
-		}
+		// const store = getStore();
+		//! store doesn't contain the expected data
+		// updateAppCard(cbItem, appCard.id, false, store);
 	});
 
 	console.info(
