@@ -1,5 +1,4 @@
 import { AppCard } from '@mirohq/websdk-types';
-import { props } from 'cypress/types/bluebird';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLazyGetItemsQuery } from '../../../../../api/codeBeamerApi';
