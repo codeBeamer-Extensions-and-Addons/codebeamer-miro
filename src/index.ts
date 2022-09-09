@@ -1,5 +1,7 @@
-import { convertToCardData } from './api/miro.api';
+import { convertToCardData, updateAppCard } from './api/miro.api';
+import { CARD_TITLE_ID_FILTER_REGEX } from './constants/cardTitleIdFilterRegex';
 import { CodeBeamerItem } from './models/codebeamer-item.if';
+import TrackerDetails from './models/trackerDetails.if';
 import { BoardSetting } from './store/enums/boardSetting.enum';
 import { UserSetting } from './store/enums/userSetting.enum';
 
@@ -40,50 +42,52 @@ async function init() {
 	});
 
 	miro.board.ui.on('app_card:connect', async (_event) => {
-		//* experimental, tracker data currently lost on sync
-		//* additionally, can't really ever resync
-		//* and it's kinda ugly
+		//* Sync the item (once). Doesn't
 
 		let { appCard } = _event;
 
 		const cbBaseUrl = await miro.board.getAppData(BoardSetting.CB_ADDRESS);
 		const username = localStorage.getItem(UserSetting.CB_USERNAME);
+		const trackerId = localStorage.getItem(UserSetting.SELECTED_TRACKER);
 		const password = sessionStorage.getItem(UserSetting.CB_PASSWORD);
 
-		const itemKey = appCard.title.match(/\[[a-zA-Z0-9]*-?([0-9]+)\]/);
+		const itemKey = appCard.title.match(CARD_TITLE_ID_FILTER_REGEX);
 
 		if (!itemKey?.length) {
 			//TODO miro showErrorNotif
-			console.error("Couldn't extract ID from Card title. Can't sync!");
+			console.warn("Couldn't extract ID from Card title. Can't sync!");
 			return;
 		}
 		const itemId = itemKey[1];
 
-		const data = (await (
-			await fetch(`${cbBaseUrl}/api/v3/items/${itemId}`, {
-				method: 'GET',
-				headers: new Headers({
-					'Content-Type': 'application/json',
-					Authorization: `Basic ${btoa(username + ':' + password)}`,
-				}),
-			})
+		const requestArgs = {
+			method: 'GET',
+			headers: new Headers({
+				'Content-Type': 'application/json',
+				Authorization: `Basic ${btoa(username + ':' + password)}`,
+			}),
+		};
+
+		const cbItem = (await (
+			await fetch(`${cbBaseUrl}/api/v3/items/${itemId}`, requestArgs)
 		).json()) as CodeBeamerItem;
 
-		//TODO get/retrieve tracker keyName & color
-		const updatedCardData = await convertToCardData(data);
+		const trackerData = (await (
+			await fetch(
+				`${cbBaseUrl}/api/v3/trackers/${trackerId}`,
+				requestArgs
+			)
+		).json()) as TrackerDetails;
 
-		console.log('Data: ', updatedCardData);
-		console.log('Appcard old: ', appCard);
+		cbItem.tracker.keyName = trackerData.keyName;
+		cbItem.tracker.color = trackerData.color;
 
-		appCard.title = updatedCardData.title ?? appCard.title;
-		appCard.description =
-			updatedCardData.description ?? appCard.description;
-		appCard.fields = updatedCardData.fields ?? appCard.fields ?? [];
-
-		console.log('New card: ', appCard);
-
-		appCard.status = 'connected';
-		await appCard.sync();
+		try {
+			await updateAppCard(cbItem, appCard.id);
+		} catch (e: any) {
+			console.error('Failed updating app card: ', e);
+			//TODO miro.showErrorNotif
+		}
 	});
 
 	console.info(
