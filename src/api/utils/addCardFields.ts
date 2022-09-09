@@ -1,19 +1,32 @@
 import { AppCard, CardField } from '@mirohq/websdk-types';
+import { EnhancedStore } from '@reduxjs/toolkit';
 import { CB_ITEM_NAME_PROPERTY_NAME } from '../../constants/cb-item-name-field-name';
 import { StandardItemProperty } from '../../enums/standard-item-property.enum';
 import { CodeBeamerItem } from '../../models/codebeamer-item.if';
 import { IAppCardTagSettings } from '../../models/import-configuration.if';
-import { store } from '../../store/store';
+import { store as reduxStore } from '../../store/store';
 import getCodeBeamerPropertyNameByFieldLabel from './getCodeBeamerPropertyNameByFieldLabel';
 import getColorForFieldLabel from './getColorForFieldLabel';
 
+/**
+ * Creates (and adds) the custom appCard fields to given cardData, based on the item and the stored cardTagConfig
+ * @param cardData CardData to populate
+ * @param item Item to take data from
+ * @param appStore Optional store to provide in case the method doesn't have access to the regular reduxStore (e.g. if it's not called from a component).
+ * @returns {@link cardData} with fields based on the config and item's data.
+ */
 export default function addCardFields(
 	cardData: Partial<AppCard>,
-	item: CodeBeamerItem
+	item: CodeBeamerItem,
+	appStore?: EnhancedStore<any>
 ): Partial<AppCard> {
 	const NO_IMPORT_CONFIGURATION = 'No import configuration defined';
+	let store = appStore ?? reduxStore;
+
 	let cardTagConfiguration = store.getState().boardSettings
 		.cardTagConfiguration as IAppCardTagSettings;
+
+	console.log(cardTagConfiguration);
 
 	if (!cardTagConfiguration || !cardTagConfiguration.standard)
 		throw new Error(NO_IMPORT_CONFIGURATION);
@@ -64,7 +77,6 @@ export default function addCardFields(
 		}
 
 		let customField: CardField = {
-			//TODO custom colors
 			fillColor: getColorForFieldLabel(key),
 			textColor: '#ffffff',
 			value: `${key}: ${content}`,

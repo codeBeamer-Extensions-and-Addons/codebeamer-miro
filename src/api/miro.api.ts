@@ -1,6 +1,8 @@
 import { AppCard } from '@mirohq/websdk-types';
+import { EnhancedStore } from '@reduxjs/toolkit';
 import { CodeBeamerItem } from '../models/codebeamer-item.if';
 import addCardFields from './utils/addCardFields';
+import getCardTitle from './utils/getCardTitle';
 import getCbItemUrl from './utils/getCbItemUrl';
 import getItemColorField from './utils/getItemColorField';
 import getRandomizedInitialCoordSetInViewport from './utils/getRandomizedInitialCoordSetInViewport';
@@ -28,9 +30,11 @@ export async function createAppCard(item: CodeBeamerItem) {
 export async function updateAppCard(
 	item: CodeBeamerItem,
 	cardId: string,
-	onlyFields: boolean = false
+	onlyFields: boolean = false,
+	appStore?: EnhancedStore<any>
 ) {
-	const card: Partial<AppCard> = await convertToCardData(item);
+	const card: Partial<AppCard> = await convertToCardData(item, appStore);
+	console.log('CardData: ', card);
 	let existingAppCard: AppCard;
 	try {
 		existingAppCard = (await miro.board.get({ id: cardId }))[0] as AppCard;
@@ -54,19 +58,22 @@ export async function updateAppCard(
 }
 
 export async function convertToCardData(
-	item: CodeBeamerItem
+	item: CodeBeamerItem,
+	appStore?: EnhancedStore<any>
 ): Promise<Partial<AppCard>> {
 	let cardData: Partial<AppCard> = {
 		// id: item.id.toString(),
-		title: `<a href="${getCbItemUrl(item.id.toString())}">${item.name} - [${
-			item.tracker.keyName + '|' ?? ''
-		}${item.id}]</a>`,
+		title: getCardTitle(
+			item.id.toString(),
+			item.name,
+			item.tracker.keyName
+		),
 		description: item.description,
 		fields: [],
 	};
 
 	try {
-		addCardFields(cardData, item);
+		addCardFields(cardData, item, appStore);
 	} catch (err: any) {
 		//TODO miro.showErrorNotif
 	}
