@@ -46,7 +46,10 @@ export async function updateAppCard(
 	}
 	existingAppCard.fields = card.fields ?? existingAppCard.fields ?? [];
 
-	existingAppCard.status = 'connected';
+	//* keep the status at disconnected, so that one can sync on demand at any time
+	//* setting it to 'connected' doesn't make any sense here anyway, since we don't
+	//* maintain any kind of active connection with the data source
+	existingAppCard.status = 'disconnected';
 	await existingAppCard.sync();
 }
 
