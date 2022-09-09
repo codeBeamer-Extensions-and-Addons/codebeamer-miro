@@ -32,6 +32,7 @@ export default function Updater(props: {
 
 	//* applies all currently active filters by using the stored cbqlString,
 	//* then further filters out only the selected items (or takes all of 'em)
+	//? maybe fetching every item on its own is more efficient. cb takes a long time to resolve that 'item.id IN' query.
 	const { data, error, isLoading } = useGetItemsQuery({
 		page: DEFAULT_RESULT_PAGE,
 		pageSize: MAX_ITEMS_PER_IMPORT,
