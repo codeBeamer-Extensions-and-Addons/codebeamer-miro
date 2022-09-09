@@ -1,11 +1,13 @@
 import { AppCard } from '@mirohq/websdk-types';
 import { EnhancedStore } from '@reduxjs/toolkit';
 import { CodeBeamerItem } from '../models/codebeamer-item.if';
+import { store } from '../store/store';
 import addCardFields from './utils/addCardFields';
 import getCardTitle from './utils/getCardTitle';
-import getCbItemUrl from './utils/getCbItemUrl';
 import getItemColorField from './utils/getItemColorField';
 import getRandomizedInitialCoordSetInViewport from './utils/getRandomizedInitialCoordSetInViewport';
+import { RenderingContextType } from '../enums/renderingContextType.enum';
+import { DescriptionFormat } from '../enums/descriptionFormat.enum';
 
 /**
  * Create a new app card base on a codeBeamer item
@@ -33,7 +35,7 @@ export async function updateAppCard(
 	onlyFields: boolean = false,
 	appStore?: EnhancedStore<any>
 ) {
-	const card: Partial<AppCard> = await convertToCardData(item, appStore);
+	const card: Partial<AppCard> = await convertToCardData(item);
 	console.log('CardData: ', card);
 	let existingAppCard: AppCard;
 	try {
@@ -61,6 +63,46 @@ export async function convertToCardData(
 	item: CodeBeamerItem,
 	appStore?: EnhancedStore<any>
 ): Promise<Partial<AppCard>> {
+	if (item.descriptionFormat == DescriptionFormat.WIKI) {
+		const projectId = store.getState().boardSettings.projectId;
+		const username = store.getState().userSettings.cbUsername;
+		const password = store.getState().userSettings.cbPassword;
+
+		const requestBody = {
+			contextId: item.id,
+			contextVersion: item.version,
+			renderingContextType: RenderingContextType.TRACKER_ITEM,
+			markup: item.description,
+		};
+
+		const requestArgs = {
+			method: 'POST',
+			headers: new Headers({
+				'Content-Type': 'application/json',
+				Authorization: `Basic ${btoa(username + ':' + password)}`,
+			}),
+			body: JSON.stringify(requestBody),
+		};
+
+		try {
+			item.description = await (
+				await fetch(
+					`${
+						store.getState().boardSettings.cbAddress
+					}/api/v3/projects/${projectId}/wiki2html`,
+					requestArgs
+				)
+			).text();
+		} catch (e: any) {
+			//* It can in fact take ~1 minute until the request actually fails.
+			//* Issue lies with codeBeamers inability to accept its failure in converting some wiki2html
+			//* and a custom timeout seams impossible
+			const message = `Failed fetching formatted description for Item ${item.name}.`;
+			console.warn(message);
+			//TODO miro.showErrorNotification(message);
+		}
+	}
+
 	let cardData: Partial<AppCard> = {
 		// id: item.id.toString(),
 		title: getCardTitle(
