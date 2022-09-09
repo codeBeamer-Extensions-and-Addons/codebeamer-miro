@@ -88,7 +88,6 @@ export default function Updater(props: {
 		if (error || trackerDetailsQueryError) {
 			//TODO miro.showErrorNotif
 		} else if (data && key) {
-			console.log(`Yaah.. uh got them items bruh ..`, data);
 			syncItems(data.items as CodeBeamerItem[]).catch((err) =>
 				console.error(err)
 			);
