@@ -31,7 +31,7 @@ The App is entirely focused around the functionality to:
 <img src="readmeImg/overview.png" alt="Plugin overview"/>
 </div>
 
-, which is subsidized by following functionality:
+This is enabled further by:
 
 -   **Support for self-hosted instances**
     -   Connect to any codebeamer instance
