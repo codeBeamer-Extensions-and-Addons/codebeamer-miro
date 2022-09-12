@@ -11,6 +11,7 @@ import {
 import { StandardItemProperty } from '../../../../../enums/standard-item-property.enum';
 import { AppCardToItemMapping } from '../../../../../models/appCardToItemMapping.if';
 import { CodeBeamerItem } from '../../../../../models/codebeamer-item.if';
+import { displayAppMessage } from '../../../../../store/slices/appMessagesSlice';
 import { setStandardCardTagConfiguration } from '../../../../../store/slices/boardSettingsSlice';
 import { RootState } from '../../../../../store/store';
 
@@ -98,7 +99,14 @@ export default function AppCardTagSettings() {
 		if (result.error) {
 			console.log(result.error);
 			setIsApplying(false);
-			//TODO miro.showerrorNotif
+			dispatch(
+				displayAppMessage({
+					header: 'Error loading Items',
+					content: <p>Please retry the operation.</p>,
+					bg: 'danger',
+					delay: 1500,
+				})
+			);
 		}
 		if (result.data) {
 			const syncItems = async (items: CodeBeamerItem[]) => {
@@ -120,7 +128,19 @@ export default function AppCardTagSettings() {
 						(item) => item.itemId == _items[i].id.toString()
 					)?.appCardId;
 					if (!appCardId) {
-						//TODO miro.showErrorNotif
+						dispatch(
+							displayAppMessage({
+								header: 'Failed updating an item',
+								content: (
+									<p>
+										Failed updating card for Item{' '}
+										{_items[i].name}
+									</p>
+								),
+								bg: 'warning',
+								delay: 2500,
+							})
+						);
 						continue;
 					}
 

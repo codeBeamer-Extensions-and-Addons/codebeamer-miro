@@ -12,6 +12,7 @@ import {
 	setProjectId,
 } from '../../store/slices/boardSettingsSlice';
 import { useState } from 'react';
+import { displayAppMessage } from '../../store/slices/appMessagesSlice';
 
 interface Errors {
 	cbAddress?: string;
@@ -43,7 +44,14 @@ export default function AuthForm(props: {
 	);
 
 	if (props.error) {
-		//TODO miro.showErrorNotif
+		dispatch(
+			displayAppMessage({
+				header: 'Invalid Credentials and/or address',
+				content: `<p>${props.error}</p>`,
+				bg: 'danger',
+				delay: 2500,
+			})
+		);
 		console.error('Invalid Credentials and/or address!', props.error);
 	}
 

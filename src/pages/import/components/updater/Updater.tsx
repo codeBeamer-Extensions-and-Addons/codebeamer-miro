@@ -12,6 +12,7 @@ import {
 } from '../../../../constants/cb-import-defaults';
 import { AppCardToItemMapping } from '../../../../models/appCardToItemMapping.if';
 import { CodeBeamerItem } from '../../../../models/codebeamer-item.if';
+import { displayAppMessage } from '../../../../store/slices/appMessagesSlice';
 import { RootState } from '../../../../store/store';
 
 import '../importer/importer.css';
@@ -25,6 +26,8 @@ export default function Updater(props: {
 }) {
 	// My programming skills were insufficient to adequately generalize Importer & Updater. They only differ in a few (but supposedly essential) cases.
 	// So I fell back to creating a seperate one for the Updater, with much duplication. If you know better, please go ahead.
+
+	const dispatch = useDispatch();
 
 	const { trackerId } = useSelector((state: RootState) => state.userSettings);
 
@@ -65,7 +68,14 @@ export default function Updater(props: {
 							(c) => c.name == 'Folder' || c.name == 'Information'
 						)
 					) {
-						//TODO miro.showNotification("Skipping Folder / Information Item " + _items[i].name);
+						dispatch(
+							displayAppMessage({
+								header: 'Skipping folder / information item',
+								content: `<p>${_items[i].name} is a Folder / Information and will not be imported.</p>`,
+								bg: 'info',
+								delay: 1500,
+							})
+						);
 						continue;
 					}
 				}
@@ -76,7 +86,19 @@ export default function Updater(props: {
 					(item) => item.itemId == _items[i].id.toString()
 				)?.appCardId;
 				if (!appCardId) {
-					//TODO miro.showErrorNotif
+					dispatch(
+						displayAppMessage({
+							header: 'Failed updating an item',
+							content: (
+								<p>
+									Failed updating card for Item{' '}
+									{_items[i].name}
+								</p>
+							),
+							bg: 'warning',
+							delay: 2500,
+						})
+					);
 					continue;
 				}
 
@@ -87,7 +109,14 @@ export default function Updater(props: {
 		};
 
 		if (error || trackerDetailsQueryError) {
-			//TODO miro.showErrorNotif
+			dispatch(
+				displayAppMessage({
+					header: 'Error loading Items',
+					content: <p>Please retry the operation.</p>,
+					bg: 'danger',
+					delay: 1500,
+				})
+			);
 		} else if (data && key) {
 			syncItems(data.items as CodeBeamerItem[]).catch((err) =>
 				console.error(err)

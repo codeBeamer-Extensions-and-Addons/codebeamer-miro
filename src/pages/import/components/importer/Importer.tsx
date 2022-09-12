@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 import Spinner from 'react-bootstrap/Spinner';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
 	useGetItemsQuery,
 	useGetTrackerDetailsQuery,
@@ -13,6 +13,7 @@ import {
 	MAX_ITEMS_PER_IMPORT,
 } from '../../../../constants/cb-import-defaults';
 import { CodeBeamerItem } from '../../../../models/codebeamer-item.if';
+import { displayAppMessage } from '../../../../store/slices/appMessagesSlice';
 import { RootState } from '../../../../store/store';
 
 import './importer.css';
@@ -22,6 +23,8 @@ export default function Importer(props: {
 	totalItems?: number;
 	onClose?: Function;
 }) {
+	const dispatch = useDispatch();
+
 	const { trackerId, cbqlString } = useSelector(
 		(state: RootState) => state.userSettings
 	);
@@ -64,21 +67,35 @@ export default function Importer(props: {
 							(c) => c.name == 'Folder' || c.name == 'Information'
 						)
 					) {
-						//TODO miro.showNotification("Skipping Folder / Information Item " + _items[i].name);
+						dispatch(
+							displayAppMessage({
+								header: 'Skipping folder / information item',
+								content: `<p>${_items[i].name} is a Folder / Information and will not be imported.</p>`,
+								bg: 'info',
+								delay: 1500,
+							})
+						);
 						continue;
 					}
 				}
 				_items[i].tracker.keyName = key;
 				_items[i].tracker.color = color;
 				await createAppCard(_items[i]);
-				//TODO miro.showNotif
 				setLoaded(i + 1);
 			}
 			await miro.board.ui.closeModal();
 		};
 
 		if (error || trackerDetailsQueryError) {
-			//TODO miro.showErrorNotif
+			dispatch(
+				displayAppMessage({
+					header: 'Error loading Items',
+					content: <p>Please retry the operation.</p>,
+					bg: 'danger',
+					delay: 1500,
+				})
+			);
+			props.onClose;
 		} else if (data && key) {
 			importItems(data.items as CodeBeamerItem[]).catch((err) =>
 				console.error(err)

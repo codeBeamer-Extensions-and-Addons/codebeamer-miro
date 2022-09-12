@@ -1,6 +1,6 @@
 import { AppCard } from '@mirohq/websdk-types';
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useGetItemsQuery } from '../../../../api/codeBeamerApi';
 import { CARD_TITLE_ID_FILTER_REGEX } from '../../../../constants/cardTitleIdFilterRegex';
 import {
@@ -10,6 +10,7 @@ import {
 import { AppCardToItemMapping } from '../../../../models/appCardToItemMapping.if';
 import { ItemListView } from '../../../../models/itemListView';
 import { ItemQueryResultView } from '../../../../models/itemQueryResultView';
+import { displayAppMessage } from '../../../../store/slices/appMessagesSlice';
 import { RootState } from '../../../../store/store';
 import ImportActions from '../importActions/ImportActions';
 import Importer from '../importer/Importer';
@@ -19,6 +20,8 @@ import Updater from '../updater/Updater';
 import './queryResults.css';
 
 export default function QueryResults() {
+	const dispatch = useDispatch();
+
 	const [page, setPage] = useState(DEFAULT_RESULT_PAGE);
 	const [items, setItems] = useState<ItemQueryResultView[]>([]);
 	const [itemsToImport, setItemsToImport] = useState<string[]>([]);
@@ -52,7 +55,7 @@ export default function QueryResults() {
 		intersectionObserverOptions
 	);
 
-	const { cbqlString, trackerId } = useSelector(
+	const { cbqlString, trackerId, advancedSearch } = useSelector(
 		(state: RootState) => state.userSettings
 	);
 
@@ -169,8 +172,27 @@ export default function QueryResults() {
 	}, [items]);
 
 	React.useEffect(() => {
+		if (!error) return;
 		console.error(error);
-		//TODO miro.showErrorNotif
+		let message = advancedSearch
+			? "Check your query's syntax for errors."
+			: 'Is your codebeamer server accessible?';
+		dispatch(
+			displayAppMessage({
+				header: 'Error querying Items',
+				content: (
+					<p>
+						{message}
+						<br />
+						<span className="muted text-dark">
+							Check console for details.
+						</span>
+					</p>
+				),
+				bg: 'danger',
+				delay: 5000,
+			})
+		);
 	}, [error]);
 
 	const handleImportSelected = () => {
@@ -215,7 +237,6 @@ export default function QueryResults() {
 			</div>
 		);
 	} else if (error) {
-		//TODO only for CBQL input I think
 		return (
 			<div className="centered h-auto">
 				<h3 className="h3 error">Invalid query</h3>
