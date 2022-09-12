@@ -25,7 +25,7 @@ export default function Toasts() {
 					autohide={true}
 					delay={m.delay ?? DEFAULT_DELAY}
 					onClose={() => removeToast(m.id!)}
-					key={`${m.id}-${m.header}`} //ids are reused
+					key={m.id} //ids are reused
 					data-test={`toast-${m.id}`}
 				>
 					<ToastHeader>{m.header}</ToastHeader>
