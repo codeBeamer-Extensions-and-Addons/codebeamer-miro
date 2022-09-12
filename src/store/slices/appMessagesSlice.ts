@@ -31,7 +31,7 @@ export const appMessagesSlice = createSlice({
 	initialState,
 	reducers: {
 		displayAppMessage: (state, action: PayloadAction<AppMessage>) => {
-			const message = { ...action.payload, id: increment++ };
+			const message = { id: increment++, ...action.payload };
 			const messages = [...current(state.messages), message];
 
 			state.messages = messages;
