@@ -47,7 +47,6 @@ export default function AuthForm(props: {
 		dispatch(
 			displayAppMessage({
 				header: 'Invalid Credentials and/or address',
-				content: `<p>${props.error}</p>`,
 				bg: 'danger',
 				delay: 2500,
 			})
