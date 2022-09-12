@@ -24,22 +24,22 @@ const initialState: AppMessagesState = {
 	messages: [],
 };
 
+var increment = 0;
+
 export const appMessagesSlice = createSlice({
 	name: 'appMessages',
 	initialState,
 	reducers: {
 		displayAppMessage: (state, action: PayloadAction<AppMessage>) => {
-			const message = { ...action.payload, id: state.messages.length };
+			const message = { ...action.payload, id: increment++ };
 			const messages = [...current(state.messages), message];
 
 			state.messages = messages;
 		},
 		removeAppMessage: (state, action: PayloadAction<number>) => {
-			const messages = current(state.messages)
-				.filter((f) => f.id !== action.payload)
-				.map((f, i) => {
-					return { ...f, id: i };
-				});
+			const messages = current(state.messages).filter(
+				(f) => f.id !== action.payload
+			);
 
 			state.messages = messages;
 		},
