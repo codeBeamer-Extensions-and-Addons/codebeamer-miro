@@ -28,10 +28,14 @@ export default function Toasts() {
 					key={m.id} //ids are reused
 					data-test={`toast-${m.id}`}
 				>
-					<ToastHeader>{m.header}</ToastHeader>
-					<Toast.Body className={m.bg === 'dark' ? 'text-white' : ''}>
-						{m.content}
-					</Toast.Body>
+					{m.header && <ToastHeader>{m.header}</ToastHeader>}
+					{m.content && (
+						<Toast.Body
+							className={m.bg === 'dark' ? 'text-white' : ''}
+						>
+							{m.content}
+						</Toast.Body>
+					)}
 				</Toast>
 			))}
 		</ToastContainer>

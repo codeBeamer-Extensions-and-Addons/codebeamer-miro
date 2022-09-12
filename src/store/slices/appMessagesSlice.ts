@@ -2,8 +2,8 @@ import { createSlice, current, PayloadAction } from '@reduxjs/toolkit';
 
 export interface AppMessage {
 	id?: number;
-	header: string | JSX.Element;
-	content: string | JSX.Element;
+	header?: string | JSX.Element;
+	content?: string | JSX.Element;
 	delay?: number;
 	bg:
 		| 'primary'
