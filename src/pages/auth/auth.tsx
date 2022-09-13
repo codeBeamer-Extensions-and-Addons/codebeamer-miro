@@ -65,11 +65,11 @@ export default function AuthForm(props: {
 		<div data-test="auth" className="container">
 			{!props.headerLess && (
 				<header className="text-center mb-5">
-					<h2>CodeBeamer / Miro Integration</h2>
+					<h2>codebeamer cards</h2>
 					<p>
 						<span className="icon icon-plug pos-adjusted-down"></span>
 						<span className="ml-small">
-							Connect to your CodeBeamer Instance
+							Connect to your codebeamer Instance
 						</span>
 					</p>
 				</header>
