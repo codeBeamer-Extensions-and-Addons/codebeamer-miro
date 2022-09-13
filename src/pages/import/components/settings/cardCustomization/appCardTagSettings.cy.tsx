@@ -45,7 +45,7 @@ describe('<AppCardTagSettings', () => {
 			cy.getBySel('apply').should('exist');
 		});
 
-		it('updates the imported cards when applying', () => {
+		it('updates the imported cards when applying', { retries: 3 }, () => {
 			const stubSync = cy.stub();
 
 			const itemOne: Partial<AppCard> = {
