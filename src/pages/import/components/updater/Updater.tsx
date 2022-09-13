@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Spinner, ProgressBar } from 'react-bootstrap';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
 	useGetItemsQuery,
 	useGetTrackerDetailsQuery,
