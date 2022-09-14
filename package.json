@@ -17,7 +17,7 @@
 		"build": "vite build",
 		"serve": "vite preview",
 		"test": "cypress run -b chrome --component --record false",
-		"test:open": "cypress open"
+		"test:open": "cypress open --component -b chrome"
 	},
 	"dependencies": {
 		"@reduxjs/toolkit": "^1.8.3",
