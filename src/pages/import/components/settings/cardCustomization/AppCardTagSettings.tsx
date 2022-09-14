@@ -283,7 +283,7 @@ export default function AppCardTagSettings() {
 							))}
 						</div>
 						<svg
-							className="pos-adjusted-up wh-40p"
+							className="app-card--app-logo"
 							enableBackground="new 0 0 256 256"
 							version="1.1"
 							viewBox="0 0 256 256"
