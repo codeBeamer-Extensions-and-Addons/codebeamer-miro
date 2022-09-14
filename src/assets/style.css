@@ -168,7 +168,7 @@ img {
 
 .muted,
 .muted-medium {
-	color: gray;
+	color: gray !important;
 }
 
 .muted {
