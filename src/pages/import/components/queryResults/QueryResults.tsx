@@ -171,29 +171,29 @@ export default function QueryResults() {
 		}
 	}, [items]);
 
-	React.useEffect(() => {
-		if (!error) return;
-		console.error(error);
-		let message = advancedSearch
-			? "Check your query's syntax for errors."
-			: 'Is your codebeamer server accessible?';
-		dispatch(
-			displayAppMessage({
-				header: 'Error querying Items',
-				content: (
-					<p>
-						{message}
-						<br />
-						<span className="muted text-dark">
-							Check console for details.
-						</span>
-					</p>
-				),
-				bg: 'danger',
-				delay: 5000,
-			})
-		);
-	}, [error]);
+	// React.useEffect(() => {
+	// 	if (!error) return;
+	// 	console.error(error);
+	// 	let message = advancedSearch
+	// 		? "Check your query's syntax for errors."
+	// 		: 'Is your codebeamer server accessible?';
+	// 	dispatch(
+	// 		displayAppMessage({
+	// 			header: 'Error querying Items',
+	// 			content: (
+	// 				<p>
+	// 					{message}
+	// 					<br />
+	// 					<span className="muted text-dark">
+	// 						Check console for details.
+	// 					</span>
+	// 				</p>
+	// 			),
+	// 			bg: 'danger',
+	// 			delay: 5000,
+	// 		})
+	// 	);
+	// }, [error]);
 
 	const handleImportSelected = () => {
 		setItemsToImport(
