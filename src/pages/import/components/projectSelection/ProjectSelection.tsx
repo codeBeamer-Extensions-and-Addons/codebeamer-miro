@@ -75,9 +75,11 @@ export default function ProjectSelection(props: { headerLess?: boolean }) {
 					<p>
 						Select your Project
 						<br />
-						<span data-test="current-project">
-							Currently: {selectedProjectLabel}
-						</span>
+						{selectedProjectLabel && (
+							<span data-test="current-project">
+								Currently: {selectedProjectLabel}
+							</span>
+						)}
 					</p>
 				</header>
 			)}
