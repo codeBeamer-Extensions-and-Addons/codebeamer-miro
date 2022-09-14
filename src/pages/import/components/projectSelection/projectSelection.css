@@ -1,0 +1,7 @@
+.project-selection {
+	min-height: 430px;
+}
+
+.button[disabled] {
+	opacity: 0.6 !important;
+}
