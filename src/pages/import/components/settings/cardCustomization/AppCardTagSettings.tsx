@@ -171,7 +171,7 @@ export default function AppCardTagSettings() {
 						continue;
 					}
 
-					await updateAppCard(_items[i], appCardId);
+					await updateAppCard(_items[i], appCardId, true);
 				}
 			};
 
