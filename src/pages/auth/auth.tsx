@@ -35,6 +35,7 @@ export default function AuthForm(props: {
 	const dispatch = useDispatch();
 
 	const [animateSuccess, setAnimateSuccess] = useState(false);
+	const [showRCNHint, setShowRCNHint] = useState(false);
 
 	const { cbUsername, cbPassword } = useSelector(
 		(state: RootState) => state.userSettings
@@ -53,6 +54,17 @@ export default function AuthForm(props: {
 		);
 		console.error('Invalid Credentials and/or address!', props.error);
 	}
+
+	/**
+	 * Toggles the {@link showRCNHint} variable, which triggers the respective hint to show or not.
+	 */
+	const toggleRCNHint = (e: React.ChangeEvent<any>) => {
+		if (e.target.value.includes('retina')) {
+			setShowRCNHint(true);
+		} else {
+			setShowRCNHint(false);
+		}
+	};
 
 	const showSuccessAnimation = () => {
 		setAnimateSuccess(true);
@@ -121,7 +133,6 @@ export default function AuthForm(props: {
 						errors,
 						touched,
 						handleChange,
-						handleBlur,
 						handleSubmit,
 						isSubmitting,
 						/* and other goodies */
@@ -141,6 +152,10 @@ export default function AuthForm(props: {
 									type="text"
 									name="cbAddress"
 									className="input"
+									onChange={(e: React.ChangeEvent<any>) => {
+										handleChange(e);
+										toggleRCNHint(e);
+									}}
 									data-test="cbAddress"
 								/>
 								{errors.cbAddress && touched.cbAddress && (
@@ -149,6 +164,14 @@ export default function AuthForm(props: {
 										data-test="cbAddressErrors"
 									>
 										{errors.cbAddress}
+									</div>
+								)}
+								{showRCNHint && (
+									<div
+										className="status-text muted"
+										data-test="rcnHint"
+									>
+										RCN connection required
 									</div>
 								)}
 							</div>
