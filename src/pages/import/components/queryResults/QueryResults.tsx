@@ -213,6 +213,7 @@ export default function QueryResults() {
 	};
 
 	//just to debug with
+	//TODO remove for release
 	const closeModalDebugOnly = () => {
 		setImporting(false);
 	};
