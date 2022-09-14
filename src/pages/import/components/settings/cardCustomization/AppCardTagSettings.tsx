@@ -278,7 +278,7 @@ export default function AppCardTagSettings() {
 											getColorForFieldLabel(c),
 									}}
 								>
-									{c}: Value
+									{c}: {samplePropertyValues[c]}
 								</span>
 							))}
 						</div>
@@ -302,3 +302,20 @@ export default function AppCardTagSettings() {
 		</div>
 	);
 }
+
+const samplePropertyValues = {
+	ID: '124926',
+	Teams: 'Beavers, Zebras',
+	Owner: 'aurech',
+	Release: 'PI 3.2',
+	Priority: 'Medium',
+	'Story Points': '8',
+	'Start Date': '2022-03-15',
+	'End Date': '2022-04-02',
+	'Assigned To': 'urecha',
+	'Assigned At': '2022-03-05',
+	'Submitted At': '2022-02-27',
+	'Submitted By': 'aurech',
+	'Modified At': '2022-04-01',
+	'Modified By': 'urecha',
+};
