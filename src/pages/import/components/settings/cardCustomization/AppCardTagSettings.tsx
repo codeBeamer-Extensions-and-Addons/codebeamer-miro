@@ -67,6 +67,17 @@ export default function AppCardTagSettings() {
 		setIsApplying(true);
 
 		const appCards = await miro.board.get({ type: 'app_card' });
+		if (!appCards || !appCards.length) {
+			setIsApplying(false);
+			dispatch(
+				displayAppMessage({
+					header: 'No items on the board to apply to',
+					bg: 'light',
+					delay: 2500,
+				})
+			);
+			return;
+		}
 		const appCardIdsToItemIds = appCards.map((e) => {
 			let card = e as AppCard;
 
