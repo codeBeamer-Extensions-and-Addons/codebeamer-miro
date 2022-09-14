@@ -26,8 +26,6 @@ export default function addCardFields(
 	let cardTagConfiguration = store.getState().boardSettings
 		.cardTagConfiguration as IAppCardTagSettings;
 
-	console.log(cardTagConfiguration);
-
 	if (!cardTagConfiguration || !cardTagConfiguration.standard)
 		throw new Error(NO_IMPORT_CONFIGURATION);
 
@@ -47,7 +45,10 @@ export default function addCardFields(
 		const itemPropertyName = getCodeBeamerPropertyNameByFieldLabel(key);
 		try {
 			field = item[itemPropertyName as keyof CodeBeamerItem];
-			if (!field) throw new Error("Field doesn't exist on Item");
+			// if (!field)
+			// 	console.warn(
+			// 		`Field ${itemPropertyName} doesn't exist on Item ${item.name}`
+			// 	);
 		} catch (error) {
 			continue;
 		}
