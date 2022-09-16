@@ -158,12 +158,10 @@ export default function AppCardTagSettings() {
 						dispatch(
 							displayAppMessage({
 								header: 'Failed updating an item',
-								content: (
-									<p>
-										Failed updating card for Item{' '}
-										{_items[i].name}
-									</p>
-								),
+								content: `<p>
+										Failed updating card for Item 
+										${_items[i].name}
+									</p>`,
 								bg: 'warning',
 								delay: 2500,
 							})
