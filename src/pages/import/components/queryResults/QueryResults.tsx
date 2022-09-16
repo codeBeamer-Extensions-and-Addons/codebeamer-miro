@@ -180,15 +180,13 @@ export default function QueryResults() {
 		dispatch(
 			displayAppMessage({
 				header: 'Error querying Items',
-				content: (
-					<p>
-						{message}
+				content: `<p>
+						${message}
 						<br />
 						<span className="muted text-dark">
 							Check console for details.
 						</span>
-					</p>
-				),
+					</p>`,
 				bg: 'danger',
 				delay: 5000,
 			})
