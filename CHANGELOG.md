@@ -28,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     -   Setup is prompted when attempting to open the app with lacking configuration
 -   Some UI elements have been restyled, using the Mirotone UI library instead of Bootstrap or custom styles.
 -   AND/OR Filter interface adjusted to resemble the UX on codebeamer itself
+-   Notifications are currently displayed with bootstrap style (Miro notifications not yet supported in SDK v2).
+-   readme documentation; refactored to a minimal feature- & installation overview
 
 #### Removed
 
