@@ -45,7 +45,7 @@ describe('<AppCardTagSettings', () => {
 			cy.getBySel('apply').should('exist');
 		});
 
-		it('updates the imported cards when applying', { retries: 3 }, () => {
+		it('updates the imported cards when applying', { retries: 5 }, () => {
 			const stubSync = cy.stub();
 
 			const itemOne: Partial<AppCard> = {
@@ -66,6 +66,7 @@ describe('<AppCardTagSettings', () => {
 			cy.intercept('POST', '**/api/v3/items/query', {
 				fixture: 'query.json',
 			}).as('fetch');
+
 			cy.intercept(
 				'POST',
 				'**/api/v3/projects/**/wiki2html',
@@ -73,6 +74,8 @@ describe('<AppCardTagSettings', () => {
 			).as('wiki2html');
 
 			cy.mountWithStore(<AppCardTagSettings />);
+
+			cy.getBySel(`tag-Owner`).click();
 
 			cy.getBySel('apply')
 				.click()
