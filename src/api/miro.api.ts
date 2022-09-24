@@ -11,6 +11,7 @@ import { DescriptionFormat } from '../enums/descriptionFormat.enum';
 import getConcentricCircleCoords from './utils/getConcentricCircleCoords';
 import { CardSpawningMethod } from '../enums/cardSpawningMethod.enum';
 import getRandomCoordSetPerSubject from './utils/getRandomCoordSetPerSubject';
+import getSnailCoordSetPerSubject from './utils/getSnailCoords';
 
 /**
  * Create a new app card base on a codeBeamer item
@@ -31,6 +32,10 @@ export async function createAppCard(
 		}
 		case CardSpawningMethod.RANDOM_IN_VIEWPORT: {
 			coords = await getRandomCoordSetPerSubject(item);
+			break;
+		}
+		case CardSpawningMethod.SNAIL: {
+			coords = await getSnailCoordSetPerSubject(item);
 			break;
 		}
 	}
