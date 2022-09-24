@@ -21,6 +21,8 @@ export default function getColorForFieldLabel(
 			return '#40bfbf';
 		case StandardItemProperty.STORY_POINTS:
 			return '#bfbf40';
+		case StandardItemProperty.SUBJECT:
+			return '#f50';
 		case StandardItemProperty.START_DATE:
 			return '#9540bf';
 		case StandardItemProperty.END_DATE:
