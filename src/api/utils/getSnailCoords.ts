@@ -27,7 +27,8 @@ function getAllowedNoOfOriginsForRadius(radiusIndex: number) {
  * Creates coordinates that makes Items spawn grouped by their subjects in a snail shape
  * <p>
  * Items without a subject are put into the shell's center. For each subject thereafter, an origin
- * coordinate set is created in demi-circles from right to left via bottom, making for a snail-like shape
+ * coordinate set is created in demi-circles, making for a snail-like shape inititally, but probably ending up more as a
+ * vortex / black hole.
  * . All demi-circles have up to {@link DEFAULT_ORIGINS_PER_RADIUS} subject origins.
  * </p>
  * <p>
