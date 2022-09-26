@@ -11,7 +11,6 @@ export default function Toasts() {
 	const { messages } = useSelector((store: RootState) => store.appMessages);
 
 	const removeToast = (messageId: number) => {
-		console.log('Removing toast: ', messageId);
 		dispatch(removeAppMessage(messageId));
 	};
 
