@@ -46,7 +46,7 @@ export default function ImportHeader() {
 				<div className="actions flex flex-">
 					<button
 						className={`mx-2 button-icon-secondary button-icon-small button-icon
-						${advancedSearch ? ' icon-parameters' : ' icon-text'}`}
+						${advancedSearch ? ' icon-parameters' : ''}`}
 						onClick={toggleSearchMethod}
 						title={
 							advancedSearch
@@ -54,7 +54,28 @@ export default function ImportHeader() {
 								: 'CBQL-String Input'
 						}
 						data-test="search-method"
-					></button>
+					>
+						{advancedSearch ? (
+							''
+						) : (
+							<svg
+								width="24"
+								height="24"
+								viewBox="0 0 28 28"
+								fill="none"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<text fill="#000000">
+									<tspan x="4" y="13" textLength="20">
+										CB
+									</tspan>
+									<tspan x="4" y="25">
+										QL
+									</tspan>
+								</text>
+							</svg>
+						)}
+					</button>
 					<button
 						className="button button-secondary button-small"
 						onClick={openSettingsModal}
