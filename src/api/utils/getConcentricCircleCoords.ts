@@ -41,7 +41,7 @@ function getAllowedNoOfOriginsForRadius(radiusIndex: number) {
 export default async function getConcentricCircleCoords(
 	item: CodeBeamerItem
 ): Promise<{ x: number; y: number }> {
-	//* just do it once
+	//* initialize var
 	if (!currentViewPort) currentViewPort = await miro.board.viewport.get();
 	//* initialize default subject
 	if (!subjectOrigins.length) {
@@ -59,41 +59,19 @@ export default async function getConcentricCircleCoords(
 
 	if (!subjectOrigin) {
 		let index = itemIndex++;
-		//* for a snail form instead of a concentric circle, uncomment following line and remove the radiusIndex incrementer at the if's end
-		// let radiusIndex = Math.ceil(index / DEFAULT_ORIGINS_PER_RADIUS);
 		let x =
 			circleXCenter +
-			Math.cos(
-				2 *
-					Math.PI *
-					((index -
-						(radiusIndex -
-							1 *
-								getAllowedNoOfOriginsForRadius(
-									radiusIndex - 1
-								))) /
-						getAllowedNoOfOriginsForRadius(radiusIndex))
-			) *
+			Math.cos(getAngle(index, radiusIndex)) *
 				(RADIUS_INCREMENT * radiusIndex);
 		let y =
 			circleYCenter +
-			Math.sin(
-				2 *
-					Math.PI *
-					((index -
-						(radiusIndex -
-							1 *
-								getAllowedNoOfOriginsForRadius(
-									radiusIndex - 1
-								))) /
-						getAllowedNoOfOriginsForRadius(radiusIndex))
-			) *
+			Math.sin(getAngle(index, radiusIndex)) *
 				(RADIUS_INCREMENT * radiusIndex);
 		subjectOrigin = { subject: itemSubject, x: x, y: y };
 		subjectOrigins.push(subjectOrigin);
 		if (index / getAllowedNoOfOriginsForRadius(radiusIndex) >= 1) {
 			itemIndex = 1;
-			radiusIndex++; //* for a snail form instead, remove this
+			radiusIndex++;
 		}
 	}
 
@@ -101,4 +79,15 @@ export default async function getConcentricCircleCoords(
 		x: subjectOrigin.x + getRandomOffset(MAX_OFFSET_TO_SUBJECT_ORIGIN),
 		y: subjectOrigin.y + getRandomOffset(MAX_OFFSET_TO_SUBJECT_ORIGIN),
 	};
+}
+
+function getAngle(index: number, radiusIndex: number): number {
+	return (
+		2 *
+		Math.PI *
+		((index -
+			(radiusIndex -
+				1 * getAllowedNoOfOriginsForRadius(radiusIndex - 1))) /
+			getAllowedNoOfOriginsForRadius(radiusIndex))
+	);
 }

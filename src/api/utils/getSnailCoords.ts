@@ -62,31 +62,11 @@ export default async function getSnailCoordSetPerSubject(
 		let radiusIndex = Math.ceil(index / DEFAULT_ORIGINS_PER_RADIUS);
 		let x =
 			circleXCenter +
-			Math.cos(
-				2 *
-					Math.PI *
-					((index -
-						(radiusIndex -
-							1 *
-								getAllowedNoOfOriginsForRadius(
-									radiusIndex - 1
-								))) /
-						getAllowedNoOfOriginsForRadius(radiusIndex))
-			) *
+			Math.cos(2 * getAngle(index, radiusIndex)) *
 				(RADIUS_INCREMENT * radiusIndex);
 		let y =
 			circleYCenter +
-			Math.sin(
-				2 *
-					Math.PI *
-					((index -
-						(radiusIndex -
-							1 *
-								getAllowedNoOfOriginsForRadius(
-									radiusIndex - 1
-								))) /
-						getAllowedNoOfOriginsForRadius(radiusIndex))
-			) *
+			Math.sin(getAngle(index, radiusIndex)) *
 				(RADIUS_INCREMENT * radiusIndex);
 		subjectOrigin = { subject: itemSubject, x: x, y: y };
 		subjectOrigins.push(subjectOrigin);
@@ -96,4 +76,15 @@ export default async function getSnailCoordSetPerSubject(
 		x: subjectOrigin.x + getRandomOffset(MAX_OFFSET_TO_SUBJECT_ORIGIN),
 		y: subjectOrigin.y + getRandomOffset(MAX_OFFSET_TO_SUBJECT_ORIGIN),
 	};
+}
+
+function getAngle(index: number, radiusIndex: number): number {
+	return (
+		2 *
+		Math.PI *
+		((index -
+			(radiusIndex -
+				1 * getAllowedNoOfOriginsForRadius(radiusIndex - 1))) /
+			getAllowedNoOfOriginsForRadius(radiusIndex))
+	);
 }
