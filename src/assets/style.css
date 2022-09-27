@@ -142,11 +142,11 @@ img {
 }
 .flex-row {
 	display: flex !important;
-	flex-direction: row;
+	flex-direction: row !important;
 }
 .flex-col {
 	display: flex !important;
-	flex-direction: col;
+	flex-direction: column !important;
 }
 .align-end {
 	align-self: flex-end;
@@ -168,7 +168,7 @@ img {
 
 .muted,
 .muted-medium {
-	color: gray;
+	color: gray !important;
 }
 
 .muted {

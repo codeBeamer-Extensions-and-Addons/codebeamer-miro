@@ -1,46 +1,47 @@
 import React, { useState } from 'react';
-import Modal from 'react-bootstrap/Modal';
-import ProgressBar from 'react-bootstrap/ProgressBar';
-import Spinner from 'react-bootstrap/Spinner';
+import { Modal, Spinner, ProgressBar } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import {
 	useGetItemsQuery,
 	useGetTrackerDetailsQuery,
 } from '../../../../api/codeBeamerApi';
-import { createAppCard } from '../../../../api/miro.api';
+import { updateAppCard } from '../../../../api/miro.api';
 import {
 	DEFAULT_RESULT_PAGE,
 	MAX_ITEMS_PER_IMPORT,
 } from '../../../../constants/cb-import-defaults';
+import { AppCardToItemMapping } from '../../../../models/appCardToItemMapping.if';
 import { CodeBeamerItem } from '../../../../models/codebeamer-item.if';
 import { displayAppMessage } from '../../../../store/slices/appMessagesSlice';
 import { RootState } from '../../../../store/store';
 
-import './importer.css';
+import '../importer/importer.css';
 
-export default function Importer(props: {
-	items: string[];
-	totalItems?: number;
+/**
+ * Twin of {@link Importer}, but for updating.
+ */
+export default function Updater(props: {
+	items: AppCardToItemMapping[];
 	onClose?: Function;
 }) {
+	// My programming skills were insufficient to adequately generalize Importer & Updater. They only differ in a few (but supposedly essential) cases.
+	// So I fell back to creating a seperate one for the Updater, with much duplication. If you know better, please go ahead.
+
 	const dispatch = useDispatch();
 
-	const { trackerId, cbqlString } = useSelector(
-		(state: RootState) => state.userSettings
-	);
+	const { trackerId } = useSelector((state: RootState) => state.userSettings);
 
 	const [loaded, setLoaded] = useState(0);
 
 	//* applies all currently active filters by using the stored cbqlString,
 	//* then further filters out only the selected items (or takes all of 'em)
+	//? maybe fetching every item on its own is more efficient. cb takes a long time to resolve that 'item.id IN' query.
 	const { data, error, isLoading } = useGetItemsQuery({
 		page: DEFAULT_RESULT_PAGE,
 		pageSize: MAX_ITEMS_PER_IMPORT,
-		queryString: `${cbqlString}${
-			props.items.length
-				? ' AND item.id IN (' + props.items.join(',') + ')'
-				: ''
-		}`,
+		queryString: `item.id IN (${props.items
+			.map((i) => i.itemId)
+			.join(',')})`,
 	});
 
 	const {
@@ -58,7 +59,7 @@ export default function Importer(props: {
 	});
 
 	React.useEffect(() => {
-		const importItems = async (items: CodeBeamerItem[]) => {
+		const syncItems = async (items: CodeBeamerItem[]) => {
 			const _items: CodeBeamerItem[] = structuredClone(items);
 			for (let i = 0; i < _items.length; i++) {
 				if (_items[i].categories?.length) {
@@ -80,7 +81,26 @@ export default function Importer(props: {
 				}
 				_items[i].tracker.keyName = key;
 				_items[i].tracker.color = color;
-				await createAppCard(_items[i]);
+
+				const appCardId = props.items.find(
+					(item) => item.itemId == _items[i].id.toString()
+				)?.appCardId;
+				if (!appCardId) {
+					dispatch(
+						displayAppMessage({
+							header: 'Failed updating an item',
+							content: `<p>
+									Failed updating card for Item 
+									${_items[i].name}
+								</p>`,
+							bg: 'warning',
+							delay: 2500,
+						})
+					);
+					continue;
+				}
+
+				await updateAppCard(_items[i], appCardId);
 				setLoaded(i + 1);
 			}
 			await miro.board.ui.closeModal();
@@ -95,9 +115,8 @@ export default function Importer(props: {
 					delay: 1500,
 				})
 			);
-			props.onClose;
 		} else if (data && key) {
-			importItems(data.items as CodeBeamerItem[]).catch((err) =>
+			syncItems(data.items as CodeBeamerItem[]).catch((err) =>
 				console.error(err)
 			);
 		}
@@ -117,16 +136,14 @@ export default function Importer(props: {
 						<Spinner animation="grow" variant="primary" />
 						<br />
 						{isLoading && <span>Fetching data</span>}
-						{!isLoading && <span>Creating cards</span>}
+						{!isLoading && <span>Syncing cards</span>}
 					</h5>
 					<ProgressBar
 						className="w-100"
 						variant="primary"
 						now={loaded}
-						max={props.totalItems ?? props.items.length}
-						label={`${loaded}/${
-							props.totalItems ?? props.items.length
-						}`}
+						max={props.items.length}
+						label={`${loaded}/${props.items.length}`}
 						data-test="importProgress"
 					/>
 				</div>

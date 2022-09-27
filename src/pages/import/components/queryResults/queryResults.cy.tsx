@@ -1,3 +1,4 @@
+import { AppCard } from '@mirohq/websdk-types';
 import * as React from 'react';
 import { IFilterCriteria } from '../../../../models/filterCriteria.if';
 import {
@@ -10,6 +11,40 @@ import QueryResults from './QueryResults';
 describe('<QueryResults>', () => {
 	it('mounts', () => {
 		cy.mountWithStore(<QueryResults />);
+	});
+
+	it('queries the already imported items and displays them as checked and disabled when they appear in a query its results', () => {
+		const itemOne: Partial<AppCard> = { id: '1', title: '[RETUS-1]' };
+		const itemTwo: Partial<AppCard> = { id: '2', title: '[RETUS-2]' };
+		const notSyncedItemOne: Partial<AppCard> = { id: '3' };
+		const notSyncedItemTwo: Partial<AppCard> = { id: '4' };
+
+		cy.stub(miro.board, 'get').callsFake(() => {
+			return Promise.resolve([itemOne, itemTwo]); //TODO symbolic, return items that have these ids
+		});
+
+		const store = getStore();
+		const trackerId = '123';
+		store.dispatch(setTrackerId(trackerId));
+
+		cy.intercept('POST', `**/api/v3/items/query`, {
+			fixture: 'query.json',
+		}).as('itemQuery');
+
+		cy.mountWithStore(<QueryResults />, { reduxStore: store });
+
+		cy.getBySel('itemCheck-' + itemOne.id)
+			.should('be.checked')
+			.and('be.disabled');
+		cy.getBySel('itemCheck-' + itemTwo.id)
+			.should('be.checked')
+			.and('be.disabled');
+		cy.getBySel('itemCheck-' + notSyncedItemOne.id)
+			.should('not.be.checked')
+			.and('be.enabled');
+		cy.getBySel('itemCheck-' + notSyncedItemTwo.id)
+			.should('not.be.checked')
+			.and('be.enabled');
 	});
 
 	it('queries items with the cached cbqlString when mounted', () => {

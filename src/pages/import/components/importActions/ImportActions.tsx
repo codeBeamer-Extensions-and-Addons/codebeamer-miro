@@ -1,20 +1,16 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { AppCardToItemMapping } from '../../../../models/appCardToItemMapping.if';
 
 import './importActions.css';
 
 export default function ImportActions(props: {
 	selectedCount: number;
 	totalCount: number;
+	importedItems: AppCardToItemMapping[];
 	onImportSelected: Function;
 	onImportAll: Function;
 	onSync: Function;
 }) {
-	const [synchedItems, setSynchedItems] = useState(0);
-
-	React.useEffect(() => {
-		//TODO how many Items are on the board?
-	}, []);
-
 	return (
 		<div className="w-100 flex-row">
 			<button
@@ -60,11 +56,12 @@ export default function ImportActions(props: {
 			</button>
 			<button
 				className="button button-secondary button-small flex flex-centered"
-				disabled={synchedItems == 0}
+				disabled={props.importedItems.length == 0}
 				data-test="sync"
+				onClick={() => props.onSync()}
 			>
 				<span className="icon icon-refresh mr-1 pos-adjusted-down"></span>
-				Sync ({synchedItems})
+				Sync ({props.importedItems.length})
 			</button>
 		</div>
 	);

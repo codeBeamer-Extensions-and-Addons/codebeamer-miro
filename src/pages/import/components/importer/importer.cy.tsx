@@ -35,7 +35,7 @@ describe('<Importer>', () => {
 		const store = getStore();
 		store.dispatch(setTrackerId('1'));
 
-		const expectedQuery = `tracker.id = 1 AND item.id IN (1,2,3)`;
+		const expectedQuery = `tracker.id IN (1) AND item.id IN (1,2,3)`;
 
 		cy.intercept('POST', '**/api/v3/items/query').as('fetch');
 
@@ -51,7 +51,7 @@ describe('<Importer>', () => {
 		const store = getStore();
 		store.dispatch(setTrackerId('1'));
 
-		const expectedQuery = `tracker.id = 1`;
+		const expectedQuery = `tracker.id IN (1)`;
 
 		cy.intercept('POST', '**/api/v3/items/query').as('fetch');
 
@@ -62,7 +62,7 @@ describe('<Importer>', () => {
 			.should('equal', expectedQuery);
 	});
 
-	describe.only('import progress bar', () => {
+	describe('import progress bar', () => {
 		const progressBarSelector = 'importProgress';
 
 		it('shows the total amount of items to import based on the passed items array', () => {

@@ -3,6 +3,7 @@ import { setupListeners } from '@reduxjs/toolkit/dist/query';
 
 import userSettingsSlice from './slices/userSettingsSlice';
 import boardSettingsSlice from './slices/boardSettingsSlice';
+import appMessagesSlice from './slices/appMessagesSlice';
 
 import { codeBeamerApi } from '../api/codeBeamerApi';
 
@@ -10,6 +11,7 @@ const configuration = {
 	reducer: {
 		userSettings: userSettingsSlice,
 		boardSettings: boardSettingsSlice,
+		appMessages: appMessagesSlice,
 		[codeBeamerApi.reducerPath]: codeBeamerApi.reducer,
 	},
 	middleware: (getDefaultMiddleware: () => any[]) =>

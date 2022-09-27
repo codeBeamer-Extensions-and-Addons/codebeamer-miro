@@ -33,7 +33,14 @@ export default function Content() {
 	if (isLoading || error)
 		return (
 			<div className="centered">
-				<AuthForm loading={isLoading} error={error} />
+				<AuthForm
+					loading={isLoading}
+					error={
+						cbAddress && cbUsername && cbPassword
+							? error
+							: undefined
+					}
+				/>
 			</div>
 		);
 	else if (!projectId)

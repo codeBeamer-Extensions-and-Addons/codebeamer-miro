@@ -32,7 +32,7 @@ describe('<QueryResult>', () => {
 
 		cy.mount(<QueryResult item={item} onSelect={callbackSpy} />);
 
-		cy.getBySel('itemCheck').click();
+		cy.getBySel('itemCheck-' + item.id).click();
 
 		cy.get('@clickHandlerSpy').should('have.been.calledWith', item, true);
 	});

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { AppCardToItemMapping } from '../../../../models/appCardToItemMapping.if';
 import ImportActions from './ImportActions';
 
 describe('<ImportActions>', () => {
@@ -10,6 +11,7 @@ describe('<ImportActions>', () => {
 				onImportSelected={() => {}}
 				onImportAll={() => {}}
 				onSync={() => {}}
+				importedItems={[]}
 			/>
 		);
 	});
@@ -23,6 +25,7 @@ describe('<ImportActions>', () => {
 					onImportSelected={() => {}}
 					onImportAll={() => {}}
 					onSync={() => {}}
+					importedItems={[]}
 				/>
 			);
 
@@ -32,7 +35,7 @@ describe('<ImportActions>', () => {
 			);
 		});
 
-		it.only('disabled the "Import Selected" button when no items have been selected', () => {
+		it('disabled the "Import Selected" button when no items have been selected', () => {
 			cy.mount(
 				<ImportActions
 					selectedCount={0}
@@ -40,6 +43,7 @@ describe('<ImportActions>', () => {
 					onImportSelected={() => {}}
 					onImportAll={() => {}}
 					onSync={() => {}}
+					importedItems={[]}
 				/>
 			);
 
@@ -54,27 +58,24 @@ describe('<ImportActions>', () => {
 					onImportSelected={() => {}}
 					onImportAll={() => {}}
 					onSync={() => {}}
+					importedItems={[]}
 				/>
 			);
 
 			cy.getBySel('importAll').should('have.text', 'Import all (15)');
 		});
 
-		//TODO then
-		it.skip(
-			'displays the amount of already imported Items on the Sync button'
-		);
-
 		it('calls the passed handler when clicking the "Import Selected" button', () => {
 			const handler = cy.spy().as('handler');
 
 			cy.mount(
 				<ImportActions
-					selectedCount={0}
-					totalCount={0}
+					selectedCount={2}
+					totalCount={5}
 					onImportSelected={handler}
 					onImportAll={() => {}}
 					onSync={() => {}}
+					importedItems={[]}
 				/>
 			);
 
@@ -93,6 +94,7 @@ describe('<ImportActions>', () => {
 					onImportSelected={() => {}}
 					onImportAll={handler}
 					onSync={() => {}}
+					importedItems={[]}
 				/>
 			);
 
@@ -101,24 +103,52 @@ describe('<ImportActions>', () => {
 			cy.get('@handler').should('have.been.calledOnce');
 		});
 
-		it.skip('calls the passed handler when clicking the "Sync" button', () => {
-			const handler = cy.spy().as('handler');
+		context('syncing', () => {
+			it('displays the amount of already imported Items on the Sync button', () => {
+				const items: AppCardToItemMapping[] = [
+					{ itemId: '1', appCardId: '' },
+					{ itemId: '2', appCardId: '' },
+					{ itemId: '3', appCardId: '' },
+				];
 
-			cy.mount(
-				<ImportActions
-					selectedCount={0}
-					totalCount={0}
-					onImportSelected={() => {}}
-					onImportAll={() => {}}
-					onSync={handler}
-				/>
-			);
+				cy.mount(
+					<ImportActions
+						selectedCount={0}
+						totalCount={0}
+						onImportSelected={() => {}}
+						onImportAll={() => {}}
+						onSync={() => {}}
+						importedItems={items}
+					/>
+				);
 
-			//TODO stub amount of synched Items
+				cy.getBySel('sync').should('contain.text', items.length);
+			});
 
-			cy.getBySel('sync').click();
+			it('calls the passed handler when clicking the "Sync" button', () => {
+				const handler = cy.spy().as('handler');
 
-			cy.get('@handler').should('have.been.calledOnce');
+				const items: AppCardToItemMapping[] = [
+					{ itemId: '1', appCardId: '' },
+					{ itemId: '2', appCardId: '' },
+					{ itemId: '3', appCardId: '' },
+				];
+
+				cy.mount(
+					<ImportActions
+						selectedCount={0}
+						totalCount={0}
+						onImportSelected={() => {}}
+						onImportAll={() => {}}
+						onSync={handler}
+						importedItems={items}
+					/>
+				);
+
+				cy.getBySel('sync').click();
+
+				cy.get('@handler').should('have.been.calledOnce');
+			});
 		});
 	});
 });

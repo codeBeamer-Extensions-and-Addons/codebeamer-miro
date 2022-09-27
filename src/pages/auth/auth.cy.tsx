@@ -137,6 +137,15 @@ describe('<Auth>', () => {
 			cy.getBySel('cbAddressErrors').should('exist');
 		});
 
+		it('shows a hint about RCN connection when the cbAddress contains "retina"', () => {
+			cy.getBySel('cbAddress').type('retina');
+
+			cy.getBySel('rcnHint').should('exist');
+
+			cy.getBySel('cbAddress').clear();
+			cy.getBySel('rcnHint').should('not.exist');
+		});
+
 		it('shows (an) error(s) when submitting without having filled all inputs', () => {
 			cy.getBySel('submit').click();
 

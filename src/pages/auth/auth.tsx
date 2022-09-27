@@ -12,6 +12,7 @@ import {
 	setProjectId,
 } from '../../store/slices/boardSettingsSlice';
 import { useState } from 'react';
+import { displayAppMessage } from '../../store/slices/appMessagesSlice';
 
 interface Errors {
 	cbAddress?: string;
@@ -34,6 +35,7 @@ export default function AuthForm(props: {
 	const dispatch = useDispatch();
 
 	const [animateSuccess, setAnimateSuccess] = useState(false);
+	const [showRCNHint, setShowRCNHint] = useState(false);
 
 	const { cbUsername, cbPassword } = useSelector(
 		(state: RootState) => state.userSettings
@@ -43,9 +45,26 @@ export default function AuthForm(props: {
 	);
 
 	if (props.error) {
-		//TODO miro.showErrorNotif
+		dispatch(
+			displayAppMessage({
+				header: 'Invalid Credentials and/or address',
+				bg: 'danger',
+				delay: 2500,
+			})
+		);
 		console.error('Invalid Credentials and/or address!', props.error);
 	}
+
+	/**
+	 * Toggles the {@link showRCNHint} variable, which triggers the respective hint to show or not.
+	 */
+	const toggleRCNHint = (e: React.ChangeEvent<any>) => {
+		if (e.target.value.includes('retina')) {
+			setShowRCNHint(true);
+		} else {
+			setShowRCNHint(false);
+		}
+	};
 
 	const showSuccessAnimation = () => {
 		setAnimateSuccess(true);
@@ -58,11 +77,11 @@ export default function AuthForm(props: {
 		<div data-test="auth" className="container">
 			{!props.headerLess && (
 				<header className="text-center mb-5">
-					<h2>CodeBeamer / Miro Integration</h2>
+					<h2>codebeamer cards</h2>
 					<p>
 						<span className="icon icon-plug pos-adjusted-down"></span>
 						<span className="ml-small">
-							Connect to your CodeBeamer Instance
+							Connect to your codebeamer Instance
 						</span>
 					</p>
 				</header>
@@ -114,7 +133,6 @@ export default function AuthForm(props: {
 						errors,
 						touched,
 						handleChange,
-						handleBlur,
 						handleSubmit,
 						isSubmitting,
 						/* and other goodies */
@@ -134,6 +152,10 @@ export default function AuthForm(props: {
 									type="text"
 									name="cbAddress"
 									className="input"
+									onChange={(e: React.ChangeEvent<any>) => {
+										handleChange(e);
+										toggleRCNHint(e);
+									}}
 									data-test="cbAddress"
 								/>
 								{errors.cbAddress && touched.cbAddress && (
@@ -142,6 +164,14 @@ export default function AuthForm(props: {
 										data-test="cbAddressErrors"
 									>
 										{errors.cbAddress}
+									</div>
+								)}
+								{showRCNHint && (
+									<div
+										className="status-text muted"
+										data-test="rcnHint"
+									>
+										RCN connection required
 									</div>
 								)}
 							</div>

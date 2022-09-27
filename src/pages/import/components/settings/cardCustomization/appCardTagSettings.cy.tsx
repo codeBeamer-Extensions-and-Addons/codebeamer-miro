@@ -1,3 +1,4 @@
+import { AppCard } from '@mirohq/websdk-types';
 import React from 'react';
 import { StandardItemProperty } from '../../../../../enums/standard-item-property.enum';
 import { IAppCardTagSetting } from '../../../../../models/import-configuration.if';
@@ -34,6 +35,64 @@ describe('<AppCardTagSettings', () => {
 			cy.getBySel(`tag-${p.replace(' ', '-')}`)
 				.find('input[type="checkbox"]')
 				.should('exist');
+		});
+	});
+
+	context('apply button', () => {
+		it('shows an "Apply" button to apply the changes to the config', () => {
+			cy.mountWithStore(<AppCardTagSettings />);
+
+			cy.getBySel('apply').should('exist');
+		});
+
+		it('updates the imported cards when applying', { retries: 5 }, () => {
+			const stubSync = cy.stub();
+
+			const itemOne: Partial<AppCard> = {
+				id: '1',
+				title: '[RETUS-1]',
+				sync: stubSync,
+			};
+			const itemTwo: Partial<AppCard> = {
+				id: '2',
+				title: '[RETUS-2]',
+				sync: stubSync,
+			};
+
+			const stubBoardGet = cy.stub(miro.board, 'get').callsFake(() => {
+				return Promise.resolve([itemOne, itemTwo]);
+			});
+
+			cy.intercept('POST', '**/api/v3/items/query', {
+				fixture: 'query.json',
+			}).as('fetch');
+
+			cy.intercept(
+				'POST',
+				'**/api/v3/projects/**/wiki2html',
+				'fakeDesc'
+			).as('wiki2html');
+
+			cy.mountWithStore(<AppCardTagSettings />);
+
+			cy.getBySel(`tag-Owner`).click();
+
+			cy.getBySel('apply')
+				.click()
+				.then(() => {
+					expect(stubBoardGet).to.have.been.called;
+
+					cy.wait('@fetch').then(() => {
+						cy.wait('@wiki2html').then(() => {
+							expect(stubSync).to.be.calledOnce;
+
+							cy.wait('@wiki2html').then(() => {
+								expect(stubSync).to.be.calledOnce;
+								cy.get('.checkmark').should('exist');
+							});
+						});
+					});
+				});
 		});
 	});
 

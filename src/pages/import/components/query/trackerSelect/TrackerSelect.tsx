@@ -1,6 +1,7 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useGetTrackersQuery } from '../../../../../api/codeBeamerApi';
+import { displayAppMessage } from '../../../../../store/slices/appMessagesSlice';
 import { setTrackerId } from '../../../../../store/slices/userSettingsSlice';
 import { RootState } from '../../../../../store/store';
 
@@ -18,7 +19,14 @@ export default function TrackerSelect() {
 	React.useEffect(() => {
 		if (error) {
 			console.error(error);
-			//TODO miro.showErrorNotif
+			dispatch(
+				displayAppMessage({
+					header: 'Error fetching Trackers',
+					content: `Is your codeBeamer server accessible?<br/>Try reloading the app`,
+					bg: 'danger',
+					delay: 5000,
+				})
+			);
 		}
 	}, [error]);
 

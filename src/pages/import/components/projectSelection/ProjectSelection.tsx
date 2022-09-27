@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLazyGetProjectsQuery } from '../../../../api/codeBeamerApi';
 import { ProjectListView } from '../../../../models/projectListView.if';
+import { displayAppMessage } from '../../../../store/slices/appMessagesSlice';
 import { setProjectId } from '../../../../store/slices/boardSettingsSlice';
 import { setTrackerId } from '../../../../store/slices/userSettingsSlice';
 import { RootState } from '../../../../store/store';
@@ -27,7 +28,14 @@ export default function ProjectSelection(props: { headerLess?: boolean }) {
 	React.useEffect(() => {
 		if (result.isError) {
 			console.error(result.error);
-			//TODO miro.showErrorNotif
+			dispatch(
+				displayAppMessage({
+					header: 'Error fetching Projects',
+					content: `Is your codeBeamer server accessible?`,
+					bg: 'danger',
+					delay: 5000,
+				})
+			);
 		}
 	}, [result]);
 

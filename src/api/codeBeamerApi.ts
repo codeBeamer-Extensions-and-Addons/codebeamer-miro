@@ -12,6 +12,7 @@ import { ItemQueryPage } from '../models/itemQueryPage';
 import { CodeBeamerItemsQuery } from '../models/itemQuery';
 import TrackerDetails from '../models/trackerDetails.if';
 import { CodeBeamerTrackerSchemaEntry } from '../models/trackerSchema.if';
+import { Wiki2HtmlQuery } from '../models/wiki2HtmlQuery';
 
 const dynamicBaseQuery: BaseQueryFn<
 	string | FetchArgs,
@@ -77,6 +78,19 @@ export const codeBeamerApi = createApi({
 				query: (trackerId) => `trackers/${trackerId}/schema`,
 			}
 		),
+		getWiki2Html: builder.query<
+			string,
+			{ projectId: string; body: Wiki2HtmlQuery }
+		>({
+			query: (parameters) => {
+				return {
+					url: `/projects/${parameters.projectId}/wiki2html`,
+					method: 'POST',
+					body: parameters.body,
+					headers: { 'Content-type': 'application/json' },
+				};
+			},
+		}),
 	}),
 });
 
@@ -89,4 +103,5 @@ export const {
 	useLazyGetItemsQuery,
 	useGetTrackerDetailsQuery,
 	useGetTrackerSchemaQuery,
+	useGetWiki2HtmlQuery,
 } = codeBeamerApi;

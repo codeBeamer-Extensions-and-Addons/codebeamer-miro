@@ -18,7 +18,7 @@ export default function getCodeBeamerPropertyNameByFieldLabel(
 		case StandardItemProperty.RELEASE:
 			return 'release';
 		case StandardItemProperty.PRIORITY:
-			return 'namedPriority';
+			return 'priority';
 		case StandardItemProperty.STORY_POINTS:
 			return 'storyPoints';
 		case StandardItemProperty.START_DATE:
@@ -30,12 +30,12 @@ export default function getCodeBeamerPropertyNameByFieldLabel(
 		case StandardItemProperty.ASSIGNED_AT:
 			return 'assignedAt';
 		case StandardItemProperty.SUBMITTED_AT:
-			return 'submittedAt';
+			return 'createdAt';
 		case StandardItemProperty.SUBMITTED_BY:
-			return 'submitter';
+			return 'createdBy';
 		case StandardItemProperty.MODIFIED_AT:
 			return 'modifiedAt';
 		case StandardItemProperty.MODIFIED_BY:
-			return 'modifier';
+			return 'modifiedBy';
 	}
 }
