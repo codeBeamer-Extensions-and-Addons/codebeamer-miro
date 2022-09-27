@@ -4,6 +4,7 @@ import { getStore } from '../../../../store/store';
 import ImportHeader from './ImportHeader';
 
 const searchMethodSelector = 'search-method';
+const cbqlIconSelector = 'cbql-icon';
 
 describe('<ImportHeader>', () => {
 	it('mounts', () => {
@@ -13,13 +14,9 @@ describe('<ImportHeader>', () => {
 	context('actions', () => {
 		describe('search-method button', () => {
 			it('displays the "CBQL" button by default', () => {
-				const expectedClass = 'icon-text';
 				cy.mountWithStore(<ImportHeader />);
 
-				cy.getBySel(searchMethodSelector).should(
-					'have.class',
-					expectedClass
-				);
+				cy.getBySel(cbqlIconSelector).should('exist');
 			});
 
 			describe('with cached setting', () => {
@@ -38,17 +35,12 @@ describe('<ImportHeader>', () => {
 				});
 
 				it('displays "CBQL" when "Advanced Search" is disabled in cache', () => {
-					const expectedClass = 'icon-text';
-
 					const store = getStore();
 					store.dispatch(setAdvancedSearch(false));
 
 					cy.mountWithStore(<ImportHeader />, { reduxStore: store });
 
-					cy.getBySel(searchMethodSelector).should(
-						'have.class',
-						expectedClass
-					);
+					cy.getBySel(cbqlIconSelector).should('exist');
 				});
 			});
 

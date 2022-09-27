@@ -58,22 +58,24 @@ export default function ImportHeader() {
 						{advancedSearch ? (
 							''
 						) : (
-							<svg
-								width="24"
-								height="24"
-								viewBox="0 0 28 28"
-								fill="none"
-								xmlns="http://www.w3.org/2000/svg"
-							>
-								<text fill="#000000">
-									<tspan x="4" y="13" textLength="20">
-										CB
-									</tspan>
-									<tspan x="4" y="25">
-										QL
-									</tspan>
-								</text>
-							</svg>
+							<i data-test="cbql-icon">
+								<svg
+									width="24"
+									height="24"
+									viewBox="0 0 28 28"
+									fill="none"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<text fill="#000000">
+										<tspan x="4" y="13" textLength="20">
+											CB
+										</tspan>
+										<tspan x="4" y="25">
+											QL
+										</tspan>
+									</text>
+								</svg>
+							</i>
 						)}
 					</button>
 					<button
