@@ -17,7 +17,7 @@ describe('addCardFields', () => {
 			it('adds a field for this property to the card its data', () => {
 				cy.stub(store, 'getState').returns({
 					boardSettings: {
-						importConfiguration: {
+						cardTagConfiguration: {
 							standard: {
 								ID: true,
 							},
@@ -37,7 +37,7 @@ describe('addCardFields', () => {
 			it.skip('adds a customField for the object-property that shows the object its name property', () => {
 				cy.stub(store, 'getState').returns({
 					boardSettings: {
-						importConfiguration: {
+						cardTagConfiguration: {
 							standard: {
 								modifiedBy: true,
 							},

@@ -1,8 +1,11 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, current } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import { BoardSetting } from '../boardSetting.enum';
+import { BoardSetting } from '../enums/boardSetting.enum';
 import { UserMapping } from '../../models/user-mapping.if';
-import { ImportConfiguration } from '../../models/import-configuration.if';
+import {
+	IAppCardTagSetting,
+	IAppCardTagSettings,
+} from '../../models/import-configuration.if';
 
 export interface BoardSettingsState {
 	loading: boolean;
@@ -10,7 +13,7 @@ export interface BoardSettingsState {
 	projectId: any;
 	inboxTrackerId: any;
 	userMapping: any[];
-	importConfiguration: any;
+	cardTagConfiguration: any;
 }
 
 const initialState: BoardSettingsState = {
@@ -19,7 +22,7 @@ const initialState: BoardSettingsState = {
 	projectId: '',
 	inboxTrackerId: '',
 	userMapping: [],
-	importConfiguration: { standard: {}, trackerSpecific: {} },
+	cardTagConfiguration: { standard: {}, trackerSpecific: {} },
 };
 
 export const loadBoardSettings = createAsyncThunk(
@@ -51,6 +54,18 @@ export const boardSettingsSlice = createSlice({
 
 			state.projectId = id;
 		},
+		setStandardCardTagConfiguration: (
+			state,
+			action: PayloadAction<IAppCardTagSetting>
+		) => {
+			state.cardTagConfiguration.standard[action.payload.property] =
+				action.payload.value;
+
+			miro.board.setAppData(
+				BoardSetting.CARD_TAG_CONFIGURATION,
+				structuredClone(current(state.cardTagConfiguration))
+			);
+		},
 	},
 	extraReducers: (builder) => {
 		builder
@@ -66,10 +81,12 @@ export const boardSettingsSlice = createSlice({
 					(action.payload[
 						BoardSetting.USER_MAPPING
 					] as unknown as UserMapping[]) ?? {};
-				state.importConfiguration =
-					(action.payload[
-						BoardSetting.IMPORT_CONFIGURATION
-					] as unknown as ImportConfiguration) ?? {};
+				state.cardTagConfiguration = (action.payload[
+					BoardSetting.CARD_TAG_CONFIGURATION
+				] as unknown as IAppCardTagSettings) ?? {
+					standard: {},
+					trackerSpecific: {},
+				};
 
 				state.loading = false;
 			})
@@ -77,6 +94,7 @@ export const boardSettingsSlice = createSlice({
 	},
 });
 
-export const { setCbAddress, setProjectId } = boardSettingsSlice.actions;
+export const { setCbAddress, setProjectId, setStandardCardTagConfiguration } =
+	boardSettingsSlice.actions;
 
 export default boardSettingsSlice.reducer;

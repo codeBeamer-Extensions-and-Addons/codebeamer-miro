@@ -1,7 +1,17 @@
 import * as React from 'react';
-import { setProjectId } from '../../../../store/slices/boardSettingsSlice';
+import {
+	setCbAddress,
+	setProjectId,
+} from '../../../../store/slices/boardSettingsSlice';
+import { setTrackerId } from '../../../../store/slices/userSettingsSlice';
 import { getStore } from '../../../../store/store';
 import ProjectSelection from './ProjectSelection';
+
+const projectIdSelector = 'projectId';
+const projectSelector = 'project';
+const submitSelector = 'submit';
+const userFeedbackWrapperSelector = 'user-feedback';
+const cbContextSelector = 'cb-context';
 
 describe('<ProjectSelection>', () => {
 	it('mounts', () => {
@@ -14,13 +24,13 @@ describe('<ProjectSelection>', () => {
 		});
 
 		it('has a project ID input', () => {
-			cy.getBySel('projectId').should('exist');
+			cy.getBySel(projectIdSelector).should('exist');
 		});
 		it('has a project select', () => {
-			cy.getBySel('project').should('exist');
+			cy.getBySel(projectSelector).should('exist');
 		});
 		it('has a submit button', () => {
-			cy.getBySel('submit');
+			cy.getBySel(submitSelector);
 		});
 	});
 
@@ -32,12 +42,49 @@ describe('<ProjectSelection>', () => {
 
 		cy.spy(store, 'dispatch').as('dispatch');
 
-		cy.getBySel('projectId').type(projectId.toString());
-		cy.getBySel('submit').click();
+		cy.getBySel(projectIdSelector).type(projectId.toString());
+		cy.getBySel(submitSelector).click();
 
 		cy.get('@dispatch').then((dispatch) =>
 			expect(dispatch).to.have.been.calledWith(setProjectId(projectId))
 		);
+	});
+
+	it('resets the trackerId when a projectId change is submitted', () => {
+		const store = getStore();
+		const projectId = 123;
+		const trackerId = '';
+
+		cy.mountWithStore(<ProjectSelection />, { reduxStore: store });
+
+		cy.spy(store, 'dispatch').as('dispatch');
+
+		cy.getBySel(projectIdSelector).type(projectId.toString());
+		cy.getBySel(submitSelector).click();
+
+		cy.get('@dispatch').then((dispatch) =>
+			expect(dispatch).to.have.been.calledWith(setTrackerId(trackerId))
+		);
+	});
+
+	it('loads the cached projectId when initializing, putting it into the form', () => {
+		const store = getStore();
+		const projectId = 1234;
+		store.dispatch(setProjectId(projectId));
+
+		cy.mountWithStore(<ProjectSelection />, { reduxStore: store });
+
+		cy.getBySel(projectIdSelector).should('have.value', projectId);
+	});
+
+	it('displays the cached cbAddress for context', () => {
+		const store = getStore();
+		const context = 'https://codebeamer.com/cb';
+		store.dispatch(setCbAddress(context));
+
+		cy.mountWithStore(<ProjectSelection />, { reduxStore: store });
+
+		cy.getBySel(cbContextSelector).should('contain.text', context);
 	});
 
 	context('with project data', () => {
@@ -50,13 +97,13 @@ describe('<ProjectSelection>', () => {
 		it('shows loaded projects as options in the respective dropdown', () => {
 			cy.mountWithStore(<ProjectSelection />);
 			//Melon is the name of a project in the fixture
-			cy.getBySel('project').should('contain.text', 'Melon');
+			cy.getBySel(projectSelector).should('contain.text', 'Melon');
 		});
 
 		it('selects a project in the dropdown based on the entered project Id', () => {
 			cy.mountWithStore(<ProjectSelection />);
 
-			cy.getBySel('projectId').type('3');
+			cy.getBySel(projectIdSelector).type('3');
 			cy.get('[data-test="project"] option:selected').should(
 				'have.text',
 				'Kiwi'
@@ -66,17 +113,45 @@ describe('<ProjectSelection>', () => {
 		it('enters the project Id into its input when selecting a project from the dropdown', () => {
 			cy.mountWithStore(<ProjectSelection />);
 
-			cy.getBySel('project').select('Cherry');
-			//? not sure, but this might need to go into a then() call
-			cy.getBySel('projectId').should('have.value', '4');
+			cy.getBySel(projectSelector).select('Cherry');
+
+			cy.getBySel(projectIdSelector).should('have.value', '4');
 		});
 
 		it('shows an error message if there is no project for an entered Id', () => {
 			cy.mountWithStore(<ProjectSelection />);
-			cy.getBySel('projectId').type('8');
+			cy.getBySel(projectIdSelector).type('8');
 			//unfocus input
 			cy.get('body').click();
 			cy.getBySel('projectIdErrors').should('exist');
+		});
+
+		it('communicates the user the success of the operation when the projectId was updated', () => {
+			const projectId = '2';
+			cy.mountWithStore(<ProjectSelection />);
+
+			cy.getBySel(projectIdSelector).type(projectId);
+			cy.getBySel(submitSelector)
+				.click()
+				.then(() => {
+					cy.getBySel(userFeedbackWrapperSelector).should('exist');
+					cy.getBySel(submitSelector).should('not.exist');
+				});
+		});
+
+		it('re-queries Projects when the stored cbAddress value changes', () => {
+			const store = getStore();
+			const cbAddress = 'https://fake.codebeamer.com';
+
+			cy.intercept('GET', `https://fake.codebeamer.com/api/v3/projects`, {
+				fixture: 'projects.json',
+			}).as('lazyQuery');
+
+			cy.mountWithStore(<ProjectSelection />, { reduxStore: store });
+
+			store.dispatch(setCbAddress(cbAddress));
+
+			cy.wait('@lazyQuery');
 		});
 	});
 

@@ -1,74 +1,33 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useGetTrackersQuery } from '../../../../api/codeBeamerApi';
-import { setTrackerId } from '../../../../store/slices/userSettingsSlice';
+import { useSelector } from 'react-redux';
 import { RootState } from '../../../../store/store';
+import ActiveFilters from './activeFilters/ActiveFilters';
+import CbqlInput from './cbqlInput/CbqlInput';
+import FilterInput from './filterInput/FilterInput';
+import TrackerSelect from './trackerSelect/TrackerSelect';
+
+import './query.css';
 
 export default function Query() {
-	const dispatch = useDispatch();
-
-	const { projectId } = useSelector(
-		(state: RootState) => state.boardSettings
-	);
-
-	const { advancedSearch, trackerId } = useSelector(
+	const { advancedSearch } = useSelector(
 		(state: RootState) => state.userSettings
 	);
 
-	const { data, error, isLoading } = useGetTrackersQuery(projectId);
-
-	React.useEffect(() => {
-		if (error) {
-			console.error(error);
-			//TODO miro.showErrorNotif
-		}
-	}, [error]);
-
-	/**
-	 * Once we got or update (latter shouldn't ever be the case) the trackers, programmatically
-	 * select the cached selected Tracker for the user's convenience.
-	 */
-	React.useEffect(() => {
-		if (data && !isLoading) {
-			(
-				document.getElementById('trackerSelect') as HTMLSelectElement
-			).value = trackerId;
-		}
-	}, [data]);
-
-	const handleSelect = (event: any) => {
-		dispatch(setTrackerId(event.target.value));
-	};
-
-	//TODO tracker-select, filter, activeFilters & cbql input components
 	if (!advancedSearch) {
 		return (
-			<div className="grid">
+			<div className="grid fade-in-quick">
 				<div className="cs1 ce3">
-					<div className="form-group">
-						<label>Tracker</label>
-						<select
-							className="select"
-							onChange={handleSelect}
-							data-test="trackerSelect"
-							id="trackerSelect"
-						>
-							<option value="0">--</option>
-							{!isLoading &&
-								data?.map((t) => (
-									<option value={t.id} key={t.id}>
-										{t.name}
-									</option>
-								))}
-						</select>
-					</div>
+					<TrackerSelect />
 				</div>
-				<div className="cs4 ce8 text-center">(Filter Input)</div>
-				<div className="cs9 ce12 text-center">(Active Filters)</div>
+				<div className="cs4 ce7 text-center">
+					<FilterInput />
+				</div>
+				<div className="cs8 ce12 text-center active-filters-container">
+					<ActiveFilters />
+				</div>
 			</div>
 		);
 	} else {
-		//TODO cqbl input
-		return <div>CBQL Input</div>;
+		return <CbqlInput />;
 	}
 }

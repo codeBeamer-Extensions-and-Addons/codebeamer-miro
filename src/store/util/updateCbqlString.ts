@@ -1,4 +1,4 @@
-import { FilterCriteria } from '../../models/filterCriteria.if';
+import { IFilterCriteria } from '../../models/filterCriteria.if';
 import { SubqueryLinkMethod } from '../enums/subquery-link-method.enum';
 import getQueryEntityNameForCriteria from './getQueryEntityNameForCriteria';
 
@@ -10,7 +10,7 @@ import getQueryEntityNameForCriteria from './getQueryEntityNameForCriteria';
  * @returns CBQL query string corresponding to the given specifications
  */
 export default function getCbqlString(
-	filters: FilterCriteria[],
+	filters: IFilterCriteria[],
 	subqueryChaining: string,
 	trackerId: string
 ): string {
@@ -26,7 +26,7 @@ export default function getCbqlString(
  * @returns CBQL Query substring like "AND ... = ..." if any criteria was selected.
  */
 function getFilterQuerySubstring(
-	filters: FilterCriteria[],
+	filters: IFilterCriteria[],
 	chainingMethod: SubqueryLinkMethod | string,
 	trackerId?: string
 ): string {

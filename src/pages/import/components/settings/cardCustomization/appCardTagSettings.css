@@ -1,0 +1,17 @@
+.property {
+	padding-left: 1rem;
+}
+
+.property > .checkbox {
+	margin: 0 0 var(--space-xxsmall) 0 !important;
+}
+
+.property > .checkbox > span {
+	margin: 0 0 0 var(--space-small) !important;
+}
+.grid > * {
+	align-self: auto !important;
+}
+.border-right-light {
+	border-right: 1px solid var(--indigo200);
+}

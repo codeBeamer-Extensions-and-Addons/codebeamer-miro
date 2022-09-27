@@ -1,12 +1,17 @@
 import { Field, Formik } from 'formik';
 import * as React from 'react';
-import Header from '../../components/header';
-
 import './auth.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
-import { setCredentials } from '../../store/slices/userSettingsSlice';
-import { setCbAddress } from '../../store/slices/boardSettingsSlice';
+import {
+	setCredentials,
+	setTrackerId,
+} from '../../store/slices/userSettingsSlice';
+import {
+	setCbAddress,
+	setProjectId,
+} from '../../store/slices/boardSettingsSlice';
+import { useState } from 'react';
 
 interface Errors {
 	cbAddress?: string;
@@ -20,8 +25,15 @@ interface Errors {
  * while actual connection attempts are made in the Content component.
  * @param props Loading defines whether or not to show a loading spinner on the button, errors show in notifications.
  */
-export default function AuthForm(props: { loading?: boolean; error?: any }) {
+export default function AuthForm(props: {
+	loading?: boolean;
+	error?: any;
+	headerLess?: boolean;
+	successAnimation?: boolean;
+}) {
 	const dispatch = useDispatch();
+
+	const [animateSuccess, setAnimateSuccess] = useState(false);
 
 	const { cbUsername, cbPassword } = useSelector(
 		(state: RootState) => state.userSettings
@@ -35,16 +47,26 @@ export default function AuthForm(props: { loading?: boolean; error?: any }) {
 		console.error('Invalid Credentials and/or address!', props.error);
 	}
 
+	const showSuccessAnimation = () => {
+		setAnimateSuccess(true);
+		setTimeout(() => {
+			setAnimateSuccess(false);
+		}, 2000);
+	};
+
 	return (
 		<div data-test="auth" className="container">
-			<Header centered={true} margin={true}>
-				CodeBeamer / Miro Integration
-				<br />
-				<small>
-					<span className="icon icon-plug pos-adjusted-down"></span>
-					Connect to your CodeBeamer Instance
-				</small>
-			</Header>
+			{!props.headerLess && (
+				<header className="text-center mb-5">
+					<h2>CodeBeamer / Miro Integration</h2>
+					<p>
+						<span className="icon icon-plug pos-adjusted-down"></span>
+						<span className="ml-small">
+							Connect to your CodeBeamer Instance
+						</span>
+					</p>
+				</header>
+			)}
 			<div>
 				<Formik
 					initialValues={{
@@ -72,13 +94,19 @@ export default function AuthForm(props: { loading?: boolean; error?: any }) {
 					}}
 					onSubmit={async (values, { setSubmitting }) => {
 						setSubmitting(true);
+						dispatch(setCbAddress(values.cbAddress));
 						dispatch(
 							setCredentials({
 								username: values.cbUsername,
 								password: values.cbPassword,
 							})
 						);
-						dispatch(setCbAddress(values.cbAddress));
+						if (values.cbAddress != cbAddress) {
+							dispatch(setProjectId(''));
+							dispatch(setTrackerId(''));
+						}
+
+						if (props.successAnimation) showSuccessAnimation();
 					}}
 				>
 					{({
@@ -161,19 +189,42 @@ export default function AuthForm(props: { loading?: boolean; error?: any }) {
 							</div>
 
 							<div className="flex-centered mt-4">
-								<button
-									type="submit"
-									disabled={isSubmitting || props.loading}
-									className={`button button-primary ${
-										isSubmitting || props.loading
-											? 'button-loading'
-											: ''
-									}`}
-									data-test="submit"
-								>
-									{/*//TODO icon*/}
-									Connect
-								</button>
+								{!animateSuccess && (
+									<button
+										type="submit"
+										disabled={isSubmitting || props.loading}
+										className={`fade-in button button-primary ${
+											isSubmitting || props.loading
+												? 'button-loading'
+												: ''
+										}`}
+										data-test="submit"
+									>
+										Connect
+									</button>
+								)}
+								{animateSuccess && (
+									<span>
+										<svg
+											className="checkmark"
+											xmlns="http://www.w3.org/2000/svg"
+											viewBox="0 0 52 52"
+										>
+											<circle
+												className="checkmark__circle"
+												cx="26"
+												cy="26"
+												r="25"
+												fill="none"
+											/>
+											<path
+												className="checkmark__check"
+												fill="none"
+												d="M14.1 27.2l7.1 7.2 16.7-16.8"
+											/>
+										</svg>
+									</span>
+								)}
 							</div>
 						</form>
 					)}

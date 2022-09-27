@@ -1,18 +1,29 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { UserSetting } from '../store/userSetting.enum';
+import {
+	BaseQueryFn,
+	createApi,
+	FetchArgs,
+	fetchBaseQuery,
+	FetchBaseQueryError,
+} from '@reduxjs/toolkit/query/react';
 import { RootState } from '../store/store';
 import { ProjectListView } from '../models/projectListView.if';
 import { TrackerListView } from '../models/trackerListView.if';
 import { ItemQueryPage } from '../models/itemQueryPage';
 import { CodeBeamerItemsQuery } from '../models/itemQuery';
 import TrackerDetails from '../models/trackerDetails.if';
+import { CodeBeamerTrackerSchemaEntry } from '../models/trackerSchema.if';
 
-export const codeBeamerApi = createApi({
-	baseQuery: fetchBaseQuery({
-		baseUrl: `${
-			localStorage.getItem(UserSetting.CB_ADDRESS) ??
-			'https://codebeamer.com/cb'
-		}/api/v3/`,
+const dynamicBaseQuery: BaseQueryFn<
+	string | FetchArgs,
+	unknown,
+	FetchBaseQueryError
+> = async (args, api, extraOptions) => {
+	const baseUrl = `${
+		(api.getState() as RootState).boardSettings.cbAddress ??
+		'https://codebeamer.com/cb'
+	}/api/v3/`;
+	const rawBaseQuery = fetchBaseQuery({
+		baseUrl,
 		prepareHeaders: (headers, { getState }) => {
 			const token = btoa(
 				`${(getState() as RootState).userSettings.cbUsername}:${
@@ -26,7 +37,12 @@ export const codeBeamerApi = createApi({
 
 			return headers;
 		},
-	}),
+	});
+	return rawBaseQuery(args, api, extraOptions);
+};
+
+export const codeBeamerApi = createApi({
+	baseQuery: dynamicBaseQuery,
 	endpoints: (builder) => ({
 		testAuthentication: builder.query<
 			string,
@@ -56,15 +72,21 @@ export const codeBeamerApi = createApi({
 		getTrackerDetails: builder.query<TrackerDetails, string>({
 			query: (trackerId) => `trackers/${trackerId}`,
 		}),
+		getTrackerSchema: builder.query<CodeBeamerTrackerSchemaEntry[], string>(
+			{
+				query: (trackerId) => `trackers/${trackerId}/schema`,
+			}
+		),
 	}),
 });
 
 export const {
 	useTestAuthenticationQuery,
 	useGetUserByNameQuery,
-	useGetProjectsQuery,
+	useLazyGetProjectsQuery,
 	useGetTrackersQuery,
 	useGetItemsQuery,
 	useLazyGetItemsQuery,
 	useGetTrackerDetailsQuery,
+	useGetTrackerSchemaQuery,
 } = codeBeamerApi;

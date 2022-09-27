@@ -1,7 +1,7 @@
-import { setProjectId } from '../store/slices/boardSettingsSlice';
-import { setCredentials } from '../store/slices/userSettingsSlice';
-import { getStore } from '../store/store';
-import Content from './content';
+import { setProjectId } from '../../store/slices/boardSettingsSlice';
+import { setCredentials } from '../../store/slices/userSettingsSlice';
+import { getStore } from '../../store/store';
+import Content from './Content';
 import * as React from 'react';
 
 describe('<Content>', () => {

@@ -31,7 +31,6 @@ export default function QueryResults() {
 		entries: IntersectionObserverEntry[],
 		observer: IntersectionObserver
 	) => {
-		console.log('Intersection observed');
 		if (!entries[0]) return;
 		if (!entries[0].isIntersecting) return;
 		observer.unobserve(entries[0].target);
@@ -62,11 +61,8 @@ export default function QueryResults() {
 		if (data) {
 			setEos(items.length >= data.total);
 			if (items.length < data.total) {
-				console.log('Page pre inc', page);
 				const previous = page;
-				//TODO the following doesn't work
 				setPage(previous + 1);
-				console.log('Page post inc', page);
 			}
 		}
 	};
@@ -94,6 +90,7 @@ export default function QueryResults() {
 	 */
 	React.useEffect(() => {
 		setItems([]);
+		setPage(1);
 	}, [cbqlString]);
 
 	React.useEffect(() => {
@@ -104,12 +101,22 @@ export default function QueryResults() {
 	//! this should (must, or else it doesn't really work) only trigger when we load another page of query results
 	React.useEffect(() => {
 		if (data && data.items.length) {
-			setItems([
-				...items,
-				...data.items.map(
-					(i: ItemListView) => new ItemQueryResultView(i.id, i.name)
-				),
-			]);
+			if (data.page > 1) {
+				setItems([
+					...items,
+					...data.items.map(
+						(i: ItemListView) =>
+							new ItemQueryResultView(i.id, i.name)
+					),
+				]);
+			} else {
+				setItems(
+					data.items.map(
+						(i: ItemListView) =>
+							new ItemQueryResultView(i.id, i.name)
+					)
+				);
+			}
 		}
 	}, [data]);
 
@@ -117,9 +124,7 @@ export default function QueryResults() {
 		const lastItem = document.querySelector(
 			'#queryResults tbody tr:last-child'
 		);
-		console.log('Last tr: ', lastItem);
 		if (lastItem) {
-			console.log('Now observing: ', lastItem);
 			lazyLoadObserver.observe(lastItem);
 		}
 	}, [items]);
@@ -155,18 +160,25 @@ export default function QueryResults() {
 	//********************************RENDER********************************* */
 	//*********************************************************************** */
 
+	if (!items.length && isLoading) {
+		return (
+			<div className="centered h-auto">
+				<div className="loading-spinner"></div>
+			</div>
+		);
+	}
 	if (data && data.total == 0) {
 		return (
-			<div className="centered">
+			<div className="centered h-auto">
 				<h3 className="h3 muted-info" data-test="noItemsInTracker">
-					No Items in this Tracker
+					No Items in this Query
 				</h3>
 			</div>
 		);
 	} else if (error) {
 		//TODO only for CBQL input I think
 		return (
-			<div className="centered">
+			<div className="centered h-auto">
 				<h3 className="h3 error">Invalid query</h3>
 			</div>
 		);
@@ -196,10 +208,20 @@ export default function QueryResults() {
 					</tbody>
 					<tfoot>
 						<tr className="text-center">
+							{!eos && (
+								<td
+									colSpan={3}
+									className="position-relative loading-spinner loading-spinner-table-end"
+								></td>
+							)}
 							{eos && (
-								<span className="muted" data-test="eosInfo">
+								<td
+									colSpan={3}
+									className="muted"
+									data-test="eosInfo"
+								>
 									End of stream
-								</span>
+								</td>
 							)}
 						</tr>
 					</tfoot>
@@ -214,6 +236,11 @@ export default function QueryResults() {
 				{importing && (
 					<Importer
 						items={itemsToImport}
+						totalItems={
+							itemsToImport.length > 0
+								? itemsToImport.length
+								: data?.total
+						}
 						onClose={closeModalDebugOnly}
 					/>
 				)}

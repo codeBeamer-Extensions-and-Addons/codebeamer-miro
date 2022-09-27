@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { RootState } from '../store/store';
+import { RootState } from '../../store/store';
 
-import AuthForm from '../pages/auth/auth';
-import { useTestAuthenticationQuery } from '../api/codeBeamerApi';
-import { loadBoardSettings } from '../store/slices/boardSettingsSlice';
-import ProjectSelection from '../pages/import/components/projectSelection/ProjectSelection';
-import Import from '../pages/import/Import';
+import AuthForm from '../auth/auth';
+import { useTestAuthenticationQuery } from '../../api/codeBeamerApi';
+import { loadBoardSettings } from '../../store/slices/boardSettingsSlice';
+import ProjectSelection from '../import/components/projectSelection/ProjectSelection';
+import Import from '../import/Import';
 
 export default function Content() {
 	const dispatch = useDispatch();
@@ -38,7 +38,7 @@ export default function Content() {
 		);
 	else if (!projectId)
 		return (
-			<div className="centered">
+			<div className="centered fade-in">
 				<ProjectSelection />
 			</div>
 		);
