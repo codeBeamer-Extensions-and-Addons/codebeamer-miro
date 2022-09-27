@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### [1.0.0]
 
+Major version 1.0.0 mainly differentiates itself from previous versions by having updated to Miro SDK 2.0, but also by having been rebuilt from the ground up with the framework react.js.
+
 #### Added
 
 -   Project Settings Dialogue to Settings Modal
@@ -25,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     -   More modular setup dialogues
         -   Seperate authentication dialogue
         -   Seperate project selection dialogue
+            -   Project can be filtered and selected by name, instead of having to provide its Id.
     -   Setup is prompted when attempting to open the app with lacking configuration
 -   Some UI elements have been restyled, using the Mirotone UI library instead of Bootstrap or custom styles.
 -   AND/OR Filter interface adjusted to resemble the UX on codebeamer itself
@@ -42,6 +45,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   Filters can be added by pressing "enter" when in the respective input. (No need to always manually click the button.)
 -   Import (respectively update-) progress bar now shows when updating/synchronizing items.
+-   Preview to how the AppCard on Miro looks in the AppCard-tag Settings
+-   "Apply" button in the AppCard-tag Settings to apply changes to currently imported Items
 
 ### Changed
 

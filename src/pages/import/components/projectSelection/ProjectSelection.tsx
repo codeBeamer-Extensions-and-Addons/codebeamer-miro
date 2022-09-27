@@ -1,4 +1,4 @@
-import { Field, Formik, useFormikContext } from 'formik';
+import Select from 'react-select';
 import * as React from 'react';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -9,13 +9,22 @@ import { setProjectId } from '../../../../store/slices/boardSettingsSlice';
 import { setTrackerId } from '../../../../store/slices/userSettingsSlice';
 import { RootState } from '../../../../store/store';
 
+import './projectSelection.css';
+
 export default function ProjectSelection(props: { headerLess?: boolean }) {
 	const dispatch = useDispatch();
 
 	const [animateSuccess, setAnimateSuccess] = useState(false);
+	const [selectedProjectId, setSelectedProjectId] = useState<
+		string | number
+	>();
 
 	const { cbAddress, projectId } = useSelector(
 		(state: RootState) => state.boardSettings
+	);
+
+	const [selectedProjectLabel, setSelectedProjectLabel] = useState<string>(
+		projectId.toString()
 	);
 
 	const [trigger, result, lastPromiseInfo] =
@@ -39,6 +48,15 @@ export default function ProjectSelection(props: { headerLess?: boolean }) {
 		}
 	}, [result]);
 
+	React.useEffect(() => {
+		if (result.data) {
+			setSelectedProjectLabel(
+				result.data.find((r) => r.id == projectId)?.name ??
+					projectId.toString()
+			);
+		}
+	}, [result.data]);
+
 	const showSuccessAnimation = () => {
 		setAnimateSuccess(true);
 		setTimeout(() => {
@@ -47,213 +65,94 @@ export default function ProjectSelection(props: { headerLess?: boolean }) {
 	};
 
 	return (
-		<div data-test="project-selection" className="container">
+		<div
+			data-test="project-selection"
+			className="container project-selection"
+		>
 			{!props.headerLess && (
 				<header className="text-center mb-5">
 					<h3 className="h3">Project selection</h3>
 					<p>
-						Enter your Project's ID or select it from the Dropdown
-						below.
+						Select your Project
+						<br />
+						{selectedProjectLabel && (
+							<span data-test="current-project">
+								Currently: {selectedProjectLabel}
+							</span>
+						)}
 					</p>
 				</header>
 			)}
 			<div className="mt-3">
-				<Formik
-					initialValues={{
-						projectId: projectId,
-						project: '-',
+				<Select
+					className="basic-single"
+					classNamePrefix="select"
+					options={result.data}
+					isLoading={result.isLoading}
+					isSearchable={true}
+					isClearable={true}
+					getOptionLabel={(option) => option.name}
+					getOptionValue={(option) => option.id.toString()}
+					onChange={(v) => {
+						setSelectedProjectId(v?.id);
 					}}
-					validate={(values) => {
-						const errors: { projectId?: string; project?: string } =
-							{};
+					maxMenuHeight={180}
+				/>
+				<span className="muted-medium" data-test="cb-context">
+					Projects from: {cbAddress}
+				</span>
+				<div className="flex-centered mt-4">
+					{!animateSuccess && (
+						<button
+							type="submit"
+							disabled={!selectedProjectId}
+							className="fade-in button button-primary"
+							data-test="submit"
+							onClick={() => {
+								if (!selectedProjectId) {
+									dispatch(
+										displayAppMessage({
+											header: 'No value provided for the Project',
+											content:
+												'This is probably due to an internal error. Please contact support!',
+											bg: 'danger',
+										})
+									);
+									return;
+								}
+								dispatch(setProjectId(selectedProjectId));
+								dispatch(setTrackerId(''));
 
-						if (!values.projectId)
-							errors.projectId = 'Select an ID';
-						// if (!values.project || values.project == '-')
-						// 	errors.project = "Can't find Project";
-						if (
-							result.data &&
-							!result.data.find((p) => p.id == values.projectId)
-						) {
-							errors.projectId = 'No Project found with this ID';
-						}
-
-						return errors;
-					}}
-					onSubmit={(values, { setSubmitting }) => {
-						setSubmitting(true);
-
-						dispatch(setProjectId(values.projectId));
-						dispatch(setTrackerId(''));
-
-						showSuccessAnimation();
-
-						setSubmitting(false);
-					}}
-				>
-					{({
-						values,
-						errors,
-						touched,
-						handleChange,
-						handleBlur,
-						handleSubmit,
-						isSubmitting,
-						/* and other goodies */
-					}) => (
-						<form onSubmit={handleSubmit}>
-							<div
-								className={`form-group flex align-items-center w-100 ${
-									touched.projectId
-										? errors.projectId
-											? 'error'
-											: 'success'
-										: ''
-								}`}
-							>
-								<label className="inline">Project ID: </label>
-								<ProjectIdField />
-								{errors.projectId && touched.projectId && (
-									<div
-										className="status-text ml-1"
-										data-test="projectIdErrors"
-									>
-										{errors.projectId}
-									</div>
-								)}
-							</div>
-							<div
-								className={`form-group w-fill ${
-									touched.project
-										? errors.project
-											? 'error'
-											: 'success'
-										: ''
-								}`}
-							>
-								<label className="inline">Project</label>
-								<ProjectField
-									projects={result.data}
-									loading={result.isLoading}
-								/>
-								<span
-									className="muted-medium"
-									data-test="cb-context"
-								>
-									Projects from: {cbAddress}
-								</span>
-								{errors.project && (
-									<div className="status-text">
-										{errors.project}
-									</div>
-								)}
-							</div>
-							<div className="flex-centered mt-4">
-								{!animateSuccess && (
-									<button
-										type="submit"
-										disabled={
-											isSubmitting ||
-											errors.project ||
-											errors.projectId
-										}
-										className={`fade-in button button-primary ${
-											isSubmitting && 'button-loading'
-										}`}
-										data-test="submit"
-									>
-										Confirm
-									</button>
-								)}
-								{animateSuccess && (
-									<span data-test="user-feedback">
-										<svg
-											className="checkmark"
-											xmlns="http://www.w3.org/2000/svg"
-											viewBox="0 0 52 52"
-										>
-											<circle
-												className="checkmark__circle"
-												cx="26"
-												cy="26"
-												r="25"
-												fill="none"
-											/>
-											<path
-												className="checkmark__check"
-												fill="none"
-												d="M14.1 27.2l7.1 7.2 16.7-16.8"
-											/>
-										</svg>
-									</span>
-								)}
-							</div>
-						</form>
+								showSuccessAnimation();
+							}}
+						>
+							Confirm
+						</button>
 					)}
-				</Formik>
+					{animateSuccess && (
+						<span data-test="user-feedback">
+							<svg
+								className="checkmark"
+								xmlns="http://www.w3.org/2000/svg"
+								viewBox="0 0 52 52"
+							>
+								<circle
+									className="checkmark__circle"
+									cx="26"
+									cy="26"
+									r="25"
+									fill="none"
+								/>
+								<path
+									className="checkmark__check"
+									fill="none"
+									d="M14.1 27.2l7.1 7.2 16.7-16.8"
+								/>
+							</svg>
+						</span>
+					)}
+				</div>
 			</div>
 		</div>
 	);
 }
-
-const ProjectField = (props: {
-	projects: ProjectListView[] | undefined;
-	loading: boolean;
-}) => {
-	const {
-		values: { projectId },
-		setFieldValue,
-	} = useFormikContext<{ projectId: number }>();
-
-	React.useEffect(() => {
-		//to add a 2nd error msg below this input, which I think is obsolete
-		//&& props.projects?.find((p) => p.id == projectId)
-		if (projectId !== 0) {
-			setFieldValue('project', projectId);
-		} else {
-			setFieldValue('project', '-');
-		}
-	}, [projectId]);
-
-	return (
-		<Field
-			as="select"
-			name="project"
-			className="select w-100"
-			data-test="project"
-		>
-			<option value="-">--</option>
-			{props.loading && <option>Loading Projects...</option>}
-			{!props.loading &&
-				props.projects?.map((p) => {
-					return (
-						<option value={p.id} key={p.id}>
-							{p.name}
-						</option>
-					);
-				})}
-		</Field>
-	);
-};
-
-const ProjectIdField = () => {
-	const {
-		values: { project },
-		setFieldValue,
-	} = useFormikContext<{ project: string }>();
-
-	React.useEffect(() => {
-		if (project !== '-') {
-			setFieldValue('projectId', parseInt(project));
-		}
-	}, [project]);
-
-	return (
-		<Field
-			type="number"
-			name="projectId"
-			className="input w-25 ml-1"
-			data-test="projectId"
-		/>
-	);
-};
