@@ -8,6 +8,7 @@ import { useTestAuthenticationQuery } from '../../api/codeBeamerApi';
 import { loadBoardSettings } from '../../store/slices/boardSettingsSlice';
 import ProjectSelection from '../import/components/projectSelection/ProjectSelection';
 import Import from '../import/Import';
+import Announcements from '../announcements/Announcements';
 
 export default function Content() {
 	const dispatch = useDispatch();
@@ -30,24 +31,25 @@ export default function Content() {
 		cbPassword,
 	});
 
-	if (isLoading || error)
-		return (
-			<div className="centered">
-				<AuthForm
-					loading={isLoading}
-					error={
-						cbAddress && cbUsername && cbPassword
-							? error
-							: undefined
-					}
-				/>
-			</div>
-		);
-	else if (!projectId)
-		return (
-			<div className="centered fade-in">
-				<ProjectSelection />
-			</div>
-		);
-	else return <Import />;
+	return <Announcements />;
+	// if (isLoading || error)
+	// 	return (
+	// 		<div className="centered">
+	// 			<AuthForm
+	// 				loading={isLoading}
+	// 				error={
+	// 					cbAddress && cbUsername && cbPassword
+	// 						? error
+	// 						: undefined
+	// 				}
+	// 			/>
+	// 		</div>
+	// 	);
+	// else if (!projectId)
+	// 	return (
+	// 		<div className="centered fade-in">
+	// 			<ProjectSelection />
+	// 		</div>
+	// 	);
+	// else return <Import />;
 }
