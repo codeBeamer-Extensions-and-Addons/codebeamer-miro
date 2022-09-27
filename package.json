@@ -17,7 +17,8 @@
 		"build": "vite build",
 		"serve": "vite preview",
 		"test": "cypress run -b chrome --component --record false",
-		"test:open": "cypress open --component -b chrome"
+		"test:open": "cypress open --component -b chrome",
+		"test:record": "cypress run -b chrome --component --record --key 367c2fd2-a572-4dde-b0c8-3ed84e3c6aed"
 	},
 	"dependencies": {
 		"@reduxjs/toolkit": "^1.8.3",
@@ -28,7 +29,8 @@
 		"react-bootstrap": "^2.5.0",
 		"react-dom": "18.2.0",
 		"react-redux": "^8.0.2",
-		"sanitize-html": "^2.7.1"
+		"sanitize-html": "^2.7.1",
+		"swiper": "^8.4.2"
 	},
 	"devDependencies": {
 		"@mirohq/websdk-types": "latest",
