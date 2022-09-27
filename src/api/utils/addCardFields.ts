@@ -45,10 +45,6 @@ export default function addCardFields(
 		const itemPropertyName = getCodeBeamerPropertyNameByFieldLabel(key);
 		try {
 			field = item[itemPropertyName as keyof CodeBeamerItem];
-			// if (!field)
-			// 	console.warn(
-			// 		`Field ${itemPropertyName} doesn't exist on Item ${item.name}`
-			// 	);
 		} catch (error) {
 			continue;
 		}
