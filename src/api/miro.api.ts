@@ -5,23 +5,51 @@ import { store } from '../store/store';
 import addCardFields from './utils/addCardFields';
 import getCardTitle from './utils/getCardTitle';
 import getItemColorField from './utils/getItemColorField';
-import getRandomizedInitialCoordSetInViewport from './utils/getRandomizedInitialCoordSetInViewport';
+
 import { RenderingContextType } from '../enums/renderingContextType.enum';
 import { DescriptionFormat } from '../enums/descriptionFormat.enum';
+import getConcentricCircleCoords from './utils/getConcentricCircleCoords';
+import { CardSpawningMethod } from '../enums/cardSpawningMethod.enum';
+import getRandomCoordSetPerSubject from './utils/getRandomCoordSetPerSubject';
+import getSnailCoordSetPerSubject from './utils/getSnailCoords';
 
 /**
  * Create a new app card base on a codeBeamer item
  * @param item The item to base the card on
+ * @param distributedSpawning Set to false for the item to be spawned roughly in the viewport's center, to true for distribution using the full vp dimensions.
  */
-export async function createAppCard(item: CodeBeamerItem) {
+export async function createAppCard(
+	item: CodeBeamerItem,
+	cardSpawningMethod: CardSpawningMethod = CardSpawningMethod.CONCENTRIC_CIRCLES
+) {
 	const card: Partial<AppCard> = await convertToCardData(item);
-	const coords = await getRandomizedInitialCoordSetInViewport();
+	let coords: { x: number; y: number };
+
+	switch (cardSpawningMethod) {
+		case CardSpawningMethod.CONCENTRIC_CIRCLES: {
+			coords = await getConcentricCircleCoords(item);
+			break;
+		}
+		case CardSpawningMethod.RANDOM_IN_VIEWPORT: {
+			coords = await getRandomCoordSetPerSubject(item);
+			break;
+		}
+		case CardSpawningMethod.SNAIL: {
+			coords = await getSnailCoordSetPerSubject(item);
+			break;
+		}
+	}
+
 	card.x = coords.x;
 	card.y = coords.y;
 
-	const widget = await miro.board.createAppCard({
-		...card,
-	});
+	try {
+		const widget = await miro.board.createAppCard({
+			...card,
+		});
+	} catch (error) {
+		console.error(error);
+	}
 }
 
 /**

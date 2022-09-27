@@ -11,6 +11,7 @@ export enum StandardItemProperty {
 	RELEASE = 'Release',
 	PRIORITY = 'Priority',
 	STORY_POINTS = 'Story Points',
+	SUBJECT = 'Subjects',
 	START_DATE = 'Start Date',
 	END_DATE = 'End Date',
 	ASSIGNED_TO = 'Assigned To',

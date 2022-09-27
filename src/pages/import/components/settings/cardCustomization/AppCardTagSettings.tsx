@@ -308,6 +308,7 @@ const samplePropertyValues = {
 	Release: 'PI 3.2',
 	Priority: 'Medium',
 	'Story Points': '8',
+	Subjects: 'A big feature',
 	'Start Date': '2022-03-15',
 	'End Date': '2022-04-02',
 	'Assigned To': 'urecha',

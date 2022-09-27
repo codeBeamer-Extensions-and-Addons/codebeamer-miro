@@ -21,6 +21,8 @@ export default function getCodeBeamerPropertyNameByFieldLabel(
 			return 'priority';
 		case StandardItemProperty.STORY_POINTS:
 			return 'storyPoints';
+		case StandardItemProperty.SUBJECT:
+			return 'subjects';
 		case StandardItemProperty.START_DATE:
 			return 'startDate';
 		case StandardItemProperty.END_DATE:
