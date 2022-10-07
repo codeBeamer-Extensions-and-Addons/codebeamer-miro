@@ -1,0 +1,51 @@
+body {
+	--roche-blue: #0b41cd;
+	--roche-dark-blue: #022366;
+	--roche-light-blue: #1482fa;
+}
+
+.roche-primary {
+	color: var(--roche-blue);
+}
+
+.roche-primary-dark {
+	color: var(--roche-dark-blue);
+}
+
+.roche-primary-light {
+	color: var(--roche-light-blue);
+}
+
+.grow {
+	animation: grow 0.2s ease-in forwards;
+}
+.announcements {
+	background-color: white !important;
+	max-width: 65%;
+}
+
+.close-button {
+	background: var(--indigo50);
+	width: 36px;
+	border-radius: 50%;
+	height: 36px;
+	padding: 6px;
+}
+.close-button:hover {
+	background: var(--indigo200);
+}
+
+.skip-button {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+}
+
+@keyframes grow {
+	from {
+		scale: 0.5;
+	}
+	to {
+		scale: 1;
+	}
+}
