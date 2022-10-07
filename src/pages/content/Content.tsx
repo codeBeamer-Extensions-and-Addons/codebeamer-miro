@@ -8,6 +8,7 @@ import { useTestAuthenticationQuery } from '../../api/codeBeamerApi';
 import { loadBoardSettings } from '../../store/slices/boardSettingsSlice';
 import ProjectSelection from '../import/components/projectSelection/ProjectSelection';
 import Import from '../import/Import';
+import Announcements from '../announcements/Announcements';
 
 export default function Content() {
 	const dispatch = useDispatch();
@@ -16,7 +17,7 @@ export default function Content() {
 		dispatch(loadBoardSettings());
 	}, []);
 
-	const { cbUsername, cbPassword } = useSelector(
+	const { cbUsername, cbPassword, showAnnouncements } = useSelector(
 		(state: RootState) => state.userSettings
 	);
 
@@ -30,7 +31,9 @@ export default function Content() {
 		cbPassword,
 	});
 
-	if (isLoading || error)
+	if (cbUsername && showAnnouncements) {
+		return <Announcements />;
+	} else if (isLoading || error)
 		return (
 			<div className="centered">
 				<AuthForm

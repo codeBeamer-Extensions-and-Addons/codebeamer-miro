@@ -8,7 +8,7 @@ import Content from './pages/content/Content';
 import Toasts from './components/toasts/Toasts';
 
 function App() {
-	//* manual projectId reset because I haven't implemented it yet in the UI
+	//* manual resets for stored data. for testing purposes.
 	React.useEffect(() => {
 		// miro.board.setAppData('projectId', '');
 		// miro.board.setAppData('cbAddress', '');
@@ -20,6 +20,7 @@ function App() {
 		// miro.board.setAppData('cardTagConfiguration', config);
 		// localStorage.clear();
 		// sessionStorage.clear();
+		// localStorage.removeItem(UserSetting.SHOW_ANNOUNCEMENTS);
 	});
 
 	return (

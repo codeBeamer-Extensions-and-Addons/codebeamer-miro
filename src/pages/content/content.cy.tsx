@@ -1,5 +1,8 @@
 import { setProjectId } from '../../store/slices/boardSettingsSlice';
-import { setCredentials } from '../../store/slices/userSettingsSlice';
+import {
+	setCredentials,
+	setShowAnnouncements,
+} from '../../store/slices/userSettingsSlice';
 import { getStore } from '../../store/store';
 import Content from './Content';
 import * as React from 'react';
@@ -13,6 +16,23 @@ describe('<Content>', () => {
 		cy.mountWithStore(<Content />);
 
 		cy.getBySel('auth').should('exist');
+	});
+
+	it('displays the announcements page when a user has previously used the app but not seen the announcement', () => {
+		const store = getStore();
+		store.dispatch(
+			setCredentials({ username: 'teste', password: 'rinho' })
+		);
+
+		cy.mountWithStore(<Content />, { reduxStore: store });
+
+		cy.getBySel('announcements').should('exist');
+	});
+
+	it('does not display the nnouncements page to entirely new users', () => {
+		cy.mountWithStore(<Content />);
+
+		cy.getBySel('announcements').should('not.exist');
 	});
 
 	describe('uses cached values to automate procedures', () => {
@@ -41,6 +61,7 @@ describe('<Content>', () => {
 			store.dispatch(
 				setCredentials({ username: username, password: password })
 			);
+			store.dispatch(setShowAnnouncements(false));
 
 			cy.mountWithStore(<Content />, { reduxStore: store });
 
@@ -52,6 +73,7 @@ describe('<Content>', () => {
 			store.dispatch(
 				setCredentials({ username: username, password: password })
 			);
+			store.dispatch(setShowAnnouncements(false));
 			store.dispatch(setProjectId(1));
 
 			cy.mountWithStore(<Content />, { reduxStore: store });

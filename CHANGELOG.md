@@ -19,6 +19,8 @@ Major version 1.0.0 mainly differentiates itself from previous versions by havin
     -   CodeBeamer Address
     -   ProjectId
     -   Card Tag configuration
+-   Announcements page  
+    Page will display to existing users when there are announcements
 
 #### Changed
 
