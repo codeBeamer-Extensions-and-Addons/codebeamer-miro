@@ -17,7 +17,7 @@ export default function Content() {
 		dispatch(loadBoardSettings());
 	}, []);
 
-	const { cbUsername, cbPassword } = useSelector(
+	const { cbUsername, cbPassword, showAnnouncements } = useSelector(
 		(state: RootState) => state.userSettings
 	);
 
@@ -31,25 +31,26 @@ export default function Content() {
 		cbPassword,
 	});
 
-	return <Announcements />;
-	// if (isLoading || error)
-	// 	return (
-	// 		<div className="centered">
-	// 			<AuthForm
-	// 				loading={isLoading}
-	// 				error={
-	// 					cbAddress && cbUsername && cbPassword
-	// 						? error
-	// 						: undefined
-	// 				}
-	// 			/>
-	// 		</div>
-	// 	);
-	// else if (!projectId)
-	// 	return (
-	// 		<div className="centered fade-in">
-	// 			<ProjectSelection />
-	// 		</div>
-	// 	);
-	// else return <Import />;
+	if (cbUsername && showAnnouncements) {
+		return <Announcements />;
+	} else if (isLoading || error)
+		return (
+			<div className="centered">
+				<AuthForm
+					loading={isLoading}
+					error={
+						cbAddress && cbUsername && cbPassword
+							? error
+							: undefined
+					}
+				/>
+			</div>
+		);
+	else if (!projectId)
+		return (
+			<div className="centered fade-in">
+				<ProjectSelection />
+			</div>
+		);
+	else return <Import />;
 }
