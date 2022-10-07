@@ -20,7 +20,7 @@ export default function Settings(props: { onClose: Function }) {
 		{
 			title: 'Project',
 			// icon: 'layers',
-			tab: <ProjectSelection headerLess={true} />,
+			tab: <ProjectSelection />,
 		},
 		{
 			title: 'Connection',

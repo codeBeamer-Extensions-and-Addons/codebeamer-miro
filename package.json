@@ -29,8 +29,8 @@
 		"react-bootstrap": "^2.5.0",
 		"react-dom": "18.2.0",
 		"react-redux": "^8.0.2",
-		"sanitize-html": "^2.7.1",
-		"swiper": "^8.4.2"
+		"react-select": "^5.4.0",
+		"sanitize-html": "^2.7.1"
 	},
 	"devDependencies": {
 		"@mirohq/websdk-types": "latest",

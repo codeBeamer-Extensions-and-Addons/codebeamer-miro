@@ -7,9 +7,10 @@ import { setTrackerId } from '../../../../store/slices/userSettingsSlice';
 import { getStore } from '../../../../store/store';
 import ProjectSelection from './ProjectSelection';
 
-const projectIdSelector = 'projectId';
-const projectSelector = 'project';
+const projectSelector = '.select__control';
+const projectsSelector = '.select__menu';
 const submitSelector = 'submit';
+const currentProjectSelector = 'current-project';
 const userFeedbackWrapperSelector = 'user-feedback';
 const cbContextSelector = 'cb-context';
 
@@ -23,58 +24,12 @@ describe('<ProjectSelection>', () => {
 			cy.mountWithStore(<ProjectSelection />);
 		});
 
-		it('has a project ID input', () => {
-			cy.getBySel(projectIdSelector).should('exist');
-		});
 		it('has a project select', () => {
-			cy.getBySel(projectSelector).should('exist');
+			cy.get(projectSelector).should('exist');
 		});
 		it('has a submit button', () => {
 			cy.getBySel(submitSelector);
 		});
-	});
-
-	it('saves the projectId in store when submitting the form', () => {
-		const store = getStore();
-		const projectId = 123;
-
-		cy.mountWithStore(<ProjectSelection />, { reduxStore: store });
-
-		cy.spy(store, 'dispatch').as('dispatch');
-
-		cy.getBySel(projectIdSelector).type(projectId.toString());
-		cy.getBySel(submitSelector).click();
-
-		cy.get('@dispatch').then((dispatch) =>
-			expect(dispatch).to.have.been.calledWith(setProjectId(projectId))
-		);
-	});
-
-	it('resets the trackerId when a projectId change is submitted', () => {
-		const store = getStore();
-		const projectId = 123;
-		const trackerId = '';
-
-		cy.mountWithStore(<ProjectSelection />, { reduxStore: store });
-
-		cy.spy(store, 'dispatch').as('dispatch');
-
-		cy.getBySel(projectIdSelector).type(projectId.toString());
-		cy.getBySel(submitSelector).click();
-
-		cy.get('@dispatch').then((dispatch) =>
-			expect(dispatch).to.have.been.calledWith(setTrackerId(trackerId))
-		);
-	});
-
-	it('loads the cached projectId when initializing, putting it into the form', () => {
-		const store = getStore();
-		const projectId = 1234;
-		store.dispatch(setProjectId(projectId));
-
-		cy.mountWithStore(<ProjectSelection />, { reduxStore: store });
-
-		cy.getBySel(projectIdSelector).should('have.value', projectId);
 	});
 
 	it('displays the cached cbAddress for context', () => {
@@ -94,46 +49,66 @@ describe('<ProjectSelection>', () => {
 			}).as('projectsQuery');
 		});
 
-		it('shows loaded projects as options in the respective dropdown', () => {
-			cy.mountWithStore(<ProjectSelection />);
-			//Melon is the name of a project in the fixture
-			cy.getBySel(projectSelector).should('contain.text', 'Melon');
-		});
+		it('displays the currently selected project', () => {
+			const store = getStore();
+			const project = { id: 1, name: 'Banana' };
+			store.dispatch(setProjectId(project.id));
 
-		it('selects a project in the dropdown based on the entered project Id', () => {
-			cy.mountWithStore(<ProjectSelection />);
+			cy.mountWithStore(<ProjectSelection />, { reduxStore: store });
 
-			cy.getBySel(projectIdSelector).type('3');
-			cy.get('[data-test="project"] option:selected').should(
-				'have.text',
-				'Kiwi'
+			cy.getBySel(currentProjectSelector).should(
+				'contain.text',
+				project.name
 			);
 		});
 
-		it('enters the project Id into its input when selecting a project from the dropdown', () => {
-			cy.mountWithStore(<ProjectSelection />);
+		it('saves the projectId in store when submitting the form', () => {
+			const store = getStore();
+			const project = { id: 1, name: 'Banana' };
 
-			cy.getBySel(projectSelector).select('Cherry');
+			cy.mountWithStore(<ProjectSelection />, { reduxStore: store });
 
-			cy.getBySel(projectIdSelector).should('have.value', '4');
+			cy.spy(store, 'dispatch').as('dispatch');
+
+			cy.get(projectSelector).type(`${project.name}{enter}`);
+			cy.getBySel(submitSelector).click();
+
+			cy.get('@dispatch').then((dispatch) =>
+				expect(dispatch).to.have.been.calledWith(
+					setProjectId(project.id)
+				)
+			);
 		});
 
-		it('shows an error message if there is no project for an entered Id', () => {
+		it('resets the trackerId when a projectId change is submitted', () => {
+			const store = getStore();
+			const trackerId = '';
+
+			cy.mountWithStore(<ProjectSelection />, { reduxStore: store });
+
+			cy.spy(store, 'dispatch').as('dispatch');
+
+			cy.get(projectSelector).type('Banana{enter}');
+			cy.getBySel(submitSelector).click();
+
+			cy.get('@dispatch').then((dispatch) =>
+				expect(dispatch).to.have.been.calledWith(
+					setTrackerId(trackerId)
+				)
+			);
+		});
+
+		it('shows loaded projects as options in the respective dropdown', () => {
 			cy.mountWithStore(<ProjectSelection />);
-			cy.wait('@projectsQuery');
-
-			cy.getBySel(projectIdSelector).type('8');
-
-			//unfocus input
-			cy.get('h3').click();
-			cy.getBySel('projectIdErrors').should('exist');
+			cy.get(projectSelector).click();
+			//Melon is the name of a project in the fixture
+			cy.get(projectsSelector).should('contain.text', 'Melon');
 		});
 
 		it('communicates the user the success of the operation when the projectId was updated', () => {
-			const projectId = '2';
 			cy.mountWithStore(<ProjectSelection />);
 
-			cy.getBySel(projectIdSelector).type(projectId);
+			cy.get(projectSelector).type('Banana{enter}');
 			cy.getBySel(submitSelector)
 				.click()
 				.then(() => {

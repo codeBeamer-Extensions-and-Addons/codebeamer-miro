@@ -191,7 +191,7 @@ export default function AppCardTagSettings() {
 					the imported Items' Cards.
 					<br />
 					Items that don't have a selected property won't display the
-					for it.
+					tag for it.
 				</p>
 			</div>
 			<div className="my-2 grid">
