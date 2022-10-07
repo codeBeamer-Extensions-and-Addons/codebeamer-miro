@@ -17,6 +17,7 @@ export interface UserSettingsState {
 	subqueryChaining: string;
 	andOrFilterEnabled: boolean;
 	andOrFilter: string;
+	showAnnouncements: boolean;
 }
 
 const initialState: UserSettingsState = {
@@ -38,6 +39,9 @@ const initialState: UserSettingsState = {
 		? localStorage.getItem(UserSetting.AND_OR_FILTER_ENABLED) == 'true'
 		: false,
 	andOrFilter: localStorage.getItem(UserSetting.AND_OR_FILTER_VALUE) ?? '',
+	showAnnouncements: localStorage.getItem(UserSetting.SHOW_ANNOUNCEMENTS)
+		? localStorage.getItem(UserSetting.SHOW_ANNOUNCEMENTS) == 'true'
+		: true,
 };
 
 export const userSettingsSlice = createSlice({
@@ -59,6 +63,7 @@ export const userSettingsSlice = createSlice({
 				UserSetting.CB_PASSWORD,
 				action.payload.password
 			);
+			setShowAnnouncements(false);
 		},
 		setCbqlString: (state, action: PayloadAction<string>) => {
 			state.cbqlString = action.payload;
@@ -189,6 +194,14 @@ export const userSettingsSlice = createSlice({
 			state.cbqlString = cbql;
 			localStorage.setItem(UserSetting.CBQL_STRING, cbql);
 		},
+		setShowAnnouncements: (state, action: PayloadAction<boolean>) => {
+			state.showAnnouncements = action.payload;
+
+			localStorage.setItem(
+				UserSetting.SHOW_ANNOUNCEMENTS,
+				action.payload.toString()
+			);
+		},
 	},
 });
 
@@ -202,6 +215,7 @@ export const {
 	resetCbqlStringToCurrentParameters,
 	setAndOrFilterEnabled,
 	setAndOrFilter,
+	setShowAnnouncements,
 } = userSettingsSlice.actions;
 
 export default userSettingsSlice.reducer;
