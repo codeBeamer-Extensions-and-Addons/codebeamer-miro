@@ -201,6 +201,9 @@ img {
 .h-auto {
 	height: auto;
 }
+.text-decoration-none {
+	text-decoration: none;
+}
 
 /**position & display*/
 
