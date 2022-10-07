@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { setShowAnnouncements } from '../../store/slices/userSettingsSlice';
 
@@ -10,16 +10,27 @@ import './announcements.css';
 export default function Announcements() {
 	const dispatch = useDispatch();
 
+	const [dismissing, setDismissing] = useState(false);
+
 	const dismiss = () => {
-		dispatch(setShowAnnouncements(false));
+		setDismissing(true);
+		setTimeout(() => {
+			dispatch(setShowAnnouncements(false));
+		}, 200);
 	};
 
 	return (
-		<div className="container centered announcements grow">
+		<div
+			className={`container centered announcements ${
+				dismissing ? 'shrink' : 'grow'
+			}`}
+			data-test="announcements"
+		>
 			<span className="close-button mb-3 clickable">
 				<div
 					onClick={() => dismiss()}
 					className="icon icon-close clickable"
+					data-test="close-announcements"
 				></div>
 			</span>
 			<div className="mb-5">
@@ -131,6 +142,7 @@ export default function Announcements() {
 				<a
 					className="roche-primary-light text-decoration-none clickable"
 					onClick={() => dismiss()}
+					data-test="skip-announcements"
 				>
 					To the app -&gt;
 				</a>
