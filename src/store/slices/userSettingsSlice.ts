@@ -63,6 +63,9 @@ export const userSettingsSlice = createSlice({
 				UserSetting.CB_PASSWORD,
 				action.payload.password
 			);
+			//* make sure that the announcements page doesn't show up for new users
+			//* because the condition for it to show is that a username is cached
+			//* and the showAnnouncements value is true (which it is by default)
 			setShowAnnouncements(false);
 		},
 		setCbqlString: (state, action: PayloadAction<string>) => {
