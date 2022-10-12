@@ -27,6 +27,31 @@ const messages: AppMessage[] = [
 	},
 ];
 
+const param1 = 'Param One';
+const param2 = 2;
+const param3 = Math.floor(3.5);
+
+const parametrizedMessages: AppMessage[] = [
+	{
+		id: 0,
+		header: '<h3>Hello there</h3>',
+		content: `<p>${param1} to see here.</p>`,
+		bg: 'light',
+	},
+	{
+		id: 1,
+		header: '<h3>Hello there <small>again</small></h3>',
+		content: `<p>${param2} to see here.</p>`,
+		bg: 'info',
+	},
+	{
+		id: 2,
+		header: '<h3>Hello there <small>again again</small></h3>',
+		content: `<p>${param3} in here.</p>`,
+		bg: 'warning',
+	},
+];
+
 describe('<Toasts>', () => {
 	it('mounts', () => {
 		cy.mountWithStore(<Toasts />);
@@ -45,6 +70,45 @@ describe('<Toasts>', () => {
 				.should('exist')
 				.and('contain.text', messages[i].content);
 		}
+	});
+
+	it('displays toasts for the messages in store containing parametrized values', () => {
+		const store = getStore();
+		for (let message of parametrizedMessages) {
+			store.dispatch(displayAppMessage(message));
+		}
+
+		cy.mountWithStore(<Toasts />, { reduxStore: store });
+
+		for (let i = 0; i < parametrizedMessages.length; i++) {
+			cy.getBySel(`toast-${i}`)
+				.should('exist')
+				.and('contain.text', parametrizedMessages[i].content);
+		}
+	});
+
+	it('displays a toast for a message in store containing jsx', () => {
+		const jsxParamZero = 'mate';
+		const jsxParamOne = 'A JSX Param';
+
+		const expectedHeader = `Hello there ${jsxParamZero}`;
+		const expectedContent = `${jsxParamOne} to see here.`;
+
+		const jsxMessage: AppMessage = {
+			id: 0,
+			header: <h3>Hello there {jsxParamZero}</h3>,
+			content: <p>{jsxParamOne} to see here.</p>,
+			bg: 'light',
+		};
+
+		const store = getStore();
+		store.dispatch(displayAppMessage(jsxMessage));
+
+		cy.mountWithStore(<Toasts />, { reduxStore: store });
+		cy.getBySel(`toast-${0}`)
+			.should('exist')
+			.and('contain.text', expectedContent)
+			.and('contain.text', expectedHeader);
 	});
 
 	it('displays a toast for a message added to the store', () => {
