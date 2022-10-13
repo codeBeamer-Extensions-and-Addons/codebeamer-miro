@@ -24,6 +24,7 @@ export default defineConfig({
 			input: allHtmlEntries,
 		},
 	},
+	base: '/codebeamer-miro/',
 	plugins: [reactRefresh()],
 	server: {
 		host: '127.0.0.1',
