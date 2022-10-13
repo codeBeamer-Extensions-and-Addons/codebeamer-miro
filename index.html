@@ -1,64 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		
+		
+		<script src="https://miro.com/app/static/sdk/v2/miro.js"></script>
+		<title>CB-Miro v1.0.0</title>
+		<script type="module" crossorigin src="/assets/index.4f3c4ccc.js"></script>
+		<link rel="modulepreload" crossorigin href="/assets/style.a87c9e06.js">
+		<link rel="stylesheet" href="/assets/style.b4a7ec0e.css">
+		<link rel="stylesheet" href="/assets/index.1a1cf3fb.css">
+	</head>
+	<body>
+		<div class="grid container">
+			<div class="cs1 ce3">
+				<img
+					class="brand-logo.lg"
+					src="/assets/codeBeamer-Logo.71213db2.png"
+				/>
+			</div>
 
-<head>
-  <meta charset="UTF-8" />
-  <!--sync version number with console log in init.ts-->
-  <title>CB-Miro v0.12.1</title>
-  <link type="stylesheet" href="styles/index.css">
-  <style>
-    body {
-      text-align: center;
-      margin: auto;
-    }
-    .cb-logo {
-      margin: 4rem;
-    }
-    .header {
-      display: flex;
-      justify-content: center;
-    }
-    .header label {
-      align-self: center;
-    }
-    a {
-      text-decoration: none;
-      color: #06c;
-    }
-    a:hover {
-      color: rgb(2, 88, 174);
-    }
-  </style>
-</head>
-
-<body>
-  <script src="https://miro.com/app/static/sdk.1.1.js"></script>
-  <script src="init.js"></script>
-
-  <div class="header">
-    <img class="cb-logo" src="img/codeBeamer-Logo.png"/>
-    <label>
-      &lt;-&gt;
-    </label>
-    <img src="img/miro-Logo.png"/>
-  </div>
-  <h3>
-    codeBeamer synchronizer plugin for Miro v0.12.1
-    <br>
-      by 
-      <a href="https://github.com/max-poprawe">max-poprawe</a>, 
-      <a href="https://github.com/TimMaa">TimMaa</a>, 
-      <a href="https://github.com/urecha">urecha</a>
-    </small>
-  </h3>
-  
-  <p>To install, copy the link of this page and paste it in the URL field under `App-Url` in your Miro app settings.
-    <br>
-    Grant the app the <em>board:write</em> and <em>board:read</em> permissions.
-  </p>
-  
-  <o>For more infos, visit our <a href="https://github.com/max-poprawe/codebeamer-miro">github repo</a></o>
-
-</body>
-
+			<div class="cs10 ce12">
+				<img
+					class="brand-logo-lg"
+					src="data:image/png;base64,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"
+				/>
+			</div>
+			<div class="cs1 ce12">
+				<h1>
+					CodeBeamer / Miro Integration Plugin v1.0.0<br /><small
+						class="muted"
+						>by
+						<a href="https://github.com/urecha">urecha</a>
+						> and <a href="https://github.com/TimMaa">TimMaa</a>, @
+						Roche Diagnostics Int.
+					</small>
+				</h1>
+				<p>
+					To install, copy the link to this page and paste it in the
+					URL field under <em>App-URL</em> in your Miro app
+					settings.<br />
+					Grant the <em>board:write</em> and
+					<em>board:read</em> permissions to the Plugin.
+				</p>
+			</div>
+			<div class="cs1 ce12">
+				<a
+					class="button button-secondary flex-centered"
+					href="https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro"
+					title="Check out the Github page"
+				>
+					<img
+						class="brand-logo"
+						src="/assets/github-transparent.d83ddf4e.png"
+						alt="Github Logo"
+					/>
+					Github Page
+				</a>
+			</div>
+		</div>
+		
+	</body>
 </html>
