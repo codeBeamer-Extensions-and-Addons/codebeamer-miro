@@ -1,4 +1,3 @@
-
 /**
  * Holds the value for the default/common name of the property that holds an item's name / human readable identifier.
  */

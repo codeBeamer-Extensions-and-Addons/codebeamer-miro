@@ -1,21 +1,22 @@
 {
-  "compilerOptions": {
-    "baseUrl": "./src",
-    "outDir": "./dist/",
-    "strictNullChecks": true,
-    "allowUnreachableCode": false,
-    "experimentalDecorators": true,
-    "module": "commonjs",
-    "target": "ES2016",
-    "moduleResolution": "node",
-    "allowJs": true
-  },
-  "typedocOptions": {
-    "entryPointStrategy": "expand",
-    "entryPoints": ["./src"],
-    "out": "docs"
-  },
-  "include": [
-    "src/**/*"
-  ]
+	"compilerOptions": {
+		"target": "esnext",
+		"module": "esnext",
+		"lib": ["esnext", "dom"],
+		"jsx": "preserve",
+		"moduleResolution": "node",
+		"strict": true,
+		"sourceMap": true,
+		"resolveJsonModule": true,
+		"esModuleInterop": true,
+		"noEmit": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noImplicitReturns": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"typeRoots": ["./node_modules/@types", "./node_modules/@mirohq"]
+	},
+	"include": ["global.d.ts", "cypress.d.ts", "src", "cypress"],
+	"exclude": ["node_modules"]
 }

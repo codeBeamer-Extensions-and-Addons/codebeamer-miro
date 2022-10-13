@@ -1,0 +1,45 @@
+.muted-color {
+	color: var(--indigo400);
+}
+.muted-info {
+	color: var(--accent-color);
+}
+.error {
+	color: var(--red800);
+}
+
+/**table hell*/
+
+body {
+	--table-width: 1080px;
+	--import-col-width: 50px;
+	--id-col-width: 100px;
+	--margin-right: calc(var(--scrollbar-width) + 30px);
+	--name-col-width: calc(
+		var(--table-width) - var(--id-col-width) - var(--import-col-width) -
+			var(--margin-right)
+	);
+}
+
+table {
+	display: block;
+	width: var(--table-width);
+	overflow-y: scroll;
+	height: 460px;
+}
+
+tr > td:nth-child(1) {
+	width: var(--import-col-width);
+}
+tr > td:nth-child(2) {
+	width: var(--id-col-width);
+}
+
+tr > td:nth-child(1),
+tr > td:nth-child(2) {
+	text-align: center;
+}
+
+tr > td:nth-child(3) {
+	width: var(--name-col-width);
+}

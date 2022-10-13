@@ -1,0 +1,30 @@
+# This workflow will deploy the app to github pages.
+
+name: CD
+
+on:
+    push:
+        branches: [master]
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+            - uses: actions/checkout@v3
+            # Set up node environment
+            - uses: actions/setup-node@v2
+              with:
+                  node-version: '18'
+
+            - name: Install packages
+              run: npm install
+
+            - name: Build
+              run: npm run build
+
+            - name: Deploy to GH Pages
+              uses: peaceiris/actions-gh-pages@v3
+              with:
+                  deploy_key: ${{ secrets.DEPLOY_KEY }}
+                  publish_dir: ./dist
