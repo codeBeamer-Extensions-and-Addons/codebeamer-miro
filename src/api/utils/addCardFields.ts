@@ -55,6 +55,7 @@ export default function addCardFields(
 
 		if (typeof field === 'object') {
 			if (Array.isArray(field)) {
+				if (!field.length) continue;
 				//* display comma-seperated names of all entries
 				content = '';
 				for (let j = 0; j < field.length; j++) {

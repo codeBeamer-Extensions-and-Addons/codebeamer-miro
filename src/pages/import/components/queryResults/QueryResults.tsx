@@ -213,7 +213,6 @@ export default function QueryResults() {
 	};
 
 	//just to debug with
-	//TODO remove for release
 	const closeModalDebugOnly = () => {
 		setImporting(false);
 	};
@@ -313,7 +312,6 @@ export default function QueryResults() {
 								? itemsToImport.length
 								: data?.total
 						}
-						onClose={closeModalDebugOnly}
 					/>
 				)}
 				{synchronizing && <Updater items={importedItems} />}

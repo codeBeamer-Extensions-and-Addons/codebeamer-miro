@@ -72,6 +72,11 @@ export default function Announcements() {
 					make the app better. Other than that, the release comes with
 					many small UI changes that will hopefully make your
 					experience better.
+					<br />
+					<b>
+						This version will not work with cards imported with
+						older versions.
+					</b>
 				</p>
 			</div>
 			<div>
@@ -80,6 +85,10 @@ export default function Announcements() {
 					<li>
 						Improved the user experience by making the app more
 						simple and adding hints / feedback.
+					</li>
+					<li>
+						Removed the settings widget on the board. You now access
+						all functionality via the toolbar icon.
 					</li>
 					<li>
 						Rewrote the App with Miro's new SDK and a modular and
@@ -112,7 +121,7 @@ export default function Announcements() {
 					.
 				</p> */}
 			</div>
-			<div className="announcement-actions mt-5 text-center">
+			<div className="announcement-actions mt-3 text-center">
 				<h6 className="h6">Additional resources</h6>
 				<a
 					href="https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/blob/master/CHANGELOG.md"
