@@ -140,6 +140,7 @@ export async function convertToCardData(
 		),
 		description: item.description,
 		fields: [],
+		status: 'connected',
 	};
 
 	try {
