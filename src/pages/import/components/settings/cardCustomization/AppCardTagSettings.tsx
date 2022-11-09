@@ -305,7 +305,7 @@ const samplePropertyValues = {
 	ID: '124926',
 	Teams: 'Beavers, Zebras',
 	Owner: 'aurech',
-	Release: 'PI 3.2',
+	Versions: 'PI 3.2',
 	Priority: 'Medium',
 	'Story Points': '8',
 	Subjects: 'A big feature',

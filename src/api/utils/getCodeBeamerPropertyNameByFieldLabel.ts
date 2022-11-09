@@ -15,8 +15,8 @@ export default function getCodeBeamerPropertyNameByFieldLabel(
 			return 'teams';
 		case StandardItemProperty.OWNER:
 			return 'owners';
-		case StandardItemProperty.RELEASE:
-			return 'release';
+		case StandardItemProperty.VERSIONS:
+			return 'versions';
 		case StandardItemProperty.PRIORITY:
 			return 'priority';
 		case StandardItemProperty.STORY_POINTS:

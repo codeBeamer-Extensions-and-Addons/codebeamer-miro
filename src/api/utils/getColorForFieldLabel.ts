@@ -15,7 +15,7 @@ export default function getColorForFieldLabel(
 			return '#40bf95';
 		case StandardItemProperty.OWNER:
 			return '#4095bf';
-		case StandardItemProperty.RELEASE:
+		case StandardItemProperty.VERSIONS:
 			return '#406abf';
 		case StandardItemProperty.PRIORITY:
 			return '#40bfbf';
