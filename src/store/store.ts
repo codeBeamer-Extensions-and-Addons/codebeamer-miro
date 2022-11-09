@@ -5,17 +5,17 @@ import userSettingsSlice from './slices/userSettingsSlice';
 import boardSettingsSlice from './slices/boardSettingsSlice';
 import appMessagesSlice from './slices/appMessagesSlice';
 
-import { codeBeamerApi } from '../api/codeBeamerApi';
+import { codeBeamerSwaggerApi } from '../api/codeBeamerSwaggerApi';
 
 const configuration = {
 	reducer: {
 		userSettings: userSettingsSlice,
 		boardSettings: boardSettingsSlice,
 		appMessages: appMessagesSlice,
-		[codeBeamerApi.reducerPath]: codeBeamerApi.reducer,
+		[codeBeamerSwaggerApi.reducerPath]: codeBeamerSwaggerApi.reducer,
 	},
 	middleware: (getDefaultMiddleware: () => any[]) =>
-		getDefaultMiddleware().concat(codeBeamerApi.middleware),
+		getDefaultMiddleware().concat(codeBeamerSwaggerApi.middleware),
 };
 
 export const store = configureStore(configuration);

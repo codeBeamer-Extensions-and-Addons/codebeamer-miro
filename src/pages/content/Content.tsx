@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 
 import AuthForm from '../auth/auth';
-import { useTestAuthenticationQuery } from '../../api/codeBeamerApi';
+import { useTestAuthenticationQuery } from '../../api/codeBeamerSwaggerApi';
 import { loadBoardSettings } from '../../store/slices/boardSettingsSlice';
 import ProjectSelection from '../import/components/projectSelection/ProjectSelection';
 import Import from '../import/Import';

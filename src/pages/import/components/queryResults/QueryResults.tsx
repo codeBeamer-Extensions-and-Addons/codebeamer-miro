@@ -1,7 +1,7 @@
 import { AppCard } from '@mirohq/websdk-types';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useGetItemsQuery } from '../../../../api/codeBeamerApi';
+import { useGetItemsQuery } from '../../../../api/codeBeamerSwaggerApi';
 import { CARD_TITLE_ID_FILTER_REGEX } from '../../../../constants/cardTitleIdFilterRegex';
 import {
 	DEFAULT_ITEMS_PER_PAGE,

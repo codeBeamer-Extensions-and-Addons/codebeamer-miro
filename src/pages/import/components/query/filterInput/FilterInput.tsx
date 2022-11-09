@@ -1,7 +1,7 @@
 import { Field, Formik } from 'formik';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useGetTrackerSchemaQuery } from '../../../../../api/codeBeamerApi';
+import { useGetTrackerSchemaQuery } from '../../../../../api/codeBeamerSwaggerApi';
 import { DefaultFilterCriteria } from '../../../../../enums/default-filter-criteria.enum';
 import { addFilter } from '../../../../../store/slices/userSettingsSlice';
 import { RootState } from '../../../../../store/store';
