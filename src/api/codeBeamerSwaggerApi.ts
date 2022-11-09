@@ -13,6 +13,7 @@ import { CodeBeamerItemsQuery } from '../models/itemQuery';
 import TrackerDetails from '../models/trackerDetails.if';
 import { CodeBeamerTrackerSchemaEntry } from '../models/trackerSchema.if';
 import { Wiki2HtmlQuery } from '../models/wiki2HtmlQuery';
+import { CodeBeamerItem } from '../models/codebeamer-item.if';
 
 const dynamicBaseQuery: BaseQueryFn<
 	string | FetchArgs,
@@ -20,7 +21,7 @@ const dynamicBaseQuery: BaseQueryFn<
 	FetchBaseQueryError
 > = async (args, api, extraOptions) => {
 	const baseUrl = `${
-		(api.getState() as RootState).boardSettings.cbAddress ??
+		(api.getState() as RootState).boardSettings.cbAddress ||
 		'https://codebeamer.com/cb'
 	}/api/v3/`;
 	const rawBaseQuery = fetchBaseQuery({
@@ -42,6 +43,9 @@ const dynamicBaseQuery: BaseQueryFn<
 	return rawBaseQuery(args, api, extraOptions);
 };
 
+/**
+ * Interface to the codebeamer swagger api (~ REST v3)
+ */
 export const codeBeamerSwaggerApi = createApi({
 	baseQuery: dynamicBaseQuery,
 	endpoints: (builder) => ({
@@ -69,6 +73,9 @@ export const codeBeamerSwaggerApi = createApi({
 					headers: { 'Content-type': 'application/json' },
 				};
 			},
+		}),
+		getItem: builder.query<CodeBeamerItem, string>({
+			query: (itemId) => `items/${itemId}`,
 		}),
 		getTrackerDetails: builder.query<TrackerDetails, string>({
 			query: (trackerId) => `trackers/${trackerId}`,
@@ -100,6 +107,7 @@ export const {
 	useLazyGetProjectsQuery,
 	useGetTrackersQuery,
 	useGetItemsQuery,
+	useLazyGetItemQuery,
 	useLazyGetItemsQuery,
 	useGetTrackerDetailsQuery,
 	useGetTrackerSchemaQuery,
