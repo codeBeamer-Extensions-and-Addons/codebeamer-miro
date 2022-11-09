@@ -86,6 +86,12 @@ img {
 	transform: translate(-50%, -50%);
 }
 
+.centered-horizontally {
+	position: absolute;
+	left: 50%;
+	transform: translate(-50%);
+}
+
 .centered-50 {
 	margin: auto;
 	max-width: 50%;
