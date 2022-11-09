@@ -1,4 +1,5 @@
 import { convertToCardData, updateAppCard } from './api/miro.api';
+import getItemIdFromCardTitle from './api/utils/getItemIdFromCardTitle';
 import { CARD_TITLE_ID_FILTER_REGEX } from './constants/cardTitleIdFilterRegex';
 import { CodeBeamerItem } from './models/codebeamer-item.if';
 import TrackerDetails from './models/trackerDetails.if';
@@ -16,6 +17,14 @@ async function init() {
 	});
 
 	miro.board.ui.on('app_card:open', async (_event) => {
+		const cardId = _event.appCard.id;
+		const itemId = getItemIdFromCardTitle(_event.appCard.title);
+
+		miro.board.ui.openPanel({
+			url: `item.html?cardId=${cardId}&itemId=${itemId}`,
+		});
+
+		return;
 		//* experimental, just to have something there.
 		//* except that codeBeamer has x-fram-origin = samesite
 
