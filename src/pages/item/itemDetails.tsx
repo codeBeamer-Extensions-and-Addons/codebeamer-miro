@@ -1,8 +1,7 @@
-import { Field, useFormik } from 'formik';
+import { useFormik } from 'formik';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Select from 'react-select';
-import AsyncSelect from 'react-select/async';
 import {
 	useLazyGetItemQuery,
 	useLazyGetFilteredUsersQuery,
@@ -16,10 +15,6 @@ import {
 import { CodeBeamerItem } from '../../models/codebeamer-item.if';
 import { loadBoardSettings } from '../../store/slices/boardSettingsSlice';
 import { RootState } from '../../store/store';
-import Team from './fields/team/team';
-
-//It's 367 wide, really.
-const PANEL_WIDTH = 500;
 
 interface Errors {
 	assignedTo?: string;
@@ -60,12 +55,9 @@ export default function ItemDetails(props: {
 		(state: RootState) => state.boardSettings
 	);
 
-	const [triggerItemQuery, itemQueryResult, itemQueryLastPromiseInfo] =
-		useLazyGetItemQuery();
-	const [triggerUserQuery, userQueryResult, userQueryLastPromiseInfo] =
-		useLazyGetFilteredUsersQuery();
-	const [triggerItemsQuery, itemsQueryResult, itemsQueryLastPromiseInfo] =
-		useLazyGetItemsQuery();
+	const [triggerItemQuery, itemQueryResult] = useLazyGetItemQuery();
+	const [triggerUserQuery, userQueryResult] = useLazyGetFilteredUsersQuery();
+	const [triggerItemsQuery, itemsQueryResult] = useLazyGetItemsQuery();
 
 	React.useEffect(() => {
 		if (!itemId || !cardId) {
@@ -122,7 +114,11 @@ export default function ItemDetails(props: {
 	};
 
 	const fetchOptions = (field: string) => {
-		console.log('hi');
+		triggerItemsQuery({
+			page: 1,
+			pageSize: 50,
+			queryString: '',
+		});
 	};
 
 	//*********************************************************************** */
