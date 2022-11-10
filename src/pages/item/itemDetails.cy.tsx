@@ -47,14 +47,7 @@ describe('<Item>', () => {
 
 	context('form interaction', () => {
 		describe('assignee input', () => {
-			it('has no options initially', () => {
-				cy.mountWithStore(<ItemDetails />);
-				cy.get(getSelectControlSelector('assignedTo')).should(
-					'not.contain.html',
-					'option'
-				);
-			});
-			it.only('loads suitable options once typing starts', () => {
+			beforeEach(() => {
 				const store = getStore();
 				const mockCbAddress = 'http://test.com/cb';
 				store.dispatch(setCbAddress(mockCbAddress));
@@ -63,28 +56,58 @@ describe('<Item>', () => {
 					<ItemDetails itemId={mockItemId} cardId={mockCardId} />,
 					{ reduxStore: store }
 				);
-				cy.intercept(`/rest/users/page/*`, {
-					fixture: 'users_ur.json',
-				});
-
+				cy.intercept(
+					'GET',
+					`**/rest/users/page/1?pagesize=50&filter=*`,
+					{
+						fixture: 'users_ur.json',
+					}
+				);
+			});
+			it('has no options initially', () => {
+				cy.get(getSelectControlSelector('assignedTo')).should(
+					'not.contain.html',
+					'option'
+				);
+			});
+			it('loads suitable options once typing starts', () => {
+				const filterValue = 'ur';
 				cy.get(getSelectControlSelector('assignedTo'))
-					.type('ur')
+					.type(filterValue)
 					.then(() => {
 						cy.fixture('users_ur.json').then((res) => {
 							const users = res.users;
-							let select = cy.get(
-								getSelectControlSelector('assignedTo')
-							);
+							let selectMenu = cy.get('.select__menu');
 							for (let user of users) {
-								select.should('contain.text', user.name);
+								selectMenu.should('contain.text', user.name);
 							}
 						});
 					});
 			});
+			it('allows selecting multiple values', () => {
+				const filterValue = 'ur';
+				cy.get(getSelectControlSelector('assignedTo'))
+					.type(filterValue)
+					.then(() => {
+						cy.get('.select__option').first().click();
+						cy.get(getSelectControlSelector('assignedTo'))
+							.type(filterValue)
+							.then(() => {
+								cy.get('.select__option').first().click();
+								//* just the hardcoded first and second values in users_ur.json
+								cy.get('.select__multi-value')
+									.first()
+									.should('have.text', 'urecha');
+								cy.get('.select__multi-value')
+									.last()
+									.should('have.text', 'urecho');
+							});
+					});
+			});
 		});
 
-		describe('teams/version/subject input', () => {
-			it('shows items in the respectively referred tracker as options');
+		context('select options', () => {
+			it('shows a project its teams');
 		});
 	});
 

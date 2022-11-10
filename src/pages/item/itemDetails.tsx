@@ -6,11 +6,17 @@ import AsyncSelect from 'react-select/async';
 import {
 	useLazyGetItemQuery,
 	useLazyGetFilteredUsersQuery,
+	useLazyGetItemsQuery,
 } from '../../api/codeBeamerApi';
 import { updateAppCard } from '../../api/miro.api';
+import {
+	ASSIGNEE_TECHNICAL_NAME,
+	TEAM_TECHNICAL_NAME,
+} from '../../constants/editable-attributes';
 import { CodeBeamerItem } from '../../models/codebeamer-item.if';
 import { loadBoardSettings } from '../../store/slices/boardSettingsSlice';
 import { RootState } from '../../store/store';
+import Team from './fields/team/team';
 
 //It's 367 wide, really.
 const PANEL_WIDTH = 500;
@@ -31,6 +37,7 @@ export default function ItemDetails(props: {
 	cardId?: string;
 }) {
 	const dispatch = useDispatch();
+
 	const [itemId] = useState<string>(
 		props.itemId ??
 			new URL(document.location.href).searchParams.get('itemId') ??
@@ -45,6 +52,10 @@ export default function ItemDetails(props: {
 		useState<boolean>(true);
 	const [item, setItem] = useState<CodeBeamerItem>();
 
+	const [selectOptions, setSelectOptions] = useState<
+		{ key: string; values: any[] }[]
+	>([]);
+
 	const { cbAddress } = useSelector(
 		(state: RootState) => state.boardSettings
 	);
@@ -52,7 +63,9 @@ export default function ItemDetails(props: {
 	const [triggerItemQuery, itemQueryResult, itemQueryLastPromiseInfo] =
 		useLazyGetItemQuery();
 	const [triggerUserQuery, userQueryResult, userQueryLastPromiseInfo] =
-		useLazyGetUsersQuery();
+		useLazyGetFilteredUsersQuery();
+	const [triggerItemsQuery, itemsQueryResult, itemsQueryLastPromiseInfo] =
+		useLazyGetItemsQuery();
 
 	React.useEffect(() => {
 		if (!itemId || !cardId) {
@@ -87,25 +100,34 @@ export default function ItemDetails(props: {
 		}
 	}, [itemQueryResult]);
 
-	const updateValues = (attr: string, value: any) => {
-		console.log(`Update ${attr} to ${value}`);
+	React.useEffect(() => {
+		if (userQueryResult.error) {
+			console.error(userQueryResult.error);
+		} else if (userQueryResult.data) {
+			const neoOptions = [
+				...selectOptions.filter(
+					(s) => s.key !== ASSIGNEE_TECHNICAL_NAME
+				),
+				{
+					key: ASSIGNEE_TECHNICAL_NAME,
+					values: userQueryResult.data.users,
+				},
+			];
+			setSelectOptions(neoOptions);
+		}
+	}, [userQueryResult]);
+
+	const fetchUsers = (inputValue: string) => {
+		triggerUserQuery(inputValue);
 	};
 
-	const fetchUsers = (
-		inputValue: string,
-		callback: (options: any) => void
-	) => {
-		triggerUserQuery(inputValue);
-		console.log('Triggered user query..');
-		while (userQueryResult.isFetching || !userQueryResult.data) {
-			if (userQueryResult.error) {
-				console.log(userQueryResult.error);
-				break;
-			}
-		}
-		console.log('No longer fetching..');
-		callback(userQueryResult.data);
+	const fetchOptions = (field: string) => {
+		console.log('hi');
 	};
+
+	//*********************************************************************** */
+	//********************************RENDER********************************* */
+	//*********************************************************************** */
 
 	const formik = useFormik({
 		initialValues: {
@@ -139,6 +161,11 @@ export default function ItemDetails(props: {
 				</h3>
 
 				<form onSubmit={formik.handleSubmit}>
+					{
+						//*********************************************************************** */
+						//********************************ASSIGNEE******************************* */
+						//*********************************************************************** */
+					}
 					<div
 						className={`form-group ${
 							formik.touched.assignedTo
@@ -148,22 +175,46 @@ export default function ItemDetails(props: {
 								: ''
 						}`}
 					>
-						<label data-test="assignedTo">Assignee</label>
-						<AsyncSelect
+						<label data-test={ASSIGNEE_TECHNICAL_NAME}>
+							Assignee
+						</label>
+						<Select
 							className="basic-single"
 							classNamePrefix="select"
-							defaultOptions
-							loadOptions={fetchUsers}
+							options={
+								selectOptions.find(
+									(s) => s.key == ASSIGNEE_TECHNICAL_NAME
+								)?.values || []
+							}
+							getOptionLabel={(o) => o.name}
+							getOptionValue={(o) => o.uri}
 							isLoading={false}
 							isMulti={true}
 							isSearchable={true}
 							isClearable={true}
+							onInputChange={(v) => fetchUsers(v)}
 							onChange={(v) => {
-								console.log(v);
+								const values = v.map((val) => {
+									return {
+										id: val.uri.substring(6),
+										uri: val.uri,
+										name: val.name,
+									};
+								});
+								formik.setFieldValue(
+									ASSIGNEE_TECHNICAL_NAME,
+									values
+								);
 							}}
 							maxMenuHeight={180}
 						/>
 					</div>
+
+					{
+						//*********************************************************************** */
+						//********************************TEAM*********************************** */
+						//*********************************************************************** */
+					}
 					<div
 						className={`form-group ${
 							formik.touched.teams
@@ -172,12 +223,17 @@ export default function ItemDetails(props: {
 									: 'success'
 								: ''
 						}`}
+						onClick={() => fetchOptions(TEAM_TECHNICAL_NAME)}
 					>
-						<label data-test="teams">Teams</label>
+						<label data-test={TEAM_TECHNICAL_NAME}>Team</label>
 						<Select
 							className="basic-single"
 							classNamePrefix="select"
-							options={[]}
+							options={
+								selectOptions.find(
+									(s) => s.key == TEAM_TECHNICAL_NAME
+								)?.values || []
+							}
 							isLoading={false}
 							isMulti={true}
 							isSearchable={true}
@@ -185,11 +241,27 @@ export default function ItemDetails(props: {
 							getOptionLabel={(option) => option}
 							getOptionValue={(option) => option}
 							onChange={(v) => {
-								console.log(v);
+								const values = v.map((val) => {
+									return {
+										id: val.id,
+										name: val.name,
+									};
+								});
+								formik.setFieldValue(
+									TEAM_TECHNICAL_NAME,
+									values
+								);
 							}}
 							maxMenuHeight={180}
 						/>
 					</div>
+
+					{
+						//*********************************************************************** */
+						//********************************VERSION******************************** */
+						//*********************************************************************** */
+					}
+
 					<div
 						className={`form-group ${
 							formik.touched.versions
@@ -216,6 +288,13 @@ export default function ItemDetails(props: {
 							maxMenuHeight={180}
 						/>
 					</div>
+
+					{
+						//*********************************************************************** */
+						//********************************SUBJECT******************************** */
+						//*********************************************************************** */
+					}
+
 					<div
 						className={`form-group ${
 							formik.touched.subjects
@@ -242,6 +321,12 @@ export default function ItemDetails(props: {
 							maxMenuHeight={180}
 						/>
 					</div>
+
+					{
+						//*********************************************************************** */
+						//********************************STORY POINTS*************************** */
+						//*********************************************************************** */
+					}
 					<div
 						className={`form-group ${
 							formik.touched.storyPoints
@@ -261,6 +346,13 @@ export default function ItemDetails(props: {
 							data-test="storyPoints"
 						/>
 					</div>
+
+					{
+						//*********************************************************************** */
+						//********************************SUBMIT********************************* */
+						//*********************************************************************** */
+					}
+
 					<div className="flex-centered mt-4">
 						{true && (
 							<button
