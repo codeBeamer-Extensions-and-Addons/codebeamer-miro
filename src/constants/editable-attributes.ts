@@ -1,34 +1,39 @@
+export const ASSIGNEE_TECHNICAL_NAME = 'assignedTo';
+export const TEAM_TECHNICAL_NAME = 'teams';
+export const STORY_POINTS_TECHNICAL_NAME = 'storyPoints';
+export const VERSION_TECHNICAL_NAME = 'versions';
+export const SUBJECT_TECHNICAL_NAME = 'subjects';
+
 /**
  * Enumerates the attributes that shall be editable on an Item's edit page
  */
 export const EDITABLE_ATTRIBUTES: EditableAttributeConfig[] = [
 	{
 		label: 'Assignee',
-		name: 'assignedTo',
+		name: ASSIGNEE_TECHNICAL_NAME,
 		type: 'array',
 	},
 	{
 		label: 'Team',
-		name: 'teams',
+		name: TEAM_TECHNICAL_NAME,
 		type: 'array',
 	},
 	{
 		label: 'Story Points',
-		name: 'storyPoints',
+		name: STORY_POINTS_TECHNICAL_NAME,
 		type: 'number',
 	},
 	{
-		label: 'Version', //* god damn dude. before it was "release", wasn't it? that's why it won't show on the card anymore
-		name: 'versions',
+		label: 'Version',
+		name: VERSION_TECHNICAL_NAME,
 		type: 'array',
 	},
 	{
 		label: 'Subject',
-		name: 'subjects',
+		name: SUBJECT_TECHNICAL_NAME,
 		type: 'array',
 	},
 ];
-
 /**
  * Configuration entry defining an editable attribute
  */
