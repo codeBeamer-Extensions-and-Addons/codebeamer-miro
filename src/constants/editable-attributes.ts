@@ -1,5 +1,5 @@
 export const ASSIGNEE_TECHNICAL_NAME = 'assignedTo';
-export const TEAM_TECHNICAL_NAME = 'teams';
+export const TEAM_TECHNICAL_NAME = 'team';
 export const STORY_POINTS_TECHNICAL_NAME = 'storyPoints';
 export const VERSION_TECHNICAL_NAME = 'versions';
 export const SUBJECT_TECHNICAL_NAME = 'subjects';
