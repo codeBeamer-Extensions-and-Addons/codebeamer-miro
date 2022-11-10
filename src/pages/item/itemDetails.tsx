@@ -3,8 +3,10 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Select from 'react-select';
 import AsyncSelect from 'react-select/async';
-import { useLazyGetUsersQuery } from '../../api/codeBeamerRestApi';
-import { useLazyGetItemQuery } from '../../api/codeBeamerSwaggerApi';
+import {
+	useLazyGetItemQuery,
+	useLazyGetUsersQuery,
+} from '../../api/codeBeamerSwaggerApi';
 import { updateAppCard } from '../../api/miro.api';
 import { CodeBeamerItem } from '../../models/codebeamer-item.if';
 import { loadBoardSettings } from '../../store/slices/boardSettingsSlice';

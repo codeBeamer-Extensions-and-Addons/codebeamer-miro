@@ -14,6 +14,7 @@ import TrackerDetails from '../models/trackerDetails.if';
 import { CodeBeamerTrackerSchemaEntry } from '../models/trackerSchema.if';
 import { Wiki2HtmlQuery } from '../models/wiki2HtmlQuery';
 import { CodeBeamerItem } from '../models/codebeamer-item.if';
+import { UserQueryPage } from '../models/UserQueryPage.if';
 
 const dynamicBaseQuery: BaseQueryFn<
 	string | FetchArgs,
@@ -99,6 +100,10 @@ export const codeBeamerSwaggerApi = createApi({
 				};
 			},
 		}),
+		getUsers: builder.query<UserQueryPage, string>({
+			query: (filter) =>
+				`/rest/users/page/1?pagesize=50&filter=${filter}`,
+		}),
 	}),
 });
 
@@ -113,4 +118,5 @@ export const {
 	useGetTrackerDetailsQuery,
 	useGetTrackerSchemaQuery,
 	useGetWiki2HtmlQuery,
+	useLazyGetUsersQuery,
 } = codeBeamerSwaggerApi;
