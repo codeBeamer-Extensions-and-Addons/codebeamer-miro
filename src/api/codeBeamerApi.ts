@@ -8,13 +8,16 @@ import {
 import { RootState } from '../store/store';
 import { ProjectListView } from '../models/projectListView.if';
 import { TrackerListView } from '../models/trackerListView.if';
-import { ItemQueryPage } from '../models/itemQueryPage';
-import { CodeBeamerItemsQuery } from '../models/itemQuery';
+import {
+	ItemQueryPage,
+	TrackerSearchPage,
+	UserQueryPage,
+} from '../models/api-query-types';
+import { CbqlApiQuery } from '../models/cbqlApiQuery';
 import TrackerDetails from '../models/trackerDetails.if';
 import { CodeBeamerTrackerSchemaEntry } from '../models/trackerSchema.if';
 import { Wiki2HtmlQuery } from '../models/wiki2HtmlQuery';
 import { CodeBeamerItem } from '../models/codebeamer-item.if';
-import { UserQueryPage } from '../models/UserQueryPage.if';
 
 const dynamicBaseQuery: BaseQueryFn<
 	string | FetchArgs,
@@ -66,7 +69,7 @@ export const codeBeamerApi = createApi({
 		getTrackers: builder.query<TrackerListView[], string>({
 			query: (projectId) => `/api/v3/projects/${projectId}/trackers`,
 		}),
-		getItems: builder.query<ItemQueryPage, CodeBeamerItemsQuery>({
+		getItems: builder.query<ItemQueryPage, CbqlApiQuery>({
 			query: (parameters) => {
 				return {
 					url: `/api/v3/items/query`,
@@ -103,6 +106,16 @@ export const codeBeamerApi = createApi({
 		getFilteredUsers: builder.query<UserQueryPage, string>({
 			query: (filter) =>
 				`/rest/users/page/1?pagesize=50&filter=${filter}`,
+		}),
+		searchTrackers: builder.query<TrackerSearchPage, CbqlApiQuery>({
+			query: (parameters) => {
+				return {
+					url: `/api/v3/items/query`,
+					method: 'POST',
+					body: parameters,
+					headers: { 'Content-type': 'application/json' },
+				};
+			},
 		}),
 	}),
 });
