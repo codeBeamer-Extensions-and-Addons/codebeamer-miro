@@ -100,7 +100,7 @@ export const codeBeamerApi = createApi({
 				};
 			},
 		}),
-		getUsers: builder.query<UserQueryPage, string>({
+		getFilteredUsers: builder.query<UserQueryPage, string>({
 			query: (filter) =>
 				`/rest/users/page/1?pagesize=50&filter=${filter}`,
 		}),
@@ -118,5 +118,5 @@ export const {
 	useGetTrackerDetailsQuery,
 	useGetTrackerSchemaQuery,
 	useGetWiki2HtmlQuery,
-	useLazyGetUsersQuery,
+	useLazyGetFilteredUsersQuery,
 } = codeBeamerApi;

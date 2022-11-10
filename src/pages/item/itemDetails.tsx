@@ -5,7 +5,7 @@ import Select from 'react-select';
 import AsyncSelect from 'react-select/async';
 import {
 	useLazyGetItemQuery,
-	useLazyGetUsersQuery,
+	useLazyGetFilteredUsersQuery,
 } from '../../api/codeBeamerApi';
 import { updateAppCard } from '../../api/miro.api';
 import { CodeBeamerItem } from '../../models/codebeamer-item.if';
