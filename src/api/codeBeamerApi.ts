@@ -117,6 +117,13 @@ export const codeBeamerApi = createApi({
 				};
 			},
 		}),
+		getFieldOptions: builder.query<
+			{ id: number; uri: string; name: string }[],
+			{ trackerId: string | number; fieldId: string | number }
+		>({
+			query: (params) =>
+				`/rest/tracker/${params.trackerId}/field/${params.fieldId}/options`,
+		}),
 	}),
 });
 
