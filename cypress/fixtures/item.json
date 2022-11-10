@@ -1,0 +1,48 @@
+{
+	"id": 201284,
+	"name": "Neo",
+	"description": "Scusi fratello~!\r\n\r\nScusi~, mille volta~, serio.",
+	"descriptionFormat": "Wiki",
+	"createdAt": "2022-10-14T07:21:32.717",
+	"createdBy": {
+		"id": 3,
+		"name": "automated-testing-user-default",
+		"type": "UserReference",
+		"email": "Test@company.com"
+	},
+	"modifiedAt": "2022-11-10T07:02:14.796",
+	"modifiedBy": {
+		"id": 4,
+		"name": "urecha",
+		"type": "UserReference",
+		"email": "andrin.urech@company.com"
+	},
+	"owners": [],
+	"version": 3,
+	"assignedTo": [],
+	"tracker": {
+		"id": 4877085,
+		"name": "Miro sync test by urecha",
+		"type": "TrackerReference"
+	},
+	"children": [],
+	"customFields": [],
+	"priority": {
+		"id": 0,
+		"name": "Unset",
+		"type": "ChoiceOptionReference"
+	},
+	"status": {
+		"id": 1,
+		"name": "New",
+		"type": "ChoiceOptionReference"
+	},
+	"categories": [],
+	"resolutions": [],
+	"severities": [],
+	"versions": [],
+	"ordinal": 0,
+	"typeName": "Issue",
+	"comments": [],
+	"tags": []
+}
