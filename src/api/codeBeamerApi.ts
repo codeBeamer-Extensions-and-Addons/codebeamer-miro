@@ -47,7 +47,7 @@ const dynamicBaseQuery: BaseQueryFn<
 /**
  * Interface to the codebeamer swagger api (~ REST v3)
  */
-export const codeBeamerSwaggerApi = createApi({
+export const codeBeamerApi = createApi({
 	baseQuery: dynamicBaseQuery,
 	endpoints: (builder) => ({
 		testAuthentication: builder.query<
@@ -119,4 +119,4 @@ export const {
 	useGetTrackerSchemaQuery,
 	useGetWiki2HtmlQuery,
 	useLazyGetUsersQuery,
-} = codeBeamerSwaggerApi;
+} = codeBeamerApi;

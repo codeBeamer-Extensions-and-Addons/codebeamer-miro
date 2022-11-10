@@ -6,7 +6,7 @@ import AsyncSelect from 'react-select/async';
 import {
 	useLazyGetItemQuery,
 	useLazyGetUsersQuery,
-} from '../../api/codeBeamerSwaggerApi';
+} from '../../api/codeBeamerApi';
 import { updateAppCard } from '../../api/miro.api';
 import { CodeBeamerItem } from '../../models/codebeamer-item.if';
 import { loadBoardSettings } from '../../store/slices/boardSettingsSlice';

@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
 	useGetItemsQuery,
 	useGetTrackerDetailsQuery,
-} from '../../../../api/codeBeamerSwaggerApi';
+} from '../../../../api/codeBeamerApi';
 import { updateAppCard } from '../../../../api/miro.api';
 import {
 	DEFAULT_RESULT_PAGE,

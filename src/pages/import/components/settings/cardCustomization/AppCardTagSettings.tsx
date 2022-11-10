@@ -1,7 +1,7 @@
 import { AppCard } from '@mirohq/websdk-types';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLazyGetItemsQuery } from '../../../../../api/codeBeamerSwaggerApi';
+import { useLazyGetItemsQuery } from '../../../../../api/codeBeamerApi';
 import { updateAppCard } from '../../../../../api/miro.api';
 import getColorForFieldLabel from '../../../../../api/utils/getColorForFieldLabel';
 import { CARD_TITLE_ID_FILTER_REGEX } from '../../../../../constants/cardTitleIdFilterRegex';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useGetTrackersQuery } from '../../../../../api/codeBeamerSwaggerApi';
+import { useGetTrackersQuery } from '../../../../../api/codeBeamerApi';
 import { displayAppMessage } from '../../../../../store/slices/appMessagesSlice';
 import { setTrackerId } from '../../../../../store/slices/userSettingsSlice';
 import { RootState } from '../../../../../store/store';

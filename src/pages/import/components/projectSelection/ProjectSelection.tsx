@@ -2,7 +2,7 @@ import Select from 'react-select';
 import * as React from 'react';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLazyGetProjectsQuery } from '../../../../api/codeBeamerSwaggerApi';
+import { useLazyGetProjectsQuery } from '../../../../api/codeBeamerApi';
 import { ProjectListView } from '../../../../models/projectListView.if';
 import { displayAppMessage } from '../../../../store/slices/appMessagesSlice';
 import { setProjectId } from '../../../../store/slices/boardSettingsSlice';
