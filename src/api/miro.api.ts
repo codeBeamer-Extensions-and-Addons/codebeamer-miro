@@ -64,7 +64,6 @@ export async function updateAppCard(
 	appStore?: EnhancedStore<any>
 ) {
 	const card: Partial<AppCard> = await convertToCardData(item);
-	console.log('CardData: ', card);
 	let existingAppCard: AppCard;
 	try {
 		existingAppCard = (await miro.board.get({ id: cardId }))[0] as AppCard;
