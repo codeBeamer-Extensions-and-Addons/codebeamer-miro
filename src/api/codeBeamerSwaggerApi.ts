@@ -23,7 +23,7 @@ const dynamicBaseQuery: BaseQueryFn<
 	const baseUrl = `${
 		(api.getState() as RootState).boardSettings.cbAddress ||
 		'https://codebeamer.com/cb'
-	}/api/v3/`;
+	}`;
 	const rawBaseQuery = fetchBaseQuery({
 		baseUrl,
 		prepareHeaders: (headers, { getState }) => {
@@ -53,21 +53,22 @@ export const codeBeamerSwaggerApi = createApi({
 			string,
 			{ cbAddress: string; cbUsername: string; cbPassword: string }
 		>({
-			query: (payload) => `users/findByName?name=${payload.cbUsername}`,
+			query: (payload) =>
+				`/api/v3/users/findByName?name=${payload.cbUsername}`,
 		}),
 		getUserByName: builder.query<string, string>({
-			query: (name) => `users/findByName?name=${name}`,
+			query: (name) => `/api/v3/users/findByName?name=${name}`,
 		}),
 		getProjects: builder.query<ProjectListView[], void>({
-			query: () => `projects`,
+			query: () => `/api/v3/projects`,
 		}),
 		getTrackers: builder.query<TrackerListView[], string>({
-			query: (projectId) => `projects/${projectId}/trackers`,
+			query: (projectId) => `/api/v3/projects/${projectId}/trackers`,
 		}),
 		getItems: builder.query<ItemQueryPage, CodeBeamerItemsQuery>({
 			query: (parameters) => {
 				return {
-					url: `/items/query`,
+					url: `/api/v3/items/query`,
 					method: 'POST',
 					body: parameters,
 					headers: { 'Content-type': 'application/json' },
@@ -75,14 +76,14 @@ export const codeBeamerSwaggerApi = createApi({
 			},
 		}),
 		getItem: builder.query<CodeBeamerItem, string>({
-			query: (itemId) => `items/${itemId}`,
+			query: (itemId) => `/api/v3/items/${itemId}`,
 		}),
 		getTrackerDetails: builder.query<TrackerDetails, string>({
-			query: (trackerId) => `trackers/${trackerId}`,
+			query: (trackerId) => `/api/v3/trackers/${trackerId}`,
 		}),
 		getTrackerSchema: builder.query<CodeBeamerTrackerSchemaEntry[], string>(
 			{
-				query: (trackerId) => `trackers/${trackerId}/schema`,
+				query: (trackerId) => `/api/v3/trackers/${trackerId}/schema`,
 			}
 		),
 		getWiki2Html: builder.query<
@@ -91,7 +92,7 @@ export const codeBeamerSwaggerApi = createApi({
 		>({
 			query: (parameters) => {
 				return {
-					url: `/projects/${parameters.projectId}/wiki2html`,
+					url: `/api/v3/projects/${parameters.projectId}/wiki2html`,
 					method: 'POST',
 					body: parameters.body,
 					headers: { 'Content-type': 'application/json' },
