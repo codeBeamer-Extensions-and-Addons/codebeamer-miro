@@ -41,3 +41,43 @@ export default function getCodeBeamerPropertyNameByFieldLabel(
 			return 'modifiedBy';
 	}
 }
+
+/**
+ * @returns the "legacyRestName" for given property - property name to use with the legacy rest api
+ */
+export function getCodeBeamerLegacyRestNameByFieldLabel(
+	fieldLabel: StandardItemProperty
+): string {
+	switch (fieldLabel) {
+		case StandardItemProperty.ID:
+			return 'id';
+		case StandardItemProperty.TEAMS:
+			return 'team';
+		case StandardItemProperty.OWNER:
+			return 'supervisors';
+		case StandardItemProperty.VERSIONS:
+			return 'versions';
+		case StandardItemProperty.PRIORITY:
+			return 'criticalityPriority';
+		case StandardItemProperty.STORY_POINTS:
+			return 'storyPoints';
+		case StandardItemProperty.SUBJECT:
+			return 'realizedFeature';
+		case StandardItemProperty.START_DATE:
+			return 'startDate';
+		case StandardItemProperty.END_DATE:
+			return 'endDate';
+		case StandardItemProperty.ASSIGNED_TO:
+			return 'assignedTo';
+		case StandardItemProperty.ASSIGNED_AT:
+			return 'assignedAt';
+		case StandardItemProperty.SUBMITTED_AT:
+			return 'submittedAt';
+		case StandardItemProperty.SUBMITTED_BY:
+			return 'submitter';
+		case StandardItemProperty.MODIFIED_AT:
+			return 'modifiedAt';
+		case StandardItemProperty.MODIFIED_BY:
+			return 'modifier';
+	}
+}
