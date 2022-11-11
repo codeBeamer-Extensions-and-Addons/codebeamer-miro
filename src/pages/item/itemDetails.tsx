@@ -265,13 +265,14 @@ export default function ItemDetails(props: {
 			return errors;
 		},
 		onSubmit: (values) => {
-			console.log('can i submit pls ', values);
 
 			//*mapping in the formik.setFieldValue calls would only affect fields where
 			//*something really is updated, but leave the untouched ones in their inadequate structure
 
 			//*mind the keys here; they're legacy field names, since we're using the legacy rest api to do the update
 			//*(because the swagger api v3 is disgustingly complicated in that regard)
+			
+			//TODO check how items that don't have such fields are affected (probably gonna throw errors..)
 			const payload = {
 				uri: getRestResourceUri(item!.id),
 				assignedTo: values.assignedTo.map(mapToLegacyValue),
@@ -282,9 +283,6 @@ export default function ItemDetails(props: {
 			};
 
 			triggerUpdateItem(payload);
-
-			console.log('nay, thouh shalt instead submit thees ', payload);
-			//TODO trigger POST
 		},
 	});
 
