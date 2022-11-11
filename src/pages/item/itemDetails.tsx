@@ -2,16 +2,17 @@ import { useFormik } from 'formik';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Select from 'react-select';
-import AsyncSelect from 'react-select/async';
 import {
 	useLazyGetItemQuery,
-	useLazyGetFilteredUsersQuery,
-	useLazyGetItemsQuery,
-	useGetTrackerSchemaQuery,
 	useLazyGetFieldOptionsQuery,
 	useLazyGetTrackerSchemaQuery,
+	useLazyUpdateItemLegacyQuery,
 } from '../../api/codeBeamerApi';
 import { updateAppCard } from '../../api/miro.api';
+import getRestResourceUri, {
+	getIdFromRestResourceUri,
+} from '../../api/utils/getRestResourceUri';
+import mapToLegacyValue from '../../api/utils/mapToLegacyValue';
 import {
 	ASSIGNEE_FIELD_NAME,
 	EDITABLE_ATTRIBUTES,
@@ -55,6 +56,7 @@ export default function ItemDetails(props: {
 	const [storeIsInitializing, setStoreIsInitializing] =
 		useState<boolean>(true);
 	const [item, setItem] = useState<CodeBeamerItem>();
+	const [trackerId, setTrackerId] = useState<string>();
 
 	const [selectOptions, setSelectOptions] = useState<
 		{ key: string; values: any[] }[]
@@ -70,13 +72,13 @@ export default function ItemDetails(props: {
 		(state: RootState) => state.boardSettings
 	);
 
-	const { trackerId } = useSelector((state: RootState) => state.userSettings);
-
 	const [triggerTrackerSchemaQuery, trackerSchemaQueryResult] =
 		useLazyGetTrackerSchemaQuery();
 	const [triggerItemQuery, itemQueryResult] = useLazyGetItemQuery();
 	const [triggerFieldOptionsQuery, fieldOptionsQueryResult] =
 		useLazyGetFieldOptionsQuery();
+	const [triggerUpdateItem, updateItemResult] =
+		useLazyUpdateItemLegacyQuery();
 
 	React.useEffect(() => {
 		if (!itemId || !cardId) {
@@ -99,7 +101,6 @@ export default function ItemDetails(props: {
 			// console.log('Cb address truthy: ', cbAddress);
 			setStoreIsInitializing(false);
 			triggerItemQuery(itemId!);
-			triggerTrackerSchemaQuery(trackerId);
 		}
 	}, [cbAddress, storeIsInitializing]);
 
@@ -143,7 +144,11 @@ export default function ItemDetails(props: {
 		if (itemQueryResult.error) {
 			//TODO
 		} else if (itemQueryResult.data) {
+			setTrackerId(itemQueryResult.data.tracker.id.toString());
 			setItem(itemQueryResult.data);
+			triggerTrackerSchemaQuery(
+				itemQueryResult.data.tracker.id.toString()
+			);
 			updateAppCard(itemQueryResult.data, cardId);
 		}
 	}, [itemQueryResult]);
@@ -165,7 +170,8 @@ export default function ItemDetails(props: {
 		) {
 			return;
 		}
-		if (!trackerSchemaQueryResult.data) {
+		//the second can't be true if the first isn't, but the compiler doesn't know that much
+		if (!trackerSchemaQueryResult.data || !trackerId) {
 			return;
 		}
 		const fieldId = trackerSchemaQueryResult.data.find(
@@ -258,8 +264,26 @@ export default function ItemDetails(props: {
 
 			return errors;
 		},
-		onSubmit: (values, { setSubmitting }) => {
-			setSubmitting(true);
+		onSubmit: (values) => {
+			console.log('can i submit pls ', values);
+
+			//*mapping in the formik.setFieldValue calls would only affect fields where
+			//*something really is updated, but leave the untouched ones in their inadequate structure
+
+			//*mind the keys here; they're legacy field names, since we're using the legacy rest api to do the update
+			//*(because the swagger api v3 is disgustingly complicated in that regard)
+			const payload = {
+				uri: getRestResourceUri(item!.id),
+				assignedTo: values.assignedTo.map(mapToLegacyValue),
+				team: values.teams.map(mapToLegacyValue),
+				versions: values.versions.map(mapToLegacyValue),
+				realizedFeature: values.subjects.map(mapToLegacyValue),
+				storyPoints: values.storyPoints,
+			};
+
+			triggerUpdateItem(payload);
+
+			console.log('nay, thouh shalt instead submit thees ', payload);
 			//TODO trigger POST
 		},
 	});
@@ -270,7 +294,7 @@ export default function ItemDetails(props: {
 				(itemQueryResult.isLoading && (
 					<div className="centered loading-spinner"></div>
 				))}
-			<div className="fade-in centered-horizontally">
+			<div className="fade-in centered-horizontally w-max max-w-85">
 				<h3 className="h3">
 					Item {itemId} / Widget {cardId}
 				</h3>
@@ -302,7 +326,13 @@ export default function ItemDetails(props: {
 							}
 							value={formik.values.assignedTo}
 							getOptionLabel={(option) => option.name}
-							getOptionValue={(option) => option.id.toString()}
+							getOptionValue={(option) =>
+								option.id
+									? option.id.toString()
+									: option.uri
+									? getIdFromRestResourceUri(option.uri)
+									: '-1'
+							}
 							isLoading={fieldOptionsQueryResult.isFetching}
 							isMulti={true}
 							isSearchable={true}
@@ -347,7 +377,13 @@ export default function ItemDetails(props: {
 							}
 							value={formik.values.teams}
 							getOptionLabel={(option) => option.name}
-							getOptionValue={(option) => option.id.toString()}
+							getOptionValue={(option) =>
+								option.id
+									? option.id.toString()
+									: option.uri
+									? getIdFromRestResourceUri(option.uri)
+									: '-1'
+							}
 							isLoading={fieldOptionsQueryResult.isFetching}
 							isMulti={true}
 							isSearchable={true}
@@ -390,7 +426,13 @@ export default function ItemDetails(props: {
 							}
 							value={formik.values.versions}
 							getOptionLabel={(option) => option.name}
-							getOptionValue={(option) => option.id.toString()}
+							getOptionValue={(option) =>
+								option.id
+									? option.id.toString()
+									: option.uri
+									? getIdFromRestResourceUri(option.uri)
+									: '-1'
+							}
 							isLoading={fieldOptionsQueryResult.isFetching}
 							isMulti={true}
 							isSearchable={true}
@@ -433,7 +475,13 @@ export default function ItemDetails(props: {
 							}
 							value={formik.values.subjects}
 							getOptionLabel={(option) => option.name}
-							getOptionValue={(option) => option.id.toString()}
+							getOptionValue={(option) =>
+								option.id
+									? option.id.toString()
+									: option.uri
+									? getIdFromRestResourceUri(option.uri)
+									: '-1'
+							}
 							isLoading={fieldOptionsQueryResult.isFetching}
 							isMulti={true}
 							isSearchable={true}
@@ -496,7 +544,9 @@ export default function ItemDetails(props: {
 								disabled={formik.isSubmitting}
 								data-test="submit"
 								className={`fade-in button button-primary ${
-									formik.isSubmitting ? 'button-loading' : ''
+									updateItemResult.isFetching
+										? 'button-loading'
+										: ''
 								}`}
 							>
 								Save
