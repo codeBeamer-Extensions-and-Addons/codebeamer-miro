@@ -2,15 +2,19 @@ import { useFormik } from 'formik';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Select from 'react-select';
+import AsyncSelect from 'react-select/async';
 import {
 	useLazyGetItemQuery,
 	useLazyGetFilteredUsersQuery,
 	useLazyGetItemsQuery,
+	useGetTrackerSchemaQuery,
+	useLazyGetFieldOptionsQuery,
+	useLazyGetTrackerSchemaQuery,
 } from '../../api/codeBeamerApi';
 import { updateAppCard } from '../../api/miro.api';
 import {
-	ASSIGNEE_TECHNICAL_NAME,
-	TEAM_TECHNICAL_NAME,
+	ASSIGNEE_FIELD_NAME,
+	TEAM_FIELD_NAME,
 } from '../../constants/editable-attributes';
 import { CodeBeamerItem } from '../../models/codebeamer-item.if';
 import { loadBoardSettings } from '../../store/slices/boardSettingsSlice';
@@ -55,9 +59,15 @@ export default function ItemDetails(props: {
 		(state: RootState) => state.boardSettings
 	);
 
+	const { trackerId } = useSelector((state: RootState) => state.userSettings);
+
+	const [triggerTrackerSchemaQuery, trackerSchemaQueryResult] =
+		useLazyGetTrackerSchemaQuery();
 	const [triggerItemQuery, itemQueryResult] = useLazyGetItemQuery();
 	const [triggerUserQuery, userQueryResult] = useLazyGetFilteredUsersQuery();
 	const [triggerItemsQuery, itemsQueryResult] = useLazyGetItemsQuery();
+	const [triggerFieldOptionsQuery, fieldOptionsQueryResult] =
+		useLazyGetFieldOptionsQuery();
 
 	React.useEffect(() => {
 		if (!itemId || !cardId) {
@@ -66,14 +76,26 @@ export default function ItemDetails(props: {
 			);
 			return;
 		}
-		// console.log('Dispatchign board setting load');
 		dispatch(loadBoardSettings());
-		if (cbAddress) {
+	}, []);
+
+	React.useEffect(() => {
+		if (cbAddress && storeIsInitializing) {
 			// console.log('Cb address truthy: ', cbAddress);
 			setStoreIsInitializing(false);
 			triggerItemQuery(itemId!);
+			triggerTrackerSchemaQuery(trackerId);
 		}
-	}, []);
+	});
+
+	React.useEffect(() => {
+		if (trackerSchemaQueryResult.error) {
+			console.error(
+				"Failed loading Tracker Schema - Won't be able to propose any options"
+			);
+			//TODO
+		}
+	}, [trackerSchemaQueryResult]);
 
 	React.useEffect(() => {
 		// console.log('cbAddress effect');
@@ -92,34 +114,83 @@ export default function ItemDetails(props: {
 		}
 	}, [itemQueryResult]);
 
-	React.useEffect(() => {
-		if (userQueryResult.error) {
-			console.error(userQueryResult.error);
-		} else if (userQueryResult.data) {
-			const neoOptions = [
-				...selectOptions.filter(
-					(s) => s.key !== ASSIGNEE_TECHNICAL_NAME
-				),
-				{
-					key: ASSIGNEE_TECHNICAL_NAME,
-					values: userQueryResult.data.users,
-				},
-			];
-			setSelectOptions(neoOptions);
+	// React.useEffect(() => {
+	// 	if (userQueryResult.error) {
+	// 		console.error(userQueryResult.error);
+	// 	} else if (userQueryResult.data) {
+	// 		const neoOptions = [
+	// 			...selectOptions.filter((s) => s.key !== ASSIGNEE_FIELD_NAME),
+	// 			{
+	// 				key: ASSIGNEE_FIELD_NAME,
+	// 				values: userQueryResult.data.users,
+	// 			},
+	// 		];
+	// 		setSelectOptions(neoOptions);
+	// 	}
+	// }, [userQueryResult]);
+
+	//TODO make generic
+	const fetchOptions = (fieldName: string) => {
+		//*if already loaded, return. we get all options at once - no further lazy loading
+		if (selectOptions.find((o) => o.key == fieldName)) return;
+		if (!trackerSchemaQueryResult.data) {
+			return;
 		}
-	}, [userQueryResult]);
-
-	const fetchUsers = (inputValue: string) => {
-		triggerUserQuery(inputValue);
-	};
-
-	const fetchOptions = (field: string) => {
-		triggerItemsQuery({
-			page: 1,
-			pageSize: 50,
-			queryString: '',
+		const fieldId = trackerSchemaQueryResult.data.find(
+			(d) => d.trackerItemField == fieldName
+		)?.id;
+		if (!fieldId) {
+			//TODO error: can't load options
+			console.warn(
+				"Can't find field for assignee in Tracker schema - therefore can't load options."
+			);
+			return;
+		}
+		console.log('Triggering field options query with', {
+			trackerId: trackerId,
+			fieldId: fieldId,
 		});
+		triggerFieldOptionsQuery({ trackerId, fieldId });
 	};
+
+	React.useEffect(() => {
+		if (fieldOptionsQueryResult.error) {
+			console.log(fieldOptionsQueryResult.error);
+			//TODO display
+		}
+		if (fieldOptionsQueryResult.data) {
+			const fieldId = fieldOptionsQueryResult.originalArgs?.fieldId;
+			console.log('OriginalArg fieldId: ', fieldId);
+			if (!fieldId) {
+				console.warn(
+					"Can't determine which field the received data are options for."
+				);
+			} else {
+				const fieldName = trackerSchemaQueryResult.data?.find(
+					(d) => d.id == fieldId
+				)?.trackerItemField;
+				if (!fieldName) {
+					console.warn(
+						"Can't determine which field the received data are options for."
+					);
+					return;
+				}
+				console.log(
+					'Setting following options for field ',
+					fieldName,
+					fieldOptionsQueryResult.data
+				);
+				const options = [
+					...selectOptions.filter((s) => s.key !== fieldName),
+					{
+						key: fieldName,
+						values: fieldOptionsQueryResult.data,
+					},
+				];
+				setSelectOptions(options);
+			}
+		}
+	}, [fieldOptionsQueryResult]);
 
 	//*********************************************************************** */
 	//********************************RENDER********************************* */
@@ -170,37 +241,26 @@ export default function ItemDetails(props: {
 									: 'success'
 								: ''
 						}`}
+						onClick={() => fetchOptions(ASSIGNEE_FIELD_NAME)}
 					>
-						<label data-test={ASSIGNEE_TECHNICAL_NAME}>
-							Assignee
-						</label>
+						<label data-test={ASSIGNEE_FIELD_NAME}>Assignee</label>
 						<Select
 							className="basic-single"
 							classNamePrefix="select"
 							options={
 								selectOptions.find(
-									(s) => s.key == ASSIGNEE_TECHNICAL_NAME
+									(s) => s.key == ASSIGNEE_FIELD_NAME
 								)?.values || []
 							}
 							getOptionLabel={(o) => o.name}
-							getOptionValue={(o) => o.uri}
-							isLoading={false}
+							getOptionValue={(o) => o.id}
+							isLoading={fieldOptionsQueryResult.isFetching}
 							isMulti={true}
 							isSearchable={true}
 							isClearable={true}
-							onInputChange={(v) => fetchUsers(v)}
 							onChange={(v) => {
-								const values = v.map((val) => {
-									return {
-										id: val.uri.substring(6),
-										uri: val.uri,
-										name: val.name,
-									};
-								});
-								formik.setFieldValue(
-									ASSIGNEE_TECHNICAL_NAME,
-									values
-								);
+								console.log('Values: ', v);
+								formik.setFieldValue(ASSIGNEE_FIELD_NAME, v);
 							}}
 							maxMenuHeight={180}
 						/>
@@ -219,15 +279,15 @@ export default function ItemDetails(props: {
 									: 'success'
 								: ''
 						}`}
-						onClick={() => fetchOptions(TEAM_TECHNICAL_NAME)}
+						onClick={() => fetchOptions(TEAM_FIELD_NAME)}
 					>
-						<label data-test={TEAM_TECHNICAL_NAME}>Team</label>
+						<label data-test={TEAM_FIELD_NAME}>Team</label>
 						<Select
 							className="basic-single"
 							classNamePrefix="select"
 							options={
 								selectOptions.find(
-									(s) => s.key == TEAM_TECHNICAL_NAME
+									(s) => s.key == TEAM_FIELD_NAME
 								)?.values || []
 							}
 							isLoading={false}
@@ -243,10 +303,7 @@ export default function ItemDetails(props: {
 										name: val.name,
 									};
 								});
-								formik.setFieldValue(
-									TEAM_TECHNICAL_NAME,
-									values
-								);
+								formik.setFieldValue(TEAM_FIELD_NAME, values);
 							}}
 							maxMenuHeight={180}
 						/>
