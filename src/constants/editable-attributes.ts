@@ -1,8 +1,13 @@
-export const ASSIGNEE_TECHNICAL_NAME = 'assignedTo';
-export const TEAM_TECHNICAL_NAME = 'team';
-export const STORY_POINTS_TECHNICAL_NAME = 'storyPoints';
-export const VERSION_TECHNICAL_NAME = 'versions';
-export const SUBJECT_TECHNICAL_NAME = 'subjects';
+export const ASSIGNEE_LEGACY_NAME = 'assignedTo';
+export const ASSIGNEE_FIELD_NAME = 'assignedTo';
+export const TEAM_LEGACY_NAME = 'team';
+export const TEAM_FIELD_NAME = 'team';
+export const STORY_POINTS_LEGACY_NAME = 'storyPoints';
+export const STORY_POINTS_FIELD_NAME = 'storyPoints';
+export const VERSION_LEGACY_NAME = 'versions';
+export const VERSION_FIELD_NAME = 'versions';
+export const SUBJECT_LEGACY_NAME = 'realizedFeature';
+export const SUBJECT_FIELD_NAME = 'subjects';
 
 /**
  * Enumerates the attributes that shall be editable on an Item's edit page
@@ -10,27 +15,32 @@ export const SUBJECT_TECHNICAL_NAME = 'subjects';
 export const EDITABLE_ATTRIBUTES: EditableAttributeConfig[] = [
 	{
 		label: 'Assignee',
-		name: ASSIGNEE_TECHNICAL_NAME,
+		name: ASSIGNEE_FIELD_NAME,
+		legacyName: ASSIGNEE_LEGACY_NAME,
 		type: 'array',
 	},
 	{
 		label: 'Team',
-		name: TEAM_TECHNICAL_NAME,
+		name: TEAM_FIELD_NAME,
+		legacyName: TEAM_LEGACY_NAME,
 		type: 'array',
 	},
 	{
 		label: 'Story Points',
-		name: STORY_POINTS_TECHNICAL_NAME,
+		name: STORY_POINTS_FIELD_NAME,
+		legacyName: STORY_POINTS_LEGACY_NAME,
 		type: 'number',
 	},
 	{
 		label: 'Version',
-		name: VERSION_TECHNICAL_NAME,
+		name: VERSION_FIELD_NAME,
+		legacyName: VERSION_LEGACY_NAME,
 		type: 'array',
 	},
 	{
 		label: 'Subject',
-		name: SUBJECT_TECHNICAL_NAME,
+		name: SUBJECT_FIELD_NAME,
+		legacyName: SUBJECT_LEGACY_NAME,
 		type: 'array',
 	},
 ];
@@ -46,6 +56,10 @@ export interface EditableAttributeConfig {
 	 * Technical field name
 	 */
 	name: string;
+	/**
+	 * Legacy field name
+	 */
+	legacyName: string;
 	/**
 	 * Type of the field's value(s)
 	 */
