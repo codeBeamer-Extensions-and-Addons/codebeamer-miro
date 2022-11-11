@@ -18,7 +18,10 @@ import { CbqlApiQuery } from '../models/cbqlApiQuery';
 import TrackerDetails from '../models/trackerDetails.if';
 import { CodeBeamerTrackerSchemaEntry } from '../models/trackerSchema.if';
 import { Wiki2HtmlQuery } from '../models/wiki2HtmlQuery';
-import { CodeBeamerItem } from '../models/codebeamer-item.if';
+import {
+	CodeBeamerItem,
+	CodeBeamerLegacyItem,
+} from '../models/codebeamer-item.if';
 
 const dynamicBaseQuery: BaseQueryFn<
 	string | FetchArgs,
@@ -83,6 +86,19 @@ export const codeBeamerApi = createApi({
 		getItem: builder.query<CodeBeamerItem, string>({
 			query: (itemId) => `/api/v3/items/${itemId}`,
 		}),
+		getItemLegacy: builder.query<CodeBeamerLegacyItem, string>({
+			query: (itemId) => `/rest/item/${itemId}`,
+		}),
+		updateItemLegacy: builder.query<string, CodeBeamerLegacyItem>({
+			query: (item) => {
+				return {
+					url: `/rest/item`,
+					method: 'PUT',
+					body: item,
+					headers: { 'Content-type': 'application/json' },
+				};
+			},
+		}),
 		getTrackerDetails: builder.query<TrackerDetails, string>({
 			query: (trackerId) => `/api/v3/trackers/${trackerId}`,
 		}),
@@ -135,6 +151,8 @@ export const {
 	useGetTrackersQuery,
 	useGetItemsQuery,
 	useLazyGetItemQuery,
+	useLazyGetItemLegacyQuery,
+	useLazyUpdateItemLegacyQuery,
 	useLazyGetItemsQuery,
 	useGetTrackerDetailsQuery,
 	useGetTrackerSchemaQuery,
