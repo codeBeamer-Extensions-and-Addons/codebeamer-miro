@@ -21,6 +21,7 @@ import {
 	VERSION_FIELD_NAME,
 } from '../../constants/editable-attributes';
 import { CodeBeamerItem } from '../../models/codebeamer-item.if';
+import { CodeBeamerReferenceMinimal } from '../../models/codebeamer-reference.if';
 import { loadBoardSettings } from '../../store/slices/boardSettingsSlice';
 import { RootState } from '../../store/store';
 
@@ -177,10 +178,6 @@ export default function ItemDetails(props: {
 			);
 			return;
 		}
-		console.log('Triggering field options query with', {
-			trackerId: trackerId,
-			fieldId: fieldId,
-		});
 		triggerFieldOptionsQuery({ trackerId, fieldId });
 	};
 
@@ -241,11 +238,19 @@ export default function ItemDetails(props: {
 
 	const formik = useFormik({
 		initialValues: {
-			assignedTo: [],
-			teams: [],
-			storyPoints: -1,
-			versions: [],
-			subjects: [],
+			assignedTo: item?.assignedTo
+				? (item.assignedTo as CodeBeamerReferenceMinimal[])
+				: [],
+			teams: item?.teams
+				? (item.teams as CodeBeamerReferenceMinimal[])
+				: [],
+			storyPoints: item?.storyPoints ?? -1,
+			versions: item?.versions
+				? (item.versions as CodeBeamerReferenceMinimal[])
+				: [],
+			subjects: item?.subjects
+				? (item.subjects as CodeBeamerReferenceMinimal[])
+				: [],
 		},
 		enableReinitialize: true,
 		validate: (values) => {
@@ -295,8 +300,9 @@ export default function ItemDetails(props: {
 									(s) => s.key == ASSIGNEE_FIELD_NAME
 								)?.values || []
 							}
+							value={formik.values.assignedTo}
 							getOptionLabel={(option) => option.name}
-							getOptionValue={(option) => option.id}
+							getOptionValue={(option) => option.id.toString()}
 							isLoading={fieldOptionsQueryResult.isFetching}
 							isMulti={true}
 							isSearchable={true}
@@ -339,8 +345,9 @@ export default function ItemDetails(props: {
 									(s) => s.key == TEAM_FIELD_NAME
 								)?.values || []
 							}
+							value={formik.values.teams}
 							getOptionLabel={(option) => option.name}
-							getOptionValue={(option) => option.id}
+							getOptionValue={(option) => option.id.toString()}
 							isLoading={fieldOptionsQueryResult.isFetching}
 							isMulti={true}
 							isSearchable={true}
@@ -381,8 +388,9 @@ export default function ItemDetails(props: {
 									(s) => s.key == VERSION_FIELD_NAME
 								)?.values || []
 							}
+							value={formik.values.versions}
 							getOptionLabel={(option) => option.name}
-							getOptionValue={(option) => option.id}
+							getOptionValue={(option) => option.id.toString()}
 							isLoading={fieldOptionsQueryResult.isFetching}
 							isMulti={true}
 							isSearchable={true}
@@ -423,8 +431,9 @@ export default function ItemDetails(props: {
 									(s) => s.key == SUBJECT_FIELD_NAME
 								)?.values || []
 							}
+							value={formik.values.subjects}
 							getOptionLabel={(option) => option.name}
-							getOptionValue={(option) => option.id}
+							getOptionValue={(option) => option.id.toString()}
 							isLoading={fieldOptionsQueryResult.isFetching}
 							isMulti={true}
 							isSearchable={true}
