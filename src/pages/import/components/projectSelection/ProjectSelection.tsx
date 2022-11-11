@@ -3,7 +3,6 @@ import * as React from 'react';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLazyGetProjectsQuery } from '../../../../api/codeBeamerApi';
-import { ProjectListView } from '../../../../models/projectListView.if';
 import { displayAppMessage } from '../../../../store/slices/appMessagesSlice';
 import { setProjectId } from '../../../../store/slices/boardSettingsSlice';
 import { setTrackerId } from '../../../../store/slices/userSettingsSlice';
@@ -27,8 +26,7 @@ export default function ProjectSelection(props: { headerLess?: boolean }) {
 		projectId.toString()
 	);
 
-	const [trigger, result, lastPromiseInfo] =
-		useLazyGetProjectsQuery(projectId);
+	const [trigger, result] = useLazyGetProjectsQuery(projectId);
 
 	React.useEffect(() => {
 		trigger();
@@ -72,15 +70,7 @@ export default function ProjectSelection(props: { headerLess?: boolean }) {
 			{!props.headerLess && (
 				<header className="text-center mb-5">
 					<h3 className="h3">Project selection</h3>
-					<p>
-						Select your Project
-						<br />
-						{selectedProjectLabel && (
-							<span data-test="current-project">
-								Currently: {selectedProjectLabel}
-							</span>
-						)}
-					</p>
+					<p>Select your Project</p>
 				</header>
 			)}
 			<div className="mt-3">
@@ -91,10 +81,17 @@ export default function ProjectSelection(props: { headerLess?: boolean }) {
 					isLoading={result.isLoading}
 					isSearchable={true}
 					isClearable={true}
+					value={{
+						id: selectedProjectId,
+						name: selectedProjectLabel,
+					}}
 					getOptionLabel={(option) => option.name}
-					getOptionValue={(option) => option.id.toString()}
+					getOptionValue={(option) => option.id?.toString() ?? '-1'}
 					onChange={(v) => {
-						setSelectedProjectId(v?.id);
+						if (v) {
+							setSelectedProjectId(v.id);
+							setSelectedProjectLabel(v.name);
+						}
 					}}
 					maxMenuHeight={180}
 				/>
