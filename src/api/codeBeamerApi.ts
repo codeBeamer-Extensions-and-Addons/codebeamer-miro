@@ -9,6 +9,7 @@ import { RootState } from '../store/store';
 import { ProjectListView } from '../models/projectListView.if';
 import { TrackerListView } from '../models/trackerListView.if';
 import {
+	FieldOptions,
 	ItemQueryPage,
 	TrackerSearchPage,
 	UserQueryPage,
@@ -118,7 +119,7 @@ export const codeBeamerApi = createApi({
 			},
 		}),
 		getFieldOptions: builder.query<
-			{ id: number; uri: string; name: string }[],
+			FieldOptions[],
 			{ trackerId: string | number; fieldId: string | number }
 		>({
 			query: (params) =>
@@ -137,6 +138,8 @@ export const {
 	useLazyGetItemsQuery,
 	useGetTrackerDetailsQuery,
 	useGetTrackerSchemaQuery,
+	useLazyGetTrackerSchemaQuery,
 	useGetWiki2HtmlQuery,
 	useLazyGetFilteredUsersQuery,
+	useLazyGetFieldOptionsQuery,
 } = codeBeamerApi;

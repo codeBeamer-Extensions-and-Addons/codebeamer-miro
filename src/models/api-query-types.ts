@@ -23,3 +23,9 @@ export interface UserQueryPage {
 		email: string;
 	}[];
 }
+
+export interface FieldOptions {
+	id: number;
+	uri: string;
+	name: string;
+}
