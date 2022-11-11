@@ -177,13 +177,14 @@ export default function ItemDetails(props: {
 		triggerFieldOptionsQuery({ trackerId, fieldId });
 	};
 
-	//TODO uhm.. basically uses the currentData if I have some loaded
-	//TODO in turn providing potentially false options for an input
 	React.useEffect(() => {
 		if (fieldOptionsQueryResult.error) {
 			console.error(fieldOptionsQueryResult.error);
 			//TODO display
 		}
+	}, [fieldOptionsQueryResult.error]);
+
+	React.useEffect(() => {
 		if (fieldOptionsQueryResult.data) {
 			const fieldId = fieldOptionsQueryResult.originalArgs?.fieldId;
 			console.log('OriginalArg fieldId: ', fieldId);
@@ -216,7 +217,7 @@ export default function ItemDetails(props: {
 				setSelectOptions(options);
 			}
 		}
-	}, [fieldOptionsQueryResult]);
+	}, [fieldOptionsQueryResult.data]);
 
 	const fieldIsDisabled = (fieldName: string): boolean => {
 		return disabledFields.find((f) => f.key == fieldName)?.value ?? false;
