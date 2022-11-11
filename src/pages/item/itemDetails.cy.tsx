@@ -3,6 +3,7 @@ import ItemDetails from './itemDetails';
 import { EDITABLE_ATTRIBUTES } from '../../constants/editable-attributes';
 import { getStore } from '../../store/store';
 import { setCbAddress } from '../../store/slices/boardSettingsSlice';
+import { setTrackerId } from '../../store/slices/userSettingsSlice';
 
 const getSelectControlSelector = (labelDataAttribute: String) => {
 	return `[data-test=${labelDataAttribute}] + div .select__control`;
@@ -49,20 +50,23 @@ describe('<Item>', () => {
 		describe('assignee input', () => {
 			beforeEach(() => {
 				const store = getStore();
+				const mockTrackerId = '123';
 				const mockCbAddress = 'http://test.com/cb';
 				store.dispatch(setCbAddress(mockCbAddress));
+				store.dispatch(setTrackerId(mockTrackerId));
+
+				cy.intercept('GET', `**/rest/tracker/*/field/*/options`, {
+					fixture: 'users_ur.json',
+				}).as('fetchOptions');
+				cy.intercept(`**/api/v3/trackers/${mockTrackerId}/schema`, {
+					fixture: 'tracker_schema.json',
+				}).as('fetchSchema');
 
 				cy.mountWithStore(
 					<ItemDetails itemId={mockItemId} cardId={mockCardId} />,
 					{ reduxStore: store }
 				);
-				cy.intercept(
-					'GET',
-					`**/rest/users/page/1?pagesize=50&filter=*`,
-					{
-						fixture: 'users_ur.json',
-					}
-				);
+				cy.wait('@fetchSchema');
 			});
 			it('has no options initially', () => {
 				cy.get(getSelectControlSelector('assignedTo')).should(
@@ -70,37 +74,56 @@ describe('<Item>', () => {
 					'option'
 				);
 			});
-			it('loads suitable options once typing starts', () => {
+			it('loads suitable options after a click on it', () => {
 				const filterValue = 'ur';
+
 				cy.get(getSelectControlSelector('assignedTo'))
-					.type(filterValue)
+					//* query is triggered by a click inside the wrapper div
+					.click()
 					.then(() => {
-						cy.fixture('users_ur.json').then((res) => {
-							const users = res.users;
-							let selectMenu = cy.get('.select__menu');
-							for (let user of users) {
-								selectMenu.should('contain.text', user.name);
-							}
-						});
+						cy.wait('@fetchOptions');
+
+						cy.get(getSelectControlSelector('assignedTo'))
+							.type(filterValue)
+							.then(() => {
+								cy.fixture('users_ur.json').then((users) => {
+									let selectMenu = cy.get('.select__menu');
+									for (let user of users) {
+										selectMenu.should(
+											'contain.text',
+											user.name
+										);
+									}
+								});
+							});
 					});
 			});
 			it('allows selecting multiple values', () => {
 				const filterValue = 'ur';
 				cy.get(getSelectControlSelector('assignedTo'))
-					.type(filterValue)
+					//* query is triggered by a click inside the wrapper div
+					.click()
 					.then(() => {
-						cy.get('.select__option').first().click();
+						cy.wait('@fetchOptions');
+
 						cy.get(getSelectControlSelector('assignedTo'))
 							.type(filterValue)
 							.then(() => {
 								cy.get('.select__option').first().click();
-								//* just the hardcoded first and second values in users_ur.json
-								cy.get('.select__multi-value')
-									.first()
-									.should('have.text', 'urecha');
-								cy.get('.select__multi-value')
-									.last()
-									.should('have.text', 'urecho');
+								cy.get(getSelectControlSelector('assignedTo'))
+									.type(filterValue)
+									.then(() => {
+										cy.get('.select__option')
+											.first()
+											.click();
+										//* just the hardcoded first and second values in users_ur.json
+										cy.get('.select__multi-value')
+											.first()
+											.should('have.text', 'urecha');
+										cy.get('.select__multi-value')
+											.last()
+											.should('have.text', 'urecho');
+									});
 							});
 					});
 			});
@@ -122,5 +145,10 @@ describe('<Item>', () => {
 		it('displays an error notification when the update failed');
 
 		it('updates the item its miro card when submitting updates');
+	});
+
+	afterEach(() => {
+		localStorage.clear();
+		sessionStorage.clear();
 	});
 });
