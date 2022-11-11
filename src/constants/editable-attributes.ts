@@ -1,7 +1,7 @@
 export const ASSIGNEE_LEGACY_NAME = 'assignedTo';
 export const ASSIGNEE_FIELD_NAME = 'assignedTo';
 export const TEAM_LEGACY_NAME = 'team';
-export const TEAM_FIELD_NAME = 'team';
+export const TEAM_FIELD_NAME = 'teams';
 export const STORY_POINTS_LEGACY_NAME = 'storyPoints';
 export const STORY_POINTS_FIELD_NAME = 'storyPoints';
 export const VERSION_LEGACY_NAME = 'versions';
