@@ -14,6 +14,7 @@ import {
 import { updateAppCard } from '../../api/miro.api';
 import {
 	ASSIGNEE_FIELD_NAME,
+	EDITABLE_ATTRIBUTES,
 	TEAM_FIELD_NAME,
 } from '../../constants/editable-attributes';
 import { CodeBeamerItem } from '../../models/codebeamer-item.if';
@@ -54,6 +55,12 @@ export default function ItemDetails(props: {
 	const [selectOptions, setSelectOptions] = useState<
 		{ key: string; values: any[] }[]
 	>([]);
+	const [disabledFields, setDisabledFields] = useState<
+		{
+			key: string;
+			value: boolean;
+		}[]
+	>([]);
 
 	const { cbAddress } = useSelector(
 		(state: RootState) => state.boardSettings
@@ -86,14 +93,41 @@ export default function ItemDetails(props: {
 		}
 	});
 
+	/**
+	 * Handler for when we receive the tracker schema (or an error when trying to load it)
+	 *
+	 * Will loop over the {@link EDITABLE_ATTRIBUTES} if we have a schema, and check which of these attributes have a counterpart
+	 * in the current tracker (meaning either the "trcakerItemField" or "legacyRestName" match the attribute's respective values).
+	 *
+	 * Updates {@link disabledFields} with these findings, which can then be used to disable / hide the inputs which this tracker doesn't have a field for.
+	 */
 	React.useEffect(() => {
 		if (trackerSchemaQueryResult.error) {
 			console.error(
 				"Failed loading Tracker Schema - Won't be able to propose any options"
 			);
-			//TODO
+			//TODO error notif
+		} else if (trackerSchemaQueryResult.data) {
+			//*register disabledFields - so that fields that don't exist on this tracker are disabled / don't show up
+			const disabledFields = [];
+			for (let attr of EDITABLE_ATTRIBUTES) {
+				disabledFields.push({
+					key: attr.name,
+					value: !trackerSchemaQueryResult.data.some(
+						(d) =>
+							d.trackerItemField == attr.name ||
+							d.legacyRestName == attr.legacyName
+					),
+				});
+				setDisabledFields(disabledFields);
+			}
 		}
 	}, [trackerSchemaQueryResult]);
+
+	/**
+	 * Effect running when {@link disabledFields} is updated
+	 */
+	React.useEffect(() => {}, [disabledFields]);
 
 	React.useEffect(() => {
 		// console.log('cbAddress effect');
@@ -112,25 +146,14 @@ export default function ItemDetails(props: {
 		}
 	}, [itemQueryResult]);
 
-	// React.useEffect(() => {
-	// 	if (userQueryResult.error) {
-	// 		console.error(userQueryResult.error);
-	// 	} else if (userQueryResult.data) {
-	// 		const neoOptions = [
-	// 			...selectOptions.filter((s) => s.key !== ASSIGNEE_FIELD_NAME),
-	// 			{
-	// 				key: ASSIGNEE_FIELD_NAME,
-	// 				values: userQueryResult.data.users,
-	// 			},
-	// 		];
-	// 		setSelectOptions(neoOptions);
-	// 	}
-	// }, [userQueryResult]);
-
-	//TODO make generic
 	const fetchOptions = (fieldName: string) => {
 		//*if already loaded, return. we get all options at once - no further lazy loading
-		if (selectOptions.find((o) => o.key == fieldName)) return;
+		if (
+			selectOptions.find((o) => o.key == fieldName) ||
+			disabledFields.find((f) => f.key == fieldName)?.value
+		) {
+			return;
+		}
 		if (!trackerSchemaQueryResult.data) {
 			return;
 		}
@@ -189,6 +212,10 @@ export default function ItemDetails(props: {
 			}
 		}
 	}, [fieldOptionsQueryResult]);
+
+	const fieldIsDisabled = (fieldName: string): boolean => {
+		return disabledFields.find((f) => f.key == fieldName)?.value ?? false;
+	};
 
 	//*********************************************************************** */
 	//********************************RENDER********************************* */
@@ -250,15 +277,22 @@ export default function ItemDetails(props: {
 									(s) => s.key == ASSIGNEE_FIELD_NAME
 								)?.values || []
 							}
-							getOptionLabel={(o) => o.name}
-							getOptionValue={(o) => o.id}
+							getOptionLabel={(option) => option.name}
+							getOptionValue={(option) => option.id}
 							isLoading={fieldOptionsQueryResult.isFetching}
 							isMulti={true}
 							isSearchable={true}
 							isClearable={true}
-							onChange={(v) => {
-								formik.setFieldValue(ASSIGNEE_FIELD_NAME, v);
-							}}
+							isDisabled={
+								!trackerSchemaQueryResult.data ||
+								fieldIsDisabled(ASSIGNEE_FIELD_NAME)
+							}
+							onChange={(values) =>
+								formik.setFieldValue(
+									ASSIGNEE_FIELD_NAME,
+									values
+								)
+							}
 							maxMenuHeight={180}
 						/>
 					</div>
@@ -287,21 +321,19 @@ export default function ItemDetails(props: {
 									(s) => s.key == TEAM_FIELD_NAME
 								)?.values || []
 							}
-							isLoading={false}
+							getOptionLabel={(option) => option.name}
+							getOptionValue={(option) => option.id}
+							isLoading={fieldOptionsQueryResult.isFetching}
 							isMulti={true}
 							isSearchable={true}
 							isClearable={true}
-							getOptionLabel={(option) => option}
-							getOptionValue={(option) => option}
-							onChange={(v) => {
-								const values = v.map((val) => {
-									return {
-										id: val.id,
-										name: val.name,
-									};
-								});
-								formik.setFieldValue(TEAM_FIELD_NAME, values);
-							}}
+							isDisabled={
+								!trackerSchemaQueryResult.data ||
+								fieldIsDisabled(TEAM_FIELD_NAME)
+							}
+							onChange={(values) =>
+								formik.setFieldValue(TEAM_FIELD_NAME, values)
+							}
 							maxMenuHeight={180}
 						/>
 					</div>

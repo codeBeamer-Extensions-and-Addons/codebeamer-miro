@@ -1,6 +1,10 @@
 import * as React from 'react';
 import ItemDetails from './itemDetails';
-import { EDITABLE_ATTRIBUTES } from '../../constants/editable-attributes';
+import {
+	ASSIGNEE_FIELD_NAME,
+	EDITABLE_ATTRIBUTES,
+	TEAM_FIELD_NAME,
+} from '../../constants/editable-attributes';
 import { getStore } from '../../store/store';
 import { setCbAddress } from '../../store/slices/boardSettingsSlice';
 import { setTrackerId } from '../../store/slices/userSettingsSlice';
@@ -46,6 +50,30 @@ describe('<Item>', () => {
 		}
 	});
 
+	it('disables the input if the current tracker has no such field', () => {
+		const store = getStore();
+		const mockTrackerId = '123';
+		const mockCbAddress = 'http://test.com/cb';
+		store.dispatch(setCbAddress(mockCbAddress));
+		store.dispatch(setTrackerId(mockTrackerId));
+
+		cy.intercept('GET', `**/rest/tracker/*/field/*/options`, {
+			fixture: 'users_ur.json',
+		}).as('fetchOptions');
+		//*_minimal doesn't have a "teams" field
+		cy.intercept(`**/api/v3/trackers/${mockTrackerId}/schema`, {
+			fixture: 'tracker_schema_minimal.json',
+		}).as('fetchSchema');
+
+		cy.mountWithStore(<ItemDetails />, { reduxStore: store });
+		cy.wait('@fetchSchema');
+
+		cy.get(getSelectControlSelector(TEAM_FIELD_NAME)).should(
+			'have.class',
+			'select__control--is-disabled'
+		);
+	});
+
 	context('form interaction', () => {
 		describe('assignee input', () => {
 			beforeEach(() => {
@@ -69,7 +97,7 @@ describe('<Item>', () => {
 				cy.wait('@fetchSchema');
 			});
 			it('has no options initially', () => {
-				cy.get(getSelectControlSelector('assignedTo')).should(
+				cy.get(getSelectControlSelector(ASSIGNEE_FIELD_NAME)).should(
 					'not.contain.html',
 					'option'
 				);
