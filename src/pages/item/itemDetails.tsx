@@ -64,8 +64,6 @@ export default function ItemDetails(props: {
 	const [triggerTrackerSchemaQuery, trackerSchemaQueryResult] =
 		useLazyGetTrackerSchemaQuery();
 	const [triggerItemQuery, itemQueryResult] = useLazyGetItemQuery();
-	const [triggerUserQuery, userQueryResult] = useLazyGetFilteredUsersQuery();
-	const [triggerItemsQuery, itemsQueryResult] = useLazyGetItemsQuery();
 	const [triggerFieldOptionsQuery, fieldOptionsQueryResult] =
 		useLazyGetFieldOptionsQuery();
 
@@ -155,7 +153,7 @@ export default function ItemDetails(props: {
 
 	React.useEffect(() => {
 		if (fieldOptionsQueryResult.error) {
-			console.log(fieldOptionsQueryResult.error);
+			console.error(fieldOptionsQueryResult.error);
 			//TODO display
 		}
 		if (fieldOptionsQueryResult.data) {
@@ -259,7 +257,6 @@ export default function ItemDetails(props: {
 							isSearchable={true}
 							isClearable={true}
 							onChange={(v) => {
-								console.log('Values: ', v);
 								formik.setFieldValue(ASSIGNEE_FIELD_NAME, v);
 							}}
 							maxMenuHeight={180}
