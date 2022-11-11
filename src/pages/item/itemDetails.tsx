@@ -87,6 +87,12 @@ export default function ItemDetails(props: {
 		dispatch(loadBoardSettings());
 	}, []);
 
+	/**
+	 * {@link cbAddress} and {@link storeIsInitializing} subscription
+	 *
+	 * Will run its logic only once both values are truthy, which will then
+	 * claim the store to be initialized and trigger the Item- and TrackerSchema queries
+	 */
 	React.useEffect(() => {
 		if (cbAddress && storeIsInitializing) {
 			// console.log('Cb address truthy: ', cbAddress);
@@ -94,7 +100,7 @@ export default function ItemDetails(props: {
 			triggerItemQuery(itemId!);
 			triggerTrackerSchemaQuery(trackerId);
 		}
-	});
+	}, [cbAddress, storeIsInitializing]);
 
 	/**
 	 * Handler for when we receive the tracker schema (or an error when trying to load it)
@@ -128,18 +134,10 @@ export default function ItemDetails(props: {
 	}, [trackerSchemaQueryResult]);
 
 	/**
-	 * Effect running when {@link disabledFields} is updated
+	 * {@link itemQueryResult} subscription
+	 *
+	 * Sets the item's data and will also update the card for it.
 	 */
-	React.useEffect(() => {}, [disabledFields]);
-
-	React.useEffect(() => {
-		// console.log('cbAddress effect');
-		if (cbAddress) {
-			setStoreIsInitializing(false);
-			triggerItemQuery(itemId!);
-		}
-	}, [cbAddress]);
-
 	React.useEffect(() => {
 		if (itemQueryResult.error) {
 			//TODO
@@ -149,6 +147,15 @@ export default function ItemDetails(props: {
 		}
 	}, [itemQueryResult]);
 
+	/**
+	 * Will trigger fetching options (tracker/{id}/field/{id}/options) for given field
+	 *
+	 * Mind that triggering this again before the previous response has been received & processed will
+	 * cancel the ongoing one, since they're using the same api endpoint implementation.
+	 *
+	 * @param fieldName Name of the field
+	 * @returns void, see the respective effect for how the query's result is handled
+	 */
 	const fetchOptions = (fieldName: string) => {
 		//*if already loaded, return. we get all options at once - no further lazy loading
 		if (
@@ -177,6 +184,9 @@ export default function ItemDetails(props: {
 		triggerFieldOptionsQuery({ trackerId, fieldId });
 	};
 
+	/**
+	 * {@link fieldOptionsQueryResult} error subscription
+	 */
 	React.useEffect(() => {
 		if (fieldOptionsQueryResult.error) {
 			console.error(fieldOptionsQueryResult.error);
@@ -184,10 +194,14 @@ export default function ItemDetails(props: {
 		}
 	}, [fieldOptionsQueryResult.error]);
 
+	/**
+	 * {@link fieldOptionsQueryResult} data update subscription
+	 *
+	 * Will update the {@link selectOptions} with the here-received options for the field the request was made for.
+	 */
 	React.useEffect(() => {
 		if (fieldOptionsQueryResult.data) {
 			const fieldId = fieldOptionsQueryResult.originalArgs?.fieldId;
-			console.log('OriginalArg fieldId: ', fieldId);
 			if (!fieldId) {
 				console.warn(
 					"Can't determine which field the received data are options for."
@@ -202,11 +216,6 @@ export default function ItemDetails(props: {
 					);
 					return;
 				}
-				console.log(
-					'Setting following options for field ',
-					fieldName,
-					fieldOptionsQueryResult.data
-				);
 				const options = [
 					...selectOptions.filter((s) => s.key !== fieldName),
 					{
@@ -219,6 +228,9 @@ export default function ItemDetails(props: {
 		}
 	}, [fieldOptionsQueryResult.data]);
 
+	/**
+	 * @returns Whether the field for {@link fieldName} should be disabled (true) or not (false)
+	 */
 	const fieldIsDisabled = (fieldName: string): boolean => {
 		return disabledFields.find((f) => f.key == fieldName)?.value ?? false;
 	};
