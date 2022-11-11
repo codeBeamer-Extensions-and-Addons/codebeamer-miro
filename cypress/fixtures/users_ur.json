@@ -1,34 +1,17 @@
-{
-	"page": 1,
-	"size": 50,
-	"total": 3,
-	"users": [
-		{
-			"uri": "/user/1",
-			"name": "urecha",
-			"firstName": "Andrin",
-			"lastName": "Urech",
-			"company": "Not Miro",
-			"email": "hi@there.com",
-			"phone": ""
-		},
-		{
-			"uri": "/user/2",
-			"name": "urecho",
-			"firstName": "Ondrin",
-			"lastName": "Urech",
-			"company": "Not Miro",
-			"email": "hi@there.com",
-			"phone": ""
-		},
-		{
-			"uri": "/user/3",
-			"name": "ureche",
-			"firstName": "Endrin",
-			"lastName": "Urech",
-			"company": "Not Miro",
-			"email": "hi@there.com",
-			"phone": ""
-		}
-	]
-}
+[
+	{
+		"id": 1,
+		"uri": "/user/1",
+		"name": "urecha"
+	},
+	{
+		"id": 2,
+		"uri": "/user/2",
+		"name": "urecho"
+	},
+	{
+		"id": 3,
+		"uri": "/user/3",
+		"name": "ureche"
+	}
+]
