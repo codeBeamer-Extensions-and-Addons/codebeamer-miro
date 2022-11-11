@@ -15,7 +15,10 @@ import { updateAppCard } from '../../api/miro.api';
 import {
 	ASSIGNEE_FIELD_NAME,
 	EDITABLE_ATTRIBUTES,
+	STORY_POINTS_FIELD_NAME,
+	SUBJECT_FIELD_NAME,
 	TEAM_FIELD_NAME,
+	VERSION_FIELD_NAME,
 } from '../../constants/editable-attributes';
 import { CodeBeamerItem } from '../../models/codebeamer-item.if';
 import { loadBoardSettings } from '../../store/slices/boardSettingsSlice';
@@ -174,6 +177,8 @@ export default function ItemDetails(props: {
 		triggerFieldOptionsQuery({ trackerId, fieldId });
 	};
 
+	//TODO uhm.. basically uses the currentData if I have some loaded
+	//TODO in turn providing potentially false options for an input
 	React.useEffect(() => {
 		if (fieldOptionsQueryResult.error) {
 			console.error(fieldOptionsQueryResult.error);
@@ -352,21 +357,30 @@ export default function ItemDetails(props: {
 									: 'success'
 								: ''
 						}`}
+						onClick={() => fetchOptions(VERSION_FIELD_NAME)}
 					>
-						<label data-test="versions">Version</label>
+						<label data-test={VERSION_FIELD_NAME}>Version</label>
 						<Select
 							className="basic-single"
 							classNamePrefix="select"
-							options={[]}
-							isLoading={false}
+							options={
+								selectOptions.find(
+									(s) => s.key == VERSION_FIELD_NAME
+								)?.values || []
+							}
+							getOptionLabel={(option) => option.name}
+							getOptionValue={(option) => option.id}
+							isLoading={fieldOptionsQueryResult.isFetching}
 							isMulti={true}
 							isSearchable={true}
 							isClearable={true}
-							getOptionLabel={(option) => option}
-							getOptionValue={(option) => option}
-							onChange={(v) => {
-								console.log(v);
-							}}
+							isDisabled={
+								!trackerSchemaQueryResult.data ||
+								fieldIsDisabled(VERSION_FIELD_NAME)
+							}
+							onChange={(values) =>
+								formik.setFieldValue(VERSION_FIELD_NAME, values)
+							}
 							maxMenuHeight={180}
 						/>
 					</div>
@@ -385,21 +399,30 @@ export default function ItemDetails(props: {
 									: 'success'
 								: ''
 						}`}
+						onClick={() => fetchOptions(SUBJECT_FIELD_NAME)}
 					>
-						<label data-test="subjects">Subject</label>
+						<label data-test={SUBJECT_FIELD_NAME}>Subject</label>
 						<Select
 							className="basic-single"
 							classNamePrefix="select"
-							options={[]}
-							isLoading={false}
+							options={
+								selectOptions.find(
+									(s) => s.key == SUBJECT_FIELD_NAME
+								)?.values || []
+							}
+							getOptionLabel={(option) => option.name}
+							getOptionValue={(option) => option.id}
+							isLoading={fieldOptionsQueryResult.isFetching}
 							isMulti={true}
 							isSearchable={true}
 							isClearable={true}
-							getOptionLabel={(option) => option}
-							getOptionValue={(option) => option}
-							onChange={(v) => {
-								console.log(v);
-							}}
+							isDisabled={
+								!trackerSchemaQueryResult.data ||
+								fieldIsDisabled(SUBJECT_FIELD_NAME)
+							}
+							onChange={(values) =>
+								formik.setFieldValue(SUBJECT_FIELD_NAME, values)
+							}
 							maxMenuHeight={180}
 						/>
 					</div>
@@ -421,11 +444,20 @@ export default function ItemDetails(props: {
 						<label>Story Points</label>
 						<input
 							type="number"
-							name="storyPoints"
-							value={formik.values.storyPoints}
 							className="input"
-							onChange={(e) => formik.handleChange(e)}
-							data-test="storyPoints"
+							name={STORY_POINTS_FIELD_NAME}
+							value={formik.values.storyPoints}
+							onChange={(e) =>
+								formik.setFieldValue(
+									STORY_POINTS_FIELD_NAME,
+									e.target.value
+								)
+							}
+							disabled={
+								!trackerSchemaQueryResult.data ||
+								fieldIsDisabled(STORY_POINTS_FIELD_NAME)
+							}
+							data-test={STORY_POINTS_FIELD_NAME}
 						/>
 					</div>
 

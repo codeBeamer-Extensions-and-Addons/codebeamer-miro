@@ -39,6 +39,8 @@ describe('<Item>', () => {
 		);
 
 		cy.wait('@fetchItem');
+		//can't really assert anything more, since the functions that are called to update
+		//the item are stubbable as far as I know
 	});
 
 	it('has an input for each editable attribute', () => {
@@ -75,7 +77,7 @@ describe('<Item>', () => {
 	});
 
 	context('form interaction', () => {
-		describe('assignee input', () => {
+		describe('example assignee input', () => {
 			beforeEach(() => {
 				const store = getStore();
 				const mockTrackerId = '123';
@@ -155,10 +157,6 @@ describe('<Item>', () => {
 							});
 					});
 			});
-		});
-
-		context('select options', () => {
-			it('shows a project its teams');
 		});
 	});
 
