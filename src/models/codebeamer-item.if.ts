@@ -30,3 +30,22 @@ export interface CodeBeamerItem {
 	typeName: string;
 	comments: any[];
 }
+
+/**
+ * Some handpicked properties of what the legacy rest API gives you when you query an item's details.
+ *
+ * Currently only used to update it
+ */
+export interface CodeBeamerLegacyItem {
+	id?: number;
+	uri: string;
+	tracker?: any;
+	supervisors?: any[];
+	name?: string;
+	status?: any;
+	realizedFeaturess?: any[];
+	versions?: any[];
+	storyPoints?: number;
+	team?: any[];
+	assignedTo?: any[];
+}
