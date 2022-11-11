@@ -195,6 +195,12 @@ img {
 .w-80 {
 	width: 80%;
 }
+.max-w-85 {
+	max-width: 85%;
+}
+.w-max {
+	width: max-content;
+}
 .w-100 {
 	width: 100%;
 }
