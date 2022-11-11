@@ -1,0 +1,72 @@
+[
+	{
+		"id": 0,
+		"name": "ID",
+		"type": "IntegerField",
+		"hidden": false,
+		"valueModel": "IntegerFieldValue",
+		"mandatoryInStatuses": [],
+		"legacyRestName": "id",
+		"trackerItemField": "id"
+	},
+	{
+		"id": 5,
+		"name": "Assigned to",
+		"type": "UserChoiceField",
+		"hidden": false,
+		"valueModel": "ChoiceFieldValue<UserReference>",
+		"mandatoryInStatuses": [],
+		"multipleValues": true,
+		"legacyRestName": "assignedTo",
+		"trackerItemField": "assignedTo",
+		"referenceType": "UserReference"
+	},
+	{
+		"id": 19,
+		"name": "Story Points",
+		"type": "IntegerField",
+		"hidden": false,
+		"valueModel": "IntegerFieldValue",
+		"title": "Points",
+		"mandatoryInStatuses": [],
+		"legacyRestName": "storyPoints",
+		"trackerItemField": "storyPoints"
+	},
+	{
+		"id": 1000,
+		"name": "Realised Feature",
+		"type": "TrackerItemChoiceField",
+		"hidden": false,
+		"valueModel": "ChoiceFieldValue<TrackerItemReference>",
+		"mandatoryInStatuses": [
+			{
+				"id": 2,
+				"name": "Approved",
+				"type": "ChoiceOptionReference"
+			},
+			{
+				"id": 3,
+				"name": "Committed",
+				"type": "ChoiceOptionReference"
+			},
+			{
+				"id": 4,
+				"name": "Done",
+				"type": "ChoiceOptionReference"
+			},
+			{
+				"id": 5,
+				"name": "Ready for Review",
+				"type": "ChoiceOptionReference"
+			},
+			{
+				"id": 6,
+				"name": "In Progress",
+				"type": "ChoiceOptionReference"
+			}
+		],
+		"multipleValues": false,
+		"legacyRestName": "realisedFeature",
+		"referenceType": "TrackerItemReference"
+	}
+]
