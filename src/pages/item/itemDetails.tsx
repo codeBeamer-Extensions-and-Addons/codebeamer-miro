@@ -134,8 +134,9 @@ export default function ItemDetails(props: {
 			setFatalError('Failed loading tracker schema');
 			return;
 		} else if (trackerSchemaQueryResult.data) {
-			//*register disabledFields - so that fields that don't exist on this tracker are disabled / don't show up
 			setTrackerSchema(trackerSchemaQueryResult.data);
+			//*eagerly load assignee options, because it tends to take several seconds
+			fetchOptions(ASSIGNEE_FIELD_NAME);
 			setLoading(false);
 		}
 	}, [trackerSchemaQueryResult]);
@@ -146,6 +147,7 @@ export default function ItemDetails(props: {
 	 * Updates the {@link disabledFields} array when it chanegs
 	 */
 	React.useEffect(() => {
+		if (!trackerSchema || !trackerSchema.length) return;
 		const disabledFields = [];
 		for (let attr of EDITABLE_ATTRIBUTES) {
 			disabledFields.push({
