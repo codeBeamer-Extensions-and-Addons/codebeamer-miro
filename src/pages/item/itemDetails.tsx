@@ -1,3 +1,4 @@
+import { FetchBaseQueryError } from '@reduxjs/toolkit/dist/query';
 import { useFormik } from 'formik';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -65,6 +66,7 @@ export default function ItemDetails(props: {
 	const [trackerId, setTrackerId] = useState<string>();
 	const [loading, setLoading] = useState<boolean>(true);
 	const [animateSuccess, setAnimateSuccess] = useState<boolean>(false);
+	const [fatalError, setFatalError] = useState<string>('');
 
 	const [selectOptions, setSelectOptions] = useState<
 		{ key: string; values: any[] }[]
@@ -125,9 +127,11 @@ export default function ItemDetails(props: {
 	React.useEffect(() => {
 		if (trackerSchemaQueryResult.error) {
 			console.error(
-				"Failed loading Tracker Schema - Won't be able to propose any options"
+				"Fatal error - couldn't load tracker schema: ",
+				trackerSchemaQueryResult.error
 			);
-			//TODO error notif
+			setFatalError('Failed loading tracker schema');
+			return;
 		} else if (trackerSchemaQueryResult.data) {
 			//*register disabledFields - so that fields that don't exist on this tracker are disabled / don't show up
 			const disabledFields = [];
@@ -154,7 +158,13 @@ export default function ItemDetails(props: {
 	 */
 	React.useEffect(() => {
 		if (itemQueryResult.error) {
-			//TODO
+			console.error(
+				"Fatal error - couldn't load item schema: ",
+				itemQueryResult.error
+			);
+			//TODO improve
+			setFatalError('Failed loading item schema');
+			return;
 		} else if (itemQueryResult.data) {
 			setTrackerId(itemQueryResult.data.tracker.id.toString());
 			setItem(itemQueryResult.data);
@@ -190,12 +200,25 @@ export default function ItemDetails(props: {
 	 */
 	React.useEffect(() => {
 		if (updateItemResult.error) {
-			console.error('Failed to update item: ', updateItemResult.error);
+			console.error(
+				'Failed to update item: ',
+				JSON.stringify(
+					(updateItemResult.error as FetchBaseQueryError).data
+				)
+			);
 			dispatch(
 				displayAppMessage({
-					header: 'Failed to update item: ' + updateItemResult.error,
+					header:
+						'Failed to update item: ' +
+							(
+								(updateItemResult.error as FetchBaseQueryError)
+									.data as {
+									exception: string;
+									message: string;
+								}
+							).message ?? '',
 					bg: 'danger',
-					delay: 2500,
+					delay: 5000,
 				})
 			);
 		}
@@ -343,10 +366,18 @@ export default function ItemDetails(props: {
 
 	return (
 		<>
-			{loading && <div className="centered loading-spinner-lg"></div>}
-			{!loading && item && (
+			{fatalError && (
+				<div className="centered" data-test="fatal-error">
+					<h3 className="h3">Fatal error</h3>
+					<p>{fatalError}</p>
+				</div>
+			)}
+			{!fatalError && loading && (
+				<div className="centered loading-spinner-lg"></div>
+			)}
+			{!fatalError && !loading && item && (
 				<div className="fade-in centered-horizontally h-100 flex-col w-max max-w-85">
-					<div className="panel-header h-25">
+					<div className="panel-header h-max-25">
 						<div className="panel-title sticky">
 							<h3 className="h3">
 								{item.name} <small>#{item.id}</small>
