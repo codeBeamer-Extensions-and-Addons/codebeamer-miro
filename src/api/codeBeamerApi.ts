@@ -96,6 +96,10 @@ export const codeBeamerApi = createApi({
 					method: 'PUT',
 					body: item,
 					headers: { 'Content-type': 'application/json' },
+					responseHandler: (response) => {
+						if (response.ok) return response.text();
+						return response.json();
+					},
 				};
 			},
 		}),
@@ -141,6 +145,20 @@ export const codeBeamerApi = createApi({
 			query: (params) =>
 				`/rest/tracker/${params.trackerId}/field/${params.fieldId}/options`,
 		}),
+		getWiki2HtmlLegacy: builder.query<
+			string,
+			{ itemId: number | string; markup: string }
+		>({
+			query: (params) => {
+				return {
+					url: `/rest/item/${params.itemId}/wiki2html`,
+					method: 'POST',
+					body: params.markup,
+					headers: { 'Content-type': 'text/plain' },
+					responseHandler: (response) => response.text(),
+				};
+			},
+		}),
 	}),
 });
 
@@ -158,6 +176,7 @@ export const {
 	useGetTrackerSchemaQuery,
 	useLazyGetTrackerSchemaQuery,
 	useGetWiki2HtmlQuery,
+	useLazyGetWiki2HtmlLegacyQuery,
 	useLazyGetFilteredUsersQuery,
 	useLazyGetFieldOptionsQuery,
 } = codeBeamerApi;
