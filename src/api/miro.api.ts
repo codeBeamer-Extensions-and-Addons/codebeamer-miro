@@ -78,11 +78,6 @@ export async function updateAppCard(
 			card.description ?? existingAppCard.description;
 	}
 	existingAppCard.fields = card.fields ?? existingAppCard.fields ?? [];
-
-	//* keep the status at disconnected, so that one can sync on demand at any time
-	//* setting it to 'connected' doesn't make any sense here anyway, since we don't
-	//* maintain any kind of active connection with the data source
-	existingAppCard.status = 'disconnected';
 	await existingAppCard.sync();
 }
 
@@ -95,7 +90,7 @@ export async function convertToCardData(
 		const password = store.getState().userSettings.cbPassword;
 
 		const requestArgs = {
-			method: 'GET',
+			method: 'POST',
 			headers: new Headers({
 				'Content-Type': 'text/plain',
 				Authorization: `Basic ${btoa(username + ':' + password)}`,
