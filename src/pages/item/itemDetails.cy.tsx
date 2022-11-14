@@ -80,15 +80,16 @@ describe('<Item>', () => {
 		describe('example assignee input', () => {
 			beforeEach(() => {
 				const store = getStore();
-				const mockTrackerId = '123';
 				const mockCbAddress = 'http://test.com/cb';
 				store.dispatch(setCbAddress(mockCbAddress));
-				store.dispatch(setTrackerId(mockTrackerId));
 
+				cy.intercept('GET', `**/api/v3/items/*`, {
+					fixture: 'item.json',
+				}).as('itemQuery');
 				cy.intercept('GET', `**/rest/tracker/*/field/*/options`, {
 					fixture: 'users_ur.json',
 				}).as('fetchOptions');
-				cy.intercept(`**/api/v3/trackers/${mockTrackerId}/schema`, {
+				cy.intercept(`**/api/v3/trackers/*/schema`, {
 					fixture: 'tracker_schema.json',
 				}).as('fetchSchema');
 
@@ -171,6 +172,51 @@ describe('<Item>', () => {
 		it('displays an error notification when the update failed');
 
 		it('updates the item its miro card when submitting updates');
+	});
+
+	context('error handling', () => {
+		it('displays an error if the item could not be loaded', () => {
+			const store = getStore();
+			const mockTrackerId = '123';
+			const mockCbAddress = 'http://test.com/cb';
+			store.dispatch(setCbAddress(mockCbAddress));
+			store.dispatch(setTrackerId(mockTrackerId));
+
+			cy.intercept('GET', `**/api/v3/items/**`, {
+				statusCode: 500,
+			}).as('fetchItem');
+
+			cy.mountWithStore(
+				<ItemDetails itemId={mockItemId} cardId={mockCardId} />,
+				{ reduxStore: store }
+			);
+			cy.wait('@fetchItem');
+			cy.getBySel('fatal-error')
+				.should('exist')
+				.and('contain.text', 'Failed loading item schema');
+		});
+		it('displays an error if the tracker schema could not be loaded', () => {
+			const store = getStore();
+			const mockCbAddress = 'http://test.com/cb';
+			store.dispatch(setCbAddress(mockCbAddress));
+
+			cy.intercept('GET', `**/api/v3/items/**`, {
+				statusCode: 200,
+				fixture: 'item.json',
+			}).as('fetchItem');
+			cy.intercept(`**/api/v3/trackers/*/schema`, {
+				statusCode: 500,
+			}).as('fetchSchema');
+
+			cy.mountWithStore(
+				<ItemDetails itemId={mockItemId} cardId={mockCardId} />,
+				{ reduxStore: store }
+			);
+			cy.wait('@fetchSchema');
+			cy.getBySel('fatal-error')
+				.should('exist')
+				.and('contain.text', 'Failed loading tracker schema');
+		});
 	});
 
 	afterEach(() => {
