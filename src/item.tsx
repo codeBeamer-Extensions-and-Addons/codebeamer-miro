@@ -11,7 +11,7 @@ function Item() {
 	return (
 		<Provider store={store}>
 			<ItemDetails />
-			<Toasts />
+			<Toasts position="bottom-center" />
 		</Provider>
 	);
 }
