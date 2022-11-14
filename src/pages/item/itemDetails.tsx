@@ -57,6 +57,7 @@ export default function ItemDetails(props: {
 		useState<boolean>(true);
 	const [item, setItem] = useState<CodeBeamerItem>();
 	const [trackerId, setTrackerId] = useState<string>();
+	const [loading, setLoading] = useState<boolean>(true);
 
 	const [selectOptions, setSelectOptions] = useState<
 		{ key: string; values: any[] }[]
@@ -131,6 +132,8 @@ export default function ItemDetails(props: {
 					),
 				});
 				setDisabledFields(disabledFields);
+				// only show inputs once the schema has been loaded and the fields are properly enabled/disabled (which also allows just hiding them)
+				setLoading(false);
 			}
 		}
 	}, [trackerSchemaQueryResult]);
@@ -290,293 +293,307 @@ export default function ItemDetails(props: {
 
 	return (
 		<>
-			{storeIsInitializing ||
-				(itemQueryResult.isLoading && (
-					<div className="centered loading-spinner"></div>
-				))}
-			<div className="fade-in centered-horizontally w-max max-w-85">
-				<h3 className="h3">
-					Item {itemId} / Widget {cardId}
-				</h3>
+			{loading && <div className="centered loading-spinner"></div>}
+			{!loading && (
+				<div className="fade-in centered-horizontally w-max max-w-85">
+					<h3 className="h3">
+						Item {itemId} / Widget {cardId}
+					</h3>
 
-				<form onSubmit={formik.handleSubmit}>
-					{
-						//*********************************************************************** */
-						//********************************ASSIGNEE******************************* */
-						//*********************************************************************** */
-					}
-					<div
-						className={`form-group ${
-							formik.touched.assignedTo
-								? formik.errors.assignedTo
-									? 'error'
-									: 'success'
-								: ''
-						}`}
-						onClick={() => fetchOptions(ASSIGNEE_FIELD_NAME)}
-					>
-						<label data-test={ASSIGNEE_FIELD_NAME}>Assignee</label>
-						<Select
-							className="basic-single"
-							classNamePrefix="select"
-							options={
-								selectOptions.find(
-									(s) => s.key == ASSIGNEE_FIELD_NAME
-								)?.values || []
-							}
-							value={formik.values.assignedTo}
-							getOptionLabel={(option) => option.name}
-							getOptionValue={(option) =>
-								option.id
-									? option.id.toString()
-									: option.uri
-									? getIdFromRestResourceUri(option.uri)
-									: '-1'
-							}
-							isLoading={fieldOptionsQueryResult.isFetching}
-							isMulti={true}
-							isSearchable={true}
-							isClearable={true}
-							isDisabled={
-								!trackerSchemaQueryResult.data ||
-								fieldIsDisabled(ASSIGNEE_FIELD_NAME)
-							}
-							onChange={(values) =>
-								formik.setFieldValue(
-									ASSIGNEE_FIELD_NAME,
-									values
-								)
-							}
-							maxMenuHeight={180}
-						/>
-					</div>
+					<form onSubmit={formik.handleSubmit}>
+						{
+							//*********************************************************************** */
+							//********************************ASSIGNEE******************************* */
+							//*********************************************************************** */
+						}
+						<div
+							className={`form-group ${
+								formik.touched.assignedTo
+									? formik.errors.assignedTo
+										? 'error'
+										: 'success'
+									: ''
+							}`}
+							onClick={() => fetchOptions(ASSIGNEE_FIELD_NAME)}
+						>
+							<label data-test={ASSIGNEE_FIELD_NAME}>
+								Assignee
+							</label>
+							<Select
+								className="basic-single"
+								classNamePrefix="select"
+								options={
+									selectOptions.find(
+										(s) => s.key == ASSIGNEE_FIELD_NAME
+									)?.values || []
+								}
+								value={formik.values.assignedTo}
+								getOptionLabel={(option) => option.name}
+								getOptionValue={(option) =>
+									option.id
+										? option.id.toString()
+										: option.uri
+										? getIdFromRestResourceUri(option.uri)
+										: '-1'
+								}
+								isLoading={fieldOptionsQueryResult.isFetching}
+								isMulti={true}
+								isSearchable={true}
+								isClearable={true}
+								isDisabled={
+									!trackerSchemaQueryResult.data ||
+									fieldIsDisabled(ASSIGNEE_FIELD_NAME)
+								}
+								onChange={(values) =>
+									formik.setFieldValue(
+										ASSIGNEE_FIELD_NAME,
+										values
+									)
+								}
+								maxMenuHeight={180}
+							/>
+						</div>
 
-					{
-						//*********************************************************************** */
-						//********************************TEAM*********************************** */
-						//*********************************************************************** */
-					}
-					<div
-						className={`form-group ${
-							formik.touched.teams
-								? formik.errors.teams
-									? 'error'
-									: 'success'
-								: ''
-						}`}
-						onClick={() => fetchOptions(TEAM_FIELD_NAME)}
-					>
-						<label data-test={TEAM_FIELD_NAME}>Team</label>
-						<Select
-							className="basic-single"
-							classNamePrefix="select"
-							options={
-								selectOptions.find(
-									(s) => s.key == TEAM_FIELD_NAME
-								)?.values || []
-							}
-							value={formik.values.teams}
-							getOptionLabel={(option) => option.name}
-							getOptionValue={(option) =>
-								option.id
-									? option.id.toString()
-									: option.uri
-									? getIdFromRestResourceUri(option.uri)
-									: '-1'
-							}
-							isLoading={fieldOptionsQueryResult.isFetching}
-							isMulti={true}
-							isSearchable={true}
-							isClearable={true}
-							isDisabled={
-								!trackerSchemaQueryResult.data ||
-								fieldIsDisabled(TEAM_FIELD_NAME)
-							}
-							onChange={(values) =>
-								formik.setFieldValue(TEAM_FIELD_NAME, values)
-							}
-							maxMenuHeight={180}
-						/>
-					</div>
+						{
+							//*********************************************************************** */
+							//********************************TEAM*********************************** */
+							//*********************************************************************** */
+						}
+						<div
+							className={`form-group ${
+								formik.touched.teams
+									? formik.errors.teams
+										? 'error'
+										: 'success'
+									: ''
+							}`}
+							onClick={() => fetchOptions(TEAM_FIELD_NAME)}
+						>
+							<label data-test={TEAM_FIELD_NAME}>Team</label>
+							<Select
+								className="basic-single"
+								classNamePrefix="select"
+								options={
+									selectOptions.find(
+										(s) => s.key == TEAM_FIELD_NAME
+									)?.values || []
+								}
+								value={formik.values.teams}
+								getOptionLabel={(option) => option.name}
+								getOptionValue={(option) =>
+									option.id
+										? option.id.toString()
+										: option.uri
+										? getIdFromRestResourceUri(option.uri)
+										: '-1'
+								}
+								isLoading={fieldOptionsQueryResult.isFetching}
+								isMulti={true}
+								isSearchable={true}
+								isClearable={true}
+								isDisabled={
+									!trackerSchemaQueryResult.data ||
+									fieldIsDisabled(TEAM_FIELD_NAME)
+								}
+								onChange={(values) =>
+									formik.setFieldValue(
+										TEAM_FIELD_NAME,
+										values
+									)
+								}
+								maxMenuHeight={180}
+							/>
+						</div>
 
-					{
-						//*********************************************************************** */
-						//********************************VERSION******************************** */
-						//*********************************************************************** */
-					}
+						{
+							//*********************************************************************** */
+							//********************************VERSION******************************** */
+							//*********************************************************************** */
+						}
 
-					<div
-						className={`form-group ${
-							formik.touched.versions
-								? formik.errors.versions
-									? 'error'
-									: 'success'
-								: ''
-						}`}
-						onClick={() => fetchOptions(VERSION_FIELD_NAME)}
-					>
-						<label data-test={VERSION_FIELD_NAME}>Version</label>
-						<Select
-							className="basic-single"
-							classNamePrefix="select"
-							options={
-								selectOptions.find(
-									(s) => s.key == VERSION_FIELD_NAME
-								)?.values || []
-							}
-							value={formik.values.versions}
-							getOptionLabel={(option) => option.name}
-							getOptionValue={(option) =>
-								option.id
-									? option.id.toString()
-									: option.uri
-									? getIdFromRestResourceUri(option.uri)
-									: '-1'
-							}
-							isLoading={fieldOptionsQueryResult.isFetching}
-							isMulti={true}
-							isSearchable={true}
-							isClearable={true}
-							isDisabled={
-								!trackerSchemaQueryResult.data ||
-								fieldIsDisabled(VERSION_FIELD_NAME)
-							}
-							onChange={(values) =>
-								formik.setFieldValue(VERSION_FIELD_NAME, values)
-							}
-							maxMenuHeight={180}
-						/>
-					</div>
+						<div
+							className={`form-group ${
+								formik.touched.versions
+									? formik.errors.versions
+										? 'error'
+										: 'success'
+									: ''
+							}`}
+							onClick={() => fetchOptions(VERSION_FIELD_NAME)}
+						>
+							<label data-test={VERSION_FIELD_NAME}>
+								Version
+							</label>
+							<Select
+								className="basic-single"
+								classNamePrefix="select"
+								options={
+									selectOptions.find(
+										(s) => s.key == VERSION_FIELD_NAME
+									)?.values || []
+								}
+								value={formik.values.versions}
+								getOptionLabel={(option) => option.name}
+								getOptionValue={(option) =>
+									option.id
+										? option.id.toString()
+										: option.uri
+										? getIdFromRestResourceUri(option.uri)
+										: '-1'
+								}
+								isLoading={fieldOptionsQueryResult.isFetching}
+								isMulti={true}
+								isSearchable={true}
+								isClearable={true}
+								isDisabled={
+									!trackerSchemaQueryResult.data ||
+									fieldIsDisabled(VERSION_FIELD_NAME)
+								}
+								onChange={(values) =>
+									formik.setFieldValue(
+										VERSION_FIELD_NAME,
+										values
+									)
+								}
+								maxMenuHeight={180}
+							/>
+						</div>
 
-					{
-						//*********************************************************************** */
-						//********************************SUBJECT******************************** */
-						//*********************************************************************** */
-					}
+						{
+							//*********************************************************************** */
+							//********************************SUBJECT******************************** */
+							//*********************************************************************** */
+						}
 
-					<div
-						className={`form-group ${
-							formik.touched.subjects
-								? formik.errors.subjects
-									? 'error'
-									: 'success'
-								: ''
-						}`}
-						onClick={() => fetchOptions(SUBJECT_FIELD_NAME)}
-					>
-						<label data-test={SUBJECT_FIELD_NAME}>Subject</label>
-						<Select
-							className="basic-single"
-							classNamePrefix="select"
-							options={
-								selectOptions.find(
-									(s) => s.key == SUBJECT_FIELD_NAME
-								)?.values || []
-							}
-							value={formik.values.subjects}
-							getOptionLabel={(option) => option.name}
-							getOptionValue={(option) =>
-								option.id
-									? option.id.toString()
-									: option.uri
-									? getIdFromRestResourceUri(option.uri)
-									: '-1'
-							}
-							isLoading={fieldOptionsQueryResult.isFetching}
-							isMulti={true}
-							isSearchable={true}
-							isClearable={true}
-							isDisabled={
-								!trackerSchemaQueryResult.data ||
-								fieldIsDisabled(SUBJECT_FIELD_NAME)
-							}
-							onChange={(values) =>
-								formik.setFieldValue(SUBJECT_FIELD_NAME, values)
-							}
-							maxMenuHeight={180}
-						/>
-					</div>
+						<div
+							className={`form-group ${
+								formik.touched.subjects
+									? formik.errors.subjects
+										? 'error'
+										: 'success'
+									: ''
+							}`}
+							onClick={() => fetchOptions(SUBJECT_FIELD_NAME)}
+						>
+							<label data-test={SUBJECT_FIELD_NAME}>
+								Subject
+							</label>
+							<Select
+								className="basic-single"
+								classNamePrefix="select"
+								options={
+									selectOptions.find(
+										(s) => s.key == SUBJECT_FIELD_NAME
+									)?.values || []
+								}
+								value={formik.values.subjects}
+								getOptionLabel={(option) => option.name}
+								getOptionValue={(option) =>
+									option.id
+										? option.id.toString()
+										: option.uri
+										? getIdFromRestResourceUri(option.uri)
+										: '-1'
+								}
+								isLoading={fieldOptionsQueryResult.isFetching}
+								isMulti={true}
+								isSearchable={true}
+								isClearable={true}
+								isDisabled={
+									!trackerSchemaQueryResult.data ||
+									fieldIsDisabled(SUBJECT_FIELD_NAME)
+								}
+								onChange={(values) =>
+									formik.setFieldValue(
+										SUBJECT_FIELD_NAME,
+										values
+									)
+								}
+								maxMenuHeight={180}
+							/>
+						</div>
 
-					{
-						//*********************************************************************** */
-						//********************************STORY POINTS*************************** */
-						//*********************************************************************** */
-					}
-					<div
-						className={`form-group ${
-							formik.touched.storyPoints
-								? formik.errors.storyPoints
-									? 'error'
-									: 'success'
-								: ''
-						}`}
-					>
-						<label>Story Points</label>
-						<input
-							type="number"
-							className="input"
-							name={STORY_POINTS_FIELD_NAME}
-							value={formik.values.storyPoints}
-							onChange={(e) =>
-								formik.setFieldValue(
-									STORY_POINTS_FIELD_NAME,
-									e.target.value
-								)
-							}
-							disabled={
-								!trackerSchemaQueryResult.data ||
-								fieldIsDisabled(STORY_POINTS_FIELD_NAME)
-							}
-							data-test={STORY_POINTS_FIELD_NAME}
-						/>
-					</div>
+						{
+							//*********************************************************************** */
+							//********************************STORY POINTS*************************** */
+							//*********************************************************************** */
+						}
+						<div
+							className={`form-group ${
+								formik.touched.storyPoints
+									? formik.errors.storyPoints
+										? 'error'
+										: 'success'
+									: ''
+							}`}
+						>
+							<label>Story Points</label>
+							<input
+								type="number"
+								className="input"
+								name={STORY_POINTS_FIELD_NAME}
+								value={formik.values.storyPoints}
+								onChange={(e) =>
+									formik.setFieldValue(
+										STORY_POINTS_FIELD_NAME,
+										e.target.value
+									)
+								}
+								disabled={
+									!trackerSchemaQueryResult.data ||
+									fieldIsDisabled(STORY_POINTS_FIELD_NAME)
+								}
+								data-test={STORY_POINTS_FIELD_NAME}
+							/>
+						</div>
 
-					{
-						//*********************************************************************** */
-						//********************************SUBMIT********************************* */
-						//*********************************************************************** */
-					}
+						{
+							//*********************************************************************** */
+							//********************************SUBMIT********************************* */
+							//*********************************************************************** */
+						}
 
-					<div className="flex-centered mt-4">
-						{true && (
-							<button
-								type="submit"
-								disabled={formik.isSubmitting}
-								data-test="submit"
-								className={`fade-in button button-primary ${
-									updateItemResult.isFetching
-										? 'button-loading'
-										: ''
-								}`}
-							>
-								Save
-							</button>
-						)}
-						{false && (
-							<span>
-								<svg
-									className="checkmark"
-									xmlns="http://www.w3.org/2000/svg"
-									viewBox="0 0 52 52"
+						<div className="flex-centered mt-4">
+							{true && (
+								<button
+									type="submit"
+									disabled={formik.isSubmitting}
+									data-test="submit"
+									className={`fade-in button button-primary ${
+										updateItemResult.isFetching
+											? 'button-loading'
+											: ''
+									}`}
 								>
-									<circle
-										className="checkmark__circle"
-										cx="26"
-										cy="26"
-										r="25"
-										fill="none"
-									/>
-									<path
-										className="checkmark__check"
-										fill="none"
-										d="M14.1 27.2l7.1 7.2 16.7-16.8"
-									/>
-								</svg>
-							</span>
-						)}
-					</div>
-				</form>
-			</div>
+									Save
+								</button>
+							)}
+							{false && (
+								<span>
+									<svg
+										className="checkmark"
+										xmlns="http://www.w3.org/2000/svg"
+										viewBox="0 0 52 52"
+									>
+										<circle
+											className="checkmark__circle"
+											cx="26"
+											cy="26"
+											r="25"
+											fill="none"
+										/>
+										<path
+											className="checkmark__check"
+											fill="none"
+											d="M14.1 27.2l7.1 7.2 16.7-16.8"
+										/>
+									</svg>
+								</span>
+							)}
+						</div>
+					</form>
+				</div>
+			)}
 		</>
 	);
 }
