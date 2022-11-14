@@ -216,8 +216,8 @@ img {
 .h-20 {
 	height: 20%;
 }
-.h-25 {
-	height: 25%;
+.h-max-25 {
+	max-height: 25%;
 }
 .h-64 {
 	height: 64%;
