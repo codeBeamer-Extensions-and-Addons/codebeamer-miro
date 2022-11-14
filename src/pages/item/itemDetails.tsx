@@ -28,6 +28,7 @@ import { CodeBeamerReferenceMinimal } from '../../models/codebeamer-reference.if
 import { displayAppMessage } from '../../store/slices/appMessagesSlice';
 import { loadBoardSettings } from '../../store/slices/boardSettingsSlice';
 import { RootState } from '../../store/store';
+import { CodeBeamerTrackerSchemaEntry } from '../../models/trackerSchema.if';
 
 import './itemDetails.css';
 
@@ -61,6 +62,9 @@ export default function ItemDetails(props: {
 	const [storeIsInitializing, setStoreIsInitializing] =
 		useState<boolean>(true);
 	const [item, setItem] = useState<CodeBeamerItem>();
+	const [trackerSchema, setTrackerSchema] = useState<
+		CodeBeamerTrackerSchemaEntry[]
+	>([]);
 	const [displayedItemDescription, setDisplayedItemDescription] =
 		useState<string>('');
 	const [trackerId, setTrackerId] = useState<string>();
@@ -119,10 +123,7 @@ export default function ItemDetails(props: {
 	/**
 	 * Handler for when we receive the tracker schema (or an error when trying to load it)
 	 *
-	 * Will loop over the {@link EDITABLE_ATTRIBUTES} if we have a schema, and check which of these attributes have a counterpart
-	 * in the current tracker (meaning either the "trcakerItemField" or "legacyRestName" match the attribute's respective values).
-	 *
-	 * Updates {@link disabledFields} with these findings, which can then be used to disable / hide the inputs which this tracker doesn't have a field for.
+	 * sets the {@link trackerSchema} if it receives one (and not an error)
 	 */
 	React.useEffect(() => {
 		if (trackerSchemaQueryResult.error) {
@@ -134,22 +135,30 @@ export default function ItemDetails(props: {
 			return;
 		} else if (trackerSchemaQueryResult.data) {
 			//*register disabledFields - so that fields that don't exist on this tracker are disabled / don't show up
-			const disabledFields = [];
-			for (let attr of EDITABLE_ATTRIBUTES) {
-				disabledFields.push({
-					key: attr.name,
-					value: !trackerSchemaQueryResult.data.some(
-						(d) =>
-							d.trackerItemField == attr.name ||
-							d.legacyRestName == attr.legacyName
-					),
-				});
-				setDisabledFields(disabledFields);
-				// only show inputs once the schema has been loaded and the fields are properly enabled/disabled (which also allows just hiding them)
-				setLoading(false);
-			}
+			setTrackerSchema(trackerSchemaQueryResult.data);
+			setLoading(false);
 		}
 	}, [trackerSchemaQueryResult]);
+
+	/**
+	 * {@link trackerSchema} subscription	 *
+	 *
+	 * Updates the {@link disabledFields} array when it chanegs
+	 */
+	React.useEffect(() => {
+		const disabledFields = [];
+		for (let attr of EDITABLE_ATTRIBUTES) {
+			disabledFields.push({
+				key: attr.name,
+				value: !trackerSchema.some(
+					(entry) =>
+						entry.trackerItemField == attr.name ||
+						entry.legacyRestName == attr.legacyName
+				),
+			});
+		}
+		setDisabledFields(disabledFields);
+	}, [trackerSchema]);
 
 	/**
 	 * {@link itemQueryResult} subscription
@@ -316,6 +325,18 @@ export default function ItemDetails(props: {
 		return disabledFields.find((f) => f.key == fieldName)?.value ?? false;
 	};
 
+	/**
+	 *
+	 * @param fieldName Swagger / v3 name of the field in question
+	 * @returns Whether the field in question is of type "array" (ergo allows multiple values) or not.
+	 */
+	const fieldIsMulti = (fieldName: string): boolean => {
+		return (
+			trackerSchema.find((f) => f.trackerItemField == fieldName)
+				?.multipleValues || false
+		);
+	};
+
 	//*********************************************************************** */
 	//********************************RENDER********************************* */
 	//*********************************************************************** */
@@ -439,7 +460,7 @@ export default function ItemDetails(props: {
 									isLoading={
 										fieldOptionsQueryResult.isFetching
 									}
-									isMulti={true}
+									isMulti={fieldIsMulti(ASSIGNEE_FIELD_NAME)}
 									isSearchable={true}
 									isClearable={true}
 									isDisabled={
@@ -494,7 +515,7 @@ export default function ItemDetails(props: {
 									isLoading={
 										fieldOptionsQueryResult.isFetching
 									}
-									isMulti={true}
+									isMulti={fieldIsMulti(TEAM_FIELD_NAME)}
 									isSearchable={true}
 									isClearable={true}
 									isDisabled={
@@ -552,7 +573,7 @@ export default function ItemDetails(props: {
 									isLoading={
 										fieldOptionsQueryResult.isFetching
 									}
-									isMulti={true}
+									isMulti={fieldIsMulti(VERSION_FIELD_NAME)}
 									isSearchable={true}
 									isClearable={true}
 									isDisabled={
@@ -610,7 +631,7 @@ export default function ItemDetails(props: {
 									isLoading={
 										fieldOptionsQueryResult.isFetching
 									}
-									isMulti={true}
+									isMulti={fieldIsMulti(SUBJECT_FIELD_NAME)}
 									isSearchable={true}
 									isClearable={true}
 									isDisabled={

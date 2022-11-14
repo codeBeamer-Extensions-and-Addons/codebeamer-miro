@@ -6,4 +6,5 @@ export interface CodeBeamerTrackerSchemaEntry {
 	name: string;
 	legacyRestName: string;
 	trackerItemField: string;
+	multipleValues: boolean;
 }
