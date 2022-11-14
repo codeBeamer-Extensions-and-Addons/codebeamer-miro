@@ -91,32 +91,24 @@ export async function convertToCardData(
 	appStore?: EnhancedStore<any>
 ): Promise<Partial<AppCard>> {
 	if (item.descriptionFormat == DescriptionFormat.WIKI) {
-		const projectId = store.getState().boardSettings.projectId;
 		const username = store.getState().userSettings.cbUsername;
 		const password = store.getState().userSettings.cbPassword;
 
-		const requestBody = {
-			contextId: item.id,
-			contextVersion: item.version,
-			renderingContextType: RenderingContextType.TRACKER_ITEM,
-			markup: item.description,
-		};
-
 		const requestArgs = {
-			method: 'POST',
+			method: 'GET',
 			headers: new Headers({
-				'Content-Type': 'application/json',
+				'Content-Type': 'text/plain',
 				Authorization: `Basic ${btoa(username + ':' + password)}`,
 			}),
-			body: JSON.stringify(requestBody),
+			body: item.description,
 		};
 
 		try {
 			item.description = await (
 				await fetch(
-					`${
-						store.getState().boardSettings.cbAddress
-					}/api/v3/projects/${projectId}/wiki2html`,
+					`${store.getState().boardSettings.cbAddress}/rest/item/${
+						item.id
+					}/wiki2html`,
 					requestArgs
 				)
 			).text();
