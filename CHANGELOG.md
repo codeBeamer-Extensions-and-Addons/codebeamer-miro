@@ -26,9 +26,13 @@ Version 1.1.0 adds the ability to edit certain attributes of an item in Miro its
 
 #### Changed
 
--   Updating an item's data no longer sets its Tracker key to "undefined"
 -   Error handling has been globalized when it comes to failing API calls, which standardizes & abstracts certain error messages.
 -   ProjectSelection now selects the currently selected project by default, instead of just mentioning it in the label
+
+#### Fixed
+
+-   Bug where items wouldn't import if they (resp. their tracker) didn't specify a "subjects" field
+-   Bug where updating an Item would set its tracker key to "undefined"
 
 ### [1.0.0]
 
