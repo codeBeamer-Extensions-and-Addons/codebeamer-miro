@@ -39,9 +39,7 @@ const initialState: UserSettingsState = {
 		? localStorage.getItem(UserSetting.AND_OR_FILTER_ENABLED) == 'true'
 		: false,
 	andOrFilter: localStorage.getItem(UserSetting.AND_OR_FILTER_VALUE) ?? '',
-	showAnnouncements: localStorage.getItem(UserSetting.SHOW_ANNOUNCEMENTS)
-		? localStorage.getItem(UserSetting.SHOW_ANNOUNCEMENTS) == 'true'
-		: true,
+	showAnnouncements: false,
 };
 
 export const userSettingsSlice = createSlice({
@@ -63,10 +61,6 @@ export const userSettingsSlice = createSlice({
 				UserSetting.CB_PASSWORD,
 				action.payload.password
 			);
-			//* make sure that the announcements page doesn't show up for new users
-			//* because the condition for it to show is that a username is cached
-			//* and the showAnnouncements value is true (which it is by default)
-			setShowAnnouncements(false);
 		},
 		setCbqlString: (state, action: PayloadAction<string>) => {
 			state.cbqlString = action.payload;
@@ -199,11 +193,6 @@ export const userSettingsSlice = createSlice({
 		},
 		setShowAnnouncements: (state, action: PayloadAction<boolean>) => {
 			state.showAnnouncements = action.payload;
-
-			localStorage.setItem(
-				UserSetting.SHOW_ANNOUNCEMENTS,
-				action.payload.toString()
-			);
 		},
 	},
 });

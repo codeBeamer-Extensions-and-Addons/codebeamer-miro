@@ -31,7 +31,7 @@ export default function Content() {
 		cbPassword,
 	});
 
-	if (cbUsername && showAnnouncements) {
+	if (showAnnouncements) {
 		return <Announcements />;
 	} else if (isLoading || error)
 		return (
