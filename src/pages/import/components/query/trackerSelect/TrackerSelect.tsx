@@ -16,19 +16,19 @@ export default function TrackerSelect() {
 
 	const { data, error, isLoading } = useGetTrackersQuery(projectId);
 
-	React.useEffect(() => {
-		if (error) {
-			console.error(error);
-			dispatch(
-				displayAppMessage({
-					header: 'Error fetching Trackers',
-					content: `Is your codeBeamer server accessible?<br/>Try reloading the app`,
-					bg: 'danger',
-					delay: 5000,
-				})
-			);
-		}
-	}, [error]);
+	// React.useEffect(() => {
+	// 	if (error) {
+	// 		console.error(error);
+	// 		dispatch(
+	// 			displayAppMessage({
+	// 				header: 'Error fetching Trackers',
+	// 				content: `Is your codeBeamer server accessible?<br/>Try reloading the app`,
+	// 				bg: 'danger',
+	// 				delay: 5000,
+	// 			})
+	// 		);
+	// 	}
+	// }, [error]);
 
 	const handleSelect = (event: any) => {
 		dispatch(setTrackerId(event.target.value));

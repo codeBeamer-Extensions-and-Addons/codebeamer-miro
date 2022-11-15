@@ -211,29 +211,28 @@ export default function ItemDetails(props: {
 	 */
 	React.useEffect(() => {
 		if (updateItemResult.error) {
-			console.error(
-				'Failed to update item: ',
-				JSON.stringify(
-					(updateItemResult.error as FetchBaseQueryError).data
-				)
-			);
-			dispatch(
-				displayAppMessage({
-					header:
-						'Failed to update item: ' +
-							(
-								(updateItemResult.error as FetchBaseQueryError)
-									.data as {
-									exception: string;
-									message: string;
-								}
-							).message ?? '',
-					bg: 'danger',
-					delay: 5000,
-				})
-			);
-		}
-		if (updateItemResult.data) {
+			// console.error(
+			// 	'Failed to update item: ',
+			// 	JSON.stringify(
+			// 		(updateItemResult.error as FetchBaseQueryError).data
+			// 	)
+			// );
+			// dispatch(
+			// 	displayAppMessage({
+			// 		header:
+			// 			'Failed to update item: ' +
+			// 				(
+			// 					(updateItemResult.error as FetchBaseQueryError)
+			// 						.data as {
+			// 						exception: string;
+			// 						message: string;
+			// 					}
+			// 				).message ?? '',
+			// 		bg: 'danger',
+			// 		delay: 5000,
+			// 	})
+			// );
+		} else if (updateItemResult.data) {
 			console.log('Updated with data ', updateItemResult.data);
 			setAnimateSuccess(true);
 			setTimeout(() => {

@@ -124,16 +124,16 @@ export default function AppCardTagSettings() {
 
 	React.useEffect(() => {
 		if (result.error) {
-			console.log(result.error);
+			// console.log(result.error);
 			setIsApplying(false);
-			dispatch(
-				displayAppMessage({
-					header: 'Error loading Items',
-					content: <p>Please retry the operation.</p>,
-					bg: 'danger',
-					delay: 1500,
-				})
-			);
+			// dispatch(
+			// 	displayAppMessage({
+			// 		header: 'Error loading Items',
+			// 		content: <p>Please retry the operation.</p>,
+			// 		bg: 'danger',
+			// 		delay: 1500,
+			// 	})
+			// );
 		}
 		if (result.data) {
 			const syncItems = async (items: CodeBeamerItem[]) => {

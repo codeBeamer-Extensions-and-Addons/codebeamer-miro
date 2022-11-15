@@ -44,16 +44,16 @@ export default function AuthForm(props: {
 		(state: RootState) => state.boardSettings
 	);
 
-	if (props.error) {
-		dispatch(
-			displayAppMessage({
-				header: 'Invalid Credentials and/or address',
-				bg: 'danger',
-				delay: 2500,
-			})
-		);
-		console.error('Invalid Credentials and/or address!', props.error);
-	}
+	// if (props.error) {
+	// 	dispatch(
+	// 		displayAppMessage({
+	// 			header: 'Invalid Credentials and/or address',
+	// 			bg: 'danger',
+	// 			delay: 2500,
+	// 		})
+	// 	);
+	// 	console.error('Invalid Credentials and/or address!', props.error);
+	// }
 
 	/**
 	 * Toggles the {@link showRCNHint} variable, which triggers the respective hint to show or not.
