@@ -338,6 +338,23 @@ export default function ItemDetails(props: {
 		);
 	};
 
+	const zoomToWidget = async () => {
+		const errorMessage = {
+			header: 'Error',
+			content: "Can't find the item on the board!",
+			bg: 'warning',
+		};
+		if (!cardId) {
+			dispatch(displayAppMessage(errorMessage));
+			return;
+		}
+		let widget = await miro.board.get({ id: cardId });
+		if (!widget.length) {
+			dispatch(displayAppMessage(errorMessage));
+		}
+		miro.board.viewport.zoomTo(widget);
+	};
+
 	//*********************************************************************** */
 	//********************************RENDER********************************* */
 	//*********************************************************************** */
@@ -402,7 +419,13 @@ export default function ItemDetails(props: {
 					<div className="panel-header h-max-25">
 						<div className="panel-title sticky">
 							<h3 className="h3">
-								{item.name} <small>#{item.id}</small>
+								{item.name} <small>#{item.id}</small>{' '}
+								<span
+									className="icon icon-eye clickable pos-adjusted-down"
+									title="Click to zoom to the item"
+									onClick={() => zoomToWidget()}
+									data-test="zoom-to-item"
+								></span>
 							</h3>
 						</div>
 						<p

@@ -8,6 +8,7 @@ import {
 } from '../../constants/editable-attributes';
 import { getStore } from '../../store/store';
 import { setCbAddress } from '../../store/slices/boardSettingsSlice';
+import { AppCard } from '@mirohq/websdk-types';
 
 const getSelectControlSelector = (labelDataAttribute: String) => {
 	return `[data-test=${labelDataAttribute}] + div .select__control`;
@@ -251,7 +252,6 @@ describe('<ItemDetails>', () => {
 				.and('contain.text', 'Failed loading item schema');
 		});
 
-		//TODo exact msg
 		it('displays an error if the tracker schema could not be loaded', () => {
 			const store = getStore();
 			const mockCbAddress = 'http://test.com/cb';
@@ -276,6 +276,61 @@ describe('<ItemDetails>', () => {
 			cy.getBySel('fatal-error')
 				.should('exist')
 				.and('contain.text', 'Failed loading tracker schema');
+		});
+	});
+
+	describe('zoomTo button', () => {
+		beforeEach(() => {
+			const store = getStore();
+			const mockCbAddress = 'https://test.me/cb';
+			store.dispatch(setCbAddress(mockCbAddress));
+
+			cy.intercept(`**/api/v3/items/${mockItemId}`, {
+				fixture: 'item.json',
+			});
+			cy.intercept(`**/api/v3/trackers/*/schema`, {
+				fixture: 'tracker_schema.json',
+			});
+
+			cy.mountWithStore(
+				<ItemDetails itemId={mockItemId} cardId={mockCardId} />,
+				{
+					reduxStore: store,
+				}
+			);
+		});
+
+		it('has a button to zoom to the item with', () => {
+			cy.getBySel('zoom-to-item').should('exist');
+		});
+
+		it('zooms to the item on the board when the button is clicked', () => {
+			cy.on('uncaught:exception', (err) => {
+				//* not providing a new fixture for each page, so we'll get duplicates.
+				if (err.message.includes('existingAppCard.sync')) {
+					return false;
+				}
+				return true;
+			});
+
+			cy.spy(miro.board.viewport, 'zoomTo').as('zoomToSpy');
+
+			const itemOne: Partial<AppCard> = {
+				id: '1',
+				title: '[RETUS-1]',
+			};
+
+			const stubBoardGet = cy.stub(miro.board, 'get').callsFake(() => {
+				return Promise.resolve([itemOne]);
+			});
+
+			cy.getBySel('zoom-to-item')
+				.click()
+				.then(() => {
+					cy.get('@zoomToSpy').then((spy) => {
+						expect(spy).to.be.called;
+					});
+				});
 		});
 	});
 
