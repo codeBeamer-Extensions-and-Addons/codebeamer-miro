@@ -233,6 +233,10 @@ img {
 	text-decoration: none;
 }
 
+.text-underline {
+	text-decoration: underline;
+}
+
 /**position & display*/
 
 .position-relative {
