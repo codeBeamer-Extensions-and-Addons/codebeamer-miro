@@ -179,15 +179,18 @@ export default function ItemDetails(props: {
 		} else if (itemQueryResult.data) {
 			setTrackerId(itemQueryResult.data.tracker.id.toString());
 			setItem(itemQueryResult.data);
-			triggerTrackerSchemaQuery(
-				itemQueryResult.data.tracker.id.toString()
-			);
-			setDisplayedItemDescription(itemQueryResult.data.description);
-			console.log('Triggering wiki2html, odr');
-			triggerWiki2HtmlQuery({
-				itemId: itemQueryResult.data.id,
-				markup: itemQueryResult.data.description,
-			});
+			if (!trackerSchema || !trackerSchema.length) {
+				triggerTrackerSchemaQuery(
+					itemQueryResult.data.tracker.id.toString()
+				);
+			}
+			if (!displayedItemDescription) {
+				setDisplayedItemDescription(itemQueryResult.data.description);
+				triggerWiki2HtmlQuery({
+					itemId: itemQueryResult.data.id,
+					markup: itemQueryResult.data.description,
+				});
+			}
 			updateAppCard(itemQueryResult.data, cardId);
 		}
 	}, [itemQueryResult]);
@@ -233,7 +236,7 @@ export default function ItemDetails(props: {
 			// 	})
 			// );
 		} else if (updateItemResult.data) {
-			console.log('Updated with data ', updateItemResult.data);
+			triggerItemQuery(itemId);
 			setAnimateSuccess(true);
 			setTimeout(() => {
 				setAnimateSuccess(false);
