@@ -1,4 +1,4 @@
-import { CARD_TITLE_ID_FILTER_REGEX } from '../../constants/cardTitleIdFilterRegex';
+import { CARD_TITLE_ID_FILTER_REGEX } from '../../constants/regular-expressions';
 
 export default function getItemIdFromCardTitle(cardTitle: string): string {
 	const key = cardTitle.match(CARD_TITLE_ID_FILTER_REGEX);
