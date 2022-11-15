@@ -6,12 +6,12 @@ import addCardFields from './utils/addCardFields';
 import getCardTitle from './utils/getCardTitle';
 import getItemColorField from './utils/getItemColorField';
 
-import { RenderingContextType } from '../enums/renderingContextType.enum';
 import { DescriptionFormat } from '../enums/descriptionFormat.enum';
 import getConcentricCircleCoords from './utils/getConcentricCircleCoords';
 import { CardSpawningMethod } from '../enums/cardSpawningMethod.enum';
 import getRandomCoordSetPerSubject from './utils/getRandomCoordSetPerSubject';
 import getSnailCoordSetPerSubject from './utils/getSnailCoords';
+import { CARD_TITLE_TRKR_ITEMID_FILTER_REGEX } from '../constants/regular-expressions';
 
 /**
  * Create a new app card base on a codeBeamer item
@@ -73,6 +73,15 @@ export async function updateAppCard(
 	}
 
 	if (!onlyFields) {
+		const trackerKeyMatch = existingAppCard.title.match(
+			CARD_TITLE_TRKR_ITEMID_FILTER_REGEX
+		);
+		if (card.title && trackerKeyMatch && trackerKeyMatch.length) {
+			let trackerKey = trackerKeyMatch[0].split('|')[0].replace('[', '');
+			console.log('Tracker key: ', trackerKey);
+			card.title = card.title?.replace('undefined', trackerKey);
+			console.log('caredu titeru: ', card.title);
+		}
 		existingAppCard.title = card.title ?? existingAppCard.title;
 		existingAppCard.description =
 			card.description ?? existingAppCard.description;
