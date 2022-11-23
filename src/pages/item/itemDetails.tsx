@@ -418,7 +418,7 @@ export default function ItemDetails(props: {
 				<div className="centered loading-spinner-lg"></div>
 			)}
 			{!fatalError && !loading && item && (
-				<div className="fade-in centered-horizontally h-100 flex-col w-max max-w-85">
+				<div className="fade-in centered-horizontally h-100 flex-col w-85">
 					<div className="panel-header h-max-25">
 						<div className="panel-title sticky">
 							<h3 className="h3">
