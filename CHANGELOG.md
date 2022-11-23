@@ -5,8 +5,6 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
 ### [1.1.0]
 
 Version 1.1.0 adds the ability to edit certain attributes of an item in Miro itself and adds various minor fixes / optimizations.
@@ -23,6 +21,7 @@ Version 1.1.0 adds the ability to edit certain attributes of an item in Miro its
         -   Version ("versions")
         -   Subject ("subjects")
         -   Story Points ("storyPoints")
+-   GIFs to the readme for some more functionalities
 
 #### Changed
 
