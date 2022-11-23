@@ -87,14 +87,14 @@ export default function Importer(props: {
 		};
 
 		if (error || trackerDetailsQueryError) {
-			dispatch(
-				displayAppMessage({
-					header: 'Error loading Items',
-					content: <p>Please retry the operation.</p>,
-					bg: 'danger',
-					delay: 1500,
-				})
-			);
+			// dispatch(
+			// 	displayAppMessage({
+			// 		header: 'Error loading Items',
+			// 		content: <p>Please retry the operation.</p>,
+			// 		bg: 'danger',
+			// 		delay: 1500,
+			// 	})
+			// );
 			props.onClose;
 		} else if (data && key) {
 			importItems(data.items as CodeBeamerItem[]).catch((err) =>

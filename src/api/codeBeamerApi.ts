@@ -8,11 +8,20 @@ import {
 import { RootState } from '../store/store';
 import { ProjectListView } from '../models/projectListView.if';
 import { TrackerListView } from '../models/trackerListView.if';
-import { ItemQueryPage } from '../models/itemQueryPage';
-import { CodeBeamerItemsQuery } from '../models/itemQuery';
+import {
+	FieldOptions,
+	ItemQueryPage,
+	TrackerSearchPage,
+	UserQueryPage,
+} from '../models/api-query-types';
+import { CbqlApiQuery } from '../models/cbqlApiQuery';
 import TrackerDetails from '../models/trackerDetails.if';
 import { CodeBeamerTrackerSchemaEntry } from '../models/trackerSchema.if';
 import { Wiki2HtmlQuery } from '../models/wiki2HtmlQuery';
+import {
+	CodeBeamerItem,
+	CodeBeamerLegacyItem,
+} from '../models/codebeamer-item.if';
 
 const dynamicBaseQuery: BaseQueryFn<
 	string | FetchArgs,
@@ -20,9 +29,9 @@ const dynamicBaseQuery: BaseQueryFn<
 	FetchBaseQueryError
 > = async (args, api, extraOptions) => {
 	const baseUrl = `${
-		(api.getState() as RootState).boardSettings.cbAddress ??
+		(api.getState() as RootState).boardSettings.cbAddress ||
 		'https://codebeamer.com/cb'
-	}/api/v3/`;
+	}`;
 	const rawBaseQuery = fetchBaseQuery({
 		baseUrl,
 		prepareHeaders: (headers, { getState }) => {
@@ -42,6 +51,9 @@ const dynamicBaseQuery: BaseQueryFn<
 	return rawBaseQuery(args, api, extraOptions);
 };
 
+/**
+ * CodeBeamer REST endpoints from any API version (v1 / v3)
+ */
 export const codeBeamerApi = createApi({
 	baseQuery: dynamicBaseQuery,
 	endpoints: (builder) => ({
@@ -49,33 +61,54 @@ export const codeBeamerApi = createApi({
 			string,
 			{ cbAddress: string; cbUsername: string; cbPassword: string }
 		>({
-			query: (payload) => `users/findByName?name=${payload.cbUsername}`,
+			query: (payload) =>
+				`/api/v3/users/findByName?name=${payload.cbUsername}`,
 		}),
 		getUserByName: builder.query<string, string>({
-			query: (name) => `users/findByName?name=${name}`,
+			query: (name) => `/api/v3/users/findByName?name=${name}`,
 		}),
 		getProjects: builder.query<ProjectListView[], void>({
-			query: () => `projects`,
+			query: () => `/api/v3/projects`,
 		}),
 		getTrackers: builder.query<TrackerListView[], string>({
-			query: (projectId) => `projects/${projectId}/trackers`,
+			query: (projectId) => `/api/v3/projects/${projectId}/trackers`,
 		}),
-		getItems: builder.query<ItemQueryPage, CodeBeamerItemsQuery>({
+		getItems: builder.query<ItemQueryPage, CbqlApiQuery>({
 			query: (parameters) => {
 				return {
-					url: `/items/query`,
+					url: `/api/v3/items/query`,
 					method: 'POST',
 					body: parameters,
 					headers: { 'Content-type': 'application/json' },
 				};
 			},
 		}),
+		getItem: builder.query<CodeBeamerItem, string>({
+			query: (itemId) => `/api/v3/items/${itemId}`,
+		}),
+		getItemLegacy: builder.query<CodeBeamerLegacyItem, string>({
+			query: (itemId) => `/rest/item/${itemId}`,
+		}),
+		updateItemLegacy: builder.query<string, CodeBeamerLegacyItem>({
+			query: (item) => {
+				return {
+					url: `/rest/item`,
+					method: 'PUT',
+					body: item,
+					headers: { 'Content-type': 'application/json' },
+					responseHandler: (response) => {
+						if (response.ok) return response.text();
+						return response.json();
+					},
+				};
+			},
+		}),
 		getTrackerDetails: builder.query<TrackerDetails, string>({
-			query: (trackerId) => `trackers/${trackerId}`,
+			query: (trackerId) => `/api/v3/trackers/${trackerId}`,
 		}),
 		getTrackerSchema: builder.query<CodeBeamerTrackerSchemaEntry[], string>(
 			{
-				query: (trackerId) => `trackers/${trackerId}/schema`,
+				query: (trackerId) => `/api/v3/trackers/${trackerId}/schema`,
 			}
 		),
 		getWiki2Html: builder.query<
@@ -84,10 +117,45 @@ export const codeBeamerApi = createApi({
 		>({
 			query: (parameters) => {
 				return {
-					url: `/projects/${parameters.projectId}/wiki2html`,
+					url: `/api/v3/projects/${parameters.projectId}/wiki2html`,
 					method: 'POST',
 					body: parameters.body,
 					headers: { 'Content-type': 'application/json' },
+				};
+			},
+		}),
+		getFilteredUsers: builder.query<UserQueryPage, string>({
+			query: (filter) =>
+				`/rest/users/page/1?pagesize=50&filter=${filter}`,
+		}),
+		searchTrackers: builder.query<TrackerSearchPage, CbqlApiQuery>({
+			query: (parameters) => {
+				return {
+					url: `/api/v3/items/query`,
+					method: 'POST',
+					body: parameters,
+					headers: { 'Content-type': 'application/json' },
+				};
+			},
+		}),
+		getFieldOptions: builder.query<
+			FieldOptions[],
+			{ trackerId: string | number; fieldId: string | number }
+		>({
+			query: (params) =>
+				`/rest/tracker/${params.trackerId}/field/${params.fieldId}/options`,
+		}),
+		getWiki2HtmlLegacy: builder.query<
+			string,
+			{ itemId: number | string; markup: string }
+		>({
+			query: (params) => {
+				return {
+					url: `/rest/item/${params.itemId}/wiki2html`,
+					method: 'POST',
+					body: params.markup,
+					headers: { 'Content-type': 'text/plain' },
+					responseHandler: (response) => response.text(),
 				};
 			},
 		}),
@@ -100,8 +168,15 @@ export const {
 	useLazyGetProjectsQuery,
 	useGetTrackersQuery,
 	useGetItemsQuery,
+	useLazyGetItemQuery,
+	useLazyGetItemLegacyQuery,
+	useLazyUpdateItemLegacyQuery,
 	useLazyGetItemsQuery,
 	useGetTrackerDetailsQuery,
 	useGetTrackerSchemaQuery,
+	useLazyGetTrackerSchemaQuery,
 	useGetWiki2HtmlQuery,
+	useLazyGetWiki2HtmlLegacyQuery,
+	useLazyGetFilteredUsersQuery,
+	useLazyGetFieldOptionsQuery,
 } = codeBeamerApi;

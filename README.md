@@ -41,6 +41,18 @@ This is enabled further by:
         -   Filter by any of the Tracker's fields with a codebeamer-like interface
 -   **Configure AppCards**
     -   Configure what data the AppCards display
+
+<div align="center">
+<img src="readmeImg/cb-m-1-1-0_card_config.gif" alt="Plugin overview"/>
+</div>
+
+-   **Editing planning-relevant attributes right on the board**
+    -   Edit a select few attributes like "Version" or "Team" in Miro.
+
+<div align="center">
+<img src="readmeImg/cb-m-1-1-0_edit_item.gif" alt="Plugin overview"/>
+</div>
+
 -   **Relation visualization** (to be re-added)
     -   see associations and hierarchical relations between your Items visualized with differently styled lines
 

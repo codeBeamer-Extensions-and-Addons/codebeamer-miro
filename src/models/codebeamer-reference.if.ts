@@ -6,5 +6,11 @@ export interface CodeBeamerReference {
 	name: string;
 	keyName?: string;
 	color?: string;
-	type: string;
+	type?: string;
+	uri?: string;
 }
+
+export type CodeBeamerReferenceMinimal = Pick<
+	CodeBeamerReference,
+	'id' | 'name' | 'uri'
+>;

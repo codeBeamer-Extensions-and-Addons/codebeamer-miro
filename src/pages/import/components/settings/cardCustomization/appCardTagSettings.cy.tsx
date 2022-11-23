@@ -67,11 +67,9 @@ describe('<AppCardTagSettings', () => {
 				fixture: 'query.json',
 			}).as('fetch');
 
-			cy.intercept(
-				'POST',
-				'**/api/v3/projects/**/wiki2html',
-				'fakeDesc'
-			).as('wiki2html');
+			cy.intercept('POST', '**/rest/item/*/wiki2html', 'fakeDesc').as(
+				'wiki2html'
+			);
 
 			cy.mountWithStore(<AppCardTagSettings />);
 

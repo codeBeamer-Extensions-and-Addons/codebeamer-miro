@@ -21,7 +21,7 @@ export default function Announcements() {
 
 	return (
 		<div
-			className={`container centered announcements ${
+			className={`container centered-horizontally announcements ${
 				dismissing ? 'shrink' : 'grow'
 			}`}
 			data-test="announcements"
@@ -34,7 +34,7 @@ export default function Announcements() {
 				></div>
 			</span>
 			<div className="mb-5">
-				<h2 className="h2">
+				<h2 className="h2 text-center">
 					<svg
 						className="pos-adjusted-up wh-40p"
 						enableBackground="new 0 0 256 256"
@@ -50,78 +50,74 @@ export default function Announcements() {
 						/>
 					</svg>
 					<span className="roche-primary">
-						codebeamer-cards Version 1.0 Release
+						codebeamer-cards Version 1.1 Release
 					</span>
 				</h2>
 				<p className="text-center">
 					<b>
-						Welcome to Version 1 of{' '}
+						Welcome to Version 1.1 of{' '}
 						<span className="roche-primary">codebeamer-cards</span>{' '}
 						!
 					</b>
-					<br />
-					<span className="muted">
-						(previously "codebeamer/miro import")
-					</span>
 				</p>
-				<p>
-					{' '}
-					This release is marked by an update to Miro's Development
-					Kit (SDK) and major structural changes behind the scenes.
-					The new SDK will in futue provide us new opportunities to
-					make the app better. Other than that, the release comes with
-					many small UI changes that will hopefully make your
-					experience better.
+				<p className="mt-5">
+					This release adds the ability for you to{' '}
+					<b>edit certain attributes</b> of your imported Items{' '}
+					<b>right inside Miro</b>.
 					<br />
-					<b>
-						This version will not work with cards imported with
-						older versions.
-					</b>
+					We've also fixed a few bugs along the way!
+				</p>
+				<p className="text-center roche-primary mt-3">
+					See below to find out how it works!
 				</p>
 			</div>
+
 			<div>
-				<h4 className="h4 roche-primary">General Changes</h4>
-				<ul>
-					<li>
-						Improved the user experience by making the app more
-						simple and adding hints / feedback.
-					</li>
-					<li>
-						Removed the settings widget on the board. You now access
-						all functionality via the toolbar icon.
-					</li>
-					<li>
-						Rewrote the App with Miro's new SDK and a modular and
-						concise framework, that should accelerate future
-						development.
-					</li>
-					<li>
-						Removed some functionality not currently supported by
-						the updated SDK
-					</li>
-				</ul>
-				{/* <p>
-					For a detailed list of changes, check out the{' '}
-					<a
-						href="https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/blob/master/CHANGELOG.md"
-						target="_blank"
-						className="roche-primary-light"
-					>
-						Changelog
-					</a>{' '}
-					on the repository. For a concise general overview, check out
-					its{' '}
-					<a
-						href="https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/blob/refactor/react/README.md"
-						target="_blank"
-						className="roche-primary-light"
-					>
-						readme
-					</a>
-					.
-				</p> */}
+				<div className="text-center">
+					<h5 className="h5 text-underline">Edit an Item</h5>
+					<img
+						src="/src/assets/images/announcements/v1-1-0_edit.gif"
+						alt="Editing an item in-miro"
+					/>
+					<p className="mt-3">
+						Open an Item's details-view by clicking the icon on its
+						top right corner. (You may have to first click away the
+						"connect" icon in the same place, which doesn't do
+						anything on its own!)
+					</p>
+					<p>
+						Then, change any of the following attributes, if your
+						Item / Tracker supports them:
+						<br />
+						Assignee | Team | Version | Subject | Story Points
+					</p>
+					<p className="mt-3">
+						<em>
+							The updates you make will reflect on the Item's card
+							and on codebeamer once you save.
+						</em>
+					</p>
+				</div>
 			</div>
-			<div className="announcement-actions mt-3 text-center">
+
+			<div>
+				<div className="text-center mt-5">
+					<h5 className="h5 text-underline">
+						Zoom to the edited Item
+					</h5>
+					<img
+						src="/src/assets/images/announcements/v1-1-0_zoomToCard.gif"
+						alt="Zoom to card"
+					/>
+					<p className="mt-3">
+						In case you get lost among your imported cards while
+						editing one - use the "zoom to card" button ("eye"-icon)
+						in the panel header to get taken to it.
+					</p>
+				</div>
+			</div>
+
+			<div className="announcement-actions mt-5 text-center">
 				<h6 className="h6">Additional resources</h6>
 				<a
 					href="https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/blob/master/CHANGELOG.md"
@@ -147,7 +143,7 @@ export default function Announcements() {
 					Retina Documentation
 				</a>
 			</div>
-			<div className="skip-button">
+			<div className="skip-button mt-3">
 				<a
 					className="roche-primary-light text-decoration-none clickable"
 					onClick={() => dismiss()}

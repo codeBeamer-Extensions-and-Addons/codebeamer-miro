@@ -86,6 +86,12 @@ img {
 	transform: translate(-50%, -50%);
 }
 
+.centered-horizontally {
+	position: absolute;
+	left: 50%;
+	transform: translate(-50%);
+}
+
 .centered-50 {
 	margin: auto;
 	max-width: 50%;
@@ -189,6 +195,15 @@ img {
 .w-80 {
 	width: 80%;
 }
+.w-85 {
+	width: 85%;
+}
+.max-w-85 {
+	max-width: 85%;
+}
+.w-max {
+	width: max-content;
+}
 .w-100 {
 	width: 100%;
 }
@@ -201,8 +216,28 @@ img {
 .h-auto {
 	height: auto;
 }
+.h-20 {
+	height: 20%;
+}
+.h-max-25 {
+	max-height: 25%;
+}
+.h-64 {
+	height: 64%;
+}
+.h-70 {
+	height: 70%;
+}
+.h-80 {
+	height: 80%;
+}
+
 .text-decoration-none {
 	text-decoration: none;
+}
+
+.text-underline {
+	text-decoration: underline;
 }
 
 /**position & display*/
@@ -212,6 +247,12 @@ img {
 }
 .inline {
 	display: inline !important;
+}
+
+.sticky {
+	position: sticky;
+	top: 0;
+	background-color: white;
 }
 
 /**borders*/
@@ -248,6 +289,14 @@ img {
 	background-color: var(--indigo200) !important;
 }
 
+/** text / overflow */
+.overflow-ellipsis {
+	text-overflow: ellipsis;
+}
+.overflow-auto {
+	overflow: auto;
+}
+
 /** mirotone extension */
 
 .bg-light-indigo {
@@ -271,11 +320,28 @@ img {
 	margin-top: -0.5em;
 	margin-left: -0.5em;
 }
+.loading-spinner-lg::after {
+	-webkit-animation: spinning 0.5s infinite linear;
+	animation: spinning 0.5s infinite linear;
+	border: 3px solid var(--blue700);
+	border-radius: 9999px;
+	border-right-color: transparent;
+	border-top-color: transparent;
+	content: '';
+	display: block;
+	height: 4em;
+	width: 4em;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	margin-top: -2em;
+	margin-left: -2em;
+}
 
 /**custom scrollbar*/
 
 body {
-	--scrollbar-width: 10px;
+	--scrollbar-width: 6px;
 }
 
 ::-webkit-scrollbar {
@@ -305,6 +371,10 @@ body {
 	animation: fade-in 1s ease-in-out forwards;
 }
 
+.fade-out {
+	animation: fade-out 0.3s ease-in-out forwards;
+}
+
 /**keyframes*/
 
 @keyframes fade-in {
@@ -313,5 +383,15 @@ body {
 	}
 	to {
 		opacity: 1;
+	}
+}
+
+@keyframes fade-out {
+	from {
+		opacity: 1;
+	}
+	to {
+		opacity: 0;
+		display: none;
 	}
 }

@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setAdvancedSearch } from '../../../../store/slices/userSettingsSlice';
+import {
+	setAdvancedSearch,
+	setShowAnnouncements,
+} from '../../../../store/slices/userSettingsSlice';
 import { RootState } from '../../../../store/store';
 import Settings from '../settings/Settings';
 
@@ -45,7 +48,7 @@ export default function ImportHeader() {
 				</div>
 				<div className="actions flex flex-">
 					<button
-						className={`mx-2 button-icon-secondary button-icon-small button-icon
+						className={`mx-1 button-icon-secondary button-icon-small button-icon
 						${advancedSearch ? ' icon-parameters' : ''}`}
 						onClick={toggleSearchMethod}
 						title={
@@ -79,7 +82,7 @@ export default function ImportHeader() {
 						)}
 					</button>
 					<button
-						className="button button-secondary button-small"
+						className="button button-secondary button-small mx-1"
 						onClick={openSettingsModal}
 					>
 						<svg
@@ -97,6 +100,13 @@ export default function ImportHeader() {
 								strokeWidth="32"
 							/>
 						</svg>
+					</button>
+					<button
+						className="button-icon-secondary button-icon-small button-icon mx-1"
+						onClick={() => dispatch(setShowAnnouncements(true))}
+						title="Latest update informations (version 1.1)"
+					>
+						<span className="icon icon-bell clickable"></span>
 					</button>
 				</div>
 			</header>

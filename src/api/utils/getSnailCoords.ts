@@ -54,7 +54,8 @@ export default async function getSnailCoordSetPerSubject(
 		});
 	}
 
-	let itemSubject = item.subjects[0]?.name ?? 'none';
+	let itemSubject =
+		item.subjects && item.subjects.length ? item.subjects[0].name : 'none';
 	let subjectOrigin = subjectOrigins.find(
 		(so) => so.subject == itemSubject || so.subject == item.name
 	);

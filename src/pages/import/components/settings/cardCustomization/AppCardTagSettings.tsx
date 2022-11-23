@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useLazyGetItemsQuery } from '../../../../../api/codeBeamerApi';
 import { updateAppCard } from '../../../../../api/miro.api';
 import getColorForFieldLabel from '../../../../../api/utils/getColorForFieldLabel';
-import { CARD_TITLE_ID_FILTER_REGEX } from '../../../../../constants/cardTitleIdFilterRegex';
+import { CARD_TITLE_ID_FILTER_REGEX } from '../../../../../constants/regular-expressions';
 import {
 	DEFAULT_RESULT_PAGE,
 	MAX_ITEMS_PER_IMPORT,
@@ -124,16 +124,16 @@ export default function AppCardTagSettings() {
 
 	React.useEffect(() => {
 		if (result.error) {
-			console.log(result.error);
+			// console.log(result.error);
 			setIsApplying(false);
-			dispatch(
-				displayAppMessage({
-					header: 'Error loading Items',
-					content: <p>Please retry the operation.</p>,
-					bg: 'danger',
-					delay: 1500,
-				})
-			);
+			// dispatch(
+			// 	displayAppMessage({
+			// 		header: 'Error loading Items',
+			// 		content: <p>Please retry the operation.</p>,
+			// 		bg: 'danger',
+			// 		delay: 1500,
+			// 	})
+			// );
 		}
 		if (result.data) {
 			const syncItems = async (items: CodeBeamerItem[]) => {
@@ -305,7 +305,7 @@ const samplePropertyValues = {
 	ID: '124926',
 	Teams: 'Beavers, Zebras',
 	Owner: 'aurech',
-	Release: 'PI 3.2',
+	Versions: 'PI 3.2',
 	Priority: 'Medium',
 	'Story Points': '8',
 	Subjects: 'A big feature',

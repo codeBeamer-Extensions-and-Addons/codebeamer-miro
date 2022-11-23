@@ -6,6 +6,7 @@ import boardSettingsSlice from './slices/boardSettingsSlice';
 import appMessagesSlice from './slices/appMessagesSlice';
 
 import { codeBeamerApi } from '../api/codeBeamerApi';
+import { rtkQueryErrorLogger } from '../api/rtkQueryErrorLogger';
 
 const configuration = {
 	reducer: {
@@ -15,7 +16,10 @@ const configuration = {
 		[codeBeamerApi.reducerPath]: codeBeamerApi.reducer,
 	},
 	middleware: (getDefaultMiddleware: () => any[]) =>
-		getDefaultMiddleware().concat(codeBeamerApi.middleware),
+		getDefaultMiddleware().concat(
+			codeBeamerApi.middleware,
+			rtkQueryErrorLogger
+		),
 };
 
 export const store = configureStore(configuration);

@@ -6,12 +6,12 @@ import addCardFields from './utils/addCardFields';
 import getCardTitle from './utils/getCardTitle';
 import getItemColorField from './utils/getItemColorField';
 
-import { RenderingContextType } from '../enums/renderingContextType.enum';
 import { DescriptionFormat } from '../enums/descriptionFormat.enum';
 import getConcentricCircleCoords from './utils/getConcentricCircleCoords';
 import { CardSpawningMethod } from '../enums/cardSpawningMethod.enum';
 import getRandomCoordSetPerSubject from './utils/getRandomCoordSetPerSubject';
 import getSnailCoordSetPerSubject from './utils/getSnailCoords';
+import { CARD_TITLE_TRKR_ITEMID_FILTER_REGEX } from '../constants/regular-expressions';
 
 /**
  * Create a new app card base on a codeBeamer item
@@ -64,7 +64,6 @@ export async function updateAppCard(
 	appStore?: EnhancedStore<any>
 ) {
 	const card: Partial<AppCard> = await convertToCardData(item);
-	console.log('CardData: ', card);
 	let existingAppCard: AppCard;
 	try {
 		existingAppCard = (await miro.board.get({ id: cardId }))[0] as AppCard;
@@ -74,16 +73,18 @@ export async function updateAppCard(
 	}
 
 	if (!onlyFields) {
+		const trackerKeyMatch = existingAppCard.title.match(
+			CARD_TITLE_TRKR_ITEMID_FILTER_REGEX
+		);
+		if (card.title && trackerKeyMatch && trackerKeyMatch.length) {
+			let trackerKey = trackerKeyMatch[0].split('|')[0].replace('[', '');
+			card.title = card.title?.replace('undefined', trackerKey);
+		}
 		existingAppCard.title = card.title ?? existingAppCard.title;
 		existingAppCard.description =
 			card.description ?? existingAppCard.description;
 	}
 	existingAppCard.fields = card.fields ?? existingAppCard.fields ?? [];
-
-	//* keep the status at disconnected, so that one can sync on demand at any time
-	//* setting it to 'connected' doesn't make any sense here anyway, since we don't
-	//* maintain any kind of active connection with the data source
-	existingAppCard.status = 'disconnected';
 	await existingAppCard.sync();
 }
 
@@ -92,32 +93,24 @@ export async function convertToCardData(
 	appStore?: EnhancedStore<any>
 ): Promise<Partial<AppCard>> {
 	if (item.descriptionFormat == DescriptionFormat.WIKI) {
-		const projectId = store.getState().boardSettings.projectId;
 		const username = store.getState().userSettings.cbUsername;
 		const password = store.getState().userSettings.cbPassword;
-
-		const requestBody = {
-			contextId: item.id,
-			contextVersion: item.version,
-			renderingContextType: RenderingContextType.TRACKER_ITEM,
-			markup: item.description,
-		};
 
 		const requestArgs = {
 			method: 'POST',
 			headers: new Headers({
-				'Content-Type': 'application/json',
+				'Content-Type': 'text/plain',
 				Authorization: `Basic ${btoa(username + ':' + password)}`,
 			}),
-			body: JSON.stringify(requestBody),
+			body: item.description,
 		};
 
 		try {
 			item.description = await (
 				await fetch(
-					`${
-						store.getState().boardSettings.cbAddress
-					}/api/v3/projects/${projectId}/wiki2html`,
+					`${store.getState().boardSettings.cbAddress}/rest/item/${
+						item.id
+					}/wiki2html`,
 					requestArgs
 				)
 			).text();
@@ -140,6 +133,7 @@ export async function convertToCardData(
 		),
 		description: item.description,
 		fields: [],
+		status: 'connected',
 	};
 
 	try {
