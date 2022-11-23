@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### [1.1.0]
+
+Version 1.1.0 adds the ability to edit certain attributes of an item in Miro itself and adds various minor fixes / optimizations.
+
+#### Added
+
+-   Item edit panel
+    -   Can be opened with the icon on an imported card's top right (might first need to click the "connect" icon before the "open details" one appears - the former currently does nothing, but is a technical constraint)
+    -   Shows the item's name along with a button to zoom to it on the board, and its description (readonly)
+    -   Shows a select few specific properties, which can be edited if the item('s tracker) has such fields
+        Following properties are currently implemented (the names in brackets are the technical field names used to recognize them):
+        -   Assignee ("assignedTo")
+        -   Team ("teams")
+        -   Version ("versions")
+        -   Subject ("subjects")
+        -   Story Points ("storyPoints")
+
+#### Changed
+
+-   Error handling has been globalized when it comes to failing API calls, which standardizes & abstracts certain error messages.
+-   ProjectSelection now selects the currently selected project by default, instead of just mentioning it in the label
+
+#### Fixed
+
+-   Bug where items wouldn't import if they (resp. their tracker) didn't specify a "subjects" field
+-   Bug where updating an Item would set its tracker key to "undefined"
+
 ### [1.0.0]
 
 Major version 1.0.0 mainly differentiates itself from previous versions by having updated to Miro SDK 2.0, but also by having been rebuilt from the ground up with the framework react.js.

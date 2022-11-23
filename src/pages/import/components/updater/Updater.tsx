@@ -107,14 +107,14 @@ export default function Updater(props: {
 		};
 
 		if (error || trackerDetailsQueryError) {
-			dispatch(
-				displayAppMessage({
-					header: 'Error loading Items',
-					content: <p>Please retry the operation.</p>,
-					bg: 'danger',
-					delay: 1500,
-				})
-			);
+			// dispatch(
+			// 	displayAppMessage({
+			// 		header: 'Error loading Items',
+			// 		content: <p>Please retry the operation.</p>,
+			// 		bg: 'danger',
+			// 		delay: 1500,
+			// 	})
+			// );
 		} else if (data && key) {
 			syncItems(data.items as CodeBeamerItem[]).catch((err) =>
 				console.error(err)

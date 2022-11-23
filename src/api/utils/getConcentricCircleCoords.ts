@@ -5,6 +5,7 @@ import {
 	MAX_OFFSET_TO_SUBJECT_ORIGIN,
 } from '../../constants/coordinate-calculation';
 import { CodeBeamerItem } from '../../models/codebeamer-item.if';
+import ItemDetails from '../../pages/item/itemDetails';
 import getRandomOffset from './getRandomOffset';
 
 var subjectOrigins: { subject: string; x: number; y: number }[] = [];
@@ -54,7 +55,8 @@ export default async function getConcentricCircleCoords(
 		});
 	}
 
-	let itemSubject = item.subjects[0]?.name ?? 'none';
+	let itemSubject =
+		item.subjects && item.subjects.length ? item.subjects[0].name : 'none';
 	let subjectOrigin = subjectOrigins.find(
 		(so) => so.subject == itemSubject || so.subject == item.name
 	);

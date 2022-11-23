@@ -8,7 +8,7 @@ export enum StandardItemProperty {
 	ID = 'ID',
 	TEAMS = 'Teams',
 	OWNER = 'Owner',
-	RELEASE = 'Release',
+	VERSIONS = 'Versions',
 	PRIORITY = 'Priority',
 	STORY_POINTS = 'Story Points',
 	SUBJECT = 'Subjects',

@@ -18,21 +18,13 @@ describe('<Content>', () => {
 		cy.getBySel('auth').should('exist');
 	});
 
-	it('displays the announcements page when a user has previously used the app but not seen the announcement', () => {
+	it('displays the announcements page when the respective flag is set to true', () => {
 		const store = getStore();
-		store.dispatch(
-			setCredentials({ username: 'teste', password: 'rinho' })
-		);
+		store.dispatch(setShowAnnouncements(true));
 
 		cy.mountWithStore(<Content />, { reduxStore: store });
 
 		cy.getBySel('announcements').should('exist');
-	});
-
-	it('does not display the nnouncements page to entirely new users', () => {
-		cy.mountWithStore(<Content />);
-
-		cy.getBySel('announcements').should('not.exist');
 	});
 
 	describe('uses cached values to automate procedures', () => {
@@ -61,7 +53,6 @@ describe('<Content>', () => {
 			store.dispatch(
 				setCredentials({ username: username, password: password })
 			);
-			store.dispatch(setShowAnnouncements(false));
 
 			cy.mountWithStore(<Content />, { reduxStore: store });
 
@@ -73,7 +64,6 @@ describe('<Content>', () => {
 			store.dispatch(
 				setCredentials({ username: username, password: password })
 			);
-			store.dispatch(setShowAnnouncements(false));
 			store.dispatch(setProjectId(1));
 
 			cy.mountWithStore(<Content />, { reduxStore: store });

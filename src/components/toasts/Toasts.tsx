@@ -6,7 +6,18 @@ import ToastContainer from 'react-bootstrap/ToastContainer';
 import { Toast, ToastHeader } from 'react-bootstrap';
 import { removeAppMessage } from '../../store/slices/appMessagesSlice';
 
-export default function Toasts() {
+export default function Toasts(props: {
+	position?:
+		| 'top-start'
+		| 'top-center'
+		| 'top-end'
+		| 'middle-start'
+		| 'middle-center'
+		| 'middle-end'
+		| 'bottom-start'
+		| 'bottom-center'
+		| 'bottom-end';
+}) {
 	const dispatch = useDispatch();
 	const { messages } = useSelector((store: RootState) => store.appMessages);
 
@@ -17,7 +28,7 @@ export default function Toasts() {
 	const DEFAULT_DELAY = 5000;
 
 	return (
-		<ToastContainer position="bottom-end">
+		<ToastContainer position={props.position ?? 'bottom-end'}>
 			{messages.map((m) => (
 				<Toast
 					bg={m.bg}

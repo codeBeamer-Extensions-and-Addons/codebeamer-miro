@@ -1,7 +1,7 @@
 {
 	"author": "urecha",
 	"name": "codebeamer-cards",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"licence": "AGPL-3.0",
 	"description": "This is a codeBeamer <-> Miro integration web-plugin to be installed on Miro.\r It allows to import codeBeamer items to a Miro board, displaying any associations between the items.",
 	"repository": {

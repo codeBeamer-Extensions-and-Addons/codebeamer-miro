@@ -11,6 +11,7 @@ const projectSelector = '.select__control';
 const projectsSelector = '.select__menu';
 const submitSelector = 'submit';
 const currentProjectSelector = 'current-project';
+const singleValueSelector = '.select__single-value';
 const userFeedbackWrapperSelector = 'user-feedback';
 const cbContextSelector = 'cb-context';
 
@@ -49,17 +50,14 @@ describe('<ProjectSelection>', () => {
 			}).as('projectsQuery');
 		});
 
-		it('displays the currently selected project', () => {
+		it('defaults to the currently selected project', () => {
 			const store = getStore();
 			const project = { id: 1, name: 'Banana' };
 			store.dispatch(setProjectId(project.id));
 
 			cy.mountWithStore(<ProjectSelection />, { reduxStore: store });
 
-			cy.getBySel(currentProjectSelector).should(
-				'contain.text',
-				project.name
-			);
+			cy.get(singleValueSelector).should('contain.text', project.name);
 		});
 
 		it('saves the projectId in store when submitting the form', () => {
