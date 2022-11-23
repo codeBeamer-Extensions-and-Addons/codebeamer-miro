@@ -52,7 +52,7 @@ const dynamicBaseQuery: BaseQueryFn<
 };
 
 /**
- * Interface to the codebeamer swagger api (~ REST v3)
+ * CodeBeamer REST endpoints from any API version (v1 / v3)
  */
 export const codeBeamerApi = createApi({
 	baseQuery: dynamicBaseQuery,

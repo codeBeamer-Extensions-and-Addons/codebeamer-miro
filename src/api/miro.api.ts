@@ -78,9 +78,7 @@ export async function updateAppCard(
 		);
 		if (card.title && trackerKeyMatch && trackerKeyMatch.length) {
 			let trackerKey = trackerKeyMatch[0].split('|')[0].replace('[', '');
-			console.log('Tracker key: ', trackerKey);
 			card.title = card.title?.replace('undefined', trackerKey);
-			console.log('caredu titeru: ', card.title);
 		}
 		existingAppCard.title = card.title ?? existingAppCard.title;
 		existingAppCard.description =
