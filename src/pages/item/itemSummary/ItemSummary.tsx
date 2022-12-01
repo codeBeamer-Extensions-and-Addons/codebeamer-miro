@@ -9,7 +9,6 @@ import { RootState } from '../../../store/store';
 export default function ItemSummary(props: {
 	item: Partial<CodeBeamerItem>;
 	cardId?: string;
-	canZoomToItem?: boolean;
 }) {
 	const dispatch = useDispatch();
 
@@ -69,7 +68,7 @@ export default function ItemSummary(props: {
 				<h3 className="h3" data-test="summary-summary">
 					{props.item.name}
 					{props.item.id && <small> #{props.item.id} </small>}
-					{props.canZoomToItem && props.cardId && (
+					{props.cardId && (
 						<span
 							className="icon icon-eye clickable pos-adjusted-down"
 							title="Click to zoom to the item"

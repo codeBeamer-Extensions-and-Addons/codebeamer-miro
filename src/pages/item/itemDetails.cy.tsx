@@ -299,39 +299,6 @@ describe('<ItemDetails>', () => {
 				}
 			);
 		});
-
-		it('has a button to zoom to the item with', () => {
-			cy.getBySel('zoom-to-item').should('exist');
-		});
-
-		it('zooms to the item on the board when the button is clicked', () => {
-			cy.on('uncaught:exception', (err) => {
-				//* not providing a new fixture for each page, so we'll get duplicates.
-				if (err.message.includes('existingAppCard.sync')) {
-					return false;
-				}
-				return true;
-			});
-
-			cy.spy(miro.board.viewport, 'zoomTo').as('zoomToSpy');
-
-			const itemOne: Partial<AppCard> = {
-				id: '1',
-				title: '[RETUS-1]',
-			};
-
-			const stubBoardGet = cy.stub(miro.board, 'get').callsFake(() => {
-				return Promise.resolve([itemOne]);
-			});
-
-			cy.getBySel('zoom-to-item')
-				.click()
-				.then(() => {
-					cy.get('@zoomToSpy').then((spy) => {
-						expect(spy).to.be.called;
-					});
-				});
-		});
 	});
 
 	afterEach(() => {
