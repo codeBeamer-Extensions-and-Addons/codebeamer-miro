@@ -300,6 +300,15 @@ export default function ItemDetails(props: {
 		}
 	}, [fieldOptionsQueryResult.data]);
 
+	const getFieldLabel = (fieldName: string): string => {
+		if (!trackerSchemaQueryResult.data) return fieldName;
+		let label = trackerSchemaQueryResult.data.find(
+			(r) =>
+				r.legacyRestName == fieldName || r.trackerItemField == fieldName
+		)?.name;
+		return label ?? fieldName;
+	};
+
 	/**
 	 * @returns Whether the field for {@link fieldName} should be disabled (true) or not (false)
 	 */
@@ -412,7 +421,7 @@ export default function ItemDetails(props: {
 								}
 							>
 								<label data-test={ASSIGNEE_FIELD_NAME}>
-									Assignee
+									{getFieldLabel(ASSIGNEE_FIELD_NAME)}
 								</label>
 								<Select
 									className="basic-single"
@@ -468,7 +477,9 @@ export default function ItemDetails(props: {
 								}`}
 								onClick={() => fetchOptions(TEAM_FIELD_NAME)}
 							>
-								<label data-test={TEAM_FIELD_NAME}>Team</label>
+								<label data-test={TEAM_FIELD_NAME}>
+									{getFieldLabel(TEAM_FIELD_NAME)}
+								</label>
 								<Select
 									className="basic-single"
 									classNamePrefix="select"
@@ -525,7 +536,7 @@ export default function ItemDetails(props: {
 								onClick={() => fetchOptions(VERSION_FIELD_NAME)}
 							>
 								<label data-test={VERSION_FIELD_NAME}>
-									Version
+									{getFieldLabel(VERSION_FIELD_NAME)}
 								</label>
 								<Select
 									className="basic-single"
@@ -583,7 +594,7 @@ export default function ItemDetails(props: {
 								onClick={() => fetchOptions(SUBJECT_FIELD_NAME)}
 							>
 								<label data-test={SUBJECT_FIELD_NAME}>
-									Subject
+									{getFieldLabel(SUBJECT_FIELD_NAME)}
 								</label>
 								<Select
 									className="basic-single"
@@ -638,7 +649,9 @@ export default function ItemDetails(props: {
 										: ''
 								}`}
 							>
-								<label>Story Points</label>
+								<label>
+									{getFieldLabel(STORY_POINTS_FIELD_NAME)}
+								</label>
 								<input
 									type="number"
 									className="input"

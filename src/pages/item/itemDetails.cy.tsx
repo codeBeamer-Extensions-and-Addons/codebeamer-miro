@@ -3,6 +3,7 @@ import ItemDetails from './itemDetails';
 import {
 	ASSIGNEE_FIELD_NAME,
 	EDITABLE_ATTRIBUTES,
+	STORY_POINTS_FIELD_NAME,
 	SUBJECT_FIELD_NAME,
 	TEAM_FIELD_NAME,
 } from '../../constants/editable-attributes';
@@ -49,6 +50,28 @@ describe('<ItemDetails>', () => {
 				cy.getBySel(attr.name).should('exist');
 			}
 		});
+		it('labels the inputs according to their name in the item its tracker', () => {
+			cy.intercept(`**/api/v3/trackers/*/schema`, {
+				fixture: 'tracker_schema.json',
+			}).as('schema');
+
+			cy.wait('@schema');
+
+			cy.fixture('tracker_schema.json').then((fixture) => {
+				for (let attr of EDITABLE_ATTRIBUTES) {
+					console.log(fixture);
+					let name =
+						fixture.find(
+							(i) =>
+								i.legacyRestName == attr.legacyName ||
+								i.trackerItemField == attr.name
+						)?.name ?? '';
+
+					if (attr.name == STORY_POINTS_FIELD_NAME) continue;
+					cy.getBySel(attr.name).should('contain.text', name);
+				}
+			});
+		});
 
 		it('disables the input if the current tracker has no such field', () => {
 			cy.intercept('**/api/v3/trackers/*/schema', {
@@ -77,6 +100,10 @@ describe('<ItemDetails>', () => {
 			});
 			cy.intercept(`**/api/v3/trackers/*/schema`, {
 				fixture: 'tracker_schema.json',
+			});
+			cy.intercept('**/wiki2html', {
+				statusCode: 200,
+				body: 'Just some testing text',
 			});
 
 			cy.mountWithStore(
