@@ -92,6 +92,7 @@ export async function convertToCardData(
 	item: CodeBeamerItem,
 	appStore?: EnhancedStore<any>
 ): Promise<Partial<AppCard>> {
+	let description = item.description;
 	if (item.descriptionFormat == DescriptionFormat.WIKI) {
 		const username = store.getState().userSettings.cbUsername;
 		const password = store.getState().userSettings.cbPassword;
@@ -106,14 +107,14 @@ export async function convertToCardData(
 		};
 
 		try {
-			item.description = await (
-				await fetch(
-					`${store.getState().boardSettings.cbAddress}/rest/item/${
-						item.id
-					}/wiki2html`,
-					requestArgs
-				)
-			).text();
+			const wiki2htmlRes = await fetch(
+				`${store.getState().boardSettings.cbAddress}/rest/item/${
+					item.id
+				}/wiki2html`,
+				requestArgs
+			);
+			const html = await wiki2htmlRes.text();
+			description = html;
 		} catch (e: any) {
 			//* It can in fact take ~1 minute until the request actually fails.
 			//* Issue lies with codeBeamers inability to accept its failure in converting some wiki2html
@@ -131,7 +132,7 @@ export async function convertToCardData(
 			item.name,
 			item.tracker.keyName
 		),
-		description: item.description,
+		description: description,
 		fields: [],
 		status: 'connected',
 	};
