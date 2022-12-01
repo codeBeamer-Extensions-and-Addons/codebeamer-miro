@@ -306,28 +306,6 @@ describe('<ItemDetails>', () => {
 		});
 	});
 
-	describe('zoomTo button', () => {
-		beforeEach(() => {
-			const store = getStore();
-			const mockCbAddress = 'https://test.me/cb';
-			store.dispatch(setCbAddress(mockCbAddress));
-
-			cy.intercept(`**/api/v3/items/${mockItemId}`, {
-				fixture: 'item.json',
-			});
-			cy.intercept(`**/api/v3/trackers/*/schema`, {
-				fixture: 'tracker_schema.json',
-			});
-
-			cy.mountWithStore(
-				<ItemDetails itemId={mockItemId} cardId={mockCardId} />,
-				{
-					reduxStore: store,
-				}
-			);
-		});
-	});
-
 	afterEach(() => {
 		localStorage.clear();
 		sessionStorage.clear();
