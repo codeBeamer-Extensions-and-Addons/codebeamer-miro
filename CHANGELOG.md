@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### [1.2.0]
 
+## Released
+
 #### Changed
 
 -   Optimize description rendering in Item Details  
@@ -21,8 +23,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Fixed
 
 -   Fixed a bug where upon opening an Item's details, the description shown on the Miro Card would "revert" to wiki markup.
-
-## Released
 
 ### [1.1.0]
 
