@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Add codeBeamer address & Item id attempted to fetch from in the fatal error message shown on an Item's Details if unable to load  
     This should clarify the fact that the currently set address is used for querying Items.
 -   Labels of the editable attributes on the Item Details Panel now use the custom name they have in the respective Tracker
+-   Attributes in the "Editable attributes" that can't be edited (don't exist) for this Item are now hidden instead of just disabled.
 
 #### Fixed
 
