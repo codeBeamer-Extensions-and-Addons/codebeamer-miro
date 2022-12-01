@@ -409,7 +409,11 @@ export default function ItemDetails(props: {
 								//*********************************************************************** */
 							}
 							<div
-								className={`form-group ${
+								hidden={
+									!trackerSchemaQueryResult.data ||
+									fieldIsDisabled(ASSIGNEE_FIELD_NAME)
+								}
+								className={`form-group fade-in-quick${
 									formik.touched.assignedTo
 										? formik.errors.assignedTo
 											? 'error'
@@ -468,7 +472,11 @@ export default function ItemDetails(props: {
 								//*********************************************************************** */
 							}
 							<div
-								className={`form-group ${
+								hidden={
+									!trackerSchemaQueryResult.data ||
+									fieldIsDisabled(TEAM_FIELD_NAME)
+								}
+								className={`form-group fade-in-quick${
 									formik.touched.teams
 										? formik.errors.teams
 											? 'error'
@@ -526,7 +534,11 @@ export default function ItemDetails(props: {
 							}
 
 							<div
-								className={`form-group ${
+								hidden={
+									!trackerSchemaQueryResult.data ||
+									fieldIsDisabled(VERSION_FIELD_NAME)
+								}
+								className={`form-group fade-in-quick${
 									formik.touched.versions
 										? formik.errors.versions
 											? 'error'
@@ -584,7 +596,11 @@ export default function ItemDetails(props: {
 							}
 
 							<div
-								className={`form-group ${
+								hidden={
+									!trackerSchemaQueryResult.data ||
+									fieldIsDisabled(SUBJECT_FIELD_NAME)
+								}
+								className={`form-group fade-in-quick${
 									formik.touched.subjects
 										? formik.errors.subjects
 											? 'error'
@@ -641,7 +657,11 @@ export default function ItemDetails(props: {
 								//*********************************************************************** */
 							}
 							<div
-								className={`form-group ${
+								hidden={
+									!trackerSchemaQueryResult.data ||
+									fieldIsDisabled(STORY_POINTS_FIELD_NAME)
+								}
+								className={`form-group fade-in-quick${
 									formik.touched.storyPoints
 										? formik.errors.storyPoints
 											? 'error'
