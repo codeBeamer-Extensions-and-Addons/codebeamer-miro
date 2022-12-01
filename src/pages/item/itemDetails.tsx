@@ -31,6 +31,7 @@ import { RootState } from '../../store/store';
 import { CodeBeamerTrackerSchemaEntry } from '../../models/trackerSchema.if';
 
 import './itemDetails.css';
+import ItemSummary from './itemSummary/ItemSummary';
 
 interface Errors {
 	assignedTo?: string;
@@ -93,8 +94,6 @@ export default function ItemDetails(props: {
 		useLazyGetFieldOptionsQuery();
 	const [triggerUpdateItem, updateItemResult] =
 		useLazyUpdateItemLegacyQuery();
-	const [triggerWiki2HtmlQuery, wiki2HtmlQueryResult] =
-		useLazyGetWiki2HtmlLegacyQuery();
 
 	React.useEffect(() => {
 		if (!itemId || !cardId) {
@@ -173,9 +172,9 @@ export default function ItemDetails(props: {
 				"Fatal error - couldn't load item schema: ",
 				itemQueryResult.error
 			);
-			//TODO improve
-			setFatalError('Failed loading item schema');
-			return;
+			setFatalError(
+				`Failed loading item schema from ${cbAddress} for Item with Id ${itemId}`
+			);
 		} else if (itemQueryResult.data) {
 			setTrackerId(itemQueryResult.data.tracker.id.toString());
 			setItem(itemQueryResult.data);
@@ -184,30 +183,9 @@ export default function ItemDetails(props: {
 					itemQueryResult.data.tracker.id.toString()
 				);
 			}
-			if (!displayedItemDescription) {
-				setDisplayedItemDescription(itemQueryResult.data.description);
-				triggerWiki2HtmlQuery({
-					itemId: itemQueryResult.data.id,
-					markup: itemQueryResult.data.description,
-				});
-			}
 			updateAppCard(itemQueryResult.data, cardId);
 		}
 	}, [itemQueryResult]);
-
-	/**
-	 * {@link wiki2HtmlQueryResult} subscription
-	 *
-	 * Updates the value for the displayed description, when it gets a response
-	 */
-	React.useEffect(() => {
-		if (wiki2HtmlQueryResult.error) {
-			console.warn('Failed to convert wiki description to html');
-		}
-		if (wiki2HtmlQueryResult.data) {
-			setDisplayedItemDescription(wiki2HtmlQueryResult.data);
-		}
-	}, [wiki2HtmlQueryResult]);
 
 	/**
 	 * {@link updateItemResult} subscription
@@ -322,6 +300,15 @@ export default function ItemDetails(props: {
 		}
 	}, [fieldOptionsQueryResult.data]);
 
+	const getFieldLabel = (fieldName: string): string => {
+		if (!trackerSchemaQueryResult.data) return fieldName;
+		let label = trackerSchemaQueryResult.data.find(
+			(r) =>
+				r.legacyRestName == fieldName || r.trackerItemField == fieldName
+		)?.name;
+		return label ?? fieldName;
+	};
+
 	/**
 	 * @returns Whether the field for {@link fieldName} should be disabled (true) or not (false)
 	 */
@@ -339,23 +326,6 @@ export default function ItemDetails(props: {
 			trackerSchema.find((f) => f.trackerItemField == fieldName)
 				?.multipleValues || false
 		);
-	};
-
-	const zoomToWidget = async () => {
-		const errorMessage = {
-			header: 'Error',
-			content: "Can't find the item on the board!",
-			bg: 'warning',
-		};
-		if (!cardId) {
-			dispatch(displayAppMessage(errorMessage));
-			return;
-		}
-		let widget = await miro.board.get({ id: cardId });
-		if (!widget.length) {
-			dispatch(displayAppMessage(errorMessage));
-		}
-		miro.board.viewport.zoomTo(widget);
 	};
 
 	//*********************************************************************** */
@@ -420,23 +390,11 @@ export default function ItemDetails(props: {
 			{!fatalError && !loading && item && (
 				<div className="fade-in centered-horizontally h-100 flex-col w-85">
 					<div className="panel-header h-max-25">
-						<div className="panel-title sticky">
-							<h3 className="h3">
-								{item.name} <small>#{item.id}</small>{' '}
-								<span
-									className="icon icon-eye clickable pos-adjusted-down"
-									title="Click to zoom to the item"
-									onClick={() => zoomToWidget()}
-									data-test="zoom-to-item"
-								></span>
-							</h3>
-						</div>
-						<p
-							className="overflow-ellipsis"
-							dangerouslySetInnerHTML={{
-								__html: displayedItemDescription,
-							}}
-						></p>
+						<ItemSummary
+							item={item}
+							canZoomToItem={true}
+							cardId={cardId}
+						/>
 					</div>
 					<hr />
 					<div className="panel-content mt-1 h-64 overflow-auto">
@@ -451,7 +409,11 @@ export default function ItemDetails(props: {
 								//*********************************************************************** */
 							}
 							<div
-								className={`form-group ${
+								hidden={
+									!trackerSchemaQueryResult.data ||
+									fieldIsDisabled(ASSIGNEE_FIELD_NAME)
+								}
+								className={`form-group fade-in-quick${
 									formik.touched.assignedTo
 										? formik.errors.assignedTo
 											? 'error'
@@ -463,7 +425,7 @@ export default function ItemDetails(props: {
 								}
 							>
 								<label data-test={ASSIGNEE_FIELD_NAME}>
-									Assignee
+									{getFieldLabel(ASSIGNEE_FIELD_NAME)}
 								</label>
 								<Select
 									className="basic-single"
@@ -510,7 +472,11 @@ export default function ItemDetails(props: {
 								//*********************************************************************** */
 							}
 							<div
-								className={`form-group ${
+								hidden={
+									!trackerSchemaQueryResult.data ||
+									fieldIsDisabled(TEAM_FIELD_NAME)
+								}
+								className={`form-group fade-in-quick${
 									formik.touched.teams
 										? formik.errors.teams
 											? 'error'
@@ -519,7 +485,9 @@ export default function ItemDetails(props: {
 								}`}
 								onClick={() => fetchOptions(TEAM_FIELD_NAME)}
 							>
-								<label data-test={TEAM_FIELD_NAME}>Team</label>
+								<label data-test={TEAM_FIELD_NAME}>
+									{getFieldLabel(TEAM_FIELD_NAME)}
+								</label>
 								<Select
 									className="basic-single"
 									classNamePrefix="select"
@@ -566,7 +534,11 @@ export default function ItemDetails(props: {
 							}
 
 							<div
-								className={`form-group ${
+								hidden={
+									!trackerSchemaQueryResult.data ||
+									fieldIsDisabled(VERSION_FIELD_NAME)
+								}
+								className={`form-group fade-in-quick${
 									formik.touched.versions
 										? formik.errors.versions
 											? 'error'
@@ -576,7 +548,7 @@ export default function ItemDetails(props: {
 								onClick={() => fetchOptions(VERSION_FIELD_NAME)}
 							>
 								<label data-test={VERSION_FIELD_NAME}>
-									Version
+									{getFieldLabel(VERSION_FIELD_NAME)}
 								</label>
 								<Select
 									className="basic-single"
@@ -624,7 +596,11 @@ export default function ItemDetails(props: {
 							}
 
 							<div
-								className={`form-group ${
+								hidden={
+									!trackerSchemaQueryResult.data ||
+									fieldIsDisabled(SUBJECT_FIELD_NAME)
+								}
+								className={`form-group fade-in-quick${
 									formik.touched.subjects
 										? formik.errors.subjects
 											? 'error'
@@ -634,7 +610,7 @@ export default function ItemDetails(props: {
 								onClick={() => fetchOptions(SUBJECT_FIELD_NAME)}
 							>
 								<label data-test={SUBJECT_FIELD_NAME}>
-									Subject
+									{getFieldLabel(SUBJECT_FIELD_NAME)}
 								</label>
 								<Select
 									className="basic-single"
@@ -681,7 +657,11 @@ export default function ItemDetails(props: {
 								//*********************************************************************** */
 							}
 							<div
-								className={`form-group ${
+								hidden={
+									!trackerSchemaQueryResult.data ||
+									fieldIsDisabled(STORY_POINTS_FIELD_NAME)
+								}
+								className={`form-group fade-in-quick${
 									formik.touched.storyPoints
 										? formik.errors.storyPoints
 											? 'error'
@@ -689,7 +669,9 @@ export default function ItemDetails(props: {
 										: ''
 								}`}
 							>
-								<label>Story Points</label>
+								<label>
+									{getFieldLabel(STORY_POINTS_FIELD_NAME)}
+								</label>
 								<input
 									type="number"
 									className="input"

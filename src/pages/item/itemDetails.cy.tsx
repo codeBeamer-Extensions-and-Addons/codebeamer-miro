@@ -3,6 +3,7 @@ import ItemDetails from './itemDetails';
 import {
 	ASSIGNEE_FIELD_NAME,
 	EDITABLE_ATTRIBUTES,
+	STORY_POINTS_FIELD_NAME,
 	SUBJECT_FIELD_NAME,
 	TEAM_FIELD_NAME,
 } from '../../constants/editable-attributes';
@@ -49,6 +50,28 @@ describe('<ItemDetails>', () => {
 				cy.getBySel(attr.name).should('exist');
 			}
 		});
+		it('labels the inputs according to their name in the item its tracker', () => {
+			cy.intercept(`**/api/v3/trackers/*/schema`, {
+				fixture: 'tracker_schema.json',
+			}).as('schema');
+
+			cy.wait('@schema');
+
+			cy.fixture('tracker_schema.json').then((fixture) => {
+				for (let attr of EDITABLE_ATTRIBUTES) {
+					console.log(fixture);
+					let name =
+						fixture.find(
+							(i) =>
+								i.legacyRestName == attr.legacyName ||
+								i.trackerItemField == attr.name
+						)?.name ?? '';
+
+					if (attr.name == STORY_POINTS_FIELD_NAME) continue;
+					cy.getBySel(attr.name).should('contain.text', name);
+				}
+			});
+		});
 
 		it('disables the input if the current tracker has no such field', () => {
 			cy.intercept('**/api/v3/trackers/*/schema', {
@@ -77,6 +100,10 @@ describe('<ItemDetails>', () => {
 			});
 			cy.intercept(`**/api/v3/trackers/*/schema`, {
 				fixture: 'tracker_schema.json',
+			});
+			cy.intercept('**/wiki2html', {
+				statusCode: 200,
+				body: 'Just some testing text',
 			});
 
 			cy.mountWithStore(
@@ -276,61 +303,6 @@ describe('<ItemDetails>', () => {
 			cy.getBySel('fatal-error')
 				.should('exist')
 				.and('contain.text', 'Failed loading tracker schema');
-		});
-	});
-
-	describe('zoomTo button', () => {
-		beforeEach(() => {
-			const store = getStore();
-			const mockCbAddress = 'https://test.me/cb';
-			store.dispatch(setCbAddress(mockCbAddress));
-
-			cy.intercept(`**/api/v3/items/${mockItemId}`, {
-				fixture: 'item.json',
-			});
-			cy.intercept(`**/api/v3/trackers/*/schema`, {
-				fixture: 'tracker_schema.json',
-			});
-
-			cy.mountWithStore(
-				<ItemDetails itemId={mockItemId} cardId={mockCardId} />,
-				{
-					reduxStore: store,
-				}
-			);
-		});
-
-		it('has a button to zoom to the item with', () => {
-			cy.getBySel('zoom-to-item').should('exist');
-		});
-
-		it('zooms to the item on the board when the button is clicked', () => {
-			cy.on('uncaught:exception', (err) => {
-				//* not providing a new fixture for each page, so we'll get duplicates.
-				if (err.message.includes('existingAppCard.sync')) {
-					return false;
-				}
-				return true;
-			});
-
-			cy.spy(miro.board.viewport, 'zoomTo').as('zoomToSpy');
-
-			const itemOne: Partial<AppCard> = {
-				id: '1',
-				title: '[RETUS-1]',
-			};
-
-			const stubBoardGet = cy.stub(miro.board, 'get').callsFake(() => {
-				return Promise.resolve([itemOne]);
-			});
-
-			cy.getBySel('zoom-to-item')
-				.click()
-				.then(() => {
-					cy.get('@zoomToSpy').then((spy) => {
-						expect(spy).to.be.called;
-					});
-				});
 		});
 	});
 
