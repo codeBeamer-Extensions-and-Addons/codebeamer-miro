@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### [1.2.0]
+
+#### Changed
+
+-   Optimize description rendering in Item Details  
+    Links and native codebeamer images (not user-uploaded ones) should now be displayed properly and functionally.
+-   Add codeBeamer address & Item id attempted to fetch from in the fatal error message shown on an Item's Details if unable to load  
+    This should clarify the fact that the currently set address is used for querying Items.
+
+#### Fixed
+
+-   Fixed a bug where upon opening an Item's details, the description shown on the Miro Card would "revert" to wiki markup.
+
+## Released
+
 ### [1.1.0]
 
 Version 1.1.0 adds the ability to edit certain attributes of an item in Miro itself and adds various minor fixes / optimizations.
