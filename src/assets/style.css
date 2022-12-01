@@ -362,17 +362,17 @@ body {
 /**animations*/
 
 .fade-in {
-	animation: fade-in 0.6s ease-in-out forwards;
+	animation: fade-in 0.6s ease-in-out;
 }
 .fade-in-quick {
-	animation: fade-in 0.3s ease-in-out forwards;
+	animation: fade-in 0.3s ease-in-out;
 }
 .fade-in-slow {
-	animation: fade-in 1s ease-in-out forwards;
+	animation: fade-in 1s ease-in-out;
 }
 
 .fade-out {
-	animation: fade-out 0.3s ease-in-out forwards;
+	animation: fade-out 0.3s ease-in-out;
 }
 
 /**keyframes*/
