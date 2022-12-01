@@ -172,9 +172,9 @@ export default function ItemDetails(props: {
 				"Fatal error - couldn't load item schema: ",
 				itemQueryResult.error
 			);
-			//TODO improve
-			setFatalError('Failed loading item schema');
-			return;
+			setFatalError(
+				`Failed loading item schema from ${cbAddress} for Item with Id ${itemId}`
+			);
 		} else if (itemQueryResult.data) {
 			setTrackerId(itemQueryResult.data.tracker.id.toString());
 			setItem(itemQueryResult.data);
