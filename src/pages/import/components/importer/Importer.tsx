@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 import Spinner from 'react-bootstrap/Spinner';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import {
 	useGetItemsQuery,
 	useGetTrackerDetailsQuery,
@@ -12,6 +12,7 @@ import {
 	DEFAULT_RESULT_PAGE,
 	MAX_ITEMS_PER_IMPORT,
 } from '../../../../constants/cb-import-defaults';
+import { useImportedItems } from '../../../../hooks/useImportedItems';
 import { CodeBeamerItem } from '../../../../models/codebeamer-item.if';
 import { RootState } from '../../../../store/store';
 
@@ -22,13 +23,13 @@ export default function Importer(props: {
 	totalItems?: number;
 	onClose?: Function;
 }) {
-	const dispatch = useDispatch();
-
 	const { trackerId, cbqlString } = useSelector(
 		(state: RootState) => state.userSettings
 	);
 
 	const [loaded, setLoaded] = useState(0);
+
+	const importedItems = useImportedItems();
 
 	//* applies all currently active filters by using the stored cbqlString,
 	//* then further filters out only the selected items (or takes all of 'em)
@@ -38,6 +39,12 @@ export default function Importer(props: {
 		queryString: `${cbqlString}${
 			props.items.length
 				? ' AND item.id IN (' + props.items.join(',') + ')'
+				: ''
+		}${
+			importedItems.length
+				? ' AND item.id NOT IN (' +
+				  importedItems.map((i) => i.itemId) +
+				  ')'
 				: ''
 		}`,
 	});
