@@ -10,7 +10,6 @@ import {
 import { AppCardToItemMapping } from '../../../../models/appCardToItemMapping.if';
 import { ItemListView } from '../../../../models/itemListView';
 import { ItemQueryResultView } from '../../../../models/itemQueryResultView';
-import { displayAppMessage } from '../../../../store/slices/appMessagesSlice';
 import { RootState } from '../../../../store/store';
 import ImportActions from '../importActions/ImportActions';
 import Importer from '../importer/Importer';
@@ -112,10 +111,10 @@ export default function QueryResults() {
 					);
 
 					if (!itemKey?.length) {
-						//TODO miro showErrorNotif
-						console.error(
-							"Couldn't extract ID from Card title. Can't sync!"
-						);
+						const message =
+							"Couldn't extract ID from Card title. Can't sync!";
+						console.error(message);
+						miro.board.notifications.showError(message);
 						return { appCardId: card.id, itemId: '' };
 					}
 					const itemId = itemKey[1];
@@ -170,30 +169,6 @@ export default function QueryResults() {
 			lazyLoadObserver.observe(lastItem);
 		}
 	}, [items]);
-
-	// React.useEffect(() => {
-	// 	if (!error) return;
-	// 	console.error(error);
-	// 	let message = advancedSearch
-	// 		? "Check your query's syntax for errors."
-	// 		: 'Is your codebeamer server accessible?';
-	// 	dispatch(
-	// 		displayAppMessage({
-	// 			header: 'Error querying Items',
-	// 			content: (
-	// 				<p>
-	// 					{message}
-	// 					<br />
-	// 					<span className="muted text-dark">
-	// 						Check console for details.
-	// 					</span>
-	// 				</p>
-	// 			),
-	// 			bg: 'danger',
-	// 			delay: 5000,
-	// 		})
-	// 	);
-	// }, [error]);
 
 	const handleImportSelected = () => {
 		setItemsToImport(

@@ -13,7 +13,6 @@ import {
 	MAX_ITEMS_PER_IMPORT,
 } from '../../../../constants/cb-import-defaults';
 import { CodeBeamerItem } from '../../../../models/codebeamer-item.if';
-import { displayAppMessage } from '../../../../store/slices/appMessagesSlice';
 import { RootState } from '../../../../store/store';
 
 import './importer.css';
@@ -67,13 +66,8 @@ export default function Importer(props: {
 							(c) => c.name == 'Folder' || c.name == 'Information'
 						)
 					) {
-						dispatch(
-							displayAppMessage({
-								header: 'Skipping folder / information item',
-								content: `<p>${_items[i].name} is a Folder / Information and will not be imported.</p>`,
-								bg: 'info',
-								delay: 1500,
-							})
+						miro.board.notifications.showInfo(
+							`${_items[i].name} is a Folder / Information and will not be imported.`
 						);
 						continue;
 					}
@@ -87,14 +81,6 @@ export default function Importer(props: {
 		};
 
 		if (error || trackerDetailsQueryError) {
-			// dispatch(
-			// 	displayAppMessage({
-			// 		header: 'Error loading Items',
-			// 		content: <p>Please retry the operation.</p>,
-			// 		bg: 'danger',
-			// 		delay: 1500,
-			// 	})
-			// );
 			props.onClose;
 		} else if (data && key) {
 			importItems(data.items as CodeBeamerItem[]).catch((err) =>

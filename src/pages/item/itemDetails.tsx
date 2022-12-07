@@ -25,7 +25,6 @@ import {
 } from '../../constants/editable-attributes';
 import { CodeBeamerItem } from '../../models/codebeamer-item.if';
 import { CodeBeamerReferenceMinimal } from '../../models/codebeamer-reference.if';
-import { displayAppMessage } from '../../store/slices/appMessagesSlice';
 import { loadBoardSettings } from '../../store/slices/boardSettingsSlice';
 import { RootState } from '../../store/store';
 import { CodeBeamerTrackerSchemaEntry } from '../../models/trackerSchema.if';
@@ -192,27 +191,7 @@ export default function ItemDetails(props: {
 	 */
 	React.useEffect(() => {
 		if (updateItemResult.error) {
-			// console.error(
-			// 	'Failed to update item: ',
-			// 	JSON.stringify(
-			// 		(updateItemResult.error as FetchBaseQueryError).data
-			// 	)
-			// );
-			// dispatch(
-			// 	displayAppMessage({
-			// 		header:
-			// 			'Failed to update item: ' +
-			// 				(
-			// 					(updateItemResult.error as FetchBaseQueryError)
-			// 						.data as {
-			// 						exception: string;
-			// 						message: string;
-			// 					}
-			// 				).message ?? '',
-			// 		bg: 'danger',
-			// 		delay: 5000,
-			// 	})
-			// );
+			//error logged by rtk handler
 		} else if (updateItemResult.data) {
 			triggerItemQuery(itemId);
 			setAnimateSuccess(true);
@@ -247,10 +226,9 @@ export default function ItemDetails(props: {
 			(d) => d.trackerItemField == fieldName
 		)?.id;
 		if (!fieldId) {
-			//TODO error: can't load options
-			console.warn(
-				"Can't find field for assignee in Tracker schema - therefore can't load options."
-			);
+			const message = `Can't find field for ${fieldName} in Tracker schema - therefore can't load options.`;
+			console.warn(message);
+			miro.board.notifications.showError(message);
 			return;
 		}
 		triggerFieldOptionsQuery({ trackerId, fieldId });
@@ -262,7 +240,7 @@ export default function ItemDetails(props: {
 	React.useEffect(() => {
 		if (fieldOptionsQueryResult.error) {
 			console.error(fieldOptionsQueryResult.error);
-			//TODO display
+			miro.board.notifications.showError('Failed loading options');
 		}
 	}, [fieldOptionsQueryResult.error]);
 
@@ -362,7 +340,6 @@ export default function ItemDetails(props: {
 			//*mind the keys here; they're legacy field names, since we're using the legacy rest api to do the update
 			//*(because the swagger api v3 is disgustingly complicated in that regard)
 
-			//TODO check how items that don't have such fields are affected (probably gonna throw errors..)
 			const payload = {
 				uri: getRestResourceUri(item!.id),
 				assignedTo: values.assignedTo.map(mapToLegacyValue),
