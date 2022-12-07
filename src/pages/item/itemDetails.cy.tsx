@@ -255,7 +255,6 @@ describe('<ItemDetails>', () => {
 	});
 
 	context('general error handling', () => {
-		//TODo exact msg
 		it('displays an error if the item could not be loaded', () => {
 			const store = getStore();
 			const mockCbAddress = 'http://test.com/cb';
