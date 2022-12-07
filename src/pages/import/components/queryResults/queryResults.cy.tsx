@@ -20,7 +20,7 @@ describe('<QueryResults>', () => {
 		const notSyncedItemTwo: Partial<AppCard> = { id: '4' };
 
 		cy.stub(miro.board, 'get').callsFake(() => {
-			return Promise.resolve([itemOne, itemTwo]); //TODO symbolic, return items that have these ids
+			return Promise.resolve([itemOne, itemTwo]);
 		});
 
 		const store = getStore();
