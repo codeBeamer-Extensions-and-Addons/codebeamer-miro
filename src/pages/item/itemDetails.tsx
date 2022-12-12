@@ -1,14 +1,12 @@
-import { FetchBaseQueryError } from '@reduxjs/toolkit/dist/query';
 import { useFormik } from 'formik';
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import Select from 'react-select';
 import {
 	useLazyGetItemQuery,
 	useLazyGetFieldOptionsQuery,
 	useLazyGetTrackerSchemaQuery,
 	useLazyUpdateItemLegacyQuery,
-	useLazyGetWiki2HtmlLegacyQuery,
 } from '../../api/codeBeamerApi';
 import { updateAppCard } from '../../api/miro.api';
 import getRestResourceUri, {
@@ -25,7 +23,6 @@ import {
 } from '../../constants/editable-attributes';
 import { CodeBeamerItem } from '../../models/codebeamer-item.if';
 import { CodeBeamerReferenceMinimal } from '../../models/codebeamer-reference.if';
-import { loadBoardSettings } from '../../store/slices/boardSettingsSlice';
 import { RootState } from '../../store/store';
 import { CodeBeamerTrackerSchemaEntry } from '../../models/trackerSchema.if';
 
@@ -43,30 +40,11 @@ interface Errors {
 /**
  * @param props Props are only used in testing - the values are passed via url query params else.
  */
-export default function ItemDetails(props: {
-	itemId?: string;
-	cardId?: string;
-}) {
-	const dispatch = useDispatch();
-
-	const [itemId] = useState<string>(
-		props.itemId ??
-			new URL(document.location.href).searchParams.get('itemId') ??
-			''
-	);
-	const [cardId] = useState<string>(
-		props.cardId ??
-			new URL(document.location.href).searchParams.get('cardId') ??
-			''
-	);
-	const [storeIsInitializing, setStoreIsInitializing] =
-		useState<boolean>(true);
+export default function ItemDetails(props: { itemId: string; cardId: string }) {
 	const [item, setItem] = useState<CodeBeamerItem>();
 	const [trackerSchema, setTrackerSchema] = useState<
 		CodeBeamerTrackerSchemaEntry[]
 	>([]);
-	const [displayedItemDescription, setDisplayedItemDescription] =
-		useState<string>('');
 	const [trackerId, setTrackerId] = useState<string>();
 	const [loading, setLoading] = useState<boolean>(true);
 	const [animateSuccess, setAnimateSuccess] = useState<boolean>(false);
@@ -86,37 +64,20 @@ export default function ItemDetails(props: {
 		(state: RootState) => state.boardSettings
 	);
 
+	const [triggerItemQuery, itemQueryResult] = useLazyGetItemQuery();
 	const [triggerTrackerSchemaQuery, trackerSchemaQueryResult] =
 		useLazyGetTrackerSchemaQuery();
-	const [triggerItemQuery, itemQueryResult] = useLazyGetItemQuery();
 	const [triggerFieldOptionsQuery, fieldOptionsQueryResult] =
 		useLazyGetFieldOptionsQuery();
 	const [triggerUpdateItem, updateItemResult] =
 		useLazyUpdateItemLegacyQuery();
 
-	React.useEffect(() => {
-		if (!itemId || !cardId) {
-			console.error(
-				'Item page called without itemId and/or cardId in query.'
-			);
-			return;
-		}
-		dispatch(loadBoardSettings());
-	}, []);
-
 	/**
-	 * {@link cbAddress} and {@link storeIsInitializing} subscription
-	 *
-	 * Will run its logic only once both values are truthy, which will then
-	 * claim the store to be initialized and trigger the Item- and TrackerSchema queries
+	 * On mount, get the Item's data.
 	 */
 	React.useEffect(() => {
-		if (cbAddress && storeIsInitializing) {
-			// console.log('Cb address truthy: ', cbAddress);
-			setStoreIsInitializing(false);
-			triggerItemQuery(itemId!);
-		}
-	}, [cbAddress, storeIsInitializing]);
+		triggerItemQuery(props.itemId);
+	}, []);
 
 	/**
 	 * Handler for when we receive the tracker schema (or an error when trying to load it)
@@ -172,7 +133,7 @@ export default function ItemDetails(props: {
 				itemQueryResult.error
 			);
 			setFatalError(
-				`Failed loading item schema from ${cbAddress} for Item with Id ${itemId}`
+				`Failed loading item schema from ${cbAddress} for Item with Id ${props.itemId}`
 			);
 		} else if (itemQueryResult.data) {
 			setTrackerId(itemQueryResult.data.tracker.id.toString());
@@ -182,7 +143,7 @@ export default function ItemDetails(props: {
 					itemQueryResult.data.tracker.id.toString()
 				);
 			}
-			updateAppCard(itemQueryResult.data, cardId);
+			updateAppCard(itemQueryResult.data, props.cardId);
 		}
 	}, [itemQueryResult]);
 
@@ -193,7 +154,7 @@ export default function ItemDetails(props: {
 		if (updateItemResult.error) {
 			//error logged by rtk handler
 		} else if (updateItemResult.data) {
-			triggerItemQuery(itemId);
+			triggerItemQuery(props.itemId);
 			setAnimateSuccess(true);
 			setTimeout(() => {
 				setAnimateSuccess(false);
@@ -370,7 +331,7 @@ export default function ItemDetails(props: {
 						<ItemSummary
 							item={item}
 							canZoomToItem={true}
-							cardId={cardId}
+							cardId={props.cardId}
 						/>
 					</div>
 					<hr />
