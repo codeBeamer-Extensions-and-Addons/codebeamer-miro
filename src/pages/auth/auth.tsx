@@ -66,7 +66,7 @@ export default function AuthForm(props: {
 			{!props.headerLess && (
 				<header className="text-center mb-5">
 					<h2>codebeamer cards</h2>
-					<p>
+					<p className="m-1">
 						<span className="icon icon-plug pos-adjusted-down"></span>
 						<span className="ml-small">
 							Connect to your codebeamer Instance
@@ -179,7 +179,7 @@ export default function AuthForm(props: {
 									data-test="cbUsername"
 								/>
 								{errors.cbUsername && touched.cbUsername && (
-									<div className="status-text">
+									<div className="status-text m-1">
 										{errors.cbUsername}
 									</div>
 								)}
@@ -200,13 +200,13 @@ export default function AuthForm(props: {
 									data-test="cbPassword"
 								/>
 								{errors.cbPassword && touched.cbPassword && (
-									<div className="status-text">
+									<div className="status-text m-1">
 										{errors.cbPassword}
 									</div>
 								)}
 							</div>
 
-							<div className="flex-centered mt-4">
+							<div className="flex-centered mt-4 m-1">
 								{!animateSuccess && (
 									<button
 										type="submit"
