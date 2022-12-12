@@ -22,6 +22,7 @@ import {
 	CodeBeamerItem,
 	CodeBeamerLegacyItem,
 } from '../models/codebeamer-item.if';
+import { CodeBeamerUserReference } from '../models/codebeamer-user-reference.if';
 
 const dynamicBaseQuery: BaseQueryFn<
 	string | FetchArgs,
@@ -58,11 +59,18 @@ export const codeBeamerApi = createApi({
 	baseQuery: dynamicBaseQuery,
 	endpoints: (builder) => ({
 		testAuthentication: builder.query<
-			string,
+			CodeBeamerUserReference,
 			{ cbAddress: string; cbUsername: string; cbPassword: string }
 		>({
-			query: (payload) =>
-				`/api/v3/users/findByName?name=${payload.cbUsername}`,
+			query: (payload) => {
+				return {
+					url: `/api/v3/users/findByName?name=${payload.cbUsername}`,
+					method: 'GET',
+					responseHandler: async (response) => {
+						return (await response.json()) as CodeBeamerUserReference;
+					},
+				};
+			},
 		}),
 		getUserByName: builder.query<string, string>({
 			query: (name) => `/api/v3/users/findByName?name=${name}`,
@@ -168,10 +176,11 @@ export const {
 	useLazyGetProjectsQuery,
 	useGetTrackersQuery,
 	useGetItemsQuery,
+	useLazyGetItemsQuery,
+	useGetItemQuery,
 	useLazyGetItemQuery,
 	useLazyGetItemLegacyQuery,
 	useLazyUpdateItemLegacyQuery,
-	useLazyGetItemsQuery,
 	useGetTrackerDetailsQuery,
 	useGetTrackerSchemaQuery,
 	useLazyGetTrackerSchemaQuery,
