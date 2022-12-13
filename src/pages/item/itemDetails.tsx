@@ -7,6 +7,7 @@ import {
 	useLazyGetFieldOptionsQuery,
 	useLazyGetTrackerSchemaQuery,
 	useLazyUpdateItemLegacyQuery,
+	useGetItemFieldsQuery,
 } from '../../api/codeBeamerApi';
 import { updateAppCard } from '../../api/miro.api';
 import getRestResourceUri, {
@@ -28,6 +29,7 @@ import { CodeBeamerTrackerSchemaEntry } from '../../models/trackerSchema.if';
 
 import './itemDetails.css';
 import ItemSummary from './itemSummary/ItemSummary';
+import { CodeBeamerItemFields } from '../../models/api-query-types';
 
 interface Errors {
 	assignedTo?: string;
@@ -42,6 +44,8 @@ interface Errors {
  */
 export default function ItemDetails(props: { itemId: string; cardId: string }) {
 	const [item, setItem] = useState<CodeBeamerItem>();
+	const [itemFields, setItemFields] = useState<CodeBeamerItemFields>();
+
 	const [trackerSchema, setTrackerSchema] = useState<
 		CodeBeamerTrackerSchemaEntry[]
 	>([]);
@@ -64,7 +68,16 @@ export default function ItemDetails(props: { itemId: string; cardId: string }) {
 		(state: RootState) => state.boardSettings
 	);
 
+	//lazy because we want to be able to trigger it on-demand later down the line too.
+	//but it will also be fired onMount
 	const [triggerItemQuery, itemQueryResult] = useLazyGetItemQuery();
+
+	const {
+		data: itemFieldsQueryResult,
+		error: itemFieldsQueryError,
+		isLoading: itemFieldsQueryIsLoading,
+	} = useGetItemFieldsQuery(props.itemId);
+
 	const [triggerTrackerSchemaQuery, trackerSchemaQueryResult] =
 		useLazyGetTrackerSchemaQuery();
 	const [triggerFieldOptionsQuery, fieldOptionsQueryResult] =
@@ -101,49 +114,65 @@ export default function ItemDetails(props: { itemId: string; cardId: string }) {
 	}, [trackerSchemaQueryResult]);
 
 	/**
-	 * {@link trackerSchema} subscription	 *
+	 * {@link itemFieldsQueryResult} subscription
 	 *
-	 * Updates the {@link disabledFields} array when it chanegs
+	 * Updates the {@link itemFields} with its values (or sets a {@link fatalError} if it fails.
+	 * Will also {@link triggerTrackerSchemaQuery}, if no schema is loaded or loading yet.)
 	 */
 	React.useEffect(() => {
-		if (!trackerSchema || !trackerSchema.length) return;
-		const disabledFields = [];
-		for (let attr of EDITABLE_ATTRIBUTES) {
-			disabledFields.push({
-				key: attr.name,
-				value: !trackerSchema.some(
-					(entry) =>
-						entry.trackerItemField == attr.name ||
-						entry.legacyRestName == attr.legacyName
-				),
-			});
-		}
-		setDisabledFields(disabledFields);
-	}, [trackerSchema]);
+		if (itemFieldsQueryError) {
+			console.error(
+				"Fatal error - couldn't load Item data",
+				itemFieldsQueryError
+			);
+			setFatalError(
+				`Failed loading Item data from ${cbAddress} for Item with Id ${props.itemId}`
+			);
+		} else if (itemFieldsQueryResult) {
+			//* the Tracker field has Id 1 and should always be readonly in the /fields response
+			const trackerId =
+				itemFieldsQueryResult.readonlyFields
+					.find((f) => f.fieldId == 1 && f.name == 'Tracker')
+					?.values[0].id.toString() ??
+				itemFieldsQueryResult.editableFields
+					.find((f) => f.fieldId == 1 && f.name == 'Tracker')
+					?.values[0].id.toString() ??
+				null;
 
-	/**
-	 * {@link itemQueryResult} subscription
-	 *
-	 * Sets the item's data and will also update the card for it.
-	 */
+			if (!trackerId) {
+				console.error(
+					"Fatal error - couldn't find the Item's Tracker to load the schema in. Looked for field with Id '1' and name 'Tracker' in ",
+					itemFields
+				);
+				setFatalError(
+					`Failed processing Item data - can't find the Item's tracker in its data`
+				);
+				return;
+			}
+
+			setTrackerId(trackerId);
+			setItemFields(itemFieldsQueryResult);
+
+			if (
+				(!trackerSchema || !trackerSchema.length) &&
+				!trackerSchemaQueryResult.isFetching
+			) {
+				triggerTrackerSchemaQuery(trackerId);
+			}
+		}
+	}, [itemFieldsQueryResult]);
+
 	React.useEffect(() => {
 		if (itemQueryResult.error) {
 			console.error(
-				"Fatal error - couldn't load item schema: ",
+				"Fatal error - couldn't load Item data",
 				itemQueryResult.error
 			);
 			setFatalError(
-				`Failed loading item schema from ${cbAddress} for Item with Id ${props.itemId}`
+				`Failed loading Item data from ${cbAddress} for Item with Id ${props.itemId}`
 			);
 		} else if (itemQueryResult.data) {
-			setTrackerId(itemQueryResult.data.tracker.id.toString());
 			setItem(itemQueryResult.data);
-			if (!trackerSchema || !trackerSchema.length) {
-				triggerTrackerSchemaQuery(
-					itemQueryResult.data.tracker.id.toString()
-				);
-			}
-			updateAppCard(itemQueryResult.data, props.cardId);
 		}
 	}, [itemQueryResult]);
 
