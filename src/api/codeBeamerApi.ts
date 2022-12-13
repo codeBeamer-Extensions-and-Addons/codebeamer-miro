@@ -115,11 +115,12 @@ export const codeBeamerApi = createApi({
 		getTrackerDetails: builder.query<TrackerDetails, string>({
 			query: (trackerId) => `/api/v3/trackers/${trackerId}`,
 		}),
-		getTrackerSchema: builder.query<CodeBeamerTrackerSchemaEntry[], string>(
-			{
-				query: (trackerId) => `/api/v3/trackers/${trackerId}/schema`,
-			}
-		),
+		getTrackerSchema: builder.query<
+			CodeBeamerTrackerSchemaEntry[],
+			string | number
+		>({
+			query: (trackerId) => `/api/v3/trackers/${trackerId}/schema`,
+		}),
 		getWiki2Html: builder.query<
 			string,
 			{ projectId: string; body: Wiki2HtmlQuery }
@@ -155,7 +156,7 @@ export const codeBeamerApi = createApi({
 			{ trackerId: number | string; fieldId: number | string }
 		>({
 			query: ({ trackerId, fieldId }) =>
-				`rest/trackers/${trackerId}/field/${fieldId}/options`,
+				`rest/tracker/${trackerId}/field/${fieldId}/options`,
 		}),
 		getFieldOptionsSwagger: builder.query<
 			FieldOptions[],
