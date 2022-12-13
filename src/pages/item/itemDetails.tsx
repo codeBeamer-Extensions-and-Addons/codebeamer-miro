@@ -57,12 +57,8 @@ export default function ItemDetails(props: { itemId: string; cardId: string }) {
 	const [selectOptions, setSelectOptions] = useState<
 		{ key: string; values: any[] }[]
 	>([]);
-	const [disabledFields, setDisabledFields] = useState<
-		{
-			key: string;
-			value: boolean;
-		}[]
-	>([]);
+
+	const disabledFields = useDisabledFields(trackerSchema);
 
 	const { cbAddress } = useSelector(
 		(state: RootState) => state.boardSettings
@@ -709,3 +705,30 @@ export default function ItemDetails(props: { itemId: string; cardId: string }) {
 		</>
 	);
 }
+
+const useDisabledFields = (trackerSchema: CodeBeamerTrackerSchemaEntry[]) => {
+	const [disabledFields, setDisabledFields] = useState<
+		{
+			key: string;
+			value: boolean;
+		}[]
+	>([]);
+
+	React.useEffect(() => {
+		if (!trackerSchema || !trackerSchema.length) return;
+		const disabledFields = [];
+		for (let attr of EDITABLE_ATTRIBUTES) {
+			disabledFields.push({
+				key: attr.name,
+				value: !trackerSchema.some(
+					(entry) =>
+						entry.trackerItemField == attr.name ||
+						entry.legacyRestName == attr.legacyName
+				),
+			});
+		}
+		setDisabledFields(disabledFields);
+	}, [trackerSchema]);
+
+	return disabledFields;
+};
