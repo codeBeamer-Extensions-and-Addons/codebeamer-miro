@@ -1,49 +1,31 @@
 import * as React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import { RootState } from '../../store/store';
 
 import AuthForm from '../auth/auth';
-import { useTestAuthenticationQuery } from '../../api/codeBeamerApi';
-import { loadBoardSettings } from '../../store/slices/boardSettingsSlice';
 import ProjectSelection from '../import/components/projectSelection/ProjectSelection';
 import Import from '../import/Import';
 import Announcements from '../announcements/Announcements';
+import { useIsAuthenticated } from '../../hooks/useIsAuthenticated';
 
 export default function Content() {
-	const dispatch = useDispatch();
-
-	React.useEffect(() => {
-		dispatch(loadBoardSettings());
-	}, []);
-
-	const { cbUsername, cbPassword, showAnnouncements } = useSelector(
+	const { showAnnouncements } = useSelector(
 		(state: RootState) => state.userSettings
 	);
 
-	const { cbAddress, projectId, loading } = useSelector(
+	const { projectId } = useSelector(
 		(state: RootState) => state.boardSettings
 	);
 
-	const { data, error, isLoading } = useTestAuthenticationQuery({
-		cbAddress,
-		cbUsername,
-		cbPassword,
-	});
+	const [isAuthenticated, isAuthenticating] = useIsAuthenticated();
 
 	if (showAnnouncements) {
 		return <Announcements />;
-	} else if (isLoading || error)
+	} else if (isAuthenticating || !isAuthenticated)
 		return (
 			<div className="centered">
-				<AuthForm
-					loading={isLoading}
-					error={
-						cbAddress && cbUsername && cbPassword
-							? error
-							: undefined
-					}
-				/>
+				<AuthForm loading={isAuthenticating} />
 			</div>
 		);
 	else if (!projectId)

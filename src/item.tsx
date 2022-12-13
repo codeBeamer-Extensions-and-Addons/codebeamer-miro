@@ -6,10 +6,10 @@ import { store } from './store/store';
 
 import Toasts from './components/toasts/Toasts';
 import ItemDetails from './pages/item/itemDetails';
-import { loadBoardSettings } from './store/slices/boardSettingsSlice';
 import AuthForm from './pages/auth/auth';
 import { useState } from 'react';
 import { useIsAuthenticated } from './hooks/useIsAuthenticated';
+import BoardSettingsLoader from './components/boardSettingsLoader/BoardSettingsLoader';
 
 function Item(props: {
 	itemId?: string; //optional prop for testing purposes
@@ -44,8 +44,6 @@ function Item(props: {
 			);
 			return;
 		}
-
-		dispatch(loadBoardSettings());
 	}, []);
 
 	if (fatalError) {
@@ -66,7 +64,9 @@ function Item(props: {
 function Wrapper() {
 	return (
 		<Provider store={store}>
-			<Item />
+			<BoardSettingsLoader showAuthWhileLoading={false}>
+				<Item />
+			</BoardSettingsLoader>
 		</Provider>
 	);
 }
