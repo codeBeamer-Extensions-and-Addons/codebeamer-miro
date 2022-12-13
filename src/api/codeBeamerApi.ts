@@ -9,6 +9,7 @@ import { RootState } from '../store/store';
 import { ProjectListView } from '../models/projectListView.if';
 import { TrackerListView } from '../models/trackerListView.if';
 import {
+	CodeBeamerItemFields,
 	FieldOptions,
 	ItemQueryPage,
 	TrackerSearchPage,
@@ -146,12 +147,17 @@ export const codeBeamerApi = createApi({
 				};
 			},
 		}),
+		getItemFields: builder.query<CodeBeamerItemFields, string | number>({
+			query: (itemId) => `api/v3/items/${itemId}/fields`,
+		}),
 		getFieldOptions: builder.query<
 			FieldOptions[],
-			{ trackerId: string | number; fieldId: string | number }
+			{ itemId: string | number; fieldId: string | number; page?: number }
 		>({
 			query: (params) =>
-				`/rest/tracker/${params.trackerId}/field/${params.fieldId}/options`,
+				`api/v3/items/${params.itemId}/fields/${
+					params.fieldId
+				}/options?page=${params.page ?? 1}`,
 		}),
 		getWiki2HtmlLegacy: builder.query<
 			string,
@@ -187,5 +193,6 @@ export const {
 	useGetWiki2HtmlQuery,
 	useLazyGetWiki2HtmlLegacyQuery,
 	useLazyGetFilteredUsersQuery,
+	useGetItemFieldsQuery,
 	useLazyGetFieldOptionsQuery,
 } = codeBeamerApi;
