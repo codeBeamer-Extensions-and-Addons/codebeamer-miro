@@ -24,6 +24,6 @@ export const useIsAuthenticated = () => {
 		cbPassword,
 	});
 
-	if (!data || !data.id) return [false, loading || isLoading];
+	if (error || !data || !data.id) return [false, loading || isLoading];
 	else return [true, loading || isLoading];
 };
