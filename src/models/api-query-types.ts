@@ -49,6 +49,7 @@ export interface CodeBeamerItemField {
  */
 export interface FieldOptions {
 	id: number;
+	uri?: string;
 	name: string;
-	type: string;
+	type?: string;
 }
