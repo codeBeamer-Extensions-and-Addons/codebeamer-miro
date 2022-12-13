@@ -152,12 +152,26 @@ export const codeBeamerApi = createApi({
 		}),
 		getFieldOptions: builder.query<
 			FieldOptions[],
-			{ itemId: string | number; fieldId: string | number; page?: number }
+			{ trackerId: number | string; fieldId: number | string }
+		>({
+			query: ({ trackerId, fieldId }) =>
+				`rest/trackers/${trackerId}/field/${fieldId}/options`,
+		}),
+		getFieldOptionsSwagger: builder.query<
+			FieldOptions[],
+			{
+				itemId: string | number;
+				fieldId: string | number;
+				page?: number;
+				pageSize?: number;
+			}
 		>({
 			query: (params) =>
 				`api/v3/items/${params.itemId}/fields/${
 					params.fieldId
-				}/options?page=${params.page ?? 1}`,
+				}/options?page=${params.page ?? 1}&pageSize=${
+					params.pageSize ?? 25
+				}`,
 		}),
 		getWiki2HtmlLegacy: builder.query<
 			string,
