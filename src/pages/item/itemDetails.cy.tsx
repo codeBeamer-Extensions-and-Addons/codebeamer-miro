@@ -275,7 +275,7 @@ describe('<ItemDetails>', () => {
 			cy.wait('@fetchItem');
 			cy.getBySel('fatal-error')
 				.should('exist')
-				.and('contain.text', 'Failed loading item schema');
+				.and('contain.text', 'Failed loading Item data');
 		});
 
 		it('displays an error if the tracker schema could not be loaded', () => {
