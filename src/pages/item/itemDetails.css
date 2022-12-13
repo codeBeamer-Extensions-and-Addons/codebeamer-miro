@@ -8,7 +8,7 @@
 	height: -webkit-fill-available;
 }
 .sticky-bottom button {
-	margin-bottom: 1rem;
+	margin-bottom: 1rem !important;
 }
 .panel-header {
 	overflow-y: auto;

@@ -319,12 +319,12 @@ export default function ItemDetails(props: { itemId: string; cardId: string }) {
 						/>
 					</div>
 					<hr />
-					<div className="panel-content mt-1 h-64 overflow-auto">
-						<h6 className="h6 pb-3">Editable attributes:</h6>
+					<div className="panel-content mt-1 h-75 overflow-auto">
 						<form
 							onSubmit={formik.handleSubmit}
-							className="flex-col position-relative"
+							className="flex-col position-relative h-100"
 						>
+							<h6 className="h6 pb-3">Editable attributes:</h6>
 							{
 								//*********************************************************************** */
 								//********************************ASSIGNEE******************************* */
@@ -570,6 +570,13 @@ export default function ItemDetails(props: { itemId: string; cardId: string }) {
 										)
 									}
 									maxMenuHeight={180}
+									menuPortalTarget={document.body}
+									styles={{
+										menuPortal: (base) => ({
+											...base,
+											zIndex: 9999,
+										}),
+									}}
 								/>
 							</div>
 
