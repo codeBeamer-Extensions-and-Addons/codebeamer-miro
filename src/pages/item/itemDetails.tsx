@@ -312,11 +312,7 @@ export default function ItemDetails(props: { itemId: string; cardId: string }) {
 			{!fatalError && !loading && item && (
 				<div className="fade-in centered-horizontally h-100 flex-col w-85">
 					<div className="panel-header h-max-25">
-						<ItemSummary
-							item={item}
-							canZoomToItem={true}
-							cardId={props.cardId}
-						/>
+						<ItemSummary item={item} cardId={props.cardId} />
 					</div>
 					<hr />
 					<div className="panel-content mt-1 h-75 overflow-auto">
