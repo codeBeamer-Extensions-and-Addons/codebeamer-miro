@@ -7,14 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## Released
+
 ### [1.3.0]
 
 #### Changed
 
 -   Replaced most Toast-notifications with the now supported miro-notifications  
     These will appear at the bottom of the screen, outside of the modal. In-modal toast notifications are still used in rare occasions.
-
-## Released
+-   Refactorings behind the scenes
 
 ### [1.2.0]
 
