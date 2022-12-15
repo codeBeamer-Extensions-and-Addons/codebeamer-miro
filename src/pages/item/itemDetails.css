@@ -1,8 +1,14 @@
-.absolute-bottom {
-	position: absolute;
+.sticky-bottom {
+	position: sticky;
 	width: 100%;
-	bottom: 2rem;
+	bottom: 0rem;
 	background-color: white;
+	display: flex;
+	flex-direction: column-reverse;
+	height: -webkit-fill-available;
+}
+.sticky-bottom button {
+	margin-bottom: 1rem !important;
 }
 .panel-header {
 	overflow-y: auto;

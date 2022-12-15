@@ -12,7 +12,6 @@ import {
 } from '../../../../constants/cb-import-defaults';
 import { AppCardToItemMapping } from '../../../../models/appCardToItemMapping.if';
 import { CodeBeamerItem } from '../../../../models/codebeamer-item.if';
-import { displayAppMessage } from '../../../../store/slices/appMessagesSlice';
 import { RootState } from '../../../../store/store';
 
 import '../importer/importer.css';
@@ -68,13 +67,8 @@ export default function Updater(props: {
 							(c) => c.name == 'Folder' || c.name == 'Information'
 						)
 					) {
-						dispatch(
-							displayAppMessage({
-								header: 'Skipping folder / information item',
-								content: `<p>${_items[i].name} is a Folder / Information and will not be imported.</p>`,
-								bg: 'info',
-								delay: 1500,
-							})
+						miro.board.notifications.showInfo(
+							`${_items[i].name} is a Folder / Information and will not be imported.`
 						);
 						continue;
 					}
@@ -86,16 +80,8 @@ export default function Updater(props: {
 					(item) => item.itemId == _items[i].id.toString()
 				)?.appCardId;
 				if (!appCardId) {
-					dispatch(
-						displayAppMessage({
-							header: 'Failed updating an item',
-							content: `<p>
-									Failed updating card for Item 
-									${_items[i].name}
-								</p>`,
-							bg: 'warning',
-							delay: 2500,
-						})
+					miro.board.notifications.showError(
+						`Failed updating card for Item ${_items[i].name}`
 					);
 					continue;
 				}
@@ -107,14 +93,7 @@ export default function Updater(props: {
 		};
 
 		if (error || trackerDetailsQueryError) {
-			// dispatch(
-			// 	displayAppMessage({
-			// 		header: 'Error loading Items',
-			// 		content: <p>Please retry the operation.</p>,
-			// 		bg: 'danger',
-			// 		delay: 1500,
-			// 	})
-			// );
+			//error is logged by rtk handler
 		} else if (data && key) {
 			syncItems(data.items as CodeBeamerItem[]).catch((err) =>
 				console.error(err)

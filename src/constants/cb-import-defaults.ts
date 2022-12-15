@@ -2,7 +2,7 @@
  * Arbitrary max items to import from codeBeamer at once.
  * This can already take a few dozen seconds.
  */
-export const MAX_ITEMS_PER_IMPORT = 100;
+export const MAX_ITEMS_PER_IMPORT = 250;
 
 /**
  * Arbitrary max items to update at once.

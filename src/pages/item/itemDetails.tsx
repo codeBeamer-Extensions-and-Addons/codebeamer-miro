@@ -1,14 +1,12 @@
-import { FetchBaseQueryError } from '@reduxjs/toolkit/dist/query';
 import { useFormik } from 'formik';
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import Select from 'react-select';
 import {
 	useLazyGetItemQuery,
 	useLazyGetFieldOptionsQuery,
 	useLazyGetTrackerSchemaQuery,
 	useLazyUpdateItemLegacyQuery,
-	useLazyGetWiki2HtmlLegacyQuery,
 } from '../../api/codeBeamerApi';
 import { updateAppCard } from '../../api/miro.api';
 import getRestResourceUri, {
@@ -25,8 +23,6 @@ import {
 } from '../../constants/editable-attributes';
 import { CodeBeamerItem } from '../../models/codebeamer-item.if';
 import { CodeBeamerReferenceMinimal } from '../../models/codebeamer-reference.if';
-import { displayAppMessage } from '../../store/slices/appMessagesSlice';
-import { loadBoardSettings } from '../../store/slices/boardSettingsSlice';
 import { RootState } from '../../store/store';
 import { CodeBeamerTrackerSchemaEntry } from '../../models/trackerSchema.if';
 
@@ -44,30 +40,11 @@ interface Errors {
 /**
  * @param props Props are only used in testing - the values are passed via url query params else.
  */
-export default function ItemDetails(props: {
-	itemId?: string;
-	cardId?: string;
-}) {
-	const dispatch = useDispatch();
-
-	const [itemId] = useState<string>(
-		props.itemId ??
-			new URL(document.location.href).searchParams.get('itemId') ??
-			''
-	);
-	const [cardId] = useState<string>(
-		props.cardId ??
-			new URL(document.location.href).searchParams.get('cardId') ??
-			''
-	);
-	const [storeIsInitializing, setStoreIsInitializing] =
-		useState<boolean>(true);
+export default function ItemDetails(props: { itemId: string; cardId: string }) {
 	const [item, setItem] = useState<CodeBeamerItem>();
 	const [trackerSchema, setTrackerSchema] = useState<
 		CodeBeamerTrackerSchemaEntry[]
 	>([]);
-	const [displayedItemDescription, setDisplayedItemDescription] =
-		useState<string>('');
 	const [trackerId, setTrackerId] = useState<string>();
 	const [loading, setLoading] = useState<boolean>(true);
 	const [animateSuccess, setAnimateSuccess] = useState<boolean>(false);
@@ -76,48 +53,30 @@ export default function ItemDetails(props: {
 	const [selectOptions, setSelectOptions] = useState<
 		{ key: string; values: any[] }[]
 	>([]);
-	const [disabledFields, setDisabledFields] = useState<
-		{
-			key: string;
-			value: boolean;
-		}[]
-	>([]);
+
+	const disabledFields = useDisabledFields(trackerSchema);
 
 	const { cbAddress } = useSelector(
 		(state: RootState) => state.boardSettings
 	);
 
+	//lazy because we want to be able to trigger it on-demand later down the line too.
+	//but it will also be fired onMount
+	const [triggerItemQuery, itemQueryResult] = useLazyGetItemQuery();
+
 	const [triggerTrackerSchemaQuery, trackerSchemaQueryResult] =
 		useLazyGetTrackerSchemaQuery();
-	const [triggerItemQuery, itemQueryResult] = useLazyGetItemQuery();
 	const [triggerFieldOptionsQuery, fieldOptionsQueryResult] =
 		useLazyGetFieldOptionsQuery();
 	const [triggerUpdateItem, updateItemResult] =
 		useLazyUpdateItemLegacyQuery();
 
-	React.useEffect(() => {
-		if (!itemId || !cardId) {
-			console.error(
-				'Item page called without itemId and/or cardId in query.'
-			);
-			return;
-		}
-		dispatch(loadBoardSettings());
-	}, []);
-
 	/**
-	 * {@link cbAddress} and {@link storeIsInitializing} subscription
-	 *
-	 * Will run its logic only once both values are truthy, which will then
-	 * claim the store to be initialized and trigger the Item- and TrackerSchema queries
+	 * On mount, get the Item's data with {@link triggerItemQuery}
 	 */
 	React.useEffect(() => {
-		if (cbAddress && storeIsInitializing) {
-			// console.log('Cb address truthy: ', cbAddress);
-			setStoreIsInitializing(false);
-			triggerItemQuery(itemId!);
-		}
-	}, [cbAddress, storeIsInitializing]);
+		triggerItemQuery(props.itemId);
+	}, []);
 
 	/**
 	 * Handler for when we receive the tracker schema (or an error when trying to load it)
@@ -141,49 +100,34 @@ export default function ItemDetails(props: {
 	}, [trackerSchemaQueryResult]);
 
 	/**
-	 * {@link trackerSchema} subscription	 *
-	 *
-	 * Updates the {@link disabledFields} array when it chanegs
-	 */
-	React.useEffect(() => {
-		if (!trackerSchema || !trackerSchema.length) return;
-		const disabledFields = [];
-		for (let attr of EDITABLE_ATTRIBUTES) {
-			disabledFields.push({
-				key: attr.name,
-				value: !trackerSchema.some(
-					(entry) =>
-						entry.trackerItemField == attr.name ||
-						entry.legacyRestName == attr.legacyName
-				),
-			});
-		}
-		setDisabledFields(disabledFields);
-	}, [trackerSchema]);
-
-	/**
 	 * {@link itemQueryResult} subscription
 	 *
-	 * Sets the item's data and will also update the card for it.
+	 * Updates the {@link item} with its values (or sets a {@link fatalError} if it fails.
+	 * Will also {@link triggerTrackerSchemaQuery}, if no schema is loaded or loading yet.)
+	 * And also calls {@link updateAppCard} with its data to sync panel & card.
 	 */
 	React.useEffect(() => {
 		if (itemQueryResult.error) {
 			console.error(
-				"Fatal error - couldn't load item schema: ",
+				"Fatal error - couldn't load Item data",
 				itemQueryResult.error
 			);
 			setFatalError(
-				`Failed loading item schema from ${cbAddress} for Item with Id ${itemId}`
+				`Failed loading Item data from ${cbAddress} for Item with Id ${props.itemId}`
 			);
 		} else if (itemQueryResult.data) {
-			setTrackerId(itemQueryResult.data.tracker.id.toString());
 			setItem(itemQueryResult.data);
-			if (!trackerSchema || !trackerSchema.length) {
-				triggerTrackerSchemaQuery(
-					itemQueryResult.data.tracker.id.toString()
-				);
+
+			setTrackerId(itemQueryResult.data.tracker.id.toString());
+
+			if (
+				(!trackerSchema || !trackerSchema.length) &&
+				!trackerSchemaQueryResult.isFetching
+			) {
+				triggerTrackerSchemaQuery(itemQueryResult.data.tracker.id);
 			}
-			updateAppCard(itemQueryResult.data, cardId);
+
+			updateAppCard(itemQueryResult.data, props.cardId);
 		}
 	}, [itemQueryResult]);
 
@@ -192,29 +136,9 @@ export default function ItemDetails(props: {
 	 */
 	React.useEffect(() => {
 		if (updateItemResult.error) {
-			// console.error(
-			// 	'Failed to update item: ',
-			// 	JSON.stringify(
-			// 		(updateItemResult.error as FetchBaseQueryError).data
-			// 	)
-			// );
-			// dispatch(
-			// 	displayAppMessage({
-			// 		header:
-			// 			'Failed to update item: ' +
-			// 				(
-			// 					(updateItemResult.error as FetchBaseQueryError)
-			// 						.data as {
-			// 						exception: string;
-			// 						message: string;
-			// 					}
-			// 				).message ?? '',
-			// 		bg: 'danger',
-			// 		delay: 5000,
-			// 	})
-			// );
+			//error logged by rtk handler
 		} else if (updateItemResult.data) {
-			triggerItemQuery(itemId);
+			triggerItemQuery(props.itemId);
 			setAnimateSuccess(true);
 			setTimeout(() => {
 				setAnimateSuccess(false);
@@ -247,10 +171,9 @@ export default function ItemDetails(props: {
 			(d) => d.trackerItemField == fieldName
 		)?.id;
 		if (!fieldId) {
-			//TODO error: can't load options
-			console.warn(
-				"Can't find field for assignee in Tracker schema - therefore can't load options."
-			);
+			const message = `Can't find field for ${fieldName} in Tracker schema - therefore can't load options.`;
+			console.warn(message);
+			miro.board.notifications.showError(message);
 			return;
 		}
 		triggerFieldOptionsQuery({ trackerId, fieldId });
@@ -262,7 +185,7 @@ export default function ItemDetails(props: {
 	React.useEffect(() => {
 		if (fieldOptionsQueryResult.error) {
 			console.error(fieldOptionsQueryResult.error);
-			//TODO display
+			miro.board.notifications.showError('Failed loading options');
 		}
 	}, [fieldOptionsQueryResult.error]);
 
@@ -362,7 +285,6 @@ export default function ItemDetails(props: {
 			//*mind the keys here; they're legacy field names, since we're using the legacy rest api to do the update
 			//*(because the swagger api v3 is disgustingly complicated in that regard)
 
-			//TODO check how items that don't have such fields are affected (probably gonna throw errors..)
 			const payload = {
 				uri: getRestResourceUri(item!.id),
 				assignedTo: values.assignedTo.map(mapToLegacyValue),
@@ -390,19 +312,15 @@ export default function ItemDetails(props: {
 			{!fatalError && !loading && item && (
 				<div className="fade-in centered-horizontally h-100 flex-col w-85">
 					<div className="panel-header h-max-25">
-						<ItemSummary
-							item={item}
-							canZoomToItem={true}
-							cardId={cardId}
-						/>
+						<ItemSummary item={item} cardId={props.cardId} />
 					</div>
 					<hr />
-					<div className="panel-content mt-1 h-64 overflow-auto">
-						<h6 className="h6 pb-3">Editable attributes:</h6>
+					<div className="panel-content mt-1 h-75 overflow-auto">
 						<form
 							onSubmit={formik.handleSubmit}
-							className="flex-col position-relative"
+							className="flex-col position-relative h-100"
 						>
+							<h6 className="h6 pb-3">Editable attributes:</h6>
 							{
 								//*********************************************************************** */
 								//********************************ASSIGNEE******************************* */
@@ -648,6 +566,13 @@ export default function ItemDetails(props: {
 										)
 									}
 									maxMenuHeight={180}
+									menuPortalTarget={document.body}
+									styles={{
+										menuPortal: (base) => ({
+											...base,
+											zIndex: 9999,
+										}),
+									}}
 								/>
 							</div>
 
@@ -690,55 +615,82 @@ export default function ItemDetails(props: {
 									data-test={STORY_POINTS_FIELD_NAME}
 								/>
 							</div>
-						</form>
-					</div>
-					{
-						//*********************************************************************** */
-						//********************************SUBMIT********************************* */
-						//*********************************************************************** */
-					}
+							{
+								//*********************************************************************** */
+								//********************************SUBMIT********************************* */
+								//*********************************************************************** */
+							}
 
-					<div className="absolute-bottom">
-						{!animateSuccess && (
-							<button
-								type="submit"
-								disabled={updateItemResult.isFetching}
-								data-test="submit"
-								className={`fade-in button button-primary ${
-									updateItemResult.isFetching
-										? 'button-loading'
-										: ''
-								}`}
-								onClick={() => formik.handleSubmit()}
-							>
-								Save
-							</button>
-						)}
-						{animateSuccess && (
-							<span>
-								<svg
-									className="checkmark"
-									xmlns="http://www.w3.org/2000/svg"
-									viewBox="0 0 52 52"
-								>
-									<circle
-										className="checkmark__circle"
-										cx="26"
-										cy="26"
-										r="25"
-										fill="none"
-									/>
-									<path
-										className="checkmark__check"
-										fill="none"
-										d="M14.1 27.2l7.1 7.2 16.7-16.8"
-									/>
-								</svg>
-							</span>
-						)}
+							<div className="sticky-bottom">
+								{!animateSuccess && (
+									<button
+										type="submit"
+										disabled={updateItemResult.isFetching}
+										data-test="submit"
+										className={`fade-in button button-primary ${
+											updateItemResult.isFetching
+												? 'button-loading'
+												: ''
+										}`}
+										onClick={() => formik.handleSubmit()}
+									>
+										Save
+									</button>
+								)}
+								{animateSuccess && (
+									<span>
+										<svg
+											className="checkmark"
+											xmlns="http://www.w3.org/2000/svg"
+											viewBox="0 0 52 52"
+										>
+											<circle
+												className="checkmark__circle"
+												cx="26"
+												cy="26"
+												r="25"
+												fill="none"
+											/>
+											<path
+												className="checkmark__check"
+												fill="none"
+												d="M14.1 27.2l7.1 7.2 16.7-16.8"
+											/>
+										</svg>
+									</span>
+								)}
+							</div>
+						</form>
 					</div>
 				</div>
 			)}
 		</>
 	);
 }
+
+const useDisabledFields = (trackerSchema: CodeBeamerTrackerSchemaEntry[]) => {
+	const [disabledFields, setDisabledFields] = useState<
+		{
+			key: string;
+			value: boolean;
+		}[]
+	>([]);
+
+	React.useEffect(() => {
+		if (!trackerSchema || !trackerSchema.length) return;
+		const disabledFields = [];
+		for (let attr of EDITABLE_ATTRIBUTES) {
+			disabledFields.push({
+				key: attr.name,
+				value: !trackerSchema.some(
+					(entry) =>
+						entry.trackerItemField == attr.name ||
+						entry.legacyRestName == attr.legacyName
+				),
+			});
+		}
+		setDisabledFields(disabledFields);
+	}, [trackerSchema]);
+
+	return disabledFields;
+};

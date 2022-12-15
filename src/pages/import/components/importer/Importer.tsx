@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 import Spinner from 'react-bootstrap/Spinner';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import {
 	useGetItemsQuery,
 	useGetTrackerDetailsQuery,
@@ -12,8 +12,8 @@ import {
 	DEFAULT_RESULT_PAGE,
 	MAX_ITEMS_PER_IMPORT,
 } from '../../../../constants/cb-import-defaults';
+import { useImportedItems } from '../../../../hooks/useImportedItems';
 import { CodeBeamerItem } from '../../../../models/codebeamer-item.if';
-import { displayAppMessage } from '../../../../store/slices/appMessagesSlice';
 import { RootState } from '../../../../store/store';
 
 import './importer.css';
@@ -23,13 +23,13 @@ export default function Importer(props: {
 	totalItems?: number;
 	onClose?: Function;
 }) {
-	const dispatch = useDispatch();
-
 	const { trackerId, cbqlString } = useSelector(
 		(state: RootState) => state.userSettings
 	);
 
 	const [loaded, setLoaded] = useState(0);
+
+	const importedItems = useImportedItems();
 
 	//* applies all currently active filters by using the stored cbqlString,
 	//* then further filters out only the selected items (or takes all of 'em)
@@ -39,6 +39,12 @@ export default function Importer(props: {
 		queryString: `${cbqlString}${
 			props.items.length
 				? ' AND item.id IN (' + props.items.join(',') + ')'
+				: ''
+		}${
+			importedItems.length
+				? ' AND item.id NOT IN (' +
+				  importedItems.map((i) => i.itemId) +
+				  ')'
 				: ''
 		}`,
 	});
@@ -67,13 +73,8 @@ export default function Importer(props: {
 							(c) => c.name == 'Folder' || c.name == 'Information'
 						)
 					) {
-						dispatch(
-							displayAppMessage({
-								header: 'Skipping folder / information item',
-								content: `<p>${_items[i].name} is a Folder / Information and will not be imported.</p>`,
-								bg: 'info',
-								delay: 1500,
-							})
+						miro.board.notifications.showInfo(
+							`${_items[i].name} is a Folder / Information and will not be imported.`
 						);
 						continue;
 					}
@@ -87,14 +88,6 @@ export default function Importer(props: {
 		};
 
 		if (error || trackerDetailsQueryError) {
-			// dispatch(
-			// 	displayAppMessage({
-			// 		header: 'Error loading Items',
-			// 		content: <p>Please retry the operation.</p>,
-			// 		bg: 'danger',
-			// 		delay: 1500,
-			// 	})
-			// );
 			props.onClose;
 		} else if (data && key) {
 			importItems(data.items as CodeBeamerItem[]).catch((err) =>

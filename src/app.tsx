@@ -6,6 +6,7 @@ import { store } from './store/store';
 
 import Content from './pages/content/Content';
 import Toasts from './components/toasts/Toasts';
+import BoardSettingsLoader from './components/boardSettingsLoader/BoardSettingsLoader';
 
 function App() {
 	//* manual resets for stored data. for testing purposes.
@@ -25,7 +26,9 @@ function App() {
 
 	return (
 		<Provider store={store}>
-			<Content />
+			<BoardSettingsLoader>
+				<Content />
+			</BoardSettingsLoader>
 			<Toasts />
 		</Provider>
 	);

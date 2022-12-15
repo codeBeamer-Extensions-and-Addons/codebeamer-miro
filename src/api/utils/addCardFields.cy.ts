@@ -123,6 +123,7 @@ const itemData: CodeBeamerItem = {
 	categories: [],
 	versions: [],
 	ordinal: 0,
+	storyPoints: 1,
 	typeName: 'Issue',
 	comments: [],
 	subjects: [],
