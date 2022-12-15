@@ -32,7 +32,7 @@ async function init() {
 	});
 
 	console.info(
-		`[codeBeamer-cards] Plugin v1.3.0 initialized. Experiencing issues? Let us know at https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/issues`
+		`[codeBeamer-cards] Plugin v1.3.1 initialized. Experiencing issues? Let us know at https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/issues`
 	);
 }
 
