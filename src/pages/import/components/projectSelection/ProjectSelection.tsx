@@ -32,20 +32,6 @@ export default function ProjectSelection(props: { headerLess?: boolean }) {
 		trigger();
 	}, [cbAddress]);
 
-	// React.useEffect(() => {
-	// 	if (result.isError) {
-	// 		console.error(result.error);
-	// 		dispatch(
-	// 			displayAppMessage({
-	// 				header: 'Error fetching Projects',
-	// 				content: `Is your codeBeamer server accessible?`,
-	// 				bg: 'danger',
-	// 				delay: 5000,
-	// 			})
-	// 		);
-	// 	}
-	// }, [result]);
-
 	React.useEffect(() => {
 		if (result.data) {
 			setSelectedProjectLabel(

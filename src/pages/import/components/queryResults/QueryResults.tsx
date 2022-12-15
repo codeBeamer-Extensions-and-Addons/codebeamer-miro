@@ -1,16 +1,12 @@
-import { AppCard } from '@mirohq/websdk-types';
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useGetItemsQuery } from '../../../../api/codeBeamerApi';
-import { CARD_TITLE_ID_FILTER_REGEX } from '../../../../constants/regular-expressions';
 import {
 	DEFAULT_ITEMS_PER_PAGE,
 	DEFAULT_RESULT_PAGE,
 } from '../../../../constants/cb-import-defaults';
-import { AppCardToItemMapping } from '../../../../models/appCardToItemMapping.if';
 import { ItemListView } from '../../../../models/itemListView';
 import { ItemQueryResultView } from '../../../../models/itemQueryResultView';
-import { displayAppMessage } from '../../../../store/slices/appMessagesSlice';
 import { RootState } from '../../../../store/store';
 import ImportActions from '../importActions/ImportActions';
 import Importer from '../importer/Importer';
@@ -18,10 +14,9 @@ import QueryResult from '../queryResult/QueryResult';
 import Updater from '../updater/Updater';
 
 import './queryResults.css';
+import { useImportedItems } from '../../../../hooks/useImportedItems';
 
 export default function QueryResults() {
-	const dispatch = useDispatch();
-
 	const [page, setPage] = useState(DEFAULT_RESULT_PAGE);
 	const [items, setItems] = useState<ItemQueryResultView[]>([]);
 	const [itemsToImport, setItemsToImport] = useState<string[]>([]);
@@ -29,9 +24,7 @@ export default function QueryResults() {
 	const [importing, setImporting] = useState(false);
 	const [synchronizing, setSynchronizing] = useState(false);
 
-	const [importedItems, setImportedItems] = useState<AppCardToItemMapping[]>(
-		[]
-	);
+	const importedItems = useImportedItems();
 
 	const intersectionObserverOptions = {
 		root: document.getElementById('queryResultsContainer'),
@@ -97,36 +90,6 @@ export default function QueryResults() {
 	};
 
 	/**
-	 * Queries miro for the currently existing app_cards on the board.
-	 * This does mean that this plugin is currently not 100% compatible with others that would create App Cards.
-	 * TODO add an additional filter that filters for metadata, once available, to only get "our" cards
-	 */
-	React.useEffect(() => {
-		miro.board.get({ type: 'app_card' }).then((existingCards) => {
-			setImportedItems(
-				existingCards.map((e) => {
-					let card = e as AppCard;
-
-					const itemKey = card.title.match(
-						CARD_TITLE_ID_FILTER_REGEX
-					);
-
-					if (!itemKey?.length) {
-						//TODO miro showErrorNotif
-						console.error(
-							"Couldn't extract ID from Card title. Can't sync!"
-						);
-						return { appCardId: card.id, itemId: '' };
-					}
-					const itemId = itemKey[1];
-
-					return { appCardId: card.id, itemId: itemId };
-				})
-			);
-		});
-	}, []);
-
-	/**
 	 * Reset the items cache whenever we change filter or tracker
 	 * Must run before the hook that adds the items from the newly fetched query
 	 */
@@ -170,30 +133,6 @@ export default function QueryResults() {
 			lazyLoadObserver.observe(lastItem);
 		}
 	}, [items]);
-
-	// React.useEffect(() => {
-	// 	if (!error) return;
-	// 	console.error(error);
-	// 	let message = advancedSearch
-	// 		? "Check your query's syntax for errors."
-	// 		: 'Is your codebeamer server accessible?';
-	// 	dispatch(
-	// 		displayAppMessage({
-	// 			header: 'Error querying Items',
-	// 			content: (
-	// 				<p>
-	// 					{message}
-	// 					<br />
-	// 					<span className="muted text-dark">
-	// 						Check console for details.
-	// 					</span>
-	// 				</p>
-	// 			),
-	// 			bg: 'danger',
-	// 			delay: 5000,
-	// 		})
-	// 	);
-	// }, [error]);
 
 	const handleImportSelected = () => {
 		setItemsToImport(

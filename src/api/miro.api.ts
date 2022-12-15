@@ -121,7 +121,7 @@ export async function convertToCardData(
 			//* and a custom timeout seams impossible
 			const message = `Failed fetching formatted description for Item ${item.name}.`;
 			console.warn(message);
-			//TODO miro.showErrorNotification(message);
+			miro.board.notifications.showError(message);
 		}
 	}
 
@@ -140,7 +140,7 @@ export async function convertToCardData(
 	try {
 		addCardFields(cardData, item, appStore);
 	} catch (err: any) {
-		//TODO miro.showErrorNotif
+		miro.board.notifications.showError(err);
 	}
 
 	// background Color

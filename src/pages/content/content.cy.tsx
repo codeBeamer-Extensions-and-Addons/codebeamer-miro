@@ -34,6 +34,7 @@ describe('<Content>', () => {
 		beforeEach(() => {
 			cy.intercept('GET', `**/api/v3/users/findByName*`, {
 				statusCode: 200,
+				body: { id: 1 },
 			}).as('auth');
 		});
 

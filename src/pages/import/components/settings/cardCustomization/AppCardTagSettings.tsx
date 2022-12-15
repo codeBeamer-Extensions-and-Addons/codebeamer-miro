@@ -12,7 +12,6 @@ import {
 import { StandardItemProperty } from '../../../../../enums/standard-item-property.enum';
 import { AppCardToItemMapping } from '../../../../../models/appCardToItemMapping.if';
 import { CodeBeamerItem } from '../../../../../models/codebeamer-item.if';
-import { displayAppMessage } from '../../../../../store/slices/appMessagesSlice';
 import { setStandardCardTagConfiguration } from '../../../../../store/slices/boardSettingsSlice';
 import { RootState } from '../../../../../store/store';
 
@@ -85,12 +84,8 @@ export default function AppCardTagSettings() {
 		const appCards = await miro.board.get({ type: 'app_card' });
 		if (!appCards || !appCards.length) {
 			setIsApplying(false);
-			dispatch(
-				displayAppMessage({
-					header: 'No items on the board to apply to',
-					bg: 'light',
-					delay: 2500,
-				})
+			miro.board.notifications.showInfo(
+				'No items on the board to apply to'
 			);
 			return;
 		}
@@ -100,10 +95,10 @@ export default function AppCardTagSettings() {
 			const itemKey = card.title.match(CARD_TITLE_ID_FILTER_REGEX);
 
 			if (!itemKey?.length) {
-				//TODO miro showErrorNotif
-				console.error(
-					"Couldn't extract ID from Card title. Can't sync!"
-				);
+				const message =
+					"Couldn't extract ID from Card title. Can't sync!";
+				miro.board.notifications.showError(message);
+				console.error(message);
 				return { appCardId: card.id, itemId: '' };
 			}
 			const itemId = itemKey[1];
@@ -124,16 +119,7 @@ export default function AppCardTagSettings() {
 
 	React.useEffect(() => {
 		if (result.error) {
-			// console.log(result.error);
 			setIsApplying(false);
-			// dispatch(
-			// 	displayAppMessage({
-			// 		header: 'Error loading Items',
-			// 		content: <p>Please retry the operation.</p>,
-			// 		bg: 'danger',
-			// 		delay: 1500,
-			// 	})
-			// );
 		}
 		if (result.data) {
 			const syncItems = async (items: CodeBeamerItem[]) => {
@@ -155,16 +141,8 @@ export default function AppCardTagSettings() {
 						(item) => item.itemId == _items[i].id.toString()
 					)?.appCardId;
 					if (!appCardId) {
-						dispatch(
-							displayAppMessage({
-								header: 'Failed updating an item',
-								content: `<p>
-										Failed updating card for Item 
-										${_items[i].name}
-									</p>`,
-								bg: 'warning',
-								delay: 2500,
-							})
+						miro.board.notifications.showError(
+							`Failed updating card for Item ${_items[i].name}`
 						);
 						continue;
 					}

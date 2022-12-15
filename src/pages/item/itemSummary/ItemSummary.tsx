@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useLazyGetWiki2HtmlLegacyQuery } from '../../../api/codeBeamerApi';
 import addContextToCBLinks from '../../../api/utils/addContextToCBLinks';
 import { CodeBeamerItem } from '../../../models/codebeamer-item.if';
-import { displayAppMessage } from '../../../store/slices/appMessagesSlice';
 import { RootState } from '../../../store/store';
 
 export default function ItemSummary(props: {
@@ -46,18 +45,17 @@ export default function ItemSummary(props: {
 	}, [wiki2HtmlQueryResult]);
 
 	const zoomToWidget = async () => {
-		const errorMessage = {
-			header: 'Error',
-			content: "Can't find the item on the board!",
-			bg: 'warning',
-		};
 		if (!props.cardId) {
-			dispatch(displayAppMessage(errorMessage));
+			miro.board.notifications.showError(
+				`Can't zoom to the Item, since its card Id is unknown`
+			);
 			return;
 		}
 		let widget = await miro.board.getById(props.cardId);
 		if (!widget) {
-			dispatch(displayAppMessage(errorMessage));
+			miro.board.notifications.showError(
+				`Can't zoom to the Item, since it doesn't exist on the board`
+			);
 		}
 		miro.board.viewport.zoomTo(widget);
 	};

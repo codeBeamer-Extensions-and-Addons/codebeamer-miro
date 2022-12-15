@@ -1,7 +1,6 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useGetTrackersQuery } from '../../../../../api/codeBeamerApi';
-import { displayAppMessage } from '../../../../../store/slices/appMessagesSlice';
 import { setTrackerId } from '../../../../../store/slices/userSettingsSlice';
 import { RootState } from '../../../../../store/store';
 
@@ -15,20 +14,6 @@ export default function TrackerSelect() {
 	const { trackerId } = useSelector((state: RootState) => state.userSettings);
 
 	const { data, error, isLoading } = useGetTrackersQuery(projectId);
-
-	// React.useEffect(() => {
-	// 	if (error) {
-	// 		console.error(error);
-	// 		dispatch(
-	// 			displayAppMessage({
-	// 				header: 'Error fetching Trackers',
-	// 				content: `Is your codeBeamer server accessible?<br/>Try reloading the app`,
-	// 				bg: 'danger',
-	// 				delay: 5000,
-	// 			})
-	// 		);
-	// 	}
-	// }, [error]);
 
 	const handleSelect = (event: any) => {
 		dispatch(setTrackerId(event.target.value));
