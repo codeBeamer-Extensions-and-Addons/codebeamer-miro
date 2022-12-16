@@ -13,6 +13,11 @@ export const rtkQueryErrorLogger: Middleware =
 				// ignore
 				return next(action);
 			}
+			if (action.payload?.status == 403) {
+				if (action.payload.data.message == 'User is locked')
+					//ignore. that somehow always fires in the very first attempt, but never holds true for long.
+					return next(action);
+			}
 			console.error('Error in API query - Action: ', action);
 			let message = `Error fetching data - ${
 				action.payload.data?.message ?? ''

@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Released
 
+### [1.3.1]
+
+-   Silenced the "User is locked" error message that would appear whenever one of the plugin's pages is opened.
+
 ### [1.3.0]
 
 #### Changed
