@@ -21,6 +21,7 @@ import './importer.css';
 export default function Importer(props: {
 	items: string[];
 	totalItems?: number;
+	queryString?: string;
 	onClose?: Function;
 }) {
 	const { trackerId, cbqlString } = useSelector(
@@ -36,17 +37,19 @@ export default function Importer(props: {
 	const { data, error, isLoading } = useGetItemsQuery({
 		page: DEFAULT_RESULT_PAGE,
 		pageSize: MAX_ITEMS_PER_IMPORT,
-		queryString: `${cbqlString}${
-			props.items.length
-				? ' AND item.id IN (' + props.items.join(',') + ')'
-				: ''
-		}${
-			importedItems.length
-				? ' AND item.id NOT IN (' +
-				  importedItems.map((i) => i.itemId) +
-				  ')'
-				: ''
-		}`,
+		queryString:
+			props.queryString ||
+			`${cbqlString}${
+				props.items.length
+					? ' AND item.id IN (' + props.items.join(',') + ')'
+					: ''
+			}${
+				importedItems.length
+					? ' AND item.id NOT IN (' +
+					  importedItems.map((i) => i.itemId) +
+					  ')'
+					: ''
+			}`,
 	});
 
 	const {
@@ -85,6 +88,7 @@ export default function Importer(props: {
 				setLoaded(i + 1);
 			}
 			await miro.board.ui.closeModal();
+			await miro.board.ui.closePanel();
 		};
 
 		if (error || trackerDetailsQueryError) {
