@@ -12,6 +12,7 @@ import {
 	CodeBeamerItemFields,
 	FieldOptions,
 	ItemQueryPage,
+	RelationsQuery,
 	TrackerSearchPage,
 	UserQueryPage,
 } from '../models/api-query-types';
@@ -188,6 +189,9 @@ export const codeBeamerApi = createApi({
 				};
 			},
 		}),
+		getItemRelations: builder.query<RelationsQuery, string | number>({
+			query: (id) => `api/v3/items/${id}/relations`,
+		}),
 	}),
 });
 
@@ -210,4 +214,5 @@ export const {
 	useLazyGetFilteredUsersQuery,
 	useGetItemFieldsQuery,
 	useLazyGetFieldOptionsQuery,
+	useLazyGetItemRelationsQuery,
 } = codeBeamerApi;

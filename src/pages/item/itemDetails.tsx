@@ -28,6 +28,7 @@ import { CodeBeamerTrackerSchemaEntry } from '../../models/trackerSchema.if';
 
 import './itemDetails.css';
 import ItemSummary from './itemSummary/ItemSummary';
+import ItemActions from './item-actions/ItemActions';
 
 interface Errors {
 	assignedTo?: string;
@@ -313,6 +314,9 @@ export default function ItemDetails(props: { itemId: string; cardId: string }) {
 				<div className="fade-in centered-horizontally h-100 flex-col w-85">
 					<div className="panel-header h-max-25">
 						<ItemSummary item={item} cardId={props.cardId} />
+					</div>
+					<div className="mt-4">
+						<ItemActions itemId={props.itemId} />
 					</div>
 					<hr />
 					<div className="panel-content mt-1 h-75 overflow-auto">
