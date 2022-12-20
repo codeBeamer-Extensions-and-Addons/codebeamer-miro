@@ -53,3 +53,31 @@ export interface FieldOptions {
 	name: string;
 	type?: string;
 }
+
+/**
+ * Structure of a response from the /api/v3/items/{id}/relations endpoint
+ */
+export interface RelationsQuery {
+	itemId: {
+		id: number;
+		version?: number;
+	};
+
+	downstreamReferences: ItemRelation[];
+	upstreamReferences: ItemRelation[];
+	outgoingAssociations: ItemRelation[];
+	incomingAssociations: ItemRelation[];
+}
+
+/**
+ * Structure of an Item's generic relation, mentioning the relation's id & type as well as
+ * the item it goes to
+ */
+export interface ItemRelation {
+	id: number;
+	itemRevision: {
+		id: number;
+		version?: number;
+	};
+	type: string;
+}
