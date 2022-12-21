@@ -62,6 +62,83 @@ describe('<Importer>', () => {
 			.should('equal', expectedQuery);
 	});
 
+	it('appends what items are already imported to the queryString so as not to duplicate them', () => {
+		cy.stub(miro.board, 'get')
+			.as('boardGetStub')
+			.withArgs({ type: 'app_card' })
+			.resolves(mockImportedItems);
+
+		const items: string[] = ['1', '2', '3'];
+		const store = getStore();
+		store.dispatch(setTrackerId('1'));
+
+		const expectedQuery = `tracker.id IN (1) AND item.id IN (${items.join(
+			','
+		)}) AND item.id NOT IN (569657,569527)`; //the latter two are from down in the mockImportedItems
+
+		cy.intercept('POST', '**/api/v3/items/query', {
+			statusCode: 200,
+			body: [],
+		}).as('fetch');
+
+		cy.mountWithStore(<Importer items={items} />, { reduxStore: store });
+
+		cy.get('@boardGetStub').should('be.called');
+
+		//that's just React, or my inability to properly use it - one call will be made to @fetch before the importedItems
+		//are updated. once they are, an overriding second call is made, which is the final one we want
+		cy.wait('@fetch');
+
+		cy.wait('@fetch')
+			.its('request.body.queryString')
+			.should('equal', expectedQuery);
+	});
+
+	context('prop queryString', () => {
+		it('fetches the details of the items specified in the queryString if one is specified', () => {
+			const mockQueryString = 'item.id IN (1,2,3,4)';
+			cy.intercept('POST', '**/api/v3/items/query').as('fetch');
+
+			cy.mountWithStore(
+				<Importer items={[]} queryString={mockQueryString} />
+			);
+
+			cy.wait('@fetch')
+				.its('request.body.queryString')
+				.should('equal', mockQueryString);
+		});
+
+		it('still appends what items are already imported to the queryString so as not to duplicate them', () => {
+			cy.stub(miro.board, 'get')
+				.as('boardGetStub')
+				.withArgs({ type: 'app_card' })
+				.resolves(mockImportedItems);
+
+			const mockQueryString = 'item.id IN (1,2,3,4)';
+
+			const expectedQuery = `${mockQueryString} AND item.id NOT IN (569657,569527)`; //the latter two are from down in the mockImportedItems
+
+			cy.intercept('POST', '**/api/v3/items/query', {
+				statusCode: 200,
+				body: [],
+			}).as('fetch');
+
+			cy.mountWithStore(
+				<Importer items={[]} queryString={mockQueryString} />
+			);
+
+			cy.get('@boardGetStub').should('be.called');
+
+			//that's just React, or my inability to properly use it - one call will be made to @fetch before the importedItems
+			//are updated. once they are, an overriding second call is made, which is the final one we want
+			cy.wait('@fetch');
+
+			cy.wait('@fetch')
+				.its('request.body.queryString')
+				.should('equal', expectedQuery);
+		});
+	});
+
 	describe('import progress bar', () => {
 		const progressBarSelector = 'importProgress';
 
@@ -96,3 +173,76 @@ describe('<Importer>', () => {
 		});
 	});
 });
+
+const mockImportedItems = [
+	{
+		type: 'app_card',
+		owned: true,
+		title: '<a href="https://codebeamer.com/cb/issue/569657">Do a barrel roll - [PBI|569657]</a>',
+		description: 'hi',
+		style: {
+			cardTheme: '#ffab46',
+		},
+		tagIds: [],
+		status: 'disconnected',
+		fields: [
+			{
+				value: 'ID: 569657',
+				fillColor: '#bf4040',
+				textColor: '#ffffff',
+			},
+			{
+				value: 'Owner: me',
+				fillColor: '#4095bf',
+				textColor: '#ffffff',
+			},
+		],
+		id: '1284604263',
+		parentId: null,
+		origin: 'center',
+		createdAt: '2022-10-27T10:51:32.088Z',
+		createdBy: '3074457359559759394',
+		modifiedAt: '2022-12-20T06:07:16.741Z',
+		modifiedBy: '3074457359559759394',
+		x: -980.3690303296571,
+		y: 2873.21422855878,
+		width: 320,
+		height: 190,
+		rotation: 0,
+	},
+	{
+		type: 'app_card',
+		owned: true,
+		title: '<a href="https://codebeamer.com/cb/issue/569527">Improve your barrel roll - [PBI|569527]</a>',
+		description: 'hello from the other side',
+		style: {
+			cardTheme: '#ffab46',
+		},
+		tagIds: [],
+		status: 'connected',
+		fields: [
+			{
+				value: 'ID: 569527',
+				fillColor: '#bf4040',
+				textColor: '#ffffff',
+			},
+			{
+				value: 'Teams: Unicorns',
+				fillColor: '#40bf95',
+				textColor: '#ffffff',
+			},
+		],
+		id: '869124682946',
+		parentId: null,
+		origin: 'center',
+		createdAt: '2022-10-27T10:51:32.321Z',
+		createdBy: '3074457359559759394',
+		modifiedAt: '2022-12-13T05:17:02.615Z',
+		modifiedBy: '3074457359559759394',
+		x: -1398.39803840151,
+		y: 2724.40598150612,
+		width: 396.6044358451181,
+		height: 190.00000000000023,
+		rotation: 0,
+	},
+];

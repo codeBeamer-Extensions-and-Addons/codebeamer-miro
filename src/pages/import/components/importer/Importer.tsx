@@ -32,24 +32,32 @@ export default function Importer(props: {
 
 	const importedItems = useImportedItems();
 
+	/**
+	 * Produces the "main query string", which defines what should be imported.
+	 * Can and should be extended by what should NOT be imported
+	 */
+	const getMainQueryString = () => {
+		if (props.queryString) return props.queryString;
+		else
+			return `${cbqlString}${
+				props.items.length
+					? ' AND item.id IN (' + props.items.join(',') + ')'
+					: ''
+			}`;
+	};
+
 	//* applies all currently active filters by using the stored cbqlString,
 	//* then further filters out only the selected items (or takes all of 'em)
 	const { data, error, isLoading } = useGetItemsQuery({
 		page: DEFAULT_RESULT_PAGE,
 		pageSize: MAX_ITEMS_PER_IMPORT,
-		queryString:
-			props.queryString ||
-			`${cbqlString}${
-				props.items.length
-					? ' AND item.id IN (' + props.items.join(',') + ')'
-					: ''
-			}${
-				importedItems.length
-					? ' AND item.id NOT IN (' +
-					  importedItems.map((i) => i.itemId) +
-					  ')'
-					: ''
-			}`,
+		queryString: `${getMainQueryString()}${
+			importedItems.length
+				? ' AND item.id NOT IN (' +
+				  importedItems.map((i) => i.itemId) +
+				  ')'
+				: ''
+		}`,
 	});
 
 	const {
