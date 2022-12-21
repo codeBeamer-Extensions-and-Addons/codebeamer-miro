@@ -44,6 +44,7 @@ export default function ItemActions(props: { itemId: string | number }) {
 				}`}
 				onClick={clickHandler}
 				disabled={disabled}
+				data-test="load-downstream-references"
 			>
 				{!isLoading && (
 					<>
