@@ -8,7 +8,6 @@ const srcRegex = /src\=\"\/cb/g;
  * @returns String with relative cb-paths replaced by absolute ones and links having target="_blank"
  */
 export default function addContextToCBLinks(cbBaseUrl: string, value: string) {
-	console.log(value.match(hrefRegex));
 	value = value.replaceAll(hrefRegex, `href="${cbBaseUrl}`);
 	value = value.replaceAll(srcRegex, `src="${cbBaseUrl}`);
 
