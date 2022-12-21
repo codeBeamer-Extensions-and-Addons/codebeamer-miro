@@ -87,8 +87,9 @@ export default function Importer(props: {
 				await createAppCard(_items[i]);
 				setLoaded(i + 1);
 			}
-			await miro.board.ui.closeModal();
-			await miro.board.ui.closePanel();
+			miro.board.ui.closeModal();
+			miro.board.ui.closePanel();
+			return;
 		};
 
 		if (error || trackerDetailsQueryError) {
