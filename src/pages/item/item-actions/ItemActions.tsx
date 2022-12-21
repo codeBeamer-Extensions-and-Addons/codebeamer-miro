@@ -45,6 +45,7 @@ export default function ItemActions(props: { itemId: string | number }) {
 				onClick={clickHandler}
 				disabled={disabled}
 				data-test="load-downstream-references"
+				title="Load the Item's Downstream References onto the board, if they're not yet there"
 			>
 				{!isLoading && (
 					<>
