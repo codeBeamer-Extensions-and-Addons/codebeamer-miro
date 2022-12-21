@@ -1,0 +1,149 @@
+{
+	"itemId": {
+		"id": 708109,
+		"version": 28
+	},
+	"downstreamReferences": [
+		{
+			"id": 6393192,
+			"itemRevision": {
+				"id": 695388,
+				"version": 14
+			},
+			"type": "DownstreamTrackerItemReference"
+		},
+		{
+			"id": 6309964,
+			"itemRevision": {
+				"id": 783345,
+				"version": 7
+			},
+			"type": "DownstreamTrackerItemReference"
+		},
+		{
+			"id": 6309630,
+			"itemRevision": {
+				"id": 783344,
+				"version": 8
+			},
+			"type": "DownstreamTrackerItemReference"
+		},
+		{
+			"id": 6309619,
+			"itemRevision": {
+				"id": 783343,
+				"version": 10
+			},
+			"type": "DownstreamTrackerItemReference"
+		},
+		{
+			"id": 6309607,
+			"itemRevision": {
+				"id": 783342,
+				"version": 8
+			},
+			"type": "DownstreamTrackerItemReference"
+		},
+		{
+			"id": 6309558,
+			"itemRevision": {
+				"id": 555460,
+				"version": 27
+			},
+			"type": "DownstreamTrackerItemReference"
+		},
+		{
+			"id": 6302305,
+			"itemRevision": {
+				"id": 782537,
+				"version": 8
+			},
+			"type": "DownstreamTrackerItemReference"
+		},
+		{
+			"id": 6302246,
+			"itemRevision": {
+				"id": 782536,
+				"version": 9
+			},
+			"type": "DownstreamTrackerItemReference"
+		},
+		{
+			"id": 6302087,
+			"itemRevision": {
+				"id": 782533,
+				"version": 9
+			},
+			"type": "DownstreamTrackerItemReference"
+		},
+		{
+			"id": 6302007,
+			"itemRevision": {
+				"id": 782532,
+				"version": 11
+			},
+			"type": "DownstreamTrackerItemReference"
+		},
+		{
+			"id": 6301977,
+			"itemRevision": {
+				"id": 782531,
+				"version": 10
+			},
+			"type": "DownstreamTrackerItemReference"
+		}
+	],
+	"upstreamReferences": [
+		{
+			"id": 5681748,
+			"itemRevision": {
+				"id": 708440,
+				"version": 7
+			},
+			"type": "UpstreamTrackerItemReference"
+		},
+		{
+			"id": 5664113,
+			"itemRevision": {
+				"id": 542029,
+				"version": 4
+			},
+			"type": "UpstreamTrackerItemReference"
+		},
+		{
+			"id": 5663897,
+			"itemRevision": {
+				"id": 579888,
+				"version": 94
+			},
+			"type": "UpstreamTrackerItemReference"
+		},
+		{
+			"id": 5663884,
+			"itemRevision": {
+				"id": 699766,
+				"version": 2
+			},
+			"type": "UpstreamTrackerItemReference"
+		},
+		{
+			"id": 5663880,
+			"itemRevision": {
+				"id": 542154,
+				"version": 1
+			},
+			"type": "UpstreamTrackerItemReference"
+		}
+	],
+	"incomingAssociations": [],
+	"outgoingAssociations": [
+		{
+			"id": 5663886,
+			"itemRevision": {
+				"id": 548434,
+				"version": 33
+			},
+			"type": "OutgoingTrackerItemAssociation"
+		}
+	]
+}
