@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { setShowAnnouncements } from '../../store/slices/userSettingsSlice';
+import AnnouncementArticle from './announcement-article/AnnouncementArticle';
 
 import './announcements.css';
 
@@ -33,6 +34,33 @@ export default function Announcements() {
 					data-test="close-announcements"
 				></div>
 			</span>
+			<AnnouncementArticle date={'2022-12-21'} version={'1.4.0'}>
+				<p className="mt-5">
+					This release adds a new button to the ItemDetails panel,
+					which allows you to directly load in its Downstream
+					References.
+					<br />
+					<img
+						src="/src/assets/images/announcements/load_downstream_refs_btn.png"
+						alt="The button is visible below an Item's description and shows how many Downstream Refs an Item has"
+					/>
+					<br />
+					This aims to facilitate breaking down planning from higher
+					<br />
+					to lower levels.
+				</p>
+				<p className="mt-3">
+					See the{' '}
+					<a
+						href="https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-miro/blob/master/CHANGELOG.md"
+						target="_blank"
+						className="roche-primary-light"
+					>
+						Changelog
+					</a>{' '}
+					for more details.
+				</p>
+			</AnnouncementArticle>
 			<div className="mb-5">
 				<h2 className="h2 text-center">
 					<span className="muted">2022-12-01</span>
