@@ -1,40 +1,57 @@
 import React, { useState } from 'react';
-import { useLazyGetItemRelationsQuery } from '../../../api/codeBeamerApi';
+import { useGetItemRelationsQuery } from '../../../api/codeBeamerApi';
 import Importer from '../../import/components/importer/Importer';
 
 export default function ItemActions(props: { itemId: string | number }) {
+	const [disabled, setDisabled] = useState<boolean>(true);
 	const [itemIds, setItemIds] = useState<string[]>([]);
 	const [queryString, setQueryString] = useState<string>('');
 
-	const [trigger, result] = useLazyGetItemRelationsQuery();
+	const { data, error, isLoading } = useGetItemRelationsQuery(props.itemId);
 
 	const clickHandler = () => {
-		trigger(props.itemId);
+		if (data && !disabled) {
+			const ids = data.downstreamReferences.map((d) =>
+				d.itemRevision.id.toString()
+			);
+			setItemIds(ids);
+			setQueryString(`item.id IN (${ids.join(',')})`);
+		} else {
+			console.warn(
+				"Can't load Downstream References - data still loading or failed to do so."
+			);
+		}
 	};
 
 	React.useEffect(() => {
-		if (result.error) {
+		if (error) {
+			setDisabled(true);
 			return;
-		} else if (result.data) {
-			setItemIds(
-				result.data.downstreamReferences.map((d) =>
-					d.itemRevision.id.toString()
-				)
-			);
+		} else if (data) {
+			if (!data.downstreamReferences.length) {
+				setDisabled(true);
+			} else {
+				setDisabled(false);
+			}
 		}
-	}, [result]);
-
-	React.useEffect(() => {
-		if (itemIds.length) {
-			setQueryString(`item.id IN (${itemIds.join(',')})`);
-		}
-	}, [itemIds]);
+	}, [data, error]);
 
 	return (
 		<div className="flex-centered">
-			<button className="button button-tertiary" onClick={clickHandler}>
-				<span className="icon-add-row-bottom"></span>
-				Load Downstream References
+			<button
+				className={`button button-tertiary ${
+					isLoading ? 'button-loading button-loading-primary' : ''
+				}`}
+				onClick={clickHandler}
+				disabled={disabled}
+			>
+				{!isLoading && (
+					<>
+						<span className="icon-add-row-bottom"></span>
+						<span>Load Downstream References</span>
+					</>
+				)}
+				{data && ` (${data.downstreamReferences.length})`}
 			</button>
 			{queryString && (
 				<Importer items={itemIds} queryString={queryString} />
