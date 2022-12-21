@@ -7,7 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### [1.4.0]
+
+-   Refine "Load Downstream References" button in Item Details
+    -   Button now shows the number of Downstream References the Item has
+    -   Button is now disabled when the Item has no Downstream References
+    -   No longer loads Items, if they're already on the board (doesn't create duplicates)
+
 ## Released
+
+### [1.3.2]
+
+-   Add preliminary "Load Downstream References" button to Item Details
 
 ### [1.3.1]
 
