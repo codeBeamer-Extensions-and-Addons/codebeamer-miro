@@ -48,8 +48,12 @@ export default function ImportHeader() {
 				</div>
 				<div className="actions flex flex-">
 					<button
-						className={`mx-1 button-icon-secondary button-icon-small button-icon
-						${advancedSearch ? ' icon-parameters' : ''}`}
+						className={`mx-1 
+						${
+							advancedSearch
+								? 'button-icon-small button-icon button-icon-secondary icon-parameters'
+								: 'button button-secondary button-small'
+						}`}
 						onClick={toggleSearchMethod}
 						title={
 							advancedSearch
@@ -102,7 +106,7 @@ export default function ImportHeader() {
 						</svg>
 					</button>
 					<button
-						className="button-icon-secondary button-icon-small button-icon mx-1"
+						className="button-secondary button-small button mx-1"
 						onClick={() => dispatch(setShowAnnouncements(true))}
 						title="Latest update informations (version 1.1)"
 					>
