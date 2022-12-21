@@ -298,6 +298,10 @@ img {
 	background-color: var(--indigo200) !important;
 }
 
+.button-loading-primary.button-loading:after {
+	border-color: transparent var(--blue700) var(--blue700) transparent !important;
+}
+
 /** text / overflow */
 .overflow-ellipsis {
 	text-overflow: ellipsis;
