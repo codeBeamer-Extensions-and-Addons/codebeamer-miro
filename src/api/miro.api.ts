@@ -47,6 +47,12 @@ export async function createAppCard(
 		const widget = await miro.board.createAppCard({
 			...card,
 		});
+		await widget.setMetadata('item', {
+			id: item.id,
+			tracker: {
+				id: item.tracker.id,
+			},
+		});
 	} catch (error) {
 		console.error(error);
 	}
