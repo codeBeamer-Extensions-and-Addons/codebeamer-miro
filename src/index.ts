@@ -1,4 +1,5 @@
 import getItemIdFromCardTitle from './api/utils/getItemIdFromCardTitle';
+import { CodeBeamerItem } from './models/codebeamer-item.if';
 
 async function init() {
 	miro.board.ui.on('icon:click', async () => {
@@ -11,7 +12,18 @@ async function init() {
 
 	miro.board.ui.on('app_card:open', async (_event) => {
 		const cardId = _event.appCard.id;
-		const itemId = getItemIdFromCardTitle(_event.appCard.title);
+		let itemId;
+		try {
+			itemId = (
+				(await _event.appCard.getMetadata('item')) as Pick<
+					CodeBeamerItem,
+					'id'
+				>
+			).id;
+		} catch (err: any) {
+			//fallback for backwards-compatibility
+			itemId = getItemIdFromCardTitle(_event.appCard.title);
+		}
 
 		miro.board.ui.openPanel({
 			url: `item.html?cardId=${cardId}&itemId=${itemId}`,
