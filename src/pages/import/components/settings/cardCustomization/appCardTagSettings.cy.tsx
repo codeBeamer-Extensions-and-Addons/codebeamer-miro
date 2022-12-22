@@ -39,7 +39,7 @@ describe('<AppCardTagSettings', () => {
 	});
 
 	context('apply button', () => {
-		it.only('shows an "Apply" button to apply the changes if there are imported items', () => {
+		it('shows an "Apply" button to apply the changes if there are imported items', () => {
 			const stubSync = cy.stub();
 
 			const itemOne: Partial<AppCard> = {
@@ -62,7 +62,7 @@ describe('<AppCardTagSettings', () => {
 			cy.getBySel('apply').should('exist');
 		});
 
-		it.only('doesnt show an "Apply" button if there are no imported items', () => {
+		it('doesnt show an "Apply" button if there are no imported items', () => {
 			cy.mountWithStore(<AppCardTagSettings />);
 
 			cy.getBySel('apply').should('not.exist');
