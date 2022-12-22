@@ -16,6 +16,7 @@ import { setStandardCardTagConfiguration } from '../../../../../store/slices/boa
 import { RootState } from '../../../../../store/store';
 
 import './appCardTagSettings.css';
+import { useImportedItems } from '../../../../../hooks/useImportedItems';
 
 export default function AppCardTagSettings() {
 	const dispatch = useDispatch();
@@ -29,9 +30,8 @@ export default function AppCardTagSettings() {
 
 	const [isApplying, setIsApplying] = useState(false);
 	const [animateSuccess, setAnimateSuccess] = useState(false);
-	const [importedItems, setImportedItems] = useState<AppCardToItemMapping[]>(
-		[]
-	);
+
+	const importedItems = useImportedItems();
 
 	const [trigger, result, lastPromiseInfo] = useLazyGetItemsQuery();
 
@@ -82,36 +82,18 @@ export default function AppCardTagSettings() {
 		setIsApplying(true);
 
 		const appCards = await miro.board.get({ type: 'app_card' });
-		if (!appCards || !appCards.length) {
+		if (!importedItems.length) {
 			setIsApplying(false);
 			miro.board.notifications.showInfo(
-				'No items on the board to apply to'
+				'Config saved. No Items currently on the board to apply to.'
 			);
 			return;
 		}
-		const appCardIdsToItemIds = appCards.map((e) => {
-			let card = e as AppCard;
-
-			const itemKey = card.title.match(CARD_TITLE_ID_FILTER_REGEX);
-
-			if (!itemKey?.length) {
-				const message =
-					"Couldn't extract ID from Card title. Can't sync!";
-				miro.board.notifications.showError(message);
-				console.error(message);
-				return { appCardId: card.id, itemId: '' };
-			}
-			const itemId = itemKey[1];
-
-			return { appCardId: card.id, itemId: itemId };
-		});
-
-		setImportedItems(appCardIdsToItemIds);
 
 		trigger({
 			page: DEFAULT_RESULT_PAGE,
 			pageSize: MAX_ITEMS_PER_IMPORT,
-			queryString: `item.id IN (${appCardIdsToItemIds
+			queryString: `item.id IN (${importedItems
 				.map((i) => i.itemId)
 				.join(',')})`,
 		});
@@ -196,41 +178,43 @@ export default function AppCardTagSettings() {
 						.map((p) => generateStandardPropJSX(p))}
 				</div>
 			</div>
-			<div className="text-center">
-				{!animateSuccess && (
-					<button
-						className={`button button-primary button-small mt-5 ${
-							isApplying ? 'button-loading' : ''
-						}`}
-						onClick={() => applySettings()}
-						data-test="apply"
-					>
-						Apply
-					</button>
-				)}
-				{animateSuccess && (
-					<span>
-						<svg
-							className="checkmark"
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 52 52"
+			{importedItems.length && (
+				<div className="text-center">
+					{!animateSuccess && (
+						<button
+							className={`button button-primary button-small mt-5 ${
+								isApplying ? 'button-loading' : ''
+							}`}
+							onClick={() => applySettings()}
+							data-test="apply"
 						>
-							<circle
-								className="checkmark__circle"
-								cx="26"
-								cy="26"
-								r="25"
-								fill="none"
-							/>
-							<path
-								className="checkmark__check"
-								fill="none"
-								d="M14.1 27.2l7.1 7.2 16.7-16.8"
-							/>
-						</svg>
-					</span>
-				)}
-			</div>
+							<span>Apply to {importedItems.length} Items</span>
+						</button>
+					)}
+					{animateSuccess && (
+						<span>
+							<svg
+								className="checkmark"
+								xmlns="http://www.w3.org/2000/svg"
+								viewBox="0 0 52 52"
+							>
+								<circle
+									className="checkmark__circle"
+									cx="26"
+									cy="26"
+									r="25"
+									fill="none"
+								/>
+								<path
+									className="checkmark__check"
+									fill="none"
+									d="M14.1 27.2l7.1 7.2 16.7-16.8"
+								/>
+							</svg>
+						</span>
+					)}
+				</div>
+			)}
 			<hr />
 			<div className="align-self-center mt-3">
 				<h3 className="h3">Card Preview</h3>
