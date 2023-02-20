@@ -7,10 +7,10 @@ export default function ItemActions(props: { itemId: string | number, cardId: st
 	const [loadDownstreamReferencesDisabled, setloadDownstreamReferencesDisabled] = useState<boolean>(true);
 	const [showDependenciesDisabled, setShowDependenciesDisabled] = useState<boolean>(true);
 	const [itemIds, setItemIds] = useState<string[]>([]);
+	const [associationId, setAssociationId] = useState<string>('');
 	const [queryString, setQueryString] = useState<string>('');
 
 	const { data, error, isLoading } = useGetItemRelationsQuery(props.itemId);
-	const {data: data2, error: error2, isLoading: isLoading2 } = useGetAssociationQuery(9783166);
 
 	const loadDownstreamReferencesHandler = () => {
 		if (data && !loadDownstreamReferencesDisabled) {
@@ -43,35 +43,42 @@ export default function ItemActions(props: { itemId: string | number, cardId: st
 		// }
 
 		if (data && !showDependenciesDisabled) {
-			const ids = data.outgoingAssociations.map((d) =>
-				d.itemRevision.id.toString()
+			const { itemIds, associationIds } = data.outgoingAssociations.reduce(
+				(acc, curr) => {
+					acc.itemIds.push(curr.itemRevision.id.toString());
+					acc.associationIds.push(curr.id.toString());
+					return acc;
+				},
+				{ itemIds: [], associationIds: [] }
 			);
-			setItemIds(ids);
+			setItemIds(itemIds);
+			
 		  
 			const startCardId = await findAppCardId(props.itemId.toString())
 		  
-			for (const id of ids) {		  
-			  const endCardId = await findAppCardId(id)
-		  
-			  if (startCardId && endCardId) {
-				const connector = await miro.board.createConnector({
-				  start: {
-					item: startCardId.toString()
-				  },
-				  end: {
-					item: endCardId.toString()
-				  }
-				});
-				console.log(`Connector created between ${startCardId} and ${endCardId}:`, connector);
-			  } else {
-				console.warn(`Could not find app_card for id: ${id}`);
-			  }
+			for (const [index, id] of itemIds.entries()) {
+				const endCardId = await findAppCardId(id);
+				
+				setAssociationId(associationIds[index])
+			
+				if (startCardId && endCardId) {
+					const connector = await miro.board.createConnector({
+					start: {
+						item: startCardId.toString()
+					},
+					end: {
+						item: endCardId.toString()
+					}
+					});
+					console.log(`Connector ${index} created between ${startCardId} and ${endCardId}:`, connector);
+				} else {
+					console.warn(`Could not find app_card for id ${index}: ${id}`);
+				}
 			}
 		  } else {
 			console.warn("Can't load Associations - data still loading or failed to do so.");
 		  }
-		  
-		
+		  setAssociationId('')
 	};
 
 	const findAppCardId = async (id: string) => {
@@ -80,7 +87,14 @@ export default function ItemActions(props: { itemId: string | number, cardId: st
 		  card.title.includes(id)
 		)
 		return filteredCards.length > 0 ? filteredCards[0].id : null
-	  }
+	}
+
+	const waitForAssociationData = async () => {
+		while (associationLoading) {
+			console.log("loading")
+		  await new Promise(resolve => setTimeout(resolve, 100));
+		}
+	  };
 
 	React.useEffect(() => {
 		if (error) {
@@ -102,17 +116,12 @@ export default function ItemActions(props: { itemId: string | number, cardId: st
 	}, [data, error]);
 
 	React.useEffect(() => {
-		console.log("useeffect started")
-		console.log(data2)
-		if(data2){
-			console.log("data2: ", data2)
+		if(associationId !== ''){
+			const { data, error, isLoading } = useGetAssociationQuery(associationId);
+			console.log("associationData", data)
 		}
-
-		if(error2){
-			console.log("error2: ", error2)
-		}
-
-	}, [data2, error2])
+		
+	}, [associationId]);
 
 	return (
 		<div>
