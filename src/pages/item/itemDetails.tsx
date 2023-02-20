@@ -316,7 +316,7 @@ export default function ItemDetails(props: { itemId: string; cardId: string }) {
 						<ItemSummary item={item} cardId={props.cardId} />
 					</div>
 					<div className="mt-4">
-						<ItemActions itemId={props.itemId} />
+						<ItemActions itemId={props.itemId} cardId={props.cardId}/>
 					</div>
 					<hr />
 					<div className="panel-content mt-1 h-75 overflow-auto">

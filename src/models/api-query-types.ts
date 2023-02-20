@@ -81,3 +81,40 @@ export interface ItemRelation {
 	};
 	type: string;
 }
+
+/**
+ * Structure of an Association
+ */
+export interface Association {
+	id: number;
+	descriptionFormat: string;
+	from: {
+	  id: number;
+	  name: string;
+	  type: string;
+	};
+	to: {
+	  id: number;
+	  name: string;
+	  type: string;
+	};
+	url: string;
+	type: {
+	  id: number;
+	  name: string;
+	  type: string;
+	};
+	propagatingSuspects: boolean;
+	reversePropagation: boolean;
+	biDirectionalPropagation: boolean;
+	propagatingDependencies: boolean;
+	baselineId: number;
+	createdBy: {
+	  id: number;
+	  name: string;
+	  type: string;
+	  email: string;
+	};
+	createdAt: string;
+  }
+  
