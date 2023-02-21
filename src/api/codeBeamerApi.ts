@@ -220,4 +220,5 @@ export const {
 	useLazyGetFieldOptionsQuery,
 	useGetItemRelationsQuery,
 	useGetAssociationQuery,
+	useLazyGetAssociationQuery,
 } = codeBeamerApi;

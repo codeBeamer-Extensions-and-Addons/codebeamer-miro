@@ -58,6 +58,98 @@ export async function createAppCard(
 	}
 }
 
+//in a for loop get detailed data for each association and then call createConnector() to create each connector
+export async function createConnectorsForDownstreamRefsAndAssociation(startCardId: string, downstreamRefs: [number], associations: [{associationId: number, targetItemId: number}]) {
+	const username = store.getState().userSettings.cbUsername;
+	const password = store.getState().userSettings.cbPassword;
+
+	const requestArgs = {
+		method: 'GET',
+		headers: new Headers({
+			'Content-Type': 'text/plain',
+			Authorization: `Basic ${btoa(username + ':' + password)}`,
+		})
+	};
+
+	associations.forEach(async function (association) {
+		try{
+			const associationRes = await fetch(
+				`${store.getState().boardSettings.cbAddress}/api/v3/associations/${association.associationId}`, requestArgs
+			);
+				var associationJson = await associationRes.json()
+		} catch(e: any) {
+			console.log(e)
+			const message = `Failed fetching association ${association.associationId}.`;
+			console.warn(message);
+			miro.board.notifications.showError(message);
+		}
+		
+
+		createConnector(startCardId, association.targetItemId, associationJson['type']['name'])
+	})	
+
+	downstreamRefs.forEach(async function (downstreamRef) {
+		createConnector(startCardId, downstreamRef, '')
+	})
+}
+
+async function createConnector(startCardId: string, targetItemId: number, relationshipType: string) {
+	console.log(relationshipType)
+
+	const endCardId = await findAppCardId(targetItemId.toString());
+	const strokeColor = getColorForRelationshipType(relationshipType);
+
+	if (startCardId && endCardId) {
+		const connector = await miro.board.createConnector({
+		start: {
+			item: startCardId
+		},
+		end: {
+			item: endCardId.toString()
+		},
+		style: {
+			strokeColor: strokeColor
+		}
+		});
+		console.log(`Connector created between ${startCardId} and ${endCardId}:`, connector);
+	} else {
+		console.warn(`Could not find app_card for id: ${endCardId}`);
+	}
+}
+
+const findAppCardId = async (id: string) => {
+	const appCards = await miro.board.get({ type: 'app_card' })
+	const filteredCards = appCards.filter((card) =>
+	  card.title.includes(id)
+	)
+	return filteredCards.length > 0 ? filteredCards[0].id : null
+}
+
+const getColorForRelationshipType = (type: string) => {
+	switch (type) {
+	  case "depends on":
+		return "#FF1500"; // Red
+	  case "parent":
+		return "#008c00"; // Green
+	  case "child":
+		return "#FFA500"; // Orange
+	  case "is related to":
+		return "#0066CC"; // Blue
+	  case "is derived from":
+		return "#ADD8E8"; // Lightblue
+	  case "copy of":
+		return "#00008b"; // Darkblue
+	  case "violates":
+		return "#c9b00e"; // Darkyellow
+	  case "excludes":
+		return "#FF00FF"; // Magenta
+	  case "invalidates":
+		return "#7100FF"; // Violet
+	  default:
+		return "#000000"; // Black (default color)
+	}
+}
+
 /**
  * Update an existing appCard with potentially new data
  * @param item The updated codeBeamer item data

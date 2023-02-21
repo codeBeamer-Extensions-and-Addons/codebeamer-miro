@@ -1,16 +1,21 @@
 import { forEach } from 'cypress/types/lodash';
 import React, { useState } from 'react';
-import { useGetItemRelationsQuery, useGetAssociationQuery } from '../../../api/codeBeamerApi';
+import { useGetItemRelationsQuery, useGetAssociationQuery, useLazyGetAssociationQuery } from '../../../api/codeBeamerApi';
+import { createConnectorsForDownstreamRefsAndAssociation } from '../../../api/miro.api';
 import Importer from '../../import/components/importer/Importer';
 
 export default function ItemActions(props: { itemId: string | number, cardId: string | number }) {
 	const [loadDownstreamReferencesDisabled, setloadDownstreamReferencesDisabled] = useState<boolean>(true);
 	const [showDependenciesDisabled, setShowDependenciesDisabled] = useState<boolean>(true);
 	const [itemIds, setItemIds] = useState<string[]>([]);
-	const [associationId, setAssociationId] = useState<string>('');
 	const [queryString, setQueryString] = useState<string>('');
+	const [downstreamRefs, setDownstreamRefs] = useState<number[]>([]);
+	const [associations, setAssociations] = useState([]);
+
 
 	const { data, error, isLoading } = useGetItemRelationsQuery(props.itemId);
+
+	// const [ triggerGetAssociation, associationQueryResult ] = useLazyGetAssociationQuery();
 
 	const loadDownstreamReferencesHandler = () => {
 		if (data && !loadDownstreamReferencesDisabled) {
@@ -27,21 +32,36 @@ export default function ItemActions(props: { itemId: string | number, cardId: st
 		
 	};
 
+	//get all downstreamRefs and associations and then call in the miro.api a method which creates all connectors
+	// { downstreamRefs: [number], associations: [{associationId: number, targetItemId: number}] }
+	React.useEffect(() => {
+		async function fetchData() {
+			if (data && (data.downstreamReferences.length || data.outgoingAssociations.length)) {
+			var downstreamRefs: React.SetStateAction<number[]> = [];
+			var associations: ((prevState: never[]) => never[]) | { associationId: number; targetItemId: number; }[] = [];
+			if (data.downstreamReferences.length) {
+				data.downstreamReferences.forEach(function (downstreamReference) {
+				downstreamRefs.push(downstreamReference.itemRevision.id);
+				});
+			}
+			if (data.outgoingAssociations.length) {
+				data.outgoingAssociations.forEach(function (outgoingAssociation) {
+				var association = {associationId: outgoingAssociation.id, targetItemId: outgoingAssociation.itemRevision.id};
+				associations.push(association);
+				});
+			}
+
+
+			setDownstreamRefs(downstreamRefs);
+			setAssociations(associations);
+			}
+		}
+	  
+		fetchData();
+	}, [data]);
+	  
+
 	const showDependenciesHandler = async () => {
-
-		// loadCards
-		// if (data && !showDependenciesDisabled) {
-		// 	const ids = data.outgoingAssociations.map((d) =>
-		// 		d.itemRevision.id.toString()
-		// 	);
-		// 	setItemIds(ids);
-		// 	setQueryString(`item.id IN (${ids.join(',')})`);
-		// } else {
-		// 	console.warn(
-		// 		"Can't load Associations - data still loading or failed to do so."
-		// 	);
-		// }
-
 		if (data && !showDependenciesDisabled) {
 			const { itemIds, associationIds } = data.outgoingAssociations.reduce(
 				(acc, curr) => {
@@ -54,31 +74,12 @@ export default function ItemActions(props: { itemId: string | number, cardId: st
 			setItemIds(itemIds);
 			
 		  
-			const startCardId = await findAppCardId(props.itemId.toString())
-		  
-			for (const [index, id] of itemIds.entries()) {
-				const endCardId = await findAppCardId(id);
-				
-				setAssociationId(associationIds[index])
+			const startCardId = await findAppCardId(props.itemId.toString());
+			await createConnectorsForDownstreamRefsAndAssociation(startCardId, downstreamRefs, associations);
 			
-				if (startCardId && endCardId) {
-					const connector = await miro.board.createConnector({
-					start: {
-						item: startCardId.toString()
-					},
-					end: {
-						item: endCardId.toString()
-					}
-					});
-					console.log(`Connector ${index} created between ${startCardId} and ${endCardId}:`, connector);
-				} else {
-					console.warn(`Could not find app_card for id ${index}: ${id}`);
-				}
-			}
 		  } else {
 			console.warn("Can't load Associations - data still loading or failed to do so.");
 		  }
-		  setAssociationId('')
 	};
 
 	const findAppCardId = async (id: string) => {
@@ -88,13 +89,6 @@ export default function ItemActions(props: { itemId: string | number, cardId: st
 		)
 		return filteredCards.length > 0 ? filteredCards[0].id : null
 	}
-
-	const waitForAssociationData = async () => {
-		while (associationLoading) {
-			console.log("loading")
-		  await new Promise(resolve => setTimeout(resolve, 100));
-		}
-	  };
 
 	React.useEffect(() => {
 		if (error) {
@@ -114,14 +108,6 @@ export default function ItemActions(props: { itemId: string | number, cardId: st
 			}
 		}
 	}, [data, error]);
-
-	React.useEffect(() => {
-		if(associationId !== ''){
-			const { data, error, isLoading } = useGetAssociationQuery(associationId);
-			console.log("associationData", data)
-		}
-		
-	}, [associationId]);
 
 	return (
 		<div>
