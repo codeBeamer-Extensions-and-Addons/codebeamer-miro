@@ -5,7 +5,7 @@ const mockItemId = 201284;
 
 describe('<ItemActions>', () => {
 	it('mounts', () => {
-		cy.mountWithStore(<ItemActions itemId={mockItemId} />);
+		cy.mountWithStore(<ItemActions itemId={mockItemId} cardId={''} />);
 	});
 
 	describe('load-downstream-refs', () => {
@@ -16,7 +16,7 @@ describe('<ItemActions>', () => {
 				fixture: 'itemRelations.json',
 			}).as('relations');
 
-			cy.mountWithStore(<ItemActions itemId={mockItemId} />);
+			cy.mountWithStore(<ItemActions itemId={mockItemId} cardId={''} />);
 
 			cy.wait('@relations');
 		});
@@ -27,7 +27,7 @@ describe('<ItemActions>', () => {
 					fixture: 'itemRelations.json',
 				}).as('relations');
 
-				cy.mountWithStore(<ItemActions itemId={mockItemId} />);
+				cy.mountWithStore(<ItemActions itemId={mockItemId} cardId={''} />);
 				cy.wait('@relations');
 
 				cy.getBySel('load-downstream-references').should('exist');
@@ -38,7 +38,7 @@ describe('<ItemActions>', () => {
 					fixture: 'itemRelations.json',
 				}).as('relations');
 
-				cy.mountWithStore(<ItemActions itemId={mockItemId} />);
+				cy.mountWithStore(<ItemActions itemId={mockItemId} cardId={''} />);
 				cy.wait('@relations');
 
 				cy.fixture('itemRelations.json').then((relations) => {
@@ -55,7 +55,7 @@ describe('<ItemActions>', () => {
 					delay: 500,
 				}).as('relations');
 
-				cy.mountWithStore(<ItemActions itemId={mockItemId} />);
+				cy.mountWithStore(<ItemActions itemId={mockItemId} cardId={''} />);
 
 				cy.getBySel('load-downstream-references').should(
 					'have.attr',
@@ -77,7 +77,7 @@ describe('<ItemActions>', () => {
 					fixture: 'query_multi-page.json',
 				}).as('query');
 
-				cy.mountWithStore(<ItemActions itemId={mockItemId} />);
+				cy.mountWithStore(<ItemActions itemId={mockItemId} cardId={''} />);
 
 				cy.wait('@relations');
 

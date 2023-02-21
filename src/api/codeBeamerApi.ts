@@ -15,6 +15,7 @@ import {
 	RelationsQuery,
 	TrackerSearchPage,
 	UserQueryPage,
+	Association,
 } from '../models/api-query-types';
 import { CbqlApiQuery } from '../models/cbqlApiQuery';
 import TrackerDetails from '../models/trackerDetails.if';
@@ -192,6 +193,9 @@ export const codeBeamerApi = createApi({
 		getItemRelations: builder.query<RelationsQuery, string | number>({
 			query: (id) => `api/v3/items/${id}/relations`,
 		}),
+		getAssociation: builder.query<Association, string | number>({
+			query: (id) => `/api/v3/associations/${id}`,
+		}),
 	}),
 });
 
@@ -215,4 +219,5 @@ export const {
 	useGetItemFieldsQuery,
 	useLazyGetFieldOptionsQuery,
 	useGetItemRelationsQuery,
+	useGetAssociationQuery,
 } = codeBeamerApi;
