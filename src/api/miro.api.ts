@@ -13,6 +13,8 @@ import getRandomCoordSetPerSubject from './utils/getRandomCoordSetPerSubject';
 import getSnailCoordSetPerSubject from './utils/getSnailCoords';
 import { CARD_TITLE_TRKR_ITEMID_FILTER_REGEX } from '../constants/regular-expressions';
 import getAppCardId from './utils/getAppCardId';
+import doesConnectorExist from './utils/doesConnectorExist';
+import doesConnectorExist from './utils/doesConnectorExist';
 
 /**
  * Create a new app card base on a codeBeamer item
@@ -103,15 +105,22 @@ async function createConnector(startCardId: string, targetItemId: number, relati
 
 	await Promise.all(
 		endCardIds.map(async (endCardId) => {
-			try {
-			await miro.board.createConnector({
-				start: { item: startCardId },
-				end: { item: endCardId },
-				style: { strokeColor },
-				captions: connectorCaptions,
-			});
-			} catch (e) {
-			console.warn(`Failed to create connector for endCardId: ${endCardId}`, e);
+			const connectorExists = await doesConnectorExist(startCardId, endCardId);
+			if(!connectorExists){
+				try {
+					const widget = await miro.board.createConnector({
+						start: { item: startCardId },
+						end: { item: endCardId },
+						style: { strokeColor },
+						captions: connectorCaptions,
+					});
+					await widget.setMetadata('item', {
+						startCardId: startCardId,
+						endCardId: endCardId,
+					});
+				} catch (e) {
+				console.warn(`Failed to create connector for endCardId: ${endCardId}`, e);
+				}
 			}
 		})
 	);
