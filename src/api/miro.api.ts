@@ -12,6 +12,7 @@ import { CardSpawningMethod } from '../enums/cardSpawningMethod.enum';
 import getRandomCoordSetPerSubject from './utils/getRandomCoordSetPerSubject';
 import getSnailCoordSetPerSubject from './utils/getSnailCoords';
 import { CARD_TITLE_TRKR_ITEMID_FILTER_REGEX } from '../constants/regular-expressions';
+import getAppCardId from './utils/getAppCardId';
 
 /**
  * Create a new app card base on a codeBeamer item
@@ -89,53 +90,44 @@ export async function createConnectorsForDownstreamRefsAndAssociation(startCardI
 	})	
 
 	downstreamRefs.forEach(async function (downstreamRef) {
-		createConnector(startCardId, downstreamRef, '')
+		createConnector(startCardId, downstreamRef, 'downstream')
 	})
 }
 
 async function createConnector(startCardId: string, targetItemId: number, relationshipType: string) {
-	console.log(relationshipType)
 
-	const endCardId = await findAppCardId(targetItemId.toString());
+	const endCardIds = await getAppCardId(targetItemId);
 	const strokeColor = getColorForRelationshipType(relationshipType);
 
-	if (startCardId && endCardId) {
-		const connector = await miro.board.createConnector({
-		start: {
-			item: startCardId
-		},
-		end: {
-			item: endCardId.toString()
-		},
-		style: {
-			strokeColor: strokeColor
-		}
-		});
-		console.log(`Connector created between ${startCardId} and ${endCardId}:`, connector);
-	} else {
-		console.warn(`Could not find app_card for id: ${endCardId}`);
-	}
-}
+	const connectorCaptions =  [{ content: relationshipType }]
 
-const findAppCardId = async (id: string) => {
-	const appCards = await miro.board.get({ type: 'app_card' })
-	const filteredCards = appCards.filter((card) =>
-	  card.title.includes(id)
-	)
-	return filteredCards.length > 0 ? filteredCards[0].id : null
+	await Promise.all(
+		endCardIds.map(async (endCardId) => {
+			try {
+			await miro.board.createConnector({
+				start: { item: startCardId },
+				end: { item: endCardId },
+				style: { strokeColor },
+				captions: connectorCaptions,
+			});
+			} catch (e) {
+			console.warn(`Failed to create connector for endCardId: ${endCardId}`, e);
+			}
+		})
+	);
 }
 
 const getColorForRelationshipType = (type: string) => {
 	switch (type) {
-	  case "depends on":
+	  case "depends":
 		return "#FF1500"; // Red
 	  case "parent":
 		return "#008c00"; // Green
 	  case "child":
 		return "#FFA500"; // Orange
-	  case "is related to":
+	  case "related":
 		return "#0066CC"; // Blue
-	  case "is derived from":
+	  case "derived":
 		return "#ADD8E8"; // Lightblue
 	  case "copy of":
 		return "#00008b"; // Darkblue

@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useGetItemRelationsQuery, useGetAssociationQuery, useLazyGetAssociationQuery } from '../../../api/codeBeamerApi';
 import { createConnectorsForDownstreamRefsAndAssociation } from '../../../api/miro.api';
 import Importer from '../../import/components/importer/Importer';
+import getAppCardId from '../../../api/utils/getAppCardId';
 
 export default function ItemActions(props: { itemId: string | number, cardId: string | number }) {
 	const [loadDownstreamReferencesDisabled, setloadDownstreamReferencesDisabled] = useState<boolean>(true);
@@ -11,6 +12,7 @@ export default function ItemActions(props: { itemId: string | number, cardId: st
 	const [queryString, setQueryString] = useState<string>('');
 	const [downstreamRefs, setDownstreamRefs] = useState<number[]>([]);
 	const [associations, setAssociations] = useState([]);
+	const [dependenciesOnBoardCount, setDependenciesOnBoardCount] = useState(0);
 
 
 	const { data, error, isLoading } = useGetItemRelationsQuery(props.itemId);
@@ -51,6 +53,15 @@ export default function ItemActions(props: { itemId: string | number, cardId: st
 				});
 			}
 
+			//check if downstreamReferences or outgoingAssociations exist on the board
+			const amountOfCardsOnBoard = await calculateAmountOfCardsOnBoard();
+
+			if(amountOfCardsOnBoard){
+				setShowDependenciesDisabled(false)
+			}
+			else{
+				setShowDependenciesDisabled(true)
+			}
 
 			setDownstreamRefs(downstreamRefs);
 			setAssociations(associations);
@@ -63,32 +74,32 @@ export default function ItemActions(props: { itemId: string | number, cardId: st
 
 	const showDependenciesHandler = async () => {
 		if (data && !showDependenciesDisabled) {
-			const { itemIds, associationIds } = data.outgoingAssociations.reduce(
-				(acc, curr) => {
-					acc.itemIds.push(curr.itemRevision.id.toString());
-					acc.associationIds.push(curr.id.toString());
-					return acc;
-				},
-				{ itemIds: [], associationIds: [] }
-			);
-			setItemIds(itemIds);
-			
-		  
-			const startCardId = await findAppCardId(props.itemId.toString());
+			const startCardIds = await getAppCardId(parseInt(props.itemId));
+			const startCardId = startCardIds[0]
 			await createConnectorsForDownstreamRefsAndAssociation(startCardId, downstreamRefs, associations);
-			
+
 		  } else {
 			console.warn("Can't load Associations - data still loading or failed to do so.");
 		  }
 	};
 
-	const findAppCardId = async (id: string) => {
-		const appCards = await miro.board.get({ type: 'app_card' })
-		const filteredCards = appCards.filter((card) =>
-		  card.title.includes(id)
-		)
-		return filteredCards.length > 0 ? filteredCards[0].id : null
-	}
+	const calculateAmountOfCardsOnBoard = async () => {
+		var amountOfCardsOnBoard = 0;
+		await Promise.all(
+		  data.outgoingAssociations.map(async function (outgoingAssociation) {
+			var appCardIds = await getAppCardId(outgoingAssociation.itemRevision.id);
+			amountOfCardsOnBoard += appCardIds.length;
+		  })
+		);
+		await Promise.all(
+		  data.downstreamReferences.map(async function (downstreamReference) {
+			var appCardIds = await getAppCardId(downstreamReference.itemRevision.id);
+			amountOfCardsOnBoard += appCardIds.length;
+		  })
+		);
+		setDependenciesOnBoardCount(amountOfCardsOnBoard)
+		return amountOfCardsOnBoard
+	  }
 
 	React.useEffect(() => {
 		if (error) {
@@ -100,11 +111,6 @@ export default function ItemActions(props: { itemId: string | number, cardId: st
 				setloadDownstreamReferencesDisabled(true);
 			} else {
 				setloadDownstreamReferencesDisabled(false);
-			}
-			if (!data.outgoingAssociations.length) {
-				setShowDependenciesDisabled(true);
-			} else {
-				setShowDependenciesDisabled(false);
 			}
 		}
 	}, [data, error]);
@@ -143,6 +149,7 @@ export default function ItemActions(props: { itemId: string | number, cardId: st
 						<span>Show Dependency & Associations</span>
 					</>
 				)}
+				{data && ` (${dependenciesOnBoardCount})`}
 			</button>
 			{queryString && (
 				<Importer items={itemIds} queryString={queryString} />
