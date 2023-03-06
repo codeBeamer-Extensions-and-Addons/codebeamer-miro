@@ -14,7 +14,7 @@ import getSnailCoordSetPerSubject from './utils/getSnailCoords';
 import { CARD_TITLE_TRKR_ITEMID_FILTER_REGEX } from '../constants/regular-expressions';
 import getAppCardId from './utils/getAppCardId';
 import doesConnectorExist from './utils/doesConnectorExist';
-import doesConnectorExist from './utils/doesConnectorExist';
+import { Association } from '../models/api-query-types';
 
 /**
  * Create a new app card base on a codeBeamer item
@@ -79,16 +79,13 @@ export async function createConnectorsForDownstreamRefsAndAssociation(startCardI
 			const associationRes = await fetch(
 				`${store.getState().boardSettings.cbAddress}/api/v3/associations/${association.associationId}`, requestArgs
 			);
-				var associationJson = await associationRes.json()
+			const associationJson = (await associationRes.json()) as Association
+			createConnector(startCardId, association.targetItemId, associationJson.type.name)
 		} catch(e: any) {
-			console.log(e)
 			const message = `Failed fetching association ${association.associationId}.`;
 			console.warn(message);
 			miro.board.notifications.showError(message);
 		}
-		
-
-		createConnector(startCardId, association.targetItemId, associationJson['type']['name'])
 	})	
 
 	downstreamRefs.forEach(async function (downstreamRef) {
