@@ -15,6 +15,8 @@ import { CARD_TITLE_TRKR_ITEMID_FILTER_REGEX } from '../constants/regular-expres
 import getAppCardId from './utils/getAppCardId';
 import doesConnectorExist from './utils/doesConnectorExist';
 import { Association } from '../models/api-query-types';
+import { RelationshipType, getRelationshipType } from '../enums/associationRelationshipType.enum'
+import { getColorForRelationshipType } from './utils/getColorForRelationshipType';
 
 /**
  * Create a new app card base on a codeBeamer item
@@ -80,7 +82,10 @@ export async function createConnectorsForDownstreamRefsAndAssociation(startCardI
 				`${store.getState().boardSettings.cbAddress}/api/v3/associations/${association.associationId}`, requestArgs
 			);
 			const associationJson = (await associationRes.json()) as Association
-			createConnector(startCardId, association.targetItemId, associationJson.type.name)
+			
+			const relationshipTypeEnum = getRelationshipType(associationJson.type.name);
+
+			createConnector(startCardId, association.targetItemId, relationshipTypeEnum)
 		} catch(e: any) {
 			const message = `Failed fetching association ${association.associationId}.`;
 			console.warn(message);
@@ -89,16 +94,16 @@ export async function createConnectorsForDownstreamRefsAndAssociation(startCardI
 	})	
 
 	downstreamRefs.forEach(async function (downstreamRef) {
-		createConnector(startCardId, downstreamRef, 'downstream')
+		const relationshipTypeEnum = getRelationshipType('downstream');
+		createConnector(startCardId, downstreamRef, relationshipTypeEnum)
 	})
 }
 
-async function createConnector(startCardId: string, targetItemId: number, relationshipType: string) {
-
+async function createConnector(startCardId: string, targetItemId: number, relationshipType: RelationshipType) {
 	const endCardIds = await getAppCardId(targetItemId);
-	const strokeColor = getColorForRelationshipType(relationshipType);
+	const strokeColor = getColorForRelationshipType(RelationshipType[relationshipType]);
 
-	const connectorCaptions =  [{ content: relationshipType }]
+	const connectorCaptions =  [{ content: RelationshipType[relationshipType] }]
 
 	await Promise.all(
 		endCardIds.map(async (endCardId) => {
@@ -111,41 +116,16 @@ async function createConnector(startCardId: string, targetItemId: number, relati
 						style: { strokeColor },
 						captions: connectorCaptions,
 					});
-					await widget.setMetadata('item', {
+					await widget.setMetadata('relation', {
 						startCardId: startCardId,
 						endCardId: endCardId,
 					});
 				} catch (e) {
-				console.warn(`Failed to create connector for endCardId: ${endCardId}`, e);
+					console.warn(`Failed to create connector for endCardId: ${endCardId}`, e);
 				}
 			}
 		})
 	);
-}
-
-const getColorForRelationshipType = (type: string) => {
-	switch (type) {
-	  case "depends":
-		return "#FF1500"; // Red
-	  case "parent":
-		return "#008c00"; // Green
-	  case "child":
-		return "#FFA500"; // Orange
-	  case "related":
-		return "#0066CC"; // Blue
-	  case "derived":
-		return "#ADD8E8"; // Lightblue
-	  case "copy of":
-		return "#00008b"; // Darkblue
-	  case "violates":
-		return "#c9b00e"; // Darkyellow
-	  case "excludes":
-		return "#FF00FF"; // Magenta
-	  case "invalidates":
-		return "#7100FF"; // Violet
-	  default:
-		return "#000000"; // Black (default color)
-	}
 }
 
 /**

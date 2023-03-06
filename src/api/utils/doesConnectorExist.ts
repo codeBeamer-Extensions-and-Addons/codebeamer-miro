@@ -6,7 +6,7 @@ export default async function doesConnectorExist(startCardId: string, endCardId:
   let connectorExists = false;
 
   for (const connector of connectors) {
-    const itemData = await connector.getMetadata('item');
+    const itemData = await connector.getMetadata('relation');
     const start = itemData['startCardId'];
     const end = itemData['endCardId'];
 
