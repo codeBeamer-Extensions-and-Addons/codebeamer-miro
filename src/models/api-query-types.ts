@@ -1,27 +1,27 @@
 export interface ItemQueryPage {
-	page: number;
-	pageSize: number;
-	total: number;
-	items: any[];
+  page: number;
+  pageSize: number;
+  total: number;
+  items: any[];
 }
 
 export interface TrackerSearchPage {
-	page: number;
-	pageSize: number;
-	total: number;
-	trackers: any[];
+  page: number;
+  pageSize: number;
+  total: number;
+  trackers: any[];
 }
 
 export interface UserQueryPage {
-	page: number;
-	pageSize: number;
-	total: number;
-	users: {
-		name: string;
-		firstName: string;
-		lastName: string;
-		email: string;
-	}[];
+  page: number;
+  pageSize: number;
+  total: number;
+  users: {
+    name: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  }[];
 }
 
 /**
@@ -29,8 +29,8 @@ export interface UserQueryPage {
  * fields the item has and which are currently editable or readonly.
  */
 export interface CodeBeamerItemFields {
-	editableFields: CodeBeamerItemField[];
-	readonlyFields: CodeBeamerItemField[];
+  editableFields: CodeBeamerItemField[];
+  readonlyFields: CodeBeamerItemField[];
 }
 
 /**
@@ -38,35 +38,35 @@ export interface CodeBeamerItemFields {
  * specifying a specific field's values.
  */
 export interface CodeBeamerItemField {
-	fieldId: number;
-	name: string;
-	values: FieldOptions[];
-	type: string;
+  fieldId: number;
+  name: string;
+  values: FieldOptions[];
+  type: string;
 }
 
 /**
  * Structure of options and minimal information needed to update an item's field with the /Fields endpoint
  */
 export interface FieldOptions {
-	id: number;
-	uri?: string;
-	name: string;
-	type?: string;
+  id: number;
+  uri?: string;
+  name: string;
+  type?: string;
 }
 
 /**
  * Structure of a response from the /api/v3/items/{id}/relations endpoint
  */
 export interface RelationsQuery {
-	itemId: {
-		id: number;
-		version?: number;
-	};
+  itemId: {
+    id: number;
+    version?: number;
+  };
 
-	downstreamReferences: ItemRelation[];
-	upstreamReferences: ItemRelation[];
-	outgoingAssociations: ItemRelation[];
-	incomingAssociations: ItemRelation[];
+  downstreamReferences: ItemRelation[];
+  upstreamReferences: ItemRelation[];
+  outgoingAssociations: ItemRelation[];
+  incomingAssociations: ItemRelation[];
 }
 
 /**
@@ -74,47 +74,19 @@ export interface RelationsQuery {
  * the item it goes to
  */
 export interface ItemRelation {
-	id: number;
-	itemRevision: {
-		id: number;
-		version?: number;
-	};
-	type: string;
+  id: number;
+  itemRevision: {
+    id: number;
+    version?: number;
+  };
+  type: string;
 }
 
 /**
  * Structure of an Association
  */
 export interface Association {
-	id: number;
-	descriptionFormat: string;
-	from: {
-	  id: number;
-	  name: string;
-	  type: string;
-	};
-	to: {
-	  id: number;
-	  name: string;
-	  type: string;
-	};
-	url: string;
-	type: {
-	  id: number;
-	  name: string;
-	  type: string;
-	};
-	propagatingSuspects: boolean;
-	reversePropagation: boolean;
-	biDirectionalPropagation: boolean;
-	propagatingDependencies: boolean;
-	baselineId: number;
-	createdBy: {
-	  id: number;
-	  name: string;
-	  type: string;
-	  email: string;
-	};
-	createdAt: string;
-  }
-  
+  type: {
+    name: string;
+  };
+}
