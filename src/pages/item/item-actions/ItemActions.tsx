@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useGetItemRelationsQuery } from "../../../api/codeBeamerApi";
 import { createConnectorsForDownstreamRefsAndAssociation } from "../../../api/miro.api";
 import Importer from "../../import/components/importer/Importer";
-import getAppCardId from "../../../api/utils/getAppCardId";
+import getAppCardIds from "../../../api/utils/getAppCardIds";
 
 export default function ItemActions(props: {
   itemId: string | number;
@@ -65,11 +65,11 @@ export default function ItemActions(props: {
         const amountOfRelationsOnBoard =
           await calculateAmountOfRelationsOnBoard();
 
-        setShowDependenciesDisabled(amountOfRelationsOnBoard < 0);
-        setRelationsLoading(false);
+        setShowDependenciesDisabled(amountOfRelationsOnBoard == 0);
         setDownstreamRefs(downstreamRefs);
         setAssociations(associations);
       }
+      setRelationsLoading(false);
     }
 
     fetchData();
@@ -77,7 +77,9 @@ export default function ItemActions(props: {
 
   const showDependenciesHandler = async () => {
     if (data && !showDependenciesDisabled) {
-      const startCardIds = await getAppCardId(parseInt(props.itemId));
+      const startCardIds = await getAppCardIds(
+        parseInt(props.itemId.toString())
+      );
       const startCardId = startCardIds[0];
       await createConnectorsForDownstreamRefsAndAssociation(
         startCardId,
@@ -92,10 +94,10 @@ export default function ItemActions(props: {
   };
 
   const calculateAmountOfRelationsOnBoard = async () => {
-    var count = 0;
+    let count = 0;
     await Promise.all(
       data.outgoingAssociations.map(async function (outgoingAssociation) {
-        const appCardIds = await getAppCardId(
+        const appCardIds = await getAppCardIds(
           outgoingAssociation.itemRevision.id
         );
         count += appCardIds.length;
@@ -103,7 +105,7 @@ export default function ItemActions(props: {
     );
     await Promise.all(
       data.downstreamReferences.map(async function (downstreamReference) {
-        const appCardIds = await getAppCardId(
+        const appCardIds = await getAppCardIds(
           downstreamReference.itemRevision.id
         );
         count += appCardIds.length;
@@ -148,7 +150,7 @@ export default function ItemActions(props: {
       </button>
       <button
         className={`button button-tertiary ${
-          isLoading ? "button-loading button-loading-primary" : ""
+          relationsLoading ? "button-loading button-loading-primary" : ""
         }`}
         onClick={showDependenciesHandler}
         disabled={showDependenciesDisabled}
@@ -158,10 +160,11 @@ export default function ItemActions(props: {
         {!relationsLoading && (
           <>
             <span className="icon-add-row-bottom"></span>
-            <span>Show Dependency & Associations</span>
+            <span>
+              Show Dependency & Associations ({relationsOnBoardCount})
+            </span>
           </>
         )}
-        {!relationsLoading && ` (${relationsOnBoardCount})`}
       </button>
       {queryString && <Importer items={itemIds} queryString={queryString} />}
     </div>
