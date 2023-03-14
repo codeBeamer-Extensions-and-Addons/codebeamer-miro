@@ -12,13 +12,10 @@ import { CardSpawningMethod } from "../enums/cardSpawningMethod.enum";
 import getRandomCoordSetPerSubject from "./utils/getRandomCoordSetPerSubject";
 import getSnailCoordSetPerSubject from "./utils/getSnailCoords";
 import { CARD_TITLE_TRKR_ITEMID_FILTER_REGEX } from "../constants/regular-expressions";
-import getAppCardId from "./utils/getAppCardIds";
+import getAppCardIds from "./utils/getAppCardIds";
 import doesConnectorExist from "./utils/doesConnectorExist";
 import { Association } from "../models/api-query-types";
-import {
-  RelationshipType,
-  getRelationshipType,
-} from "../enums/associationRelationshipType.enum";
+import { RelationshipType } from "../enums/associationRelationshipType.enum";
 import { getColorForRelationshipType } from "./utils/getColorForRelationshipType";
 
 /**
@@ -93,14 +90,10 @@ export async function createConnectorsForDownstreamRefsAndAssociation(
       );
       const associationJson = (await associationRes.json()) as Association;
 
-      const relationshipTypeEnum = getRelationshipType(
-        associationJson.type.name
-      );
-
       createConnector(
         startCardId,
         association.targetItemId,
-        relationshipTypeEnum
+        associationJson.type.name
       );
     } catch (e: any) {
       const message = `Failed fetching association ${association.associationId}.`;
@@ -110,8 +103,7 @@ export async function createConnectorsForDownstreamRefsAndAssociation(
   });
 
   downstreamRefs.forEach(async function (downstreamRef) {
-    const relationshipTypeEnum = getRelationshipType("downstream");
-    createConnector(startCardId, downstreamRef, relationshipTypeEnum);
+    createConnector(startCardId, downstreamRef, RelationshipType.DOWNSTREAM);
   });
 }
 
@@ -120,12 +112,10 @@ async function createConnector(
   targetItemId: number,
   relationshipType: RelationshipType
 ) {
-  const endCardIds = await getAppCardId(targetItemId);
-  const strokeColor = getColorForRelationshipType(
-    RelationshipType[relationshipType]
-  );
+  const endCardIds = await getAppCardIds(targetItemId);
+  const strokeColor = getColorForRelationshipType(relationshipType);
 
-  const connectorCaptions = [{ content: RelationshipType[relationshipType] }];
+  const connectorCaptions = [{ content: relationshipType }];
 
   await Promise.all(
     endCardIds.map(async (endCardId) => {

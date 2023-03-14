@@ -1,3 +1,5 @@
+import { RelationshipType } from "../enums/associationRelationshipType.enum";
+
 export interface ItemQueryPage {
   page: number;
   pageSize: number;
@@ -87,6 +89,6 @@ export interface ItemRelation {
  */
 export interface Association {
   type: {
-    name: string;
+    name: RelationshipType;
   };
 }
