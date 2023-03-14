@@ -14,7 +14,6 @@ export default async function removeConnectros(
   for (const association of associations) {
     const endCardIds = await getAppCardIds(association.targetItemId);
 
-    // go through each endCardId and check if a connector exists
     for (const endCardId of endCardIds) {
       for (const connector of connectors) {
         const itemData = (await connector.getMetadata("relation")) as Relation;
@@ -23,7 +22,11 @@ export default async function removeConnectros(
           itemData.startCardId === startCardId &&
           itemData.endCardId === endCardId
         ) {
-          await miro.board.remove(connector);
+          try {
+            await miro.board.remove(connector);
+          } catch (error) {
+            console.log("error: ", error);
+          }
         }
       }
     }
@@ -32,7 +35,6 @@ export default async function removeConnectros(
   for (const downstreamRef of downstreamRefs) {
     const endCardIds = await getAppCardIds(downstreamRef);
 
-    // go through each endCardId and check if a connector exists
     for (const endCardId of endCardIds) {
       for (const connector of connectors) {
         const itemData = (await connector.getMetadata("relation")) as Relation;
@@ -41,11 +43,13 @@ export default async function removeConnectros(
           itemData.startCardId === startCardId &&
           itemData.endCardId === endCardId
         ) {
-          await miro.board.remove(connector);
+          try {
+            await miro.board.remove(connector);
+          } catch (error) {
+            console.log("error: ", error);
+          }
         }
       }
     }
   }
-
-  return true;
 }
