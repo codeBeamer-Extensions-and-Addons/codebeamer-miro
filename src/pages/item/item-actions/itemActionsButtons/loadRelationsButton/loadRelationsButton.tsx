@@ -141,17 +141,15 @@ export default function LoadRelationsButton(props: {
         }
         disabled={buttonDisabled}
         data-test="show-dependency"
-        title="Show Dependency & Associations"
+        title={
+          connectorsAlreadyExist
+            ? `Hide Dependency & Associations (${relationsOnBoardCount})`
+            : `Show Dependency & Associations (${relationsOnBoardCount})`
+        }
       >
         {!relationsLoading && (
           <>
-            <span className="icon-add-row-bottom"></span>
-            <span>
-              {connectorsAlreadyExist
-                ? "Hide Dependency & Associations "
-                : "Show Dependency & Associations "}
-              ({relationsOnBoardCount})
-            </span>
+            <span className="icon-arrow-line-shape"></span>
           </>
         )}
       </button>
