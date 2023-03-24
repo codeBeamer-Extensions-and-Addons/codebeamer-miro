@@ -1,23 +1,18 @@
-import { Connector } from "@mirohq/websdk-types";
-import { Relation } from "../../models/relation.if";
-import getAppCardIds from "./getAppCardIds";
+import { BoardNode, Connector } from "@mirohq/websdk-types";
 
-export default async function removeConnectros(
+export default async function removeConnectors(
   startCardId: string,
-  downstreamRefs: [number],
-  associations: [{ associationId: number; targetItemId: number }]
+  boardData: BoardNode[]
 ) {
-  const connectors = (await miro.board.get({
-    type: "connector",
-  })) as Connector[];
+  const connectors = boardData.filter(
+    (node) => node.type === "connector"
+  ) as Connector[];
 
   const connectorsToStartCard = connectors.filter((connector) => {
-    return connector.start.item === startCardId;
+    return connector.start?.item === startCardId;
   });
 
   connectorsToStartCard.forEach(async (connector) => {
     await miro.board.remove(connector);
   });
-
-  console.log(connectorsToStartCard);
 }

@@ -3,20 +3,19 @@ import { Relation } from "../../models/relation.if";
 
 export default async function doesConnectorExist(
   startCardId: string,
-  endCardId: string
+  endCardId: string,
+  boardData: BoardNode[]
 ) {
-  const connectors = (await miro.board.get({
-    type: "connector",
-  })) as Connector[];
+  const connectors = boardData.filter(
+    (node) => node.type === "connector"
+  ) as Connector[];
 
   let connectorExists = false;
 
   for (const connector of connectors) {
-    const itemData = (await connector.getMetadata("relation")) as Relation;
-
     if (
-      itemData.startCardId === startCardId &&
-      itemData.endCardId === endCardId
+      connector.start?.item === startCardId &&
+      connector.end?.item === endCardId
     ) {
       connectorExists = true;
       return connectorExists;

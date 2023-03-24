@@ -1,8 +1,14 @@
-import { AppCard } from "@mirohq/websdk-types";
+import { AppCard, BoardNode } from "@mirohq/websdk-types";
 import { CodeBeamerItem } from "../../models/codebeamer-item.if";
 
-export default async function getAppCardIds(codeBeamerItemId: number) {
-  const appCards = (await miro.board.get({ type: "app_card" })) as AppCard[];
+export default async function getAppCardIds(
+  codeBeamerItemId: number,
+  boardData: BoardNode[]
+) {
+  const appCards = boardData.filter(
+    (node) => node.type === "app_card"
+  ) as AppCard[];
+  // const appCards = (await miro.board.get({ type: "app_card" })) as AppCard[];
   const filteredCards = await Promise.all(
     appCards.map(async (card) => {
       const itemData = (await card.getMetadata("item")) as Pick<

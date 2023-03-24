@@ -67,7 +67,8 @@ export async function createAppCard(
 export async function createConnectorsForDownstreamRefsAndAssociation(
   startCardId: string,
   downstreamRefs: [number],
-  associations: [{ associationId: number; targetItemId: number }]
+  associations: [{ associationId: number; targetItemId: number }],
+  boardData: BoardNode[]
 ) {
   const username = store.getState().userSettings.cbUsername;
   const password = store.getState().userSettings.cbPassword;
@@ -93,7 +94,8 @@ export async function createConnectorsForDownstreamRefsAndAssociation(
       createConnector(
         startCardId,
         association.targetItemId,
-        associationJson.type.name
+        associationJson.type.name,
+        boardData
       );
     } catch (e: any) {
       const message = `Failed fetching association ${association.associationId}.`;
@@ -103,23 +105,33 @@ export async function createConnectorsForDownstreamRefsAndAssociation(
   });
 
   downstreamRefs.forEach(async function (downstreamRef) {
-    createConnector(startCardId, downstreamRef, RelationshipType.DOWNSTREAM);
+    createConnector(
+      startCardId,
+      downstreamRef,
+      RelationshipType.DOWNSTREAM,
+      boardData
+    );
   });
 }
 
 async function createConnector(
   startCardId: string,
   targetItemId: number,
-  relationshipType: RelationshipType
+  relationshipType: RelationshipType,
+  boardData: BoardNode[]
 ) {
-  const endCardIds = await getAppCardIds(targetItemId);
+  const endCardIds = await getAppCardIds(targetItemId, boardData);
   const strokeColor = getColorForRelationshipType(relationshipType);
 
   const connectorCaptions = [{ content: relationshipType }];
 
   await Promise.all(
     endCardIds.map(async (endCardId) => {
-      const connectorExists = await doesConnectorExist(startCardId, endCardId);
+      const connectorExists = await doesConnectorExist(
+        startCardId,
+        endCardId,
+        boardData
+      );
       if (!connectorExists) {
         try {
           const widget = await miro.board.createConnector({
