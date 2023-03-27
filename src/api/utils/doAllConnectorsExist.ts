@@ -5,10 +5,11 @@ export default async function doAllConnectorsExist(
   startCardId: string,
   downstreamRefs: [number],
   associations: [{ associationId: number; targetItemId: number }],
-  boardData: BoardNode[]
+  boardData: BoardNode[],
+  metadata: []
 ) {
   for (const association of associations) {
-    const endCardIds = await getAppCardIds(association.targetItemId, boardData);
+    const endCardIds = getAppCardIds(association.targetItemId, metadata);
 
     // go through each endCardId and check if a connector exists
     for (const endCardId of endCardIds) {
@@ -24,7 +25,7 @@ export default async function doAllConnectorsExist(
   }
 
   for (const downstreamRef of downstreamRefs) {
-    const endCardIds = await getAppCardIds(downstreamRef, boardData);
+    const endCardIds = getAppCardIds(downstreamRef, metadata);
 
     // go through each endCardId and check if a connector exists
     for (const endCardId of endCardIds) {

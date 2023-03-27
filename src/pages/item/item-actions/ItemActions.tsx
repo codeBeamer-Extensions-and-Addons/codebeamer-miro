@@ -9,7 +9,7 @@ export default function ItemActions(props: {
   return (
     <div>
       <LoadDownstreamReferencesButton itemId={props.itemId} />
-      <LoadRelationsButton itemId={props.itemId} />
+      <LoadRelationsButton itemId={props.itemId} cardId={props.cardId} />
     </div>
   );
 }

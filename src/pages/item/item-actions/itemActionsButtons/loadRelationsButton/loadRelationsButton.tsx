@@ -4,7 +4,7 @@ import getAppCardIds from "../../../../../api/utils/getAppCardIds";
 import { useItemRelations } from "../../../../../hooks/useItemRelations";
 import doAllConnectorsExist from "../../../../../api/utils/doAllConnectorsExist";
 import removeConnectors from "../../../../../api/utils/removeConnectors";
-import { Board, BoardNode } from "@mirohq/websdk-types";
+import { BoardNode } from "@mirohq/websdk-types";
 
 interface Association {
   associationId: number;
@@ -13,6 +13,7 @@ interface Association {
 
 export default function LoadRelationsButton(props: {
   itemId: string | number;
+  cardId: string | number;
 }) {
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(true);
   const [associations, setAssociations] = useState<Association[]>([]);
@@ -21,6 +22,7 @@ export default function LoadRelationsButton(props: {
   const [relationsLoading, setRelationsLoading] = useState(true);
   const [connectorsAlreadyExist, setConnectorsAlreadyExist] = useState(false);
   const [miroBoardData, setMiroBoardData] = useState<BoardNode[]>([]);
+  const [miroMetadata, setMiroMetadata] = useState<[]>([]);
 
   const { relations: data, error, isLoading } = useItemRelations(props.itemId);
 
@@ -32,6 +34,7 @@ export default function LoadRelationsButton(props: {
         (data.downstreamReferences.length || data.outgoingAssociations.length)
       ) {
         const boardData = await miro.board.get();
+        const metadata = await getMiroMetadata(boardData);
 
         const downstreamRefs: React.SetStateAction<number[]> = [];
         const associations: Association[] = [];
@@ -51,28 +54,25 @@ export default function LoadRelationsButton(props: {
         }
 
         //check if connectors already exist on the board
-        const startCardIds = await getAppCardIds(
-          parseInt(props.itemId.toString()),
-          boardData
-        );
-        const startCardId = startCardIds[0];
         const connectorsExist = await doAllConnectorsExist(
-          startCardId,
+          props.cardId.toString(),
           downstreamRefs,
           associations,
-          boardData
+          boardData,
+          metadata
         );
 
         setConnectorsAlreadyExist(connectorsExist);
 
         //check if downstreamReferences or outgoingAssociations exist on the board
         const amountOfRelationsOnBoard =
-          await calculateAmountOfRelationsOnBoard(boardData);
+          await calculateAmountOfRelationsOnBoard(metadata);
 
         setButtonDisabled(amountOfRelationsOnBoard == 0);
         setDownstreamRefs(downstreamRefs);
         setAssociations(associations);
         setMiroBoardData(boardData);
+        setMiroMetadata(metadata);
       }
       setRelationsLoading(false);
     }
@@ -80,13 +80,33 @@ export default function LoadRelationsButton(props: {
     fetchData();
   }, [data]);
 
-  const calculateAmountOfRelationsOnBoard = async (boardData: BoardNode[]) => {
+  const getMiroMetadata = async (boardData: BoardNode[]) => {
+    let metadata = [];
+    // get metadata for each item on the board
+    await Promise.all(
+      boardData.map(async (item) => {
+        if (item.type == "app_card" || item.type == "connector") {
+          const itemMetadata = await miro.board.getMetadata(item);
+
+          const data = {
+            cardId: item.id,
+            metadata: itemMetadata,
+            type: item.type,
+          };
+          metadata.push(data);
+        }
+      })
+    );
+    return metadata;
+  };
+
+  const calculateAmountOfRelationsOnBoard = async (metadata: []) => {
     let count = 0;
     await Promise.all(
       data.outgoingAssociations.map(async function (outgoingAssociation) {
         const appCardIds = await getAppCardIds(
           outgoingAssociation.itemRevision.id,
-          boardData
+          metadata
         );
         count += appCardIds.length;
       })
@@ -95,7 +115,7 @@ export default function LoadRelationsButton(props: {
       data.downstreamReferences.map(async function (downstreamReference) {
         const appCardIds = await getAppCardIds(
           downstreamReference.itemRevision.id,
-          boardData
+          metadata
         );
         count += appCardIds.length;
       })
@@ -105,17 +125,15 @@ export default function LoadRelationsButton(props: {
   };
 
   const onClickShow = async () => {
+    const boardData = await miro.board.get();
+    const metadata = await getMiroMetadata(boardData);
     if (data && !buttonDisabled) {
-      const startCardIds = await getAppCardIds(
-        parseInt(props.itemId.toString()),
-        miroBoardData
-      );
-      const startCardId = startCardIds[0];
       await createConnectorsForDownstreamRefsAndAssociation(
-        startCardId,
+        props.cardId.toString(),
         downstreamRefs,
         associations,
-        miroBoardData
+        boardData,
+        metadata
       );
     } else {
       console.warn(
@@ -124,18 +142,12 @@ export default function LoadRelationsButton(props: {
     }
 
     setConnectorsAlreadyExist(!connectorsAlreadyExist);
-    const newBoard = await miro.board.get();
-    setMiroBoardData(newBoard);
   };
 
   const onClickHide = async () => {
+    const boardData = await miro.board.get();
     if (data && !buttonDisabled) {
-      const startCardIds = await getAppCardIds(
-        parseInt(props.itemId.toString()),
-        miroBoardData
-      );
-      const startCardId = startCardIds[0];
-      await removeConnectors(startCardId, miroBoardData);
+      await removeConnectors(props.cardId.toString(), boardData);
     } else {
       console.warn(
         "Can't load Associations - data still loading or failed to do so."
@@ -143,8 +155,6 @@ export default function LoadRelationsButton(props: {
     }
 
     setConnectorsAlreadyExist(!connectorsAlreadyExist);
-    const newBoard = await miro.board.get();
-    setMiroBoardData(newBoard);
   };
 
   return (

@@ -1,5 +1,4 @@
 import { Connector } from "@mirohq/websdk-types";
-import { Relation } from "../../models/relation.if";
 
 export default async function doesConnectorExist(
   startCardId: string,

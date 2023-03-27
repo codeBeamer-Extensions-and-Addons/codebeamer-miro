@@ -68,7 +68,8 @@ export async function createConnectorsForDownstreamRefsAndAssociation(
   startCardId: string,
   downstreamRefs: [number],
   associations: [{ associationId: number; targetItemId: number }],
-  boardData: BoardNode[]
+  boardData: BoardNode[],
+  metadata: any = []
 ) {
   const username = store.getState().userSettings.cbUsername;
   const password = store.getState().userSettings.cbPassword;
@@ -95,7 +96,8 @@ export async function createConnectorsForDownstreamRefsAndAssociation(
         startCardId,
         association.targetItemId,
         associationJson.type.name,
-        boardData
+        boardData,
+        metadata
       );
     } catch (e: any) {
       const message = `Failed fetching association ${association.associationId}.`;
@@ -109,7 +111,8 @@ export async function createConnectorsForDownstreamRefsAndAssociation(
       startCardId,
       downstreamRef,
       RelationshipType.DOWNSTREAM,
-      boardData
+      boardData,
+      metadata
     );
   });
 }
@@ -118,9 +121,10 @@ async function createConnector(
   startCardId: string,
   targetItemId: number,
   relationshipType: RelationshipType,
-  boardData: BoardNode[]
+  boardData: BoardNode[],
+  metadata: any = []
 ) {
-  const endCardIds = await getAppCardIds(targetItemId, boardData);
+  const endCardIds = await getAppCardIds(targetItemId, metadata);
   const strokeColor = getColorForRelationshipType(relationshipType);
 
   const connectorCaptions = [{ content: relationshipType }];
