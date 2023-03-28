@@ -188,6 +188,10 @@ img {
 	font-size: small;
 }
 
+.text-italic {
+	font-style: italic;
+}
+
 /**width & height*/
 .w-25 {
 	width: 25%;
@@ -355,10 +359,12 @@ img {
 
 body {
 	--scrollbar-width: 6px;
+	--scrollbar-height: 8px;
 }
 
 ::-webkit-scrollbar {
 	width: var(--scrollbar-width);
+	height: var(--scrollbar-height);
 }
 ::-webkit-scrollbar-track {
 	background: #eee;

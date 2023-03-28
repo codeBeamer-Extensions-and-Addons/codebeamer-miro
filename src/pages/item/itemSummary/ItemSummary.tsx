@@ -44,7 +44,12 @@ export default function ItemSummary(props: { item: Partial<CodeBeamerItem> }) {
 			<div className="title sticky">
 				<h3 className="h3" data-test="summary-summary">
 					{props.item.name}
-					{props.item.id && <small> #{props.item.id} </small>}
+					{props.item.id && (
+						<small className="text-italic">
+							{' '}
+							#{props.item.id}{' '}
+						</small>
+					)}
 				</h3>
 			</div>
 			{displayedItemDescription && (
