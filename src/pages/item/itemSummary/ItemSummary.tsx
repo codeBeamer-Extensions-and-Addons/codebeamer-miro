@@ -65,7 +65,12 @@ export default function ItemSummary(props: {
 			<div className="title sticky">
 				<h3 className="h3" data-test="summary-summary">
 					{props.item.name}
-					{props.item.id && <small> #{props.item.id} </small>}
+					{props.item.id && (
+						<small className="text-italic">
+							{' '}
+							#{props.item.id}{' '}
+						</small>
+					)}
 					{props.cardId && (
 						<span
 							className="icon icon-eye clickable pos-adjusted-down"

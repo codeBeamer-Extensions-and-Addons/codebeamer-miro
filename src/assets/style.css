@@ -188,6 +188,10 @@ img {
 	font-size: small;
 }
 
+.text-italic {
+	font-style: italic;
+}
+
 /**width & height*/
 .w-25 {
 	width: 25%;
