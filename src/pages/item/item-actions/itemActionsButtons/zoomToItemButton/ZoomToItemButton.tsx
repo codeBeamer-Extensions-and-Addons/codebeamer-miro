@@ -26,7 +26,7 @@ export default function ZoomToItemButton(props: { cardId: string | number }) {
 					data-test="zoom-to-item"
 					title="Zoom to the Item"
 				>
-					<span className="icon icon-eye"></span>
+					<span className="icon icon-eye clickable"></span>
 				</button>
 			)}
 		</>
