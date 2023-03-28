@@ -355,10 +355,12 @@ img {
 
 body {
 	--scrollbar-width: 6px;
+	--scrollbar-height: 8px;
 }
 
 ::-webkit-scrollbar {
 	width: var(--scrollbar-width);
+	height: var(--scrollbar-height);
 }
 ::-webkit-scrollbar-track {
 	background: #eee;
