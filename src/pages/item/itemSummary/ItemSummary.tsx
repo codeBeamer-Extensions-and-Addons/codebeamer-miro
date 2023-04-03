@@ -1,16 +1,11 @@
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useLazyGetWiki2HtmlLegacyQuery } from '../../../api/codeBeamerApi';
 import addContextToCBLinks from '../../../api/utils/addContextToCBLinks';
 import { CodeBeamerItem } from '../../../models/codebeamer-item.if';
 import { RootState } from '../../../store/store';
 
-export default function ItemSummary(props: {
-	item: Partial<CodeBeamerItem>;
-	cardId?: string;
-}) {
-	const dispatch = useDispatch();
-
+export default function ItemSummary(props: { item: Partial<CodeBeamerItem> }) {
 	const { cbAddress } = useSelector(
 		(state: RootState) => state.boardSettings
 	);
@@ -44,35 +39,16 @@ export default function ItemSummary(props: {
 		}
 	}, [wiki2HtmlQueryResult]);
 
-	const zoomToWidget = async () => {
-		if (!props.cardId) {
-			miro.board.notifications.showError(
-				`Can't zoom to the Item, since its card Id is unknown`
-			);
-			return;
-		}
-		let widget = await miro.board.getById(props.cardId);
-		if (!widget) {
-			miro.board.notifications.showError(
-				`Can't zoom to the Item, since it doesn't exist on the board`
-			);
-		}
-		miro.board.viewport.zoomTo(widget);
-	};
-
 	return (
 		<>
 			<div className="title sticky">
 				<h3 className="h3" data-test="summary-summary">
 					{props.item.name}
-					{props.item.id && <small> #{props.item.id} </small>}
-					{props.cardId && (
-						<span
-							className="icon icon-eye clickable pos-adjusted-down"
-							title="Click to zoom to the item"
-							onClick={() => zoomToWidget()}
-							data-test="summary-zoom-to-item"
-						></span>
+					{props.item.id && (
+						<small className="text-italic">
+							{' '}
+							#{props.item.id}{' '}
+						</small>
 					)}
 				</h3>
 			</div>
