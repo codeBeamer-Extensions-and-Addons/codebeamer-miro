@@ -74,10 +74,10 @@ export default function LoadRelationsButton(props: {
         setMiroBoardData(boardData);
         setMiroMetadata(metadata);
       }
-      setRelationsLoading(false);
     }
 
     fetchData();
+    setRelationsLoading(false);
   }, [data]);
 
   const getMiroMetadata = async (boardData: BoardNode[]) => {
@@ -125,6 +125,7 @@ export default function LoadRelationsButton(props: {
   };
 
   const onClickShow = async () => {
+    setRelationsLoading(true);
     const boardData = await miro.board.get();
     const metadata = await getMiroMetadata(boardData);
     if (data && !buttonDisabled) {
@@ -142,9 +143,11 @@ export default function LoadRelationsButton(props: {
     }
 
     setConnectorsAlreadyExist(!connectorsAlreadyExist);
+    setRelationsLoading(false);
   };
 
   const onClickHide = async () => {
+    setRelationsLoading(true);
     const boardData = await miro.board.get();
     if (data && !buttonDisabled) {
       await removeConnectors(props.cardId.toString(), boardData);
@@ -155,6 +158,7 @@ export default function LoadRelationsButton(props: {
     }
 
     setConnectorsAlreadyExist(!connectorsAlreadyExist);
+    setRelationsLoading(false);
   };
 
   return (
