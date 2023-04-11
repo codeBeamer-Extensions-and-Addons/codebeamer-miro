@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Importer from "../../../../import/components/importer/Importer";
 import { useItemRelations } from "../../../../../hooks/useItemRelations";
+import { Tooltip } from "react-tooltip";
 
 export default function LoadDownstreamReferencesButton(props: {
   itemId: string | number;
@@ -43,6 +44,12 @@ export default function LoadDownstreamReferencesButton(props: {
   return (
     <>
       <button
+        data-tooltip-id="loadDownstreamReferencesButton"
+        data-tooltip-content={
+          data
+            ? `Load Downstream References (${data.downstreamReferences.length})`
+            : "Load the Item's Downstream References onto the board, if they're not yet there"
+        }
         className={`button button-tertiary ${
           isLoading ? "button-loading button-loading-primary" : ""
         }`}
@@ -61,6 +68,7 @@ export default function LoadDownstreamReferencesButton(props: {
           </>
         )}
       </button>
+      <Tooltip id="loadDownstreamReferencesButton" />
       {queryString && <Importer items={itemIds} queryString={queryString} />}
     </>
   );

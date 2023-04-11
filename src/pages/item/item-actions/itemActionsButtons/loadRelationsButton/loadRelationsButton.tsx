@@ -5,6 +5,7 @@ import { useItemRelations } from "../../../../../hooks/useItemRelations";
 import doAllConnectorsExist from "../../../../../api/utils/doAllConnectorsExist";
 import removeConnectors from "../../../../../api/utils/removeConnectors";
 import { BoardNode } from "@mirohq/websdk-types";
+import { Tooltip } from "react-tooltip";
 
 interface Association {
   associationId: number;
@@ -164,6 +165,12 @@ export default function LoadRelationsButton(props: {
   return (
     <>
       <button
+        data-tooltip-id="loadRelationsButton"
+        data-tooltip-content={
+          connectorsAlreadyExist
+            ? `Hide Dependency & Associations (${relationsOnBoardCount})`
+            : `Show Dependency & Associations (${relationsOnBoardCount})`
+        }
         className={`button button-tertiary ${
           relationsLoading ? "button-loading button-loading-primary" : ""
         }`}
@@ -184,6 +191,7 @@ export default function LoadRelationsButton(props: {
           </>
         )}
       </button>
+      <Tooltip id="loadRelationsButton" />
     </>
   );
 }
