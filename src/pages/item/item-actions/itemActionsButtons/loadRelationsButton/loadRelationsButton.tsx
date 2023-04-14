@@ -4,12 +4,18 @@ import getAppCardIds from "../../../../../api/utils/getAppCardIds";
 import { useItemRelations } from "../../../../../hooks/useItemRelations";
 import doAllConnectorsExist from "../../../../../api/utils/doAllConnectorsExist";
 import removeConnectors from "../../../../../api/utils/removeConnectors";
-import { BoardNode } from "@mirohq/websdk-types";
+import { AppData, BoardNode, Item } from "@mirohq/websdk-types";
 import { Tooltip } from "react-tooltip";
 
 interface Association {
   associationId: number;
   targetItemId: number;
+}
+
+interface ItemMetadata {
+  cardId: string;
+  metadata: AppData;
+  type: string;
 }
 
 export default function LoadRelationsButton(props: {
@@ -22,8 +28,6 @@ export default function LoadRelationsButton(props: {
   const [relationsOnBoardCount, setRelationsOnBoardCount] = useState(0);
   const [relationsLoading, setRelationsLoading] = useState(true);
   const [connectorsAlreadyExist, setConnectorsAlreadyExist] = useState(false);
-  const [miroBoardData, setMiroBoardData] = useState<BoardNode[]>([]);
-  const [miroMetadata, setMiroMetadata] = useState<[]>([]);
 
   const { relations: data, error, isLoading } = useItemRelations(props.itemId);
 
@@ -72,8 +76,6 @@ export default function LoadRelationsButton(props: {
         setButtonDisabled(amountOfRelationsOnBoard == 0);
         setDownstreamRefs(downstreamRefs);
         setAssociations(associations);
-        setMiroBoardData(boardData);
-        setMiroMetadata(metadata);
       }
     }
 
@@ -82,7 +84,7 @@ export default function LoadRelationsButton(props: {
   }, [data]);
 
   const getMiroMetadata = async (boardData: BoardNode[]) => {
-    let metadata = [];
+    let metadata: ItemMetadata[] = [];
     // get metadata for each item on the board
     await Promise.all(
       boardData.map(async (item) => {
@@ -101,7 +103,9 @@ export default function LoadRelationsButton(props: {
     return metadata;
   };
 
-  const calculateAmountOfRelationsOnBoard = async (metadata: []) => {
+  const calculateAmountOfRelationsOnBoard = async (
+    metadata: ItemMetadata[]
+  ) => {
     let count = 0;
     await Promise.all(
       data.outgoingAssociations.map(async function (outgoingAssociation) {
