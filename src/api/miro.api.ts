@@ -1,4 +1,4 @@
-import { AppCard } from "@mirohq/websdk-types";
+import { AppCard, BoardNode } from "@mirohq/websdk-types";
 import { EnhancedStore } from "@reduxjs/toolkit";
 import { CodeBeamerItem } from "../models/codebeamer-item.if";
 import { store } from "../store/store";
@@ -14,7 +14,7 @@ import getSnailCoordSetPerSubject from "./utils/getSnailCoords";
 import { CARD_TITLE_TRKR_ITEMID_FILTER_REGEX } from "../constants/regular-expressions";
 import getAppCardIds from "./utils/getAppCardIds";
 import doesConnectorExist from "./utils/doesConnectorExist";
-import { Association } from "../models/api-query-types";
+import { Association, ItemMetadata } from "../models/api-query-types";
 import { RelationshipType } from "../enums/associationRelationshipType.enum";
 import { getColorForRelationshipType } from "./utils/getColorForRelationshipType";
 
@@ -66,10 +66,10 @@ export async function createAppCard(
 //in a for loop get detailed data for each association and then call createConnector() to create each connector
 export async function createConnectorsForDownstreamRefsAndAssociation(
   startCardId: string,
-  downstreamRefs: [number],
-  associations: [{ associationId: number; targetItemId: number }],
+  downstreamRefIds: number[],
+  associations: Association[],
   boardData: BoardNode[],
-  metadata: any = []
+  metadata: ItemMetadata[]
 ) {
   const username = store.getState().userSettings.cbUsername;
   const password = store.getState().userSettings.cbPassword;
@@ -106,10 +106,10 @@ export async function createConnectorsForDownstreamRefsAndAssociation(
     }
   });
 
-  downstreamRefs.forEach(async function (downstreamRef) {
+  downstreamRefIds.forEach(async function (downstreamRefId) {
     createConnector(
       startCardId,
-      downstreamRef,
+      downstreamRefId,
       RelationshipType.DOWNSTREAM,
       boardData,
       metadata

@@ -56,11 +56,6 @@ export default function LoadDownstreamReferencesButton(props: {
         onClick={loadDownstreamReferencesHandler}
         disabled={loadDownstreamReferencesDisabled}
         data-test="load-downstream-references"
-        title={
-          data
-            ? `Load Downstream References (${data.downstreamReferences.length})`
-            : "Load the Item's Downstream References onto the board, if they're not yet there"
-        }
       >
         {!isLoading && (
           <>
@@ -68,7 +63,10 @@ export default function LoadDownstreamReferencesButton(props: {
           </>
         )}
       </button>
-      <Tooltip id="loadDownstreamReferencesButton" />
+      <Tooltip
+        id="loadDownstreamReferencesButton"
+        style={{ position: "absolute", bottom: 0 }}
+      />
       {queryString && <Importer items={itemIds} queryString={queryString} />}
     </>
   );

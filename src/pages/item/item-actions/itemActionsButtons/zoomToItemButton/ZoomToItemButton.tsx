@@ -27,12 +27,14 @@ export default function ZoomToItemButton(props: { cardId: string | number }) {
           className={`button button-tertiary`}
           onClick={zoomToWidget}
           data-test="zoom-to-item"
-          title="Zoom to the Item"
         >
           <span className="icon icon-eye clickable"></span>
         </button>
       )}
-      <Tooltip id="zoomToItemButton" />
+      <Tooltip
+        id="zoomToItemButton"
+        style={{ position: "absolute", bottom: 0 }}
+      />
     </>
   );
 }

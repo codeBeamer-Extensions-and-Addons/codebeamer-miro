@@ -1,3 +1,4 @@
+import { AppData } from "@mirohq/websdk-types";
 import { RelationshipType } from "../enums/associationRelationshipType.enum";
 
 export interface ItemQueryPage {
@@ -88,7 +89,15 @@ export interface ItemRelation {
  * Structure of an Association
  */
 export interface Association {
-  type: {
-    name: RelationshipType;
-  };
+  associationId: number;
+  targetItemId: number;
+}
+
+/**
+ * Structure of an Items metadata
+ */
+export interface ItemMetadata {
+  cardId: string;
+  metadata: AppData;
+  type: string;
 }

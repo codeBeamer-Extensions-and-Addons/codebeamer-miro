@@ -1,12 +1,14 @@
+import { AppData, BoardNode } from "@mirohq/websdk-types";
 import doesConnectorExist from "./doesConnectorExist";
 import getAppCardIds from "./getAppCardIds";
+import { Association, ItemMetadata } from "../../models/api-query-types";
 
 export default async function doAllConnectorsExist(
   startCardId: string,
-  downstreamRefs: [number],
-  associations: [{ associationId: number; targetItemId: number }],
+  downstreamRefIds: number[],
+  associations: Association[],
   boardData: BoardNode[],
-  metadata: []
+  metadata: ItemMetadata[]
 ) {
   for (const association of associations) {
     const endCardIds = getAppCardIds(association.targetItemId, metadata);
@@ -24,8 +26,8 @@ export default async function doAllConnectorsExist(
     }
   }
 
-  for (const downstreamRef of downstreamRefs) {
-    const endCardIds = getAppCardIds(downstreamRef, metadata);
+  for (const downstreamRefId of downstreamRefIds) {
+    const endCardIds = getAppCardIds(downstreamRefId, metadata);
 
     // go through each endCardId and check if a connector exists
     for (const endCardId of endCardIds) {

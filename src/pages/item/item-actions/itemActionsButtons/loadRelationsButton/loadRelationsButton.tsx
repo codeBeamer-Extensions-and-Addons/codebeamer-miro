@@ -6,17 +6,10 @@ import doAllConnectorsExist from "../../../../../api/utils/doAllConnectorsExist"
 import removeConnectors from "../../../../../api/utils/removeConnectors";
 import { AppData, BoardNode, Item } from "@mirohq/websdk-types";
 import { Tooltip } from "react-tooltip";
-
-interface Association {
-  associationId: number;
-  targetItemId: number;
-}
-
-interface ItemMetadata {
-  cardId: string;
-  metadata: AppData;
-  type: string;
-}
+import {
+  Association,
+  ItemMetadata,
+} from "../../../../../models/api-query-types";
 
 export default function LoadRelationsButton(props: {
   itemId: string | number;
@@ -24,7 +17,7 @@ export default function LoadRelationsButton(props: {
 }) {
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(true);
   const [associations, setAssociations] = useState<Association[]>([]);
-  const [downstreamRefs, setDownstreamRefs] = useState<number[]>([]);
+  const [downstreamRefIds, setDownstreamRefs] = useState<number[]>([]);
   const [relationsOnBoardCount, setRelationsOnBoardCount] = useState(0);
   const [relationsLoading, setRelationsLoading] = useState(true);
   const [connectorsAlreadyExist, setConnectorsAlreadyExist] = useState(false);
@@ -41,11 +34,11 @@ export default function LoadRelationsButton(props: {
         const boardData = await miro.board.get();
         const metadata = await getMiroMetadata(boardData);
 
-        const downstreamRefs: React.SetStateAction<number[]> = [];
+        const downstreamRefIds: number[] = [];
         const associations: Association[] = [];
         if (data.downstreamReferences.length) {
           data.downstreamReferences.forEach(function (downstreamReference) {
-            downstreamRefs.push(downstreamReference.itemRevision.id);
+            downstreamRefIds.push(downstreamReference.itemRevision.id);
           });
         }
         if (data.outgoingAssociations.length) {
@@ -61,7 +54,7 @@ export default function LoadRelationsButton(props: {
         //check if connectors already exist on the board
         const connectorsExist = await doAllConnectorsExist(
           props.cardId.toString(),
-          downstreamRefs,
+          downstreamRefIds,
           associations,
           boardData,
           metadata
@@ -74,7 +67,7 @@ export default function LoadRelationsButton(props: {
           await calculateAmountOfRelationsOnBoard(metadata);
 
         setButtonDisabled(amountOfRelationsOnBoard == 0);
-        setDownstreamRefs(downstreamRefs);
+        setDownstreamRefs(downstreamRefIds);
         setAssociations(associations);
       }
     }
@@ -107,25 +100,28 @@ export default function LoadRelationsButton(props: {
     metadata: ItemMetadata[]
   ) => {
     let count = 0;
-    await Promise.all(
-      data.outgoingAssociations.map(async function (outgoingAssociation) {
-        const appCardIds = await getAppCardIds(
-          outgoingAssociation.itemRevision.id,
-          metadata
-        );
-        count += appCardIds.length;
-      })
-    );
-    await Promise.all(
-      data.downstreamReferences.map(async function (downstreamReference) {
-        const appCardIds = await getAppCardIds(
-          downstreamReference.itemRevision.id,
-          metadata
-        );
-        count += appCardIds.length;
-      })
-    );
-    setRelationsOnBoardCount(count);
+    if (data) {
+      await Promise.all(
+        data.outgoingAssociations.map(async function (outgoingAssociation) {
+          const appCardIds = await getAppCardIds(
+            outgoingAssociation.itemRevision.id,
+            metadata
+          );
+          count += appCardIds.length;
+        })
+      );
+      await Promise.all(
+        data.downstreamReferences.map(async function (downstreamReference) {
+          const appCardIds = await getAppCardIds(
+            downstreamReference.itemRevision.id,
+            metadata
+          );
+          count += appCardIds.length;
+        })
+      );
+      setRelationsOnBoardCount(count);
+    }
+
     return count;
   };
 
@@ -136,7 +132,7 @@ export default function LoadRelationsButton(props: {
     if (data && !buttonDisabled) {
       await createConnectorsForDownstreamRefsAndAssociation(
         props.cardId.toString(),
-        downstreamRefs,
+        downstreamRefIds,
         associations,
         boardData,
         metadata
@@ -183,11 +179,6 @@ export default function LoadRelationsButton(props: {
         }
         disabled={buttonDisabled}
         data-test="show-dependency"
-        title={
-          connectorsAlreadyExist
-            ? `Hide Dependency & Associations (${relationsOnBoardCount})`
-            : `Show Dependency & Associations (${relationsOnBoardCount})`
-        }
       >
         {!relationsLoading && (
           <>
@@ -195,7 +186,10 @@ export default function LoadRelationsButton(props: {
           </>
         )}
       </button>
-      <Tooltip id="loadRelationsButton" />
+      <Tooltip
+        id="loadRelationsButton"
+        style={{ position: "absolute", bottom: 0 }}
+      />
     </>
   );
 }
