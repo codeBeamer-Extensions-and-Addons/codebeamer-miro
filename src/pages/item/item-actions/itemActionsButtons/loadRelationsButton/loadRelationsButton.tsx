@@ -5,11 +5,11 @@ import { useItemRelations } from "../../../../../hooks/useItemRelations";
 import doAllConnectorsExist from "../../../../../api/utils/doAllConnectorsExist";
 import removeConnectors from "../../../../../api/utils/removeConnectors";
 import { AppData, BoardNode, Item } from "@mirohq/websdk-types";
-import { Tooltip } from "react-tooltip";
 import {
   Association,
   ItemMetadata,
 } from "../../../../../models/api-query-types";
+import ItemActionsTooltip from "../../ItemActionsTooltip";
 
 export default function LoadRelationsButton(props: {
   itemId: string | number;
@@ -164,32 +164,30 @@ export default function LoadRelationsButton(props: {
 
   return (
     <>
-      <button
-        data-tooltip-id="loadRelationsButton"
-        data-tooltip-content={
+      <ItemActionsTooltip
+        title={
           connectorsAlreadyExist
             ? `Hide Dependency & Associations (${relationsOnBoardCount})`
             : `Show Dependency & Associations (${relationsOnBoardCount})`
         }
-        className={`button button-tertiary ${
-          relationsLoading ? "button-loading button-loading-primary" : ""
-        }`}
-        onClick={
-          connectorsAlreadyExist ? () => onClickHide() : () => onClickShow()
-        }
-        disabled={buttonDisabled}
-        data-test="show-dependency"
       >
-        {!relationsLoading && (
-          <>
-            <span className="icon-arrow-line-shape"></span>
-          </>
-        )}
-      </button>
-      <Tooltip
-        id="loadRelationsButton"
-        style={{ position: "absolute", bottom: 0 }}
-      />
+        <button
+          className={`button button-tertiary ${
+            relationsLoading ? "button-loading button-loading-primary" : ""
+          }`}
+          onClick={
+            connectorsAlreadyExist ? () => onClickHide() : () => onClickShow()
+          }
+          disabled={buttonDisabled}
+          data-test="show-dependency"
+        >
+          {!relationsLoading && (
+            <>
+              <span className="icon-arrow-line-shape"></span>
+            </>
+          )}
+        </button>
+      </ItemActionsTooltip>
     </>
   );
 }

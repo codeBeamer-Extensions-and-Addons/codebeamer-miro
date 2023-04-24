@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Importer from "../../../../import/components/importer/Importer";
 import { useItemRelations } from "../../../../../hooks/useItemRelations";
 import { Tooltip } from "react-tooltip";
+import ItemActionsTooltip from "../../ItemActionsTooltip";
 
 export default function LoadDownstreamReferencesButton(props: {
   itemId: string | number;
@@ -43,30 +44,28 @@ export default function LoadDownstreamReferencesButton(props: {
 
   return (
     <>
-      <button
-        data-tooltip-id="loadDownstreamReferencesButton"
-        data-tooltip-content={
+      <ItemActionsTooltip
+        title={
           data
             ? `Load Downstream References (${data.downstreamReferences.length})`
             : "Load the Item's Downstream References onto the board, if they're not yet there"
         }
-        className={`button button-tertiary ${
-          isLoading ? "button-loading button-loading-primary" : ""
-        }`}
-        onClick={loadDownstreamReferencesHandler}
-        disabled={loadDownstreamReferencesDisabled}
-        data-test="load-downstream-references"
       >
-        {!isLoading && (
-          <>
-            <span className="icon-add-row-bottom"></span>
-          </>
-        )}
-      </button>
-      <Tooltip
-        id="loadDownstreamReferencesButton"
-        style={{ position: "absolute", bottom: 0 }}
-      />
+        <button
+          className={`button button-tertiary ${
+            isLoading ? "button-loading button-loading-primary" : ""
+          }`}
+          onClick={loadDownstreamReferencesHandler}
+          disabled={loadDownstreamReferencesDisabled}
+          data-test="load-downstream-references"
+        >
+          {!isLoading && (
+            <>
+              <span className="icon-add-row-bottom"></span>
+            </>
+          )}
+        </button>
+      </ItemActionsTooltip>
       {queryString && <Importer items={itemIds} queryString={queryString} />}
     </>
   );

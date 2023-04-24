@@ -1,5 +1,6 @@
 import React from "react";
 import { Tooltip } from "react-tooltip";
+import ItemActionsTooltip from "../../ItemActionsTooltip";
 
 export default function ZoomToItemButton(props: { cardId: string | number }) {
   const zoomToWidget = async () => {
@@ -21,20 +22,18 @@ export default function ZoomToItemButton(props: { cardId: string | number }) {
   return (
     <>
       {props.cardId && (
-        <button
-          data-tooltip-id="zoomToItemButton"
-          data-tooltip-content="Zoom to the Item"
-          className={`button button-tertiary`}
-          onClick={zoomToWidget}
-          data-test="zoom-to-item"
-        >
-          <span className="icon icon-eye clickable"></span>
-        </button>
+        <ItemActionsTooltip title="Zoom to the Item">
+          <button
+            data-tooltip-id="zoomToItemButton"
+            data-tooltip-content="Zoom to the Item"
+            className={`button button-tertiary`}
+            onClick={zoomToWidget}
+            data-test="zoom-to-item"
+          >
+            <span className="icon icon-eye clickable"></span>
+          </button>
+        </ItemActionsTooltip>
       )}
-      <Tooltip
-        id="zoomToItemButton"
-        style={{ position: "absolute", bottom: 0 }}
-      />
     </>
   );
 }
