@@ -1,8 +1,10 @@
-import React from "react";
-import { Tooltip } from "react-tooltip";
-import ItemActionsTooltip from "../../ItemActionsTooltip";
+import React, { useRef, useState } from "react";
+import { Tooltip, Overlay } from "react-bootstrap";
 
 export default function ZoomToItemButton(props: { cardId: string | number }) {
+  const [showTooltip, setShowTooltip] = useState(false);
+  const targetTooltip = useRef(null);
+
   const zoomToWidget = async () => {
     if (!props.cardId) {
       miro.board.notifications.showError(
@@ -22,17 +24,29 @@ export default function ZoomToItemButton(props: { cardId: string | number }) {
   return (
     <>
       {props.cardId && (
-        <ItemActionsTooltip title="Zoom to the Item">
+        <>
           <button
-            data-tooltip-id="zoomToItemButton"
-            data-tooltip-content="Zoom to the Item"
+            ref={targetTooltip}
             className={`button button-tertiary`}
             onClick={zoomToWidget}
+            onMouseEnter={() => setShowTooltip(!showTooltip)}
+            onMouseLeave={() => setShowTooltip(!showTooltip)}
             data-test="zoom-to-item"
           >
             <span className="icon icon-eye clickable"></span>
           </button>
-        </ItemActionsTooltip>
+          <Overlay
+            target={targetTooltip.current}
+            show={showTooltip}
+            placement="bottom"
+          >
+            {(props) => (
+              <Tooltip className="tooltip" {...props}>
+                Zoom to the Item
+              </Tooltip>
+            )}
+          </Overlay>
+        </>
       )}
     </>
   );

@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import Importer from "../../../../import/components/importer/Importer";
 import { useItemRelations } from "../../../../../hooks/useItemRelations";
-import { Tooltip } from "react-tooltip";
-import ItemActionsTooltip from "../../ItemActionsTooltip";
+import { Tooltip, Overlay } from "react-bootstrap";
 
 export default function LoadDownstreamReferencesButton(props: {
   itemId: string | number;
@@ -13,8 +12,10 @@ export default function LoadDownstreamReferencesButton(props: {
   ] = useState<boolean>(true);
   const [itemIds, setItemIds] = useState<string[]>([]);
   const [queryString, setQueryString] = useState<string>("");
+  const [showTooltip, setShowTooltip] = useState(false);
 
   const { relations: data, error, isLoading } = useItemRelations(props.itemId);
+  const targetTooltip = useRef(null);
 
   const loadDownstreamReferencesHandler = () => {
     if (data && !loadDownstreamReferencesDisabled) {
@@ -44,28 +45,36 @@ export default function LoadDownstreamReferencesButton(props: {
 
   return (
     <>
-      <ItemActionsTooltip
-        title={
-          data
-            ? `Load Downstream References (${data.downstreamReferences.length})`
-            : "Load the Item's Downstream References onto the board, if they're not yet there"
-        }
+      <button
+        ref={targetTooltip}
+        className={`button button-tertiary ${
+          isLoading ? "button-loading button-loading-primary" : ""
+        }`}
+        onClick={loadDownstreamReferencesHandler}
+        onMouseEnter={() => setShowTooltip(!showTooltip)}
+        onMouseLeave={() => setShowTooltip(!showTooltip)}
+        disabled={loadDownstreamReferencesDisabled}
+        data-test="load-downstream-references"
       >
-        <button
-          className={`button button-tertiary ${
-            isLoading ? "button-loading button-loading-primary" : ""
-          }`}
-          onClick={loadDownstreamReferencesHandler}
-          disabled={loadDownstreamReferencesDisabled}
-          data-test="load-downstream-references"
-        >
-          {!isLoading && (
-            <>
-              <span className="icon-add-row-bottom"></span>
-            </>
-          )}
-        </button>
-      </ItemActionsTooltip>
+        {!isLoading && (
+          <>
+            <span className="icon-add-row-bottom"></span>
+          </>
+        )}
+      </button>
+      <Overlay
+        target={targetTooltip.current}
+        show={showTooltip}
+        placement="bottom"
+      >
+        {(props) => (
+          <Tooltip className="tooltip" {...props}>
+            {data
+              ? `Load Downstream References (${data.downstreamReferences.length})`
+              : "Load the Item's Downstream References onto the board, if they're not yet there"}
+          </Tooltip>
+        )}
+      </Overlay>
       {queryString && <Importer items={itemIds} queryString={queryString} />}
     </>
   );

@@ -1,15 +1,15 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { createConnectorsForDownstreamRefsAndAssociation } from "../../../../../api/miro.api";
 import getAppCardIds from "../../../../../api/utils/getAppCardIds";
 import { useItemRelations } from "../../../../../hooks/useItemRelations";
 import doAllConnectorsExist from "../../../../../api/utils/doAllConnectorsExist";
 import removeConnectors from "../../../../../api/utils/removeConnectors";
-import { AppData, BoardNode, Item } from "@mirohq/websdk-types";
+import { BoardNode } from "@mirohq/websdk-types";
 import {
   Association,
   ItemMetadata,
 } from "../../../../../models/api-query-types";
-import ItemActionsTooltip from "../../ItemActionsTooltip";
+import { Tooltip, Overlay } from "react-bootstrap";
 
 export default function LoadRelationsButton(props: {
   itemId: string | number;
@@ -21,8 +21,10 @@ export default function LoadRelationsButton(props: {
   const [relationsOnBoardCount, setRelationsOnBoardCount] = useState(0);
   const [relationsLoading, setRelationsLoading] = useState(true);
   const [connectorsAlreadyExist, setConnectorsAlreadyExist] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   const { relations: data, error, isLoading } = useItemRelations(props.itemId);
+  const targetTooltip = useRef(null);
 
   // get all downstreamRefs and associations and then call in the miro.api a method which creates all connectors
   React.useEffect(() => {
@@ -164,30 +166,38 @@ export default function LoadRelationsButton(props: {
 
   return (
     <>
-      <ItemActionsTooltip
-        title={
-          connectorsAlreadyExist
-            ? `Hide Dependency & Associations (${relationsOnBoardCount})`
-            : `Show Dependency & Associations (${relationsOnBoardCount})`
+      <button
+        ref={targetTooltip}
+        className={`button button-tertiary ${
+          relationsLoading ? "button-loading button-loading-primary" : ""
+        }`}
+        onClick={
+          connectorsAlreadyExist ? () => onClickHide() : () => onClickShow()
         }
+        onMouseEnter={() => setShowTooltip(true)}
+        onMouseLeave={() => setShowTooltip(false)}
+        disabled={buttonDisabled}
+        data-test="show-dependency"
       >
-        <button
-          className={`button button-tertiary ${
-            relationsLoading ? "button-loading button-loading-primary" : ""
-          }`}
-          onClick={
-            connectorsAlreadyExist ? () => onClickHide() : () => onClickShow()
-          }
-          disabled={buttonDisabled}
-          data-test="show-dependency"
-        >
-          {!relationsLoading && (
-            <>
-              <span className="icon-arrow-line-shape"></span>
-            </>
-          )}
-        </button>
-      </ItemActionsTooltip>
+        {!relationsLoading && (
+          <>
+            <span className="icon-arrow-line-shape"></span>
+          </>
+        )}
+      </button>
+      <Overlay
+        target={targetTooltip.current}
+        show={showTooltip}
+        placement="bottom"
+      >
+        {(props) => (
+          <Tooltip className="tooltip" {...props}>
+            {connectorsAlreadyExist
+              ? `Hide Dependency & Associations (${relationsOnBoardCount})`
+              : `Show Dependency & Associations (${relationsOnBoardCount})`}
+          </Tooltip>
+        )}
+      </Overlay>
     </>
   );
 }

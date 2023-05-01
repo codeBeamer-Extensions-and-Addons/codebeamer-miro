@@ -20,9 +20,6 @@
     "test:open": "cypress open --component -b chrome"
   },
   "dependencies": {
-    "@emotion/react": "^11.10.6",
-    "@emotion/styled": "^11.10.6",
-    "@mui/material": "^5.12.1",
     "@reduxjs/toolkit": "^1.8.3",
     "formik": "^2.2.9",
     "html-entities": "^2.3.3",

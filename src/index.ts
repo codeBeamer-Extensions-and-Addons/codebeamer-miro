@@ -1,6 +1,5 @@
 import getItemIdFromCardTitle from "./api/utils/getItemIdFromCardTitle";
 import { CodeBeamerItem } from "./models/codebeamer-item.if";
-import "react-tooltip/dist/react-tooltip.css";
 
 async function init() {
   miro.board.ui.on("icon:click", async () => {
