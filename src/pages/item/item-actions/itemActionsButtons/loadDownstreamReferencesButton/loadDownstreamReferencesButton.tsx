@@ -51,8 +51,8 @@ export default function LoadDownstreamReferencesButton(props: {
           isLoading ? "button-loading button-loading-primary" : ""
         }`}
         onClick={loadDownstreamReferencesHandler}
-        onMouseEnter={() => setShowTooltip(!showTooltip)}
-        onMouseLeave={() => setShowTooltip(!showTooltip)}
+        onMouseEnter={() => setShowTooltip(true)}
+        onMouseLeave={() => setShowTooltip(false)}
         disabled={loadDownstreamReferencesDisabled}
         data-test="load-downstream-references"
       >
@@ -68,7 +68,7 @@ export default function LoadDownstreamReferencesButton(props: {
         placement="bottom"
       >
         {(props) => (
-          <Tooltip className="tooltip" {...props}>
+          <Tooltip {...props}>
             {data
               ? `Load Downstream References (${data.downstreamReferences.length})`
               : "Load the Item's Downstream References onto the board, if they're not yet there"}

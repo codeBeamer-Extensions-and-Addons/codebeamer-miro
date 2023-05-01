@@ -394,13 +394,8 @@ body {
   animation: fade-out 0.3s ease-in-out;
 }
 
-.tooltip .tooltip-inner {
-  background-color: var(--blue700);
-  color: #fff;
-}
-
-.bs-tooltip-bottom .tooltip-arrow::before {
-  border-bottom-color: var(--blue700) !important;
+div.tooltip {
+  --bs-tooltip-bg: var(--blue700);
 }
 
 /**keyframes*/

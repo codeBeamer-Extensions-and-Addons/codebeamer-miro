@@ -29,8 +29,8 @@ export default function ZoomToItemButton(props: { cardId: string | number }) {
             ref={targetTooltip}
             className={`button button-tertiary`}
             onClick={zoomToWidget}
-            onMouseEnter={() => setShowTooltip(!showTooltip)}
-            onMouseLeave={() => setShowTooltip(!showTooltip)}
+            onMouseEnter={() => setShowTooltip(true)}
+            onMouseLeave={() => setShowTooltip(false)}
             data-test="zoom-to-item"
           >
             <span className="icon icon-eye clickable"></span>
@@ -40,11 +40,7 @@ export default function ZoomToItemButton(props: { cardId: string | number }) {
             show={showTooltip}
             placement="bottom"
           >
-            {(props) => (
-              <Tooltip className="tooltip" {...props}>
-                Zoom to the Item
-              </Tooltip>
-            )}
+            {(props) => <Tooltip {...props}>Zoom to the Item</Tooltip>}
           </Overlay>
         </>
       )}

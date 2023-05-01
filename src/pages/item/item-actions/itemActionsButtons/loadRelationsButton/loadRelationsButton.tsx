@@ -191,7 +191,7 @@ export default function LoadRelationsButton(props: {
         placement="bottom"
       >
         {(props) => (
-          <Tooltip className="tooltip" {...props}>
+          <Tooltip {...props}>
             {connectorsAlreadyExist
               ? `Hide Dependency & Associations (${relationsOnBoardCount})`
               : `Show Dependency & Associations (${relationsOnBoardCount})`}
