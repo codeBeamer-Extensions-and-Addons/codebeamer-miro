@@ -8,7 +8,7 @@ import {
 import { updateAppCard } from '../../../../api/miro.api';
 import {
 	DEFAULT_RESULT_PAGE,
-	MAX_ITEMS_PER_IMPORT,
+	MAX_ITEMS_PER_SYNCH,
 } from '../../../../constants/cb-import-defaults';
 import { AppCardToItemMapping } from '../../../../models/appCardToItemMapping.if';
 import { CodeBeamerItem } from '../../../../models/codebeamer-item.if';
@@ -37,7 +37,7 @@ export default function Updater(props: {
 	//? maybe fetching every item on its own is more efficient. cb takes a long time to resolve that 'item.id IN' query.
 	const { data, error, isLoading } = useGetItemsQuery({
 		page: DEFAULT_RESULT_PAGE,
-		pageSize: MAX_ITEMS_PER_IMPORT,
+		pageSize: MAX_ITEMS_PER_SYNCH,
 		queryString: `item.id IN (${props.items
 			.map((i) => i.itemId)
 			.join(',')})`,
