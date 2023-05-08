@@ -36,8 +36,10 @@ describe("load-downstream-refs", () => {
       cy.mountWithStore(<LoadDownstreamReferencesButton itemId={mockItemId} />);
       cy.wait("@relations");
 
+      cy.getBySel("load-downstream-references").trigger("mouseover");
+
       cy.fixture("itemRelations.json").then((relations) => {
-        cy.getBySel("load-downstream-references").should(
+        cy.getBySel("load-downstream-references-tooltip").should(
           "contain.text",
           `(${relations.downstreamReferences.length})`
         );

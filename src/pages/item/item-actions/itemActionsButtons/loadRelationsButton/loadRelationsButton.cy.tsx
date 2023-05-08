@@ -6,7 +6,9 @@ const mockItemId = 201284;
 describe("association-visualization", () => {
   context("button", () => {
     it("displays a button to visualize associations", () => {
-      cy.mountWithStore(<LoadRelationsButton itemId={mockItemId} />);
+      cy.mountWithStore(
+        <LoadRelationsButton itemId={mockItemId} cardId={""} />
+      );
       cy.getBySel("show-dependency").should("exist");
     });
 
@@ -17,24 +19,26 @@ describe("association-visualization", () => {
         fixture: "itemRelationsForRelationsButton.json",
       }).as("relations");
 
-      const stub = cy.stub(miro.board, "get").as("boardGet");
+      cy.stub(miro.board, "get").as("boardGet").resolves(boardData);
 
-      stub.withArgs({ type: "app_card" }).resolves(itemsOnBoard);
-
-      stub.withArgs({ type: "connector" }).resolves(connectors);
-
-      cy.mountWithStore(<LoadRelationsButton itemId={mockItemId} />);
+      cy.mountWithStore(
+        <LoadRelationsButton itemId={mockItemId} cardId={""} />
+      );
 
       cy.wait("@relations");
 
-      cy.getBySel("show-dependency").should(
+      cy.getBySel("show-dependency").trigger("mouseover");
+
+      cy.getBySel("show-dependency-tooltip").should(
         "contain.text",
         `(${expectedAmount})`
       );
     });
 
     it("is initially disabled by default", () => {
-      cy.mountWithStore(<LoadRelationsButton itemId={mockItemId} />);
+      cy.mountWithStore(
+        <LoadRelationsButton itemId={mockItemId} cardId={""} />
+      );
       cy.getBySel("show-dependency").should("be.disabled");
     });
 
@@ -43,13 +47,11 @@ describe("association-visualization", () => {
         fixture: "itemRelationsForRelationsButton.json",
       }).as("relations");
 
-      const stub = cy.stub(miro.board, "get").as("boardGet");
+      cy.stub(miro.board, "get").as("boardGet").resolves(boardData);
 
-      stub.withArgs({ type: "app_card" }).resolves(itemsOnBoard);
-
-      stub.withArgs({ type: "connector" }).resolves(connectors);
-
-      cy.mountWithStore(<LoadRelationsButton itemId={mockItemId} />);
+      cy.mountWithStore(
+        <LoadRelationsButton itemId={mockItemId} cardId={""} />
+      );
 
       cy.wait("@relations");
 
@@ -61,24 +63,22 @@ describe("association-visualization", () => {
         fixture: "itemRelationsForRelationsButton.json",
       }).as("relations");
 
-      const stub = cy.stub(miro.board, "get").as("boardGet");
+      cy.stub(miro.board, "get").as("boardGet").resolves(boardData);
 
-      stub.withArgs({ type: "app_card" }).resolves(itemsOnBoard);
-
-      stub.withArgs({ type: "connector" }).resolves(connectors);
-
-      cy.mountWithStore(<LoadRelationsButton itemId={mockItemId} />);
+      cy.mountWithStore(
+        <LoadRelationsButton itemId={mockItemId} cardId={""} />
+      );
 
       cy.wait("@relations");
 
       cy.getBySel("show-dependency").click();
 
-      cy.getBySel("show-dependency").should("contain.text", "Hide");
+      cy.getBySel("show-dependency-tooltip").should("contain.text", "Hide");
     });
   });
 });
 
-const itemsOnBoard = [
+const boardData = [
   {
     type: "app_card",
     owned: false,
@@ -116,7 +116,7 @@ const itemsOnBoard = [
     rotation: 0,
     getMetadata: async function () {
       return {
-        id: 1599512,
+        item: { id: 1599512 },
       };
     },
   },
@@ -157,7 +157,7 @@ const itemsOnBoard = [
     rotation: 0,
     getMetadata: async function () {
       return {
-        id: 1599511,
+        item: { id: 1599511 },
       };
     },
   },
@@ -204,7 +204,7 @@ const itemsOnBoard = [
     rotation: 0,
     getMetadata: async function () {
       return {
-        id: 1599514,
+        item: { id: 1599514 },
       };
     },
   },
@@ -245,13 +245,10 @@ const itemsOnBoard = [
     rotation: 0,
     getMetadata: async function () {
       return {
-        id: 1599513,
+        item: { id: 1599513 },
       };
     },
   },
-];
-
-const connectors = [
   {
     type: "connector",
     shape: "curved",

@@ -97,7 +97,7 @@ export interface Association {
  * Structure of an Items metadata
  */
 export interface ItemMetadata {
-  cardId: string;
+  id: string;
   metadata: AppData;
   type: string;
 }

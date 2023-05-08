@@ -7,7 +7,7 @@ export default function getAppCardIds(
       data.type === "app_card" && data.metadata.item.id === codeBeamerItemId
   );
   const appCardIds = filteredMetadata.map((data) => {
-    return data.cardId;
+    return data.id;
   });
   return appCardIds;
 }

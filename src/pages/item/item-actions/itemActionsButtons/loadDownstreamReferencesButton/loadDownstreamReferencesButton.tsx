@@ -68,7 +68,7 @@ export default function LoadDownstreamReferencesButton(props: {
         placement="bottom"
       >
         {(props) => (
-          <Tooltip {...props}>
+          <Tooltip {...props} data-test="load-downstream-references-tooltip">
             {data
               ? `Load Downstream References (${data.downstreamReferences.length})`
               : "Load the Item's Downstream References onto the board, if they're not yet there"}

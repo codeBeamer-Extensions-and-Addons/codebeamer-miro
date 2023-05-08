@@ -84,10 +84,10 @@ export default function LoadRelationsButton(props: {
     await Promise.all(
       boardData.map(async (item) => {
         if (item.type == "app_card" || item.type == "connector") {
-          const itemMetadata = await miro.board.getMetadata(item);
+          const itemMetadata = await item.getMetadata();
 
           const data = {
-            cardId: item.id,
+            id: item.id,
             metadata: itemMetadata,
             type: item.type,
           };
@@ -191,7 +191,7 @@ export default function LoadRelationsButton(props: {
         placement="bottom"
       >
         {(props) => (
-          <Tooltip {...props}>
+          <Tooltip {...props} data-test="show-dependency-tooltip">
             {connectorsAlreadyExist
               ? `Hide Dependency & Associations (${relationsOnBoardCount})`
               : `Show Dependency & Associations (${relationsOnBoardCount})`}
