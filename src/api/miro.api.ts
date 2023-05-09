@@ -1,3 +1,8 @@
+/**
+ * WARNING: Miro Web SDK implements rate limiting to control usage.
+ * for more information visit: https://developers.miro.com/docs/rate-limiting
+ */
+
 import { AppCard, BoardNode } from "@mirohq/websdk-types";
 import { EnhancedStore } from "@reduxjs/toolkit";
 import { CodeBeamerItem } from "../models/codebeamer-item.if";
