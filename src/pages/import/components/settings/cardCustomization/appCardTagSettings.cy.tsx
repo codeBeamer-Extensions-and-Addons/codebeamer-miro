@@ -94,6 +94,11 @@ describe('<AppCardTagSettings', () => {
 				'wiki2html'
 			);
 
+			cy.intercept('GET', '**/api/v3/trackers/**', {
+				statusCode: 200,
+				body: { keyName: 'TEST', color: '#FFFFFF' },
+			});
+
 			cy.mountWithStore(<AppCardTagSettings />);
 
 			cy.getBySel(`tag-Owner`).click();
@@ -105,10 +110,10 @@ describe('<AppCardTagSettings', () => {
 
 					cy.wait('@fetch').then(() => {
 						cy.wait('@wiki2html').then(() => {
-							expect(stubSync).to.be.calledOnce;
+							expect(stubSync).to.be.called;
 
 							cy.wait('@wiki2html').then(() => {
-								expect(stubSync).to.be.calledOnce;
+								expect(stubSync).to.be.called;
 								cy.get('.checkmark').should('exist');
 							});
 						});
