@@ -3,10 +3,7 @@ import Modal from 'react-bootstrap/Modal';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 import Spinner from 'react-bootstrap/Spinner';
 import { useSelector } from 'react-redux';
-import {
-	useGetItemsQuery,
-	useGetTrackerDetailsQuery,
-} from '../../../../api/codeBeamerApi';
+import { useGetItemsQuery } from '../../../../api/codeBeamerApi';
 import { createAppCard } from '../../../../api/miro.api';
 import {
 	DEFAULT_RESULT_PAGE,
@@ -24,7 +21,7 @@ export default function Importer(props: {
 	queryString?: string;
 	onClose?: Function;
 }) {
-	const { trackerId, cbqlString } = useSelector(
+	const { cbqlString } = useSelector(
 		(state: RootState) => state.userSettings
 	);
 
@@ -60,24 +57,11 @@ export default function Importer(props: {
 		}`,
 	});
 
-	const {
-		key,
-		color,
-		error: trackerDetailsQueryError,
-		isLoading: isTrackerDetailsQueryLoading,
-	} = useGetTrackerDetailsQuery(trackerId, {
-		selectFromResult: ({ data, error, isLoading }) => ({
-			key: data?.keyName,
-			color: data?.color,
-			error: error,
-			isLoading: isLoading,
-		}),
-	});
-
 	React.useEffect(() => {
 		const importItems = async (items: CodeBeamerItem[]) => {
 			const _items: CodeBeamerItem[] = structuredClone(items);
 			for (let i = 0; i < _items.length; i++) {
+				console.log('Item no. ' + i + ' of ' + _items.length);
 				if (_items[i].categories?.length) {
 					if (
 						_items[i].categories.find(
@@ -90,24 +74,23 @@ export default function Importer(props: {
 						continue;
 					}
 				}
-				_items[i].tracker.keyName = key;
-				_items[i].tracker.color = color;
 				await createAppCard(_items[i]);
 				setLoaded(i + 1);
+				console.log("Created card for item '" + _items[i].name + "'");
 			}
+			console.log('Done importing.');
 			miro.board.ui.closeModal();
 			miro.board.ui.closePanel();
-			return;
 		};
 
-		if (error || trackerDetailsQueryError) {
-			props.onClose;
-		} else if (data && key) {
+		if (error) {
+			if (props.onClose) props.onClose();
+		} else if (data) {
 			importItems(data.items as CodeBeamerItem[]).catch((err) =>
 				console.error(err)
 			);
 		}
-	}, [data, key]);
+	}, [data]);
 
 	return (
 		<Modal show centered>
