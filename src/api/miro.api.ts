@@ -12,6 +12,7 @@ import { CardSpawningMethod } from '../enums/cardSpawningMethod.enum';
 import getRandomCoordSetPerSubject from './utils/getRandomCoordSetPerSubject';
 import getSnailCoordSetPerSubject from './utils/getSnailCoords';
 import { CARD_TITLE_TRKR_ITEMID_FILTER_REGEX } from '../constants/regular-expressions';
+import TrackerDetails from '../models/trackerDetails.if';
 
 /**
  * Create a new app card base on a codeBeamer item
@@ -99,25 +100,21 @@ export async function convertToCardData(
 	appStore?: EnhancedStore<any>
 ): Promise<Partial<AppCard>> {
 	let description = item.description;
+	const username = store.getState().userSettings.cbUsername;
+	const password = store.getState().userSettings.cbPassword;
+	const cbBaseAddress = store.getState().boardSettings.cbAddress;
+
+	const headers = new Headers({
+		'Content-Type': 'text/plain',
+		Authorization: `Basic ${btoa(username + ':' + password)}`,
+	});
+
 	if (item.descriptionFormat == DescriptionFormat.WIKI) {
-		const username = store.getState().userSettings.cbUsername;
-		const password = store.getState().userSettings.cbPassword;
-
-		const requestArgs = {
-			method: 'POST',
-			headers: new Headers({
-				'Content-Type': 'text/plain',
-				Authorization: `Basic ${btoa(username + ':' + password)}`,
-			}),
-			body: item.description,
-		};
-
+		//get the formatted description
 		try {
 			const wiki2htmlRes = await fetch(
-				`${store.getState().boardSettings.cbAddress}/rest/item/${
-					item.id
-				}/wiki2html`,
-				requestArgs
+				`${cbBaseAddress}/rest/item/${item.id}/wiki2html`,
+				{ method: 'POST', body: item.description, headers }
 			);
 			const html = await wiki2htmlRes.text();
 			description = html;
@@ -127,8 +124,22 @@ export async function convertToCardData(
 			//* and a custom timeout seams impossible
 			const message = `Failed fetching formatted description for Item ${item.name}.`;
 			console.warn(message);
-			miro.board.notifications.showError(message);
 		}
+	}
+
+	//get the tracker details
+	try {
+		const trackerRes = await fetch(
+			`${cbBaseAddress}/api/v3/trackers/${item.tracker.id}`,
+			{ method: 'GET', headers }
+		);
+		const trackerJson = (await trackerRes.json()) as TrackerDetails;
+		item.tracker.keyName = trackerJson.keyName;
+		item.tracker.color = trackerJson.color;
+	} catch (e: any) {
+		const message = `Failed fetching tracker details for Item ${item.name}.`;
+		console.warn(message);
+		miro.board.notifications.showError(message);
 	}
 
 	let cardData: Partial<AppCard> = {
