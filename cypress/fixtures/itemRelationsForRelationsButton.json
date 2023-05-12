@@ -1,0 +1,36 @@
+{
+    "itemId": {
+        "id": 1599513,
+        "version": 5
+    },
+    "downstreamReferences": [],
+    "upstreamReferences": [],
+    "incomingAssociations": [
+        {
+            "id": 9783166,
+            "itemRevision": {
+                "id": 1599514,
+                "version": 14
+            },
+            "type": "IncomingTrackerItemAssociation"
+        }
+    ],
+    "outgoingAssociations": [
+        {
+            "id": 9784206,
+            "itemRevision": {
+                "id": 1599512,
+                "version": 1
+            },
+            "type": "OutgoingTrackerItemAssociation"
+        },
+        {
+            "id": 9783165,
+            "itemRevision": {
+                "id": 1599511,
+                "version": 1
+            },
+            "type": "OutgoingTrackerItemAssociation"
+        }
+    ]
+}

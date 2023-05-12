@@ -1,416 +1,420 @@
-@import 'mirotone/dist/styles.css';
+@import "mirotone/dist/styles.css";
 
 *,
 *:before,
 *:after {
-	box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 html {
-	height: 100%;
-	background-color: #eee;
-	font-family: Inter, ui-sans-serif, system-ui, -apple-system,
-		BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans,
-		sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol,
-		Noto Color Emoji;
+  height: 100%;
+  background-color: #eee;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans,
+    sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol,
+    Noto Color Emoji;
 }
 
 body {
-	height: 100%;
-	line-height: 1.5;
-	margin: 0;
-	padding: 0;
+  height: 100%;
+  line-height: 1.5;
+  margin: 0;
+  padding: 0;
 }
 
 .button {
-	text-decoration: none;
+  text-decoration: none;
 }
 
 .button-secondary:hover {
-	background-color: lightgray;
+  background-color: lightgray;
 }
 
 .container {
-	max-width: 580px;
-	margin: 0 auto;
-	background-color: var(--indigo50);
-	padding: var(--space-xxxlarge);
-	border-radius: var(--border-radius-xlarge);
+  max-width: 580px;
+  margin: 0 auto;
+  background-color: var(--indigo50);
+  padding: var(--space-xxxlarge);
+  border-radius: var(--border-radius-xlarge);
 }
 
 img {
-	max-width: 100%;
+  max-width: 100%;
 }
 
 /**icon adjustments*/
 
 .icon {
-	display: inline-block !important;
+  display: inline-block !important;
 }
 .ionIcon {
-	width: 25px;
+  width: 25px;
 }
 
 .badge-icon {
-	position: absolute;
-	top: 0;
+  position: absolute;
+  top: 0;
 }
 
-.badge-icon[data-position='right'] {
-	right: 0;
+.badge-icon[data-position="right"] {
+  right: 0;
 }
-.badge-icon[data-position='left'] {
-	left: 0;
+.badge-icon[data-position="left"] {
+  left: 0;
 }
 
 .pos-adjusted-down {
-	position: relative;
-	bottom: -3px;
+  position: relative;
+  bottom: -3px;
 }
 .pos-adjusted-up {
-	position: relative;
-	bottom: 3px;
+  position: relative;
+  bottom: 3px;
 }
 
 /**cursors*/
 
 .clickable {
-	cursor: pointer;
+  cursor: pointer;
 }
 
 /**centering*/
 .centered {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .centered-horizontally {
-	position: absolute;
-	left: 50%;
-	transform: translate(-50%);
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%);
 }
 
 .centered-50 {
-	margin: auto;
-	max-width: 50%;
+  margin: auto;
+  max-width: 50%;
 }
 
 .text-center {
-	text-align: center;
+  text-align: center;
 }
 
 .v-align-middle {
-	vertical-align: -webkit-baseline-middle;
+  vertical-align: -webkit-baseline-middle;
 }
 .v-align-sub {
-	vertical-align: sub !important;
+  vertical-align: sub !important;
 }
 
 /**margin & padding*/
 
 .m-1 {
-	margin: 1rem;
+  margin: 1rem;
 }
 .mr-1 {
-	margin-right: 1rem;
+  margin-right: 1rem;
 }
 .ml-1 {
-	margin-left: 1rem;
+  margin-left: 1rem;
 }
 .mx-1 {
-	margin: 0 1rem;
+  margin: 0 1rem;
 }
 .mx-2 {
-	margin: 0 2rem;
+  margin: 0 2rem;
 }
 .mt-1 {
-	margin-top: 1rem;
+  margin-top: 1rem;
 }
 .ml-2 {
-	margin-left: 2rem;
+  margin-left: 2rem;
 }
 .mt-3 {
-	margin-top: 3rem;
+  margin-top: 3rem;
 }
 .mr-5p {
-	margin-right: 5px;
+  margin-right: 5px;
 }
 .ml-small {
-	margin-left: 5px;
+  margin-left: 5px;
 }
 
 /**flex containers*/
 
 .flex {
-	display: flex;
+  display: flex;
 }
 .flex-spaced {
-	justify-content: space-between;
+  justify-content: space-between;
 }
 .flex-row {
-	display: flex !important;
-	flex-direction: row !important;
+  display: flex !important;
+  flex-direction: row !important;
 }
 .flex-col {
-	display: flex !important;
-	flex-direction: column !important;
+  display: flex !important;
+  flex-direction: column !important;
 }
 .align-end {
-	align-self: flex-end;
+  align-self: flex-end;
 }
 .align-items-center {
-	align-items: center;
+  align-items: center;
 }
 .flex-centered {
-	display: flex;
-	justify-content: center;
-	align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /**font*/
 
 .font-small {
-	font-size: xx-small;
+  font-size: xx-small;
 }
 
 .muted,
 .muted-medium {
-	color: gray !important;
+  color: gray !important;
 }
 
 .muted {
-	font-size: xx-small;
+  font-size: xx-small;
 }
 
 .muted-medium {
-	font-size: small;
+  font-size: small;
 }
 
 .text-italic {
-	font-style: italic;
+  font-style: italic;
 }
 
 /**width & height*/
 .w-25 {
-	width: 25%;
+  width: 25%;
 }
 .w-50 {
-	width: 50%;
+  width: 50%;
 }
 .w-80 {
-	width: 80%;
+  width: 80%;
 }
 .w-85 {
-	width: 85%;
+  width: 85%;
 }
 .max-w-85 {
-	max-width: 85%;
+  max-width: 85%;
 }
 .w-max {
-	width: max-content;
+  width: max-content;
 }
 .w-100 {
-	width: 100%;
+  width: 100%;
 }
 .w-fill {
-	width: -webkit-fill-available;
+  width: -webkit-fill-available;
 }
 .w-fit {
-	width: fit-content;
+  width: fit-content;
 }
 .h-auto {
-	height: auto;
+  height: auto;
 }
 .h-20 {
-	height: 20%;
+  height: 20%;
 }
 .h-max-25 {
-	max-height: 25%;
+  max-height: 25%;
 }
 .h-64 {
-	height: 64%;
+  height: 64%;
 }
 .h-70 {
-	height: 70%;
+  height: 70%;
 }
 .h-75 {
-	height: 75%;
+  height: 75%;
 }
 .h-80 {
-	height: 80%;
+  height: 80%;
 }
 .h-100 {
-	height: 100%;
+  height: 100%;
 }
 
 .text-decoration-none {
-	text-decoration: none;
+  text-decoration: none;
 }
 
 .text-underline {
-	text-decoration: underline;
+  text-decoration: underline;
 }
 
 /**position & display*/
 
 .position-relative {
-	position: relative;
+  position: relative;
 }
 .inline {
-	display: inline !important;
+  display: inline !important;
 }
 
 .sticky {
-	position: sticky;
-	top: 0;
-	background-color: white;
+  position: sticky;
+  top: 0;
+  background-color: white;
 }
 
 /**borders*/
 
 .borderless {
-	border: none;
+  border: none;
 }
 
 /**mirotone override*/
 
 .input-action {
-	pointer-events: auto !important;
-	border-left: 1px solid var(--indigo400) !important;
+  pointer-events: auto !important;
+  border-left: 1px solid var(--indigo400) !important;
 }
 .input-action:hover {
-	background-color: var(--indigo100);
+  background-color: var(--indigo100);
 }
 .input-action-disabled {
-	pointer-events: none !important;
+  pointer-events: none !important;
 }
 .input-action-disabled:hover {
-	background-color: initial;
+  background-color: initial;
 }
 
 .input-action:hover .button,
 .input-action:hover .button-icon {
-	background-color: var(--indigo100);
+  background-color: var(--indigo100);
 }
 
 .button-icon-secondary {
-	background-color: var(--indigo100) !important;
+  background-color: var(--indigo100) !important;
 }
 .button-icon-secondary:hover {
-	background-color: var(--indigo200) !important;
+  background-color: var(--indigo200) !important;
 }
 
 .button-loading-primary.button-loading:after {
-	border-color: transparent var(--blue700) var(--blue700) transparent !important;
+  border-color: transparent var(--blue700) var(--blue700) transparent !important;
 }
 
 /** text / overflow */
 .overflow-ellipsis {
-	text-overflow: ellipsis;
+  text-overflow: ellipsis;
 }
 .overflow-auto {
-	overflow: auto;
+  overflow: auto;
 }
 
 /** mirotone extension */
 
 .bg-light-indigo {
-	background-color: var(--indigo200);
+  background-color: var(--indigo200);
 }
 
 .loading-spinner::after {
-	-webkit-animation: spinning 0.5s infinite linear;
-	animation: spinning 0.5s infinite linear;
-	border: 2px solid var(--blue700);
-	border-radius: 9999px;
-	border-right-color: transparent;
-	border-top-color: transparent;
-	content: '';
-	display: block;
-	height: 1em;
-	width: 1em;
-	position: absolute;
-	left: 50%;
-	top: 50%;
-	margin-top: -0.5em;
-	margin-left: -0.5em;
+  -webkit-animation: spinning 0.5s infinite linear;
+  animation: spinning 0.5s infinite linear;
+  border: 2px solid var(--blue700);
+  border-radius: 9999px;
+  border-right-color: transparent;
+  border-top-color: transparent;
+  content: "";
+  display: block;
+  height: 1em;
+  width: 1em;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-top: -0.5em;
+  margin-left: -0.5em;
 }
 .loading-spinner-lg::after {
-	-webkit-animation: spinning 0.5s infinite linear;
-	animation: spinning 0.5s infinite linear;
-	border: 3px solid var(--blue700);
-	border-radius: 9999px;
-	border-right-color: transparent;
-	border-top-color: transparent;
-	content: '';
-	display: block;
-	height: 4em;
-	width: 4em;
-	position: absolute;
-	left: 50%;
-	top: 50%;
-	margin-top: -2em;
-	margin-left: -2em;
+  -webkit-animation: spinning 0.5s infinite linear;
+  animation: spinning 0.5s infinite linear;
+  border: 3px solid var(--blue700);
+  border-radius: 9999px;
+  border-right-color: transparent;
+  border-top-color: transparent;
+  content: "";
+  display: block;
+  height: 4em;
+  width: 4em;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-top: -2em;
+  margin-left: -2em;
 }
 
 /**custom scrollbar*/
 
 body {
-	--scrollbar-width: 6px;
-	--scrollbar-height: 8px;
+  --scrollbar-width: 6px;
+  --scrollbar-height: 8px;
 }
 
 ::-webkit-scrollbar {
-	width: var(--scrollbar-width);
-	height: var(--scrollbar-height);
+  width: var(--scrollbar-width);
+  height: var(--scrollbar-height);
 }
 ::-webkit-scrollbar-track {
-	background: #eee;
-	border-radius: 5px;
+  background: #eee;
+  border-radius: 5px;
 }
 ::-webkit-scrollbar-thumb {
-	background: var(--accent-color);
-	border-radius: 5px;
+  background: var(--accent-color);
+  border-radius: 5px;
 }
 ::-webkit-scrollbar-thumb:hover {
-	background: #455bed;
+  background: #455bed;
 }
 
 /**animations*/
 
 .fade-in {
-	animation: fade-in 0.6s ease-in-out;
+  animation: fade-in 0.6s ease-in-out;
 }
 .fade-in-quick {
-	animation: fade-in 0.3s ease-in-out;
+  animation: fade-in 0.3s ease-in-out;
 }
 .fade-in-slow {
-	animation: fade-in 1s ease-in-out;
+  animation: fade-in 1s ease-in-out;
 }
 
 .fade-out {
-	animation: fade-out 0.3s ease-in-out;
+  animation: fade-out 0.3s ease-in-out;
+}
+
+div.tooltip {
+  --bs-tooltip-bg: var(--blue700);
 }
 
 /**keyframes*/
 
 @keyframes fade-in {
-	from {
-		opacity: 0;
-	}
-	to {
-		opacity: 1;
-	}
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes fade-out {
-	from {
-		opacity: 1;
-	}
-	to {
-		opacity: 0;
-		display: none;
-	}
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    display: none;
+  }
 }
