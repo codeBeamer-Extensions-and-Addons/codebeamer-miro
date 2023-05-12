@@ -47,12 +47,19 @@ export default function FilterInput() {
 								className="select two-fourth"
 								data-test="category-select"
 							>
+								<option value="" disabled>
+									----- Default-Fields -----
+								</option>
 								{defaultCriteria.map((dc, i) => (
 									<option key={i} value={dc}>
 										{dc}
 									</option>
 								))}
-								<option value="-" disabled>
+								<option
+									value="-"
+									disabled
+									title="Below fields are auto-generated from the Tracker's schema and might not always work"
+								>
 									----- Tracker-Fields -----
 								</option>
 								{data &&
