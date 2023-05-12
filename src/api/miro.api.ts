@@ -1,10 +1,7 @@
-import { AppCard } from '@mirohq/websdk-types';
-import { EnhancedStore } from '@reduxjs/toolkit';
-import { CodeBeamerItem } from '../models/codebeamer-item.if';
-import { store } from '../store/store';
-import addCardFields from './utils/addCardFields';
-import getCardTitle from './utils/getCardTitle';
-import getItemColorField from './utils/getItemColorField';
+/**
+ * WARNING: Miro Web SDK implements rate limiting to control usage.
+ * for more information visit: https://developers.miro.com/docs/rate-limiting
+ */
 
 import { DescriptionFormat } from '../enums/descriptionFormat.enum';
 import getConcentricCircleCoords from './utils/getConcentricCircleCoords';
@@ -13,6 +10,18 @@ import getRandomCoordSetPerSubject from './utils/getRandomCoordSetPerSubject';
 import getSnailCoordSetPerSubject from './utils/getSnailCoords';
 import { CARD_TITLE_TRKR_ITEMID_FILTER_REGEX } from '../constants/regular-expressions';
 import TrackerDetails from '../models/trackerDetails.if';
+import { AppCard, BoardNode } from '@mirohq/websdk-types';
+import { EnhancedStore } from '@reduxjs/toolkit';
+import { CodeBeamerItem } from '../models/codebeamer-item.if';
+import { store } from '../store/store';
+import addCardFields from './utils/addCardFields';
+import getCardTitle from './utils/getCardTitle';
+import getItemColorField from './utils/getItemColorField';
+import getAppCardIds from './utils/getAppCardIds';
+import doesConnectorExist from './utils/doesConnectorExist';
+import { Association, ItemMetadata } from '../models/api-query-types';
+import { RelationshipType } from '../enums/associationRelationshipType.enum';
+import { getColorForRelationshipType } from './utils/getColorForRelationshipType';
 
 /**
  * Create a new app card base on a codeBeamer item
@@ -57,6 +66,103 @@ export async function createAppCard(
 	} catch (error) {
 		console.error(error);
 	}
+}
+
+//in a for loop get detailed data for each association and then call createConnector() to create each connector
+export async function createConnectorsForDownstreamRefsAndAssociation(
+	startCardId: string,
+	downstreamRefIds: number[],
+	associations: Association[],
+	boardData: BoardNode[],
+	metadata: ItemMetadata[]
+) {
+	const username = store.getState().userSettings.cbUsername;
+	const password = store.getState().userSettings.cbPassword;
+
+	const requestArgs = {
+		method: 'GET',
+		headers: new Headers({
+			'Content-Type': 'text/plain',
+			Authorization: `Basic ${btoa(username + ':' + password)}`,
+		}),
+	};
+
+	associations.forEach(async function (association) {
+		try {
+			const associationRes = await fetch(
+				`${
+					store.getState().boardSettings.cbAddress
+				}/api/v3/associations/${association.associationId}`,
+				requestArgs
+			);
+			const associationJson =
+				(await associationRes.json()) as Association;
+
+			createConnector(
+				startCardId,
+				association.targetItemId,
+				associationJson.type.name,
+				boardData,
+				metadata
+			);
+		} catch (e: any) {
+			const message = `Failed fetching association ${association.associationId}.`;
+			console.warn(message);
+			miro.board.notifications.showError(message);
+		}
+	});
+
+	downstreamRefIds.forEach(async function (downstreamRefId) {
+		createConnector(
+			startCardId,
+			downstreamRefId,
+			RelationshipType.DOWNSTREAM,
+			boardData,
+			metadata
+		);
+	});
+}
+
+async function createConnector(
+	startCardId: string,
+	targetItemId: number,
+	relationshipType: RelationshipType,
+	boardData: BoardNode[],
+	metadata: any = []
+) {
+	const endCardIds = await getAppCardIds(targetItemId, metadata);
+	const strokeColor = getColorForRelationshipType(relationshipType);
+
+	const connectorCaptions = [{ content: relationshipType }];
+
+	await Promise.all(
+		endCardIds.map(async (endCardId) => {
+			const connectorExists = await doesConnectorExist(
+				startCardId,
+				endCardId,
+				boardData
+			);
+			if (!connectorExists) {
+				try {
+					const widget = await miro.board.createConnector({
+						start: { item: startCardId },
+						end: { item: endCardId },
+						style: { strokeColor },
+						captions: connectorCaptions,
+					});
+					await widget.setMetadata('relation', {
+						startCardId: startCardId,
+						endCardId: endCardId,
+					});
+				} catch (e) {
+					console.warn(
+						`Failed to create connector for endCardId: ${endCardId}`,
+						e
+					);
+				}
+			}
+		})
+	);
 }
 
 /**
