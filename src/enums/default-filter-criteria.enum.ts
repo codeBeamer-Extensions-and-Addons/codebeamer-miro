@@ -5,4 +5,5 @@ export enum DefaultFilterCriteria {
 	TEAM = 'Team',
 	RELEASE = 'Release',
 	SUBJECT = 'Subject',
+	ID = 'ID',
 }
