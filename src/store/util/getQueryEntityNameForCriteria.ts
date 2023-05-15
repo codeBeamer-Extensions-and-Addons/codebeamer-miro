@@ -17,6 +17,8 @@ export default function getQueryEntityNameForCriteria(
 			return 'release';
 		case DefaultFilterCriteria.SUBJECT:
 			return 'subjectName';
+		case DefaultFilterCriteria.ID:
+			return 'item.id';
 		default:
 			return `'${trackerId}.${criteria}'`;
 	}
