@@ -53,8 +53,12 @@ This is enabled further by:
 <img src="readmeImg/cb-m-1-1-0_edit_item.gif" alt="Plugin overview"/>
 </div>
 
--   **Relation visualization** (to be re-added)
-    -   see associations and hierarchical relations between your Items visualized with differently styled lines
+-   **Relation visualization**
+    -   see associations and hierarchical relations between your Items visualized with differently styled connectors
+
+<div align="center">
+<img src="readmeImg/connectors.gif" style="width: 610px;" alt="Plugin overview"/>
+</div>
 
 Want to give it a shot? [Install](#installation) the app, then click the <img src="readmeImg/cb_salamander.svg" alt="CodeBeamer Salamander"/> Salamander in the left Toolbar (initially hidden under `>>`) on Miro.
 
@@ -65,7 +69,7 @@ Want to give it a shot? [Install](#installation) the app, then click the <img sr
 
 ### Relation Color Table
 
-The lines that visualize relations between Items are colored as follows:
+The connectors that visualize relations between Items are colored as follows:
 
 | Type                         | Color                                                     |
 | ---------------------------- | --------------------------------------------------------- |

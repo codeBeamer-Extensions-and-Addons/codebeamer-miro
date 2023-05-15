@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Released
 
+### [1.5.0]
+
+- Add "Show relations" button in Item Details
+    - Allows visualizing relations between Items on the board:
+        - Downstream References 
+        - Associations
+- Refactor Item Detail Action buttons to be icon-only
+- Add tooltips to Item Detail Action buttons
+- Add tooltips (replace title attributes) to Import Page Header buttons
+
 ### [1.4.0]
 
 -   Refine "Load Downstream References" button in Item Details
