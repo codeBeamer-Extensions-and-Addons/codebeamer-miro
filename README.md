@@ -57,7 +57,7 @@ This is enabled further by:
     -   see associations and hierarchical relations between your Items visualized with differently styled connectors
 
 <div align="center">
-<img src="readmeImg/connectors.gif" alt="Plugin overview"/>
+<img src="readmeImg/connectors.gif" style="width: 610px;" alt="Plugin overview"/>
 </div>
 
 Want to give it a shot? [Install](#installation) the app, then click the <img src="readmeImg/cb_salamander.svg" alt="CodeBeamer Salamander"/> Salamander in the left Toolbar (initially hidden under `>>`) on Miro.
