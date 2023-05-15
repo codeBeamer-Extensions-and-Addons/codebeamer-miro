@@ -34,6 +34,16 @@ export default function Announcements() {
 					data-test="close-announcements"
 				></div>
 			</span>
+			<AnnouncementArticle date={'2023-05-15'} version={'1.5.0'}>
+				<p className="mt-5">
+					This release adds the ability to <b>visualize relations</b> between Items.
+					<br/>
+					A button added to the Item Details Panel allows you to render relations of type
+					<b> downstream reference</b> or <b>association</b> between app cards on the board.
+					<br/>
+					Along with that, a few minor styling improvements were made.
+				</p>
+			</AnnouncementArticle>
 			<AnnouncementArticle date={'2022-12-21'} version={'1.4.0'}>
 				<p className="mt-5">
 					This release adds a new button to the ItemDetails panel,

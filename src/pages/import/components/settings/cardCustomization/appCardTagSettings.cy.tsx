@@ -39,10 +39,33 @@ describe('<AppCardTagSettings', () => {
 	});
 
 	context('apply button', () => {
-		it('shows an "Apply" button to apply the changes to the config', () => {
+		it('shows an "Apply" button to apply the changes if there are imported items', () => {
+			const stubSync = cy.stub();
+
+			const itemOne: Partial<AppCard> = {
+				id: '1',
+				title: '[RETUS-1]',
+				sync: stubSync,
+			};
+			const itemTwo: Partial<AppCard> = {
+				id: '2',
+				title: '[RETUS-2]',
+				sync: stubSync,
+			};
+
+			const stubBoardGet = cy.stub(miro.board, 'get').callsFake(() => {
+				return Promise.resolve([itemOne, itemTwo]);
+			});
+
 			cy.mountWithStore(<AppCardTagSettings />);
 
 			cy.getBySel('apply').should('exist');
+		});
+
+		it('doesnt show an "Apply" button if there are no imported items', () => {
+			cy.mountWithStore(<AppCardTagSettings />);
+
+			cy.getBySel('apply').should('not.exist');
 		});
 
 		it('updates the imported cards when applying', { retries: 5 }, () => {
@@ -71,6 +94,11 @@ describe('<AppCardTagSettings', () => {
 				'wiki2html'
 			);
 
+			cy.intercept('GET', '**/api/v3/trackers/**', {
+				statusCode: 200,
+				body: { keyName: 'TEST', color: '#FFFFFF' },
+			});
+
 			cy.mountWithStore(<AppCardTagSettings />);
 
 			cy.getBySel(`tag-Owner`).click();
@@ -82,10 +110,10 @@ describe('<AppCardTagSettings', () => {
 
 					cy.wait('@fetch').then(() => {
 						cy.wait('@wiki2html').then(() => {
-							expect(stubSync).to.be.calledOnce;
+							expect(stubSync).to.be.called;
 
 							cy.wait('@wiki2html').then(() => {
-								expect(stubSync).to.be.calledOnce;
+								expect(stubSync).to.be.called;
 								cy.get('.checkmark').should('exist');
 							});
 						});

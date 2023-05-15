@@ -1,0 +1,213 @@
+{
+	"page": 1,
+	"pageSize": 13,
+	"total": 4,
+	"items": [
+		{
+			"id": 1,
+			"name": "Copy of superordinate",
+			"description": "I wanna be",
+			"descriptionFormat": "Wiki",
+			"createdAt": "2022-02-11T07:34:40.313",
+			"createdBy": {
+				"id": 1627,
+				"name": "urecha",
+				"type": "UserReference",
+				"email": "un@disclosed.com"
+			},
+			"modifiedAt": "2022-02-14T10:21:29.601",
+			"modifiedBy": {
+				"id": 1627,
+				"name": "urecha",
+				"type": "UserReference",
+				"email": "un@disclosed.com"
+			},
+			"owners": [
+				{
+					"id": 14,
+					"name": "user",
+					"type": "UserReference",
+					"email": "un@disclosed.com"
+				}
+			],
+			"version": 6,
+			"assignedTo": [
+				{
+					"id": 1627,
+					"name": "urecha",
+					"type": "UserReference",
+					"email": "un@disclosed.com"
+				}
+			],
+			"tracker": {
+				"id": 101,
+				"name": "Miro sync test by urecha",
+				"type": "TrackerReference"
+			},
+			"children": [],
+			"customFields": [],
+			"priority": {
+				"id": 0,
+				"name": "Unset",
+				"type": "ChoiceOptionReference"
+			},
+			"status": {
+				"id": 1,
+				"name": "New",
+				"type": "ChoiceOptionReference"
+			},
+			"categories": [],
+			"resolutions": [],
+			"severities": [],
+			"versions": [],
+			"ordinal": 0,
+			"typeName": "Issue",
+			"comments": [],
+			"tags": []
+		},
+		{
+			"id": 2,
+			"name": "Superordinate",
+			"description": "I am the superordinate",
+			"descriptionFormat": "Wiki",
+			"createdAt": "2022-02-11T07:34:17.477",
+			"createdBy": {
+				"id": 1627,
+				"name": "urecha",
+				"type": "UserReference",
+				"email": "un@disclosed.com"
+			},
+			"modifiedAt": "2022-02-11T07:34:17.477",
+			"modifiedBy": {
+				"id": 1627,
+				"name": "urecha",
+				"type": "UserReference",
+				"email": "un@disclosed.com"
+			},
+			"owners": [],
+			"version": 1,
+			"assignedTo": [],
+			"tracker": {
+				"id": 102,
+				"name": "Miro sync test by urecha",
+				"type": "TrackerReference"
+			},
+			"children": [],
+			"customFields": [],
+			"priority": {
+				"id": 0,
+				"name": "Unset",
+				"type": "ChoiceOptionReference"
+			},
+			"status": {
+				"id": 1,
+				"name": "New",
+				"type": "ChoiceOptionReference"
+			},
+			"categories": [],
+			"resolutions": [],
+			"severities": [],
+			"versions": [],
+			"ordinal": 0,
+			"typeName": "Issue",
+			"comments": [],
+			"tags": []
+		},
+		{
+			"id": 3,
+			"name": "AssociatinoTest - I count on you",
+			"description": "I count on you",
+			"descriptionFormat": "Wiki",
+			"createdAt": "2022-02-11T07:33:47.807",
+			"createdBy": {
+				"id": 1627,
+				"name": "urecha",
+				"type": "UserReference",
+				"email": "un@disclosed.com"
+			},
+			"modifiedAt": "2022-02-11T07:33:47.807",
+			"modifiedBy": {
+				"id": 1627,
+				"name": "urecha",
+				"type": "UserReference",
+				"email": "un@disclosed.com"
+			},
+			"owners": [],
+			"version": 1,
+			"assignedTo": [],
+			"tracker": {
+				"id": 103,
+				"name": "Miro sync test by urecha",
+				"type": "TrackerReference"
+			},
+			"children": [],
+			"customFields": [],
+			"priority": {
+				"id": 0,
+				"name": "Unset",
+				"type": "ChoiceOptionReference"
+			},
+			"status": {
+				"id": 1,
+				"name": "New",
+				"type": "ChoiceOptionReference"
+			},
+			"categories": [],
+			"resolutions": [],
+			"severities": [],
+			"versions": [],
+			"ordinal": 0,
+			"typeName": "Issue",
+			"comments": [],
+			"tags": []
+		},
+		{
+			"id": 4,
+			"name": "AssociationTest - count on me",
+			"description": "You can count on me.",
+			"descriptionFormat": "Wiki",
+			"createdAt": "2022-02-11T07:33:30.752",
+			"createdBy": {
+				"id": 1627,
+				"name": "urecha",
+				"type": "UserReference",
+				"email": "un@disclosed.com"
+			},
+			"modifiedAt": "2022-02-11T07:33:30.752",
+			"modifiedBy": {
+				"id": 1627,
+				"name": "urecha",
+				"type": "UserReference",
+				"email": "un@disclosed.com"
+			},
+			"owners": [],
+			"version": 1,
+			"assignedTo": [],
+			"tracker": {
+				"id": 104,
+				"name": "Miro sync test by urecha",
+				"type": "TrackerReference"
+			},
+			"children": [],
+			"customFields": [],
+			"priority": {
+				"id": 0,
+				"name": "Unset",
+				"type": "ChoiceOptionReference"
+			},
+			"status": {
+				"id": 1,
+				"name": "New",
+				"type": "ChoiceOptionReference"
+			},
+			"categories": [],
+			"resolutions": [],
+			"severities": [],
+			"versions": [],
+			"ordinal": 0,
+			"typeName": "Issue",
+			"comments": [],
+			"tags": []
+		}
+	]
+}
