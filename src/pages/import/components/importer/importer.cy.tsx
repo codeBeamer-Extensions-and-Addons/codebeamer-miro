@@ -46,6 +46,50 @@ describe('<Importer>', () => {
 			.should('equal', expectedQuery);
 	});
 
+	it('fetches the tracker details of the items passed as props', () => {
+		const items: string[] = ['1', '2', '3', '4'];
+		const store = getStore();
+
+		cy.stub(miro.board, 'createAppCard').resolves(null);
+		cy.stub(miro.board.viewport, 'get').resolves({
+			x: 0,
+			y: 0,
+			width: 1000,
+			height: 1000,
+		});
+
+		cy.intercept('POST', '**/wiki2html');
+
+		cy.intercept('POST', '**/api/v3/items/query', {
+			fixture: 'query_diff_trackers.json',
+		}).as('fetch');
+
+		cy.intercept('GET', '**/api/v3/trackers/101').as('trackerFetchOne');
+		cy.intercept('GET', '**/api/v3/trackers/102').as('trackerFetchTwo');
+		cy.intercept('GET', '**/api/v3/trackers/103').as('trackerFetchThree');
+		cy.intercept('GET', '**/api/v3/trackers/104').as('trackerFetchFour');
+
+		cy.mountWithStore(<Importer items={items} />, { reduxStore: store });
+
+		cy.wait('@fetch');
+
+		cy.wait('@trackerFetchOne').then((interception) => {
+			expect(interception.request.url).to.contain('trackers/101');
+		});
+
+		cy.wait('@trackerFetchTwo').then((interception) => {
+			expect(interception.request.url).to.contain('trackers/102');
+		});
+
+		cy.wait('@trackerFetchThree').then((interception) => {
+			expect(interception.request.url).to.contain('trackers/103');
+		});
+
+		cy.wait('@trackerFetchFour').then((interception) => {
+			expect(interception.request.url).to.contain('trackers/104');
+		});
+	});
+
 	it('fetches the details of all items in the selected tracker (without any additional filter criteria) when passing an empty array as prop', () => {
 		const items: string[] = [];
 		const store = getStore();
