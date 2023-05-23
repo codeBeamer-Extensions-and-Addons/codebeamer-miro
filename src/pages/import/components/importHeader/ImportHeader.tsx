@@ -11,6 +11,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 
 import './importHeader.css';
+import { logPageOpened } from '../../../../api/analytics.api';
 
 export default function ImportHeader() {
 	const dispatch = useDispatch();
@@ -26,6 +27,7 @@ export default function ImportHeader() {
 	};
 
 	const openSettingsModal = () => {
+		logPageOpened('Settings');
 		setShowSettings(true);
 	};
 

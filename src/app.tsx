@@ -7,10 +7,12 @@ import { store } from './store/store';
 import Content from './pages/content/Content';
 import Toasts from './components/toasts/Toasts';
 import BoardSettingsLoader from './components/boardSettingsLoader/BoardSettingsLoader';
+import { logPageOpened } from './api/analytics.api';
 
 function App() {
 	//* manual resets for stored data. for testing purposes.
 	React.useEffect(() => {
+		logPageOpened('Item Import');
 		// miro.board.setAppData('projectId', '');
 		// miro.board.setAppData('cbAddress', '');
 		// const config = {

@@ -2,22 +2,36 @@ import { store } from '../store/store';
 
 const baseURL = 'http://localhost:3001/api';
 
-export async function logAction(actionType: string) {
-	const username = store.getState().userSettings.cbUsername;
-
+export async function logProjectSelection(
+	cbAddress: any,
+	projectId: string | number,
+	projectLabel: string
+) {
 	const requestArgs = {
 		method: 'POST',
 		body: JSON.stringify({
-			type: actionType,
-			user: username,
-			date: new Date(),
+			cbAddress: cbAddress,
+			projectId: projectId,
+			projectLabel: projectLabel,
 		}),
 		headers: {
 			'Content-type': 'application/json; charset=UTF-8',
 		},
 	};
 
-	const res = await fetch(baseURL + '/post', requestArgs);
+	await fetch(baseURL + '/project', requestArgs);
+}
 
-	return res;
+export async function logPageOpened(page: string) {
+	const requestArgs = {
+		method: 'POST',
+		body: JSON.stringify({
+			name: page,
+		}),
+		headers: {
+			'Content-type': 'application/json; charset=UTF-8',
+		},
+	};
+
+	await fetch(baseURL + '/page', requestArgs);
 }

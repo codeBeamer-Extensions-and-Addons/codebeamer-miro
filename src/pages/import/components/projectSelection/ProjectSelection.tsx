@@ -9,6 +9,7 @@ import { setTrackerId } from '../../../../store/slices/userSettingsSlice';
 import { RootState } from '../../../../store/store';
 
 import './projectSelection.css';
+import { logProjectSelection } from '../../../../api/analytics.api';
 
 export default function ProjectSelection(props: { headerLess?: boolean }) {
 	const dispatch = useDispatch();
@@ -107,6 +108,11 @@ export default function ProjectSelection(props: { headerLess?: boolean }) {
 								dispatch(setTrackerId(''));
 
 								showSuccessAnimation();
+								logProjectSelection(
+									cbAddress,
+									selectedProjectId,
+									selectedProjectLabel
+								);
 							}}
 						>
 							Confirm
