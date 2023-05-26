@@ -14,6 +14,7 @@ import { CodeBeamerItem } from '../../../../models/codebeamer-item.if';
 import { RootState } from '../../../../store/store';
 
 import './importer.css';
+import { logItemImport } from '../../../../api/analytics.api';
 
 export default function Importer(props: {
 	items: string[];
@@ -81,6 +82,7 @@ export default function Importer(props: {
 			console.log('Done importing.');
 			miro.board.ui.closeModal();
 			miro.board.ui.closePanel();
+			logItemImport(props.totalItems);
 		};
 
 		if (error) {

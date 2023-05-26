@@ -12,6 +12,7 @@ import {
 	setProjectId,
 } from '../../store/slices/boardSettingsSlice';
 import { useState } from 'react';
+import { logConnection } from '../../api/analytics.api';
 
 interface Errors {
 	cbAddress?: string;
@@ -114,6 +115,7 @@ export default function AuthForm(props: {
 						}
 
 						if (props.successAnimation) showSuccessAnimation();
+						logConnection(values.cbAddress, values.cbUsername);
 					}}
 				>
 					{({

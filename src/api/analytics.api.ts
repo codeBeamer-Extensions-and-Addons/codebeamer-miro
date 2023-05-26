@@ -35,3 +35,36 @@ export async function logPageOpened(page: string) {
 
 	await fetch(baseURL + '/page', requestArgs);
 }
+
+export async function logConnection(cbAddress: string, cbUsername: string) {
+	const requestArgs = {
+		method: 'POST',
+		body: JSON.stringify({
+			user: cbUsername,
+			cbAddress: cbAddress,
+			date: new Date(),
+		}),
+		headers: {
+			'Content-type': 'application/json; charset=UTF-8',
+		},
+	};
+
+	await fetch(baseURL + '/connection', requestArgs);
+}
+
+export async function logItemImport(totalItems: number | undefined) {
+	const username = store.getState().userSettings.cbUsername;
+	const requestArgs = {
+		method: 'POST',
+		body: JSON.stringify({
+			totalItems: totalItems,
+			user: username,
+			date: new Date(),
+		}),
+		headers: {
+			'Content-type': 'application/json; charset=UTF-8',
+		},
+	};
+
+	await fetch(baseURL + '/itemImport', requestArgs);
+}
