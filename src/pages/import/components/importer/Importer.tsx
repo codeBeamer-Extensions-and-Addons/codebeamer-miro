@@ -82,7 +82,7 @@ export default function Importer(props: {
 			console.log('Done importing.');
 			miro.board.ui.closeModal();
 			miro.board.ui.closePanel();
-			logItemImport(props.totalItems);
+			logItemImport(items, props.totalItems);
 		};
 
 		if (error) {

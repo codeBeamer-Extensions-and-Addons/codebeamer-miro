@@ -1,3 +1,4 @@
+import { CodeBeamerItem } from '../models/codebeamer-item.if';
 import { store } from '../store/store';
 
 const baseURL = 'http://localhost:3001/api';
@@ -52,11 +53,15 @@ export async function logConnection(cbAddress: string, cbUsername: string) {
 	await fetch(baseURL + '/connection', requestArgs);
 }
 
-export async function logItemImport(totalItems: number | undefined) {
+export async function logItemImport(
+	items: CodeBeamerItem[],
+	totalItems: number | undefined
+) {
 	const username = store.getState().userSettings.cbUsername;
 	const requestArgs = {
 		method: 'POST',
 		body: JSON.stringify({
+			items: items,
 			totalItems: totalItems,
 			user: username,
 			date: new Date(),
