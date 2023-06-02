@@ -15,6 +15,7 @@ import { CodeBeamerItem } from '../../../../models/codebeamer-item.if';
 import { RootState } from '../../../../store/store';
 
 import '../importer/importer.css';
+import { logError } from '../../../../api/analytics.api';
 
 /**
  * Twin of {@link Importer}, but for updating.
@@ -80,9 +81,9 @@ export default function Updater(props: {
 					(item) => item.itemId == _items[i].id.toString()
 				)?.appCardId;
 				if (!appCardId) {
-					miro.board.notifications.showError(
-						`Failed updating card for Item ${_items[i].name}`
-					);
+					const message = `Failed updating card for Item ${_items[i].name}`;
+					miro.board.notifications.showError(message);
+					logError(message);
 					continue;
 				}
 

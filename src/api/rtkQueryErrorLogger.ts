@@ -3,6 +3,7 @@ import {
 	Middleware,
 	MiddlewareAPI,
 } from '@reduxjs/toolkit';
+import { logError } from './analytics.api';
 
 const DEFAULT_MESSAGE = `Error fetching data - See the console for details.`;
 
@@ -26,6 +27,7 @@ export const rtkQueryErrorLogger: Middleware =
 				message = DEFAULT_MESSAGE;
 			}
 			miro.board.notifications.showError(message);
+			logError(message);
 		}
 		next(action);
 	};

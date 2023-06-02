@@ -17,6 +17,7 @@ import { RootState } from '../../../../../store/store';
 
 import './appCardTagSettings.css';
 import { useImportedItems } from '../../../../../hooks/useImportedItems';
+import { logError } from '../../../../../api/analytics.api';
 
 export default function AppCardTagSettings() {
 	const dispatch = useDispatch();
@@ -123,9 +124,9 @@ export default function AppCardTagSettings() {
 						(item) => item.itemId == _items[i].id.toString()
 					)?.appCardId;
 					if (!appCardId) {
-						miro.board.notifications.showError(
-							`Failed updating card for Item ${_items[i].name}`
-						);
+						const message = `Failed updating card for Item ${_items[i].name}`;
+						miro.board.notifications.showError(message);
+						logError(message);
 						continue;
 					}
 

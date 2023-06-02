@@ -22,6 +22,7 @@ import doesConnectorExist from './utils/doesConnectorExist';
 import { Association, ItemMetadata } from '../models/api-query-types';
 import { RelationshipType } from '../enums/associationRelationshipType.enum';
 import { getColorForRelationshipType } from './utils/getColorForRelationshipType';
+import { logError } from './analytics.api';
 
 /**
  * Create a new app card base on a codeBeamer item
@@ -109,6 +110,7 @@ export async function createConnectorsForDownstreamRefsAndAssociation(
 			const message = `Failed fetching association ${association.associationId}.`;
 			console.warn(message);
 			miro.board.notifications.showError(message);
+			logError(message);
 		}
 	});
 
@@ -246,6 +248,7 @@ export async function convertToCardData(
 		const message = `Failed fetching tracker details for Item ${item.name}.`;
 		console.warn(message);
 		miro.board.notifications.showError(message);
+		logError(message);
 	}
 
 	let cardData: Partial<AppCard> = {
@@ -264,6 +267,7 @@ export async function convertToCardData(
 		addCardFields(cardData, item, appStore);
 	} catch (err: any) {
 		miro.board.notifications.showError(err);
+		logError(err);
 	}
 
 	// background Color

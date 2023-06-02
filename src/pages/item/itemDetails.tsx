@@ -29,7 +29,7 @@ import { CodeBeamerTrackerSchemaEntry } from '../../models/trackerSchema.if';
 import './itemDetails.css';
 import ItemSummary from './itemSummary/ItemSummary';
 import ItemActions from './item-actions/ItemActions';
-import { logPageOpened } from '../../api/analytics.api';
+import { logError, logPageOpened } from '../../api/analytics.api';
 
 interface Errors {
 	assignedTo?: string;
@@ -177,6 +177,7 @@ export default function ItemDetails(props: { itemId: string; cardId: string }) {
 			const message = `Can't find field for ${fieldName} in Tracker schema - therefore can't load options.`;
 			console.warn(message);
 			miro.board.notifications.showError(message);
+			logError(message);
 			return;
 		}
 		triggerFieldOptionsQuery({ trackerId, fieldId });
@@ -188,7 +189,9 @@ export default function ItemDetails(props: { itemId: string; cardId: string }) {
 	React.useEffect(() => {
 		if (fieldOptionsQueryResult.error) {
 			console.error(fieldOptionsQueryResult.error);
-			miro.board.notifications.showError('Failed loading options');
+			const message = 'Failed loading options';
+			miro.board.notifications.showError(message);
+			logError(message);
 		}
 	}, [fieldOptionsQueryResult.error]);
 

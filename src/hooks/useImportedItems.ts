@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { CARD_TITLE_ID_FILTER_REGEX } from '../constants/regular-expressions';
 import { AppCardToItemMapping } from '../models/appCardToItemMapping.if';
 import { CodeBeamerItem } from '../models/codebeamer-item.if';
+import { logError } from '../api/analytics.api';
 
 /**
  * Queries the AppCards present on the Miro board
@@ -42,6 +43,7 @@ export const useImportedItems = () => {
 								"Couldn't extract ID from Card title. Can't sync!";
 							console.error(message);
 							miro.board.notifications.showError(message);
+							logError(message);
 							return { appCardId: card.id, itemId: '' };
 						}
 						itemId = itemKey[1];
