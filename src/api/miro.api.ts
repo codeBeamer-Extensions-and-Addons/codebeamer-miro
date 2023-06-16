@@ -19,7 +19,11 @@ import getCardTitle from './utils/getCardTitle';
 import getItemColorField from './utils/getItemColorField';
 import getAppCardIds from './utils/getAppCardIds';
 import doesConnectorExist from './utils/doesConnectorExist';
-import { Association, ItemMetadata } from '../models/api-query-types';
+import {
+	Association,
+	AssociationDetails,
+	ItemMetadata,
+} from '../models/api-query-types';
 import { RelationshipType } from '../enums/associationRelationshipType.enum';
 import { getColorForRelationshipType } from './utils/getColorForRelationshipType';
 
@@ -89,21 +93,23 @@ export async function createConnectorsForDownstreamRefsAndAssociation(
 
 	associations.forEach(async function (association) {
 		try {
-			const associationRes = await fetch(
-				`${
-					store.getState().boardSettings.cbAddress
-				}/api/v3/associations/${association.associationId}`,
-				requestArgs
-			);
-			const associationJson =
-				(await associationRes.json()) as Association;
+			const associationRes = await (
+				await fetch(
+					`${
+						store.getState().boardSettings.cbAddress
+					}/api/v3/associations/${association.associationId}`,
+					requestArgs
+				)
+			).json();
+			const associationJson = associationRes as AssociationDetails;
 
 			createConnector(
 				startCardId,
 				association.targetItemId,
-				associationJson.type.name,
 				boardData,
-				metadata
+				metadata,
+				associationJson.type.name as RelationshipType,
+				associationJson.description
 			);
 		} catch (e: any) {
 			const message = `Failed fetching association ${association.associationId}.`;
@@ -113,27 +119,30 @@ export async function createConnectorsForDownstreamRefsAndAssociation(
 	});
 
 	downstreamRefIds.forEach(async function (downstreamRefId) {
-		createConnector(
-			startCardId,
-			downstreamRefId,
-			RelationshipType.DOWNSTREAM,
-			boardData,
-			metadata
-		);
+		createConnector(startCardId, downstreamRefId, boardData, metadata);
 	});
 }
 
 async function createConnector(
 	startCardId: string,
 	targetItemId: number,
-	relationshipType: RelationshipType,
 	boardData: BoardNode[],
-	metadata: any = []
+	metadata: any = [],
+	relationshipType: RelationshipType = RelationshipType.DOWNSTREAM,
+	associationDescription: string = ''
 ) {
 	const endCardIds = await getAppCardIds(targetItemId, metadata);
 	const strokeColor = getColorForRelationshipType(relationshipType);
 
-	const connectorCaptions = [{ content: relationshipType }];
+	const connectorCaptions = [
+		{
+			content:
+				relationshipType == RelationshipType.DOWNSTREAM ||
+				!associationDescription
+					? relationshipType
+					: associationDescription,
+		},
+	];
 
 	await Promise.all(
 		endCardIds.map(async (endCardId) => {
