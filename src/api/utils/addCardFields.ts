@@ -71,7 +71,11 @@ export default function addCardFields(
 			}
 		} else {
 			//* just show the field
-			content = field.toString();
+			if (key == StandardItemProperty.ESTIMATED_MILIS) {
+				content = (+field / 1000 / 60 / 60).toFixed(2).toString() + 'h';
+			} else {
+				content = field.toString();
+			}
 		}
 
 		let customField: CardField = {
