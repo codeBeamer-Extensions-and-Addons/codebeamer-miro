@@ -130,15 +130,15 @@ describe('<AppCardTagSettings', () => {
 					value: true,
 				},
 				{
-					property: 'Story Points',
+					property: 'Story points',
 					value: true,
 				},
 				{
-					property: 'Submitted By',
+					property: 'Submitted by',
 					value: true,
 				},
 				{
-					property: 'Submitted At',
+					property: 'Submitted at',
 					value: false,
 				},
 			];
