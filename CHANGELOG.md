@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### [1.5.2]
 
--   Add "Estimaed effort" as available tag on the generated cards  
+-   Add "Estimated effort" as available tag on the generated cards  
     Displays the value of the technical field `estimatedMillis` in hours.
 
 ### [1.5.1]
