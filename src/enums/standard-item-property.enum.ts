@@ -20,5 +20,5 @@ export enum StandardItemProperty {
 	SUBMITTED_BY = 'Submitted by',
 	MODIFIED_AT = 'Modified at',
 	MODIFIED_BY = 'Modified by',
-	ESTIMATED_MILIS = 'Estimated effort',
+	ESTIMATED_MILLIS = 'Estimated effort',
 }

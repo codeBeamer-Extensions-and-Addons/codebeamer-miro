@@ -71,7 +71,7 @@ export default function addCardFields(
 			}
 		} else {
 			//* just show the field
-			if (key == StandardItemProperty.ESTIMATED_MILIS) {
+			if (key == StandardItemProperty.ESTIMATED_MILLIS) {
 				content = (+field / 1000 / 60 / 60).toFixed(2).toString() + 'h';
 			} else {
 				content = field.toString();

@@ -39,7 +39,7 @@ export default function getCodeBeamerPropertyNameByFieldLabel(
 			return 'modifiedAt';
 		case StandardItemProperty.MODIFIED_BY:
 			return 'modifiedBy';
-		case StandardItemProperty.ESTIMATED_MILIS:
+		case StandardItemProperty.ESTIMATED_MILLIS:
 			return 'estimatedMillis';
 	}
 }
@@ -81,7 +81,7 @@ export function getCodeBeamerLegacyRestNameByFieldLabel(
 			return 'modifiedAt';
 		case StandardItemProperty.MODIFIED_BY:
 			return 'modifier';
-		case StandardItemProperty.ESTIMATED_MILIS:
+		case StandardItemProperty.ESTIMATED_MILLIS:
 			return 'estimatedMillis';
 	}
 }

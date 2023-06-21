@@ -39,7 +39,7 @@ export default function getColorForFieldLabel(
 			return '#bf9540';
 		case StandardItemProperty.MODIFIED_BY:
 			return '#bf6840';
-		case StandardItemProperty.ESTIMATED_MILIS:
+		case StandardItemProperty.ESTIMATED_MILLIS:
 			return '#9c2400';
 		default:
 			return '#303030';
