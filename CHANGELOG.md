@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Released
 
+### [1.5.2]
+
+-   Add "Estimaed effort" as available tag on the generated cards  
+    Displays the value of the technical field `estimatedMillis` in hours.
+
 ### [1.5.1]
 
 -   Visualized Associations now show their description in place of the generic type name, if they have one
