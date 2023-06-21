@@ -1,16 +1,13 @@
-import { AppCard } from '@mirohq/websdk-types';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLazyGetItemsQuery } from '../../../../../api/codeBeamerApi';
 import { updateAppCard } from '../../../../../api/miro.api';
 import getColorForFieldLabel from '../../../../../api/utils/getColorForFieldLabel';
-import { CARD_TITLE_ID_FILTER_REGEX } from '../../../../../constants/regular-expressions';
 import {
 	DEFAULT_RESULT_PAGE,
 	MAX_ITEMS_PER_IMPORT,
 } from '../../../../../constants/cb-import-defaults';
 import { StandardItemProperty } from '../../../../../enums/standard-item-property.enum';
-import { AppCardToItemMapping } from '../../../../../models/appCardToItemMapping.if';
 import { CodeBeamerItem } from '../../../../../models/codebeamer-item.if';
 import { setStandardCardTagConfiguration } from '../../../../../store/slices/boardSettingsSlice';
 import { RootState } from '../../../../../store/store';
@@ -269,14 +266,15 @@ const samplePropertyValues = {
 	Owner: 'aurech',
 	Versions: 'PI 3.2',
 	Priority: 'Medium',
-	'Story Points': '8',
+	'Story points': '8',
 	Subjects: 'A big feature',
-	'Start Date': '2022-03-15',
-	'End Date': '2022-04-02',
-	'Assigned To': 'urecha',
-	'Assigned At': '2022-03-05',
-	'Submitted At': '2022-02-27',
-	'Submitted By': 'aurech',
-	'Modified At': '2022-04-01',
-	'Modified By': 'urecha',
+	'Start date': '2022-03-15',
+	'End date': '2022-04-02',
+	'Assigned to': 'urecha',
+	'Assigned at': '2022-03-05',
+	'Submitted at': '2022-02-27',
+	'Submitted by': 'aurech',
+	'Modified at': '2022-04-01',
+	'Modified by': 'urecha',
+	'Estimated effort': '2h',
 };
