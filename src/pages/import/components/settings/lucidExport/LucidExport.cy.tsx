@@ -32,7 +32,7 @@ describe('<LucidExport', () => {
 			});
 
             cy.mountWithStore(<LucidExport />);
-            cy.get('button').contains('Generate').click().then(() => {
+            cy.get('button').contains('Export').click().then(() => {
                 expect(stubBoardGet).to.have.been.called;
             })
         });
