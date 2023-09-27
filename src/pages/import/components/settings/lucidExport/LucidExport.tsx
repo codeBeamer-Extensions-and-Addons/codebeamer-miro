@@ -48,7 +48,7 @@ export default function LucidExport() {
 		const blob = new Blob([JSON.stringify(compressedItems)], {
 			type: 'application/json',
 		});
-        FileSaver.saveAs(blob, `miro-export-(${new Date().toISOString()}).json`, { autoBom: false });
+        FileSaver.saveAs(blob, `miro-export-${new Date().toISOString()}.json`, { autoBom: false });
 
 		showSuccessAnimation();
 		setIsLoading(false);
