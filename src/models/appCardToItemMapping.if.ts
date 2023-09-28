@@ -4,4 +4,5 @@
 export interface AppCardToItemMapping {
 	appCardId: string;
 	itemId: string;
+	coordinates?: { x: number, y: number };
 }

@@ -6,6 +6,7 @@ import ProjectSelection from '../projectSelection/ProjectSelection';
 import AppCardTagSettings from './cardCustomization/AppCardTagSettings';
 
 import './settings.css';
+import LucidExport from './lucidExport/LucidExport';
 
 /**
  * Wrapper for the various available settings, which it displays in a Modal.
@@ -27,6 +28,10 @@ export default function Settings(props: { onClose: Function }) {
 			// icon: 'plug',
 			tab: <AuthForm headerLess={true} successAnimation={true} />,
 		},
+		{
+			title: 'Lucid Export',
+			tab: <LucidExport/>
+		}
 	];
 
 	return (
