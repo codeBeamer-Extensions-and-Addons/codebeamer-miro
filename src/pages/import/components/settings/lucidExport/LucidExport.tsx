@@ -43,12 +43,10 @@ export default function LucidExport() {
 			};
 		});
 
-		console.log(compressedItems);
-
 		const blob = new Blob([JSON.stringify(compressedItems)], {
 			type: 'application/json',
 		});
-        FileSaver.saveAs(blob, `miro-export-${new Date().toISOString()}.json`, { autoBom: false });
+        FileSaver.saveAs(blob, `miro-export-${new Date().toISOString().substring(0,10)}.json`, { autoBom: false });
 
 		showSuccessAnimation();
 		setIsLoading(false);
