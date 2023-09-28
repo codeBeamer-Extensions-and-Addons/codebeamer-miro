@@ -5,6 +5,7 @@ docs/
 
 # cypress large files and env variables
 cypress/screenshots
+cypress/downloads
 cypress/videos
 cypress.env.json
 
