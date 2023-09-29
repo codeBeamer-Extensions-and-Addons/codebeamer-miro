@@ -34,13 +34,26 @@ export default function Announcements() {
 					data-test="close-announcements"
 				></div>
 			</span>
+			<AnnouncementArticle date={'20234-09-29'} version={'1.6.0'}>
+				<p className="mt-5">
+					This release adds the ability to export your
+					codebeamer-cards to a JSON document, which{' '}
+					<a href="https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-lucidspark/wiki">
+						codebeamer-cards for Lucidspark
+					</a>{' '}
+					can import, so that you import equivalent cards at the same
+					coordinates on a Lucid board.
+				</p>
+			</AnnouncementArticle>
 			<AnnouncementArticle date={'2023-05-15'} version={'1.5.0'}>
 				<p className="mt-5">
-					This release adds the ability to <b>visualize relations</b> between Items.
-					<br/>
-					A button added to the Item Details Panel allows you to render relations of type
-					<b> downstream reference</b> or <b>association</b> between app cards on the board.
-					<br/>
+					This release adds the ability to <b>visualize relations</b>{' '}
+					between Items.
+					<br />A button added to the Item Details Panel allows you to
+					render relations of type
+					<b> downstream reference</b> or <b>association</b> between
+					app cards on the board.
+					<br />
 					Along with that, a few minor styling improvements were made.
 				</p>
 			</AnnouncementArticle>

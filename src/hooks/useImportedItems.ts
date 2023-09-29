@@ -47,7 +47,7 @@ export const useImportedItems = () => {
 						itemId = itemKey[1];
 					}
 
-					return { appCardId: card.id, itemId: itemId };
+					return { appCardId: card.id, itemId: itemId, coordinates: { x: card.x, y: card.y } };
 				})
 			);
 			setImportedItems(importedItems);
