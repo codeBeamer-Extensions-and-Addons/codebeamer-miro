@@ -19,14 +19,15 @@ const allHtmlEntries = fs
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  build: {
-    rollupOptions: {
-      input: allHtmlEntries,
-    },
-  },
-  plugins: [reactRefresh()],
-  server: {
-    host: "127.0.0.1",
-    port: 3000,
-  },
+	build: {
+		rollupOptions: {
+			input: allHtmlEntries,
+		},
+	},
+	base: '/codebeamer-miro/',
+	plugins: [reactRefresh()],
+	server: {
+		host: '127.0.0.1',
+		port: 3000,
+	},
 });
