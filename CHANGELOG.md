@@ -7,12 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## Released
+
 ### [1.6]
 
 -   Add "Lucid export" functionality  
     Allows exporting what items there are cards for and where on the board, which can then be imported with [codebeamer-cards for Lucid](https://github.com/codeBeamer-Extensions-and-Addons/codebeamer-lucidspark/wiki/Migrate-from-Miro)
-
-## Released
 
 ### [1.5.2]
 
