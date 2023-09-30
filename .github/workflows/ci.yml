@@ -51,6 +51,7 @@ jobs:
                 wait-on-timeout: 20
                 component: true
                 parallel: true
+                record: true
                 start: npm run start
               env:
                   CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
